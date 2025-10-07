@@ -1,0 +1,43 @@
+{
+  "name": "@ncy-8/api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NCY-8 Backend API",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "build": "echo 'No build step needed for JavaScript'",
+    "start": "node src/index.js",
+    "lint": "eslint src --ext .js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "clean": "echo 'No clean step needed'"
+  },
+  "dependencies": {
+    "@ncy-8/database": "workspace:*",
+    "@ncy-8/types": "workspace:*",
+    "@ncy-8/utils": "workspace:*",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "zod": "^3.22.4",
+    "ioredis": "^5.3.2",
+    "bullmq": "^4.15.4",
+    "pino": "^8.16.2",
+    "pino-pretty": "^10.2.3",
+    "dotenv": "^16.3.1",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.6",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "eslint": "^8.56.0"
+  }
+}
