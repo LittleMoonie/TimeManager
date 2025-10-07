@@ -1,0 +1,652 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================
+// ENUMS
+// =============================================
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  EMPLOYEE
+  SYSTEM
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  MANAGER
+  MEMBER
+}
+
+enum ProjectStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum LogLevel {
+  DEBUG
+  INFO
+  WARN
+  ERROR
+  FATAL
+}
+
+enum JobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum NotificationType {
+  INVITE
+  SYSTEM_ALERT
+  TASK_ASSIGNED
+  TASK_COMPLETED
+  PROJECT_UPDATE
+  ORGANIZATION_UPDATE
+}
+
+enum GdprRequestType {
+  EXPORT
+  DELETE
+}
+
+enum GdprRequestStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+// =============================================
+// CORE IDENTITY TABLES
+// =============================================
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  passwordHash String     @map("password_hash")
+  name         String
+  role         UserRole   @default(EMPLOYEE)
+  status       UserStatus @default(ACTIVE)
+  lastLoginAt  DateTime?  @map("last_login_at")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  deletedAt    DateTime?  @map("deleted_at")
+
+  // Relations
+  sessions           Session[]
+  apiKeys           ApiKey[]
+  organizationMembers OrganizationMember[]
+  teamMembers       TeamMember[]
+  ownedOrganizations Organization[] @relation("OrganizationOwner")
+  assignedTasks     Task[]
+  auditLogs         AuditLog[]
+  accessLogs        AccessLog[]
+  notifications     Notification[]
+  files             File[]
+  sentMessages      Message[] @relation("MessageSender")
+  receivedMessages  Message[] @relation("MessageReceiver")
+  settings          Settings[]
+  userRoles         UserRoleMap[]
+  gdprRequests      GdprRequest[]
+  consents          Consent[]
+  loginAttempts     LoginAttempt[]
+
+  @@map("User")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  refreshToken String   @unique @map("refresh_token")
+  ipAddress    String?  @map("ip_address")
+  userAgent    String?  @map("user_agent")
+  expiresAt    DateTime @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("Session")
+}
+
+model ApiKey {
+  id         String    @id @default(uuid())
+  keyHash    String    @unique @map("key_hash")
+  userId     String    @map("user_id")
+  name       String
+  scopes     String[]  @default([])
+  lastUsedAt DateTime? @map("last_used_at")
+  expiresAt  DateTime? @map("expires_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ApiKey")
+}
+
+// =============================================
+// RBAC SYSTEM
+// =============================================
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  permissions RolePermission[]
+  users       UserRoleMap[]
+
+  @@map("Role")
+}
+
+model Permission {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  roles RolePermission[]
+
+  @@map("Permission")
+}
+
+model RolePermission {
+  roleId       String @map("role_id")
+  permissionId String @map("permission_id")
+
+  // Relations
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("RolePermission")
+}
+
+model UserRoleMap {
+  userId    String   @map("user_id")
+  roleId    String   @map("role_id")
+  grantedAt DateTime @default(now()) @map("granted_at")
+  grantedBy String?  @map("granted_by")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("UserRoleMap")
+}
+
+// =============================================
+// ORGANIZATION STRUCTURE
+// =============================================
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  ownerId   String   @map("owner_id")
+  settings  Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  owner      User                 @relation("OrganizationOwner", fields: [ownerId], references: [id])
+  members    OrganizationMember[]
+  teams      Team[]
+  projects   Project[]
+  auditLogs  AuditLog[]
+
+  @@map("Organization")
+}
+
+model OrganizationMember {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  userId         String   @map("user_id")
+  role           OrgRole  @default(MEMBER)
+  joinedAt       DateTime @default(now()) @map("joined_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@map("OrganizationMember")
+}
+
+model Team {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  name           String
+  description    String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  members      TeamMember[]
+
+  @@map("Team")
+}
+
+model TeamMember {
+  teamId   String   @map("team_id")
+  userId   String   @map("user_id")
+  joinedAt DateTime @default(now()) @map("joined_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([teamId, userId])
+  @@map("TeamMember")
+}
+
+// =============================================
+// BUSINESS ENTITIES
+// =============================================
+
+model Project {
+  id             String        @id @default(uuid())
+  organizationId String        @map("organization_id")
+  name           String
+  description    String?
+  status         ProjectStatus @default(ACTIVE)
+  settings       Json          @default("{}")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  deletedAt      DateTime?     @map("deleted_at")
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  tasks        Task[]
+
+  @@map("Project")
+}
+
+model Task {
+  id          String       @id @default(uuid())
+  projectId   String       @map("project_id")
+  assigneeId  String?      @map("assignee_id")
+  title       String
+  description String?
+  status      TaskStatus   @default(TODO)
+  priority    TaskPriority @default(MEDIUM)
+  dueDate     DateTime?    @map("due_date")
+  metadata    Json         @default("{}")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  deletedAt   DateTime?    @map("deleted_at")
+
+  // Relations
+  project  Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignee User?   @relation(fields: [assigneeId], references: [id])
+
+  @@map("Task")
+}
+
+// =============================================
+// AUDIT & LOGGING TABLES
+// =============================================
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String?  @map("user_id")
+  action      String
+  targetTable String   @map("target_table")
+  targetId    String?  @map("target_id")
+  oldValue    Json?    @map("old_value")
+  newValue    Json?    @map("new_value")
+  ipAddress   String?  @map("ip_address")
+  userAgent   String?  @map("user_agent")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("AuditLog")
+}
+
+model ErrorLog {
+  id        String   @id @default(uuid())
+  service   String
+  level     LogLevel
+  message   String
+  stack     String?
+  context   Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("ErrorLog")
+}
+
+model JobLog {
+  id        String    @id @default(uuid())
+  jobName   String    @map("job_name")
+  status    JobStatus
+  attempts  Int       @default(0)
+  payload   Json      @default("{}")
+  error     String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("JobLog")
+}
+
+model AccessLog {
+  id         String   @id @default(uuid())
+  userId     String?  @map("user_id")
+  method     String
+  endpoint   String
+  statusCode Int      @map("status_code")
+  latencyMs  Int?     @map("latency_ms")
+  timestamp  DateTime @default(now())
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("AccessLog")
+}
+
+model LoginAttempt {
+  id        String   @id @default(uuid())
+  email     String
+  ipAddress String?  @map("ip_address")
+  success   Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User? @relation(fields: [email], references: [email])
+
+  @@map("LoginAttempt")
+}
+
+// =============================================
+// SYSTEM TABLES
+// =============================================
+
+model Settings {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  preferences Json     @default("{}")
+  timezone    String   @default("UTC")
+  locale      String   @default("en")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
+  @@map("Settings")
+}
+
+model FeatureFlag {
+  id               String  @id @default(uuid())
+  key              String  @unique
+  description      String?
+  enabled          Boolean @default(false)
+  rolloutPercentage Int    @default(0) @map("rollout_percentage")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("FeatureFlag")
+}
+
+model Config {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("Config")
+}
+
+model ApiRateLimit {
+  id          String   @id @default(uuid())
+  userId      String?  @map("user_id")
+  endpoint    String
+  windowStart DateTime @map("window_start")
+  count       Int      @default(1)
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("ApiRateLimit")
+}
+
+// =============================================
+// COMMUNICATION TABLES
+// =============================================
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  type      NotificationType
+  message   String
+  metadata  Json             @default("{}")
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now()) @map("created_at")
+  deletedAt DateTime?        @map("deleted_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("Notification")
+}
+
+model File {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  url             String
+  mimeType        String   @map("mime_type")
+  size            Int
+  storageProvider String   @map("storage_provider")
+  checksum        String?
+  createdAt       DateTime @default(now()) @map("created_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("File")
+}
+
+model Message {
+  id          String   @id @default(uuid())
+  senderId    String   @map("sender_id")
+  recipientId String   @map("recipient_id")
+  content     String
+  attachments Json     @default("[]")
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  // Relations
+  sender    User @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient User @relation("MessageReceiver", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@map("Message")
+}
+
+model EmailLog {
+  id        String   @id @default(uuid())
+  to        String
+  subject   String
+  template  String?
+  status    String
+  sentAt    DateTime @map("sent_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("EmailLog")
+}
+
+// =============================================
+// SYSTEM OPERATIONS TABLES
+// =============================================
+
+model SystemMetric {
+  id         String   @id @default(uuid())
+  service    String
+  metricName String   @map("metric_name")
+  value      Float
+  timestamp  DateTime @default(now())
+
+  @@map("SystemMetric")
+}
+
+model BackupSnapshot {
+  id        String   @id @default(uuid())
+  path      String
+  createdAt DateTime @default(now()) @map("created_at")
+  size      BigInt
+  verified  Boolean  @default(false)
+
+  @@map("BackupSnapshot")
+}
+
+model DeploymentLog {
+  id         String   @id @default(uuid())
+  version    String
+  environment String
+  status     String
+  commitSha  String   @map("commit_sha")
+  deployedBy String   @map("deployed_by")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("DeploymentLog")
+}
+
+model Environment {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  url       String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("Environment")
+}
+
+// =============================================
+// COMPLIANCE TABLES
+// =============================================
+
+model GdprRequest {
+  id          String            @id @default(uuid())
+  userId      String            @map("user_id")
+  type        GdprRequestType
+  status      GdprRequestStatus @default(PENDING)
+  requestedAt DateTime          @default(now()) @map("requested_at")
+  resolvedAt  DateTime?         @map("resolved_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("GdprRequest")
+}
+
+model Consent {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  consentType String   @map("consent_type")
+  granted     Boolean  @default(false)
+  timestamp   DateTime @default(now())
+  deletedAt   DateTime? @map("deleted_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("Consent")
+}
+
+// =============================================
+// UTILITY TABLES
+// =============================================
+
+model MigrationHistory {
+  id        String   @id @default(uuid())
+  name      String
+  appliedAt DateTime @map("applied_at")
+  checksum  String
+
+  @@map("MigrationHistory")
+}
+
+model SeedHistory {
+  id        String   @id @default(uuid())
+  name      String
+  appliedAt DateTime @map("applied_at")
+
+  @@map("SeedHistory")
+}
+
+model Tag {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  color     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  assignments TagAssignment[]
+
+  @@map("Tag")
+}
+
+model TagAssignment {
+  tagId      String @map("tag_id")
+  entityType String @map("entity_type")
+  entityId   String @map("entity_id")
+  deletedAt  DateTime? @map("deleted_at")
+
+  // Relations
+  tag Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([tagId, entityType, entityId])
+  @@map("TagAssignment")
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@ncy-8/database",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Database schema and migrations for NCY-8",
+  "main": "src/index.js",
+  "scripts": {
+    "generate": "prisma generate",
+    "migrate": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
+    "migrate:reset": "prisma migrate reset",
+    "seed": "node src/seed.js",
+    "studio": "prisma studio",
+    "db:push": "prisma db push",
+    "db:pull": "prisma db pull",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.7.1",
+    "bcryptjs": "^2.4.3",
+    "faker": "^6.6.6"
+  },
+  "devDependencies": {
+    "prisma": "^5.7.1"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
+  }
+}

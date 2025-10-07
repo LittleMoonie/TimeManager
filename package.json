@@ -1,0 +1,35 @@
+{
+  "name": "ncy-8",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NCY_8 Enterprise Application Platform",
+  "scripts": {
+    "dev": "pnpm --parallel --filter './apps/*' dev",
+    "build": "pnpm --recursive --filter './apps/*' build",
+    "start": "pnpm --parallel --filter './apps/*' start",
+    "lint": "pnpm --recursive lint",
+    "test": "pnpm --recursive test",
+    "test:e2e": "pnpm --filter web test:e2e",
+    "db:generate": "pnpm --filter database generate",
+    "db:migrate": "pnpm --filter database migrate",
+    "db:seed": "pnpm --filter database seed",
+    "db:studio": "pnpm --filter database studio",
+    "clean": "pnpm --recursive clean",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "pnpm build && changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.1",
+    "@commitlint/cli": "^18.4.4",
+    "@commitlint/config-conventional": "^18.4.4",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.1.1"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.1"
+}
