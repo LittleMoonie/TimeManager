@@ -525,21 +525,21 @@ export const healthRoutes = (app: Express) => {
   const healthService = new HealthCheckService();
 
   // Liveness probe
-  app.get('/health', async (req, res) => {
+  app.get('/api/health', async (req, res) => {
     const health = await healthService.getHealthStatus();
     const statusCode = health.status === 'healthy' ? 200 : 503;
     res.status(statusCode).json(health);
   });
 
   // Readiness probe
-  app.get('/ready', async (req, res) => {
+  app.get('/api/ready', async (req, res) => {
     const readiness = await healthService.getReadinessStatus();
     const statusCode = readiness.status === 'ready' ? 200 : 503;
     res.status(statusCode).json(readiness);
   });
 
   // Metrics endpoint
-  app.get('/metrics', async (req, res) => {
+  app.get('/api/metrics', async (req, res) => {
     res.set('Content-Type', register.contentType);
     res.end(await register.metrics());
   });

@@ -13,6 +13,10 @@ COPY package.json yarn.lock* ./
 # Install dependencies with strict mode (fallback for dev env)
 RUN yarn install --immutable || yarn install
 
+# Fix Rollup native binary for Alpine Linux (multiple approaches)
+RUN yarn add @rollup/rollup-linux-x64-musl --dev --optional || true
+RUN npm install @rollup/rollup-linux-x64-musl --save-optional || true
+
 # Copy source code
 COPY . .
 

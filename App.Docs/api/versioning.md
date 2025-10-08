@@ -460,6 +460,91 @@ const migrationStatus: MigrationStatus = {
 - Direct support: api-support@ncy-8.com
 ```
 
+## OpenAPI Documentation Automation
+
+### Automated Spec Generation
+
+The GoGoTime API uses **tsoa** for automated OpenAPI specification generation directly from TypeScript code:
+
+```typescript
+// Example: Controller with tsoa decorators
+@Route('users')
+@Tags('Users')
+export class UserController extends Controller {
+  @Post('/register')
+  @SuccessResponse('200', 'User registered successfully')
+  public async registerUser(@Body() requestBody: RegisterUserRequest): Promise<RegisterResponse> {
+    // Implementation
+  }
+}
+```
+
+**Benefits**:
+- Single source of truth between code and documentation
+- Automatic schema generation from TypeScript DTOs
+- No manual YAML/JSON maintenance
+- Compile-time validation of API contracts
+
+### CI/CD Integration
+
+```yaml
+# .github/workflows/api-spec-sync.yml
+name: API Spec and SDK Sync
+on:
+  push:
+    paths: ['App.API/src/**']
+jobs:
+  generate-api-spec:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate OpenAPI Spec
+        run: cd App.API && yarn api:generate
+      - name: Generate Frontend SDK
+        run: cd App.Web && yarn api:client
+      - name: Commit Updates
+        run: git commit -m "chore(api): auto-update OpenAPI spec and SDK"
+```
+
+### Frontend SDK Generation
+
+Automatically generates type-safe TypeScript client from OpenAPI spec:
+
+```typescript
+// Auto-generated types from OpenAPI
+import { paths } from '@/lib/api/client';
+import { apiClient } from '@/lib/api/apiClient';
+
+// Type-safe API calls
+const result = await apiClient.register({
+  email: 'user@example.com',
+  password: 'secure123'
+});
+```
+
+### Documentation Endpoints
+
+| Endpoint | Purpose | Environment |
+|----------|---------|-------------|
+| `/api/docs` | Interactive Swagger UI | Development |
+| `/api/health` | Health check endpoint | All |
+| `App.API/swagger.json` | Generated OpenAPI spec | All |
+| `App.Web/src/lib/api/client.ts` | Generated TypeScript client | Development |
+
+### Development Workflow
+
+1. **Update API Routes**: Modify controllers with tsoa decorators
+2. **Generate Spec**: Run `yarn api:generate` in App.API
+3. **Generate Client**: Run `yarn api:client` in App.Web
+4. **Validate**: Check TypeScript compilation and tests
+5. **Commit**: Changes trigger CI/CD auto-generation
+
+### Validation and Quality Assurance
+
+- **Schema Validation**: JSON schema validation on OpenAPI spec
+- **Type Safety**: TypeScript compilation ensures client compatibility
+- **Breaking Change Detection**: CI/CD validates changes against previous versions
+- **Documentation Review**: Generated docs reviewed in Swagger UI
+
 ---
 
-*This versioning strategy ensures smooth API evolution while maintaining backward compatibility and providing clear migration paths for API consumers.*
+*This versioning strategy ensures smooth API evolution while maintaining backward compatibility and providing clear migration paths for API consumers. The automated OpenAPI generation system maintains documentation accuracy and provides type-safe client SDKs.*

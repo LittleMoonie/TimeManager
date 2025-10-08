@@ -117,65 +117,97 @@ export class AuthService {
 }
 ```
 
-### NextAuth.js Integration
+### JWT Authentication Implementation
 
 ```typescript
-// pages/api/auth/[...nextauth].ts
-import NextAuth from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import { AuthService } from '@/lib/auth';
+// src/controllers/UserController.ts - Login Implementation
+export class UserController extends Controller {
+  @Post('/login')
+  @SuccessResponse('200', 'User logged in successfully')
+  public async loginUser(@Body() requestBody: LoginUserRequest): Promise<AuthResponse> {
+    const { email, password } = requestBody;
+    const userRepository = AppDataSource.getRepository(User);
+    const activeSessionRepository = AppDataSource.getRepository(ActiveSession);
 
-export default NextAuth({
-  providers: [
-    CredentialsProvider({
-      name: 'credentials',
-      credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
-
-        const authService = new AuthService();
-        const user = await authService.validateCredentials(
-          credentials.email,
-          credentials.password
-        );
-
-        return user ? {
-          id: user.id,
-          email: user.email,
-          role: user.role,
-          organizationId: user.organizationId,
-        } : null;
-      },
-    }),
-  ],
-  session: {
-    strategy: 'jwt',
-    maxAge: 15 * 60, // 15 minutes
-  },
-  jwt: {
-    maxAge: 15 * 60, // 15 minutes
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role;
-        token.organizationId = user.organizationId;
+    try {
+      // Find user by email
+      const user = await userRepository.findOne({ where: { email } });
+      if (!user?.password) {
+        this.setStatus(401);
+        return { success: false, msg: 'Wrong credentials' };
       }
-      return token;
-    },
-    async session({ session, token }) {
-      session.user.id = token.sub!;
-      session.user.role = token.role as string;
-      session.user.organizationId = token.organizationId as string;
-      return session;
-    },
-  },
-});
+
+      // Verify password with bcrypt
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        this.setStatus(401);
+        return { success: false, msg: 'Wrong credentials' };
+      }
+
+      // Generate JWT token
+      const token = jwt.sign(
+        { 
+          id: user.id, 
+          username: user.username, 
+          email: user.email 
+        },
+        process.env.SECRET!,
+        { expiresIn: 86400 } // 24 hours
+      );
+
+      // Store active session in database
+      await activeSessionRepository.save({ userId: user.id, token });
+
+      return {
+        success: true,
+        token,
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          createdAt: user.createdAt
+        }
+      };
+    } catch (err) {
+      console.error('❌ Login error:', err);
+      this.setStatus(500);
+      throw new Error('Internal server error');
+    }
+  }
+}
+
+// src/config/auth.ts - Authentication Middleware
+export async function expressAuthentication(
+  request: Request,
+  securityName: string,
+  scopes?: string[]
+): Promise<any> {
+  if (securityName === 'jwt') {
+    const token = request.headers.authorization?.replace('Bearer ', '') || request.body?.token;
+    
+    if (!token) {
+      throw new Error('No token provided');
+    }
+
+    try {
+      const activeSessionRepository = AppDataSource.getRepository(ActiveSession);
+      const session = await activeSessionRepository.findOne({ 
+        where: { token },
+        relations: ['user']
+      });
+
+      if (!session) {
+        throw new Error('Invalid token');
+      }
+
+      return session.user;
+    } catch (error) {
+      throw new Error('Authentication failed');
+    }
+  }
+
+  throw new Error('Unknown security name');
+}
 ```
 
 ## Authorization System
@@ -340,7 +372,7 @@ import { authenticateToken, requirePermission, requireRole } from '@/middleware/
 import { Permission, Role } from '@/types/auth';
 
 // User management (Admin only)
-router.get('/users', 
+router.get('/api/users', 
   authenticateToken, 
   requireRole([Role.ADMIN]), 
   userController.getUsers
@@ -354,7 +386,7 @@ router.post('/organizations',
 );
 
 // Project access (Organization members)
-router.get('/projects/:id',
+router.get('/api/projects/:id',
   authenticateToken,
   requirePermission(Permission.PROJECT_READ),
   projectController.getProject

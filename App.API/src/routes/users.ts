@@ -20,7 +20,7 @@ const userSchema = Joi.object({
 
 // 🧩 REGISTER
 router.post(
-  '/register',
+  '/api/register',
   async (
     req: Request & { body: { username: string; email: string; password: string } },
     res: Response
@@ -65,7 +65,7 @@ router.post(
 
 // 🧠 LOGIN
 router.post(
-  '/login',
+  '/api/login',
   async (req: Request & { body: { email: string; password: string } }, res: Response) => {
     const { error } = userSchema.validate(req.body);
     if (error) {
@@ -115,7 +115,7 @@ router.post(
 
 // 🚪 LOGOUT
 router.post(
-  '/logout',
+  '/api/logout',
   checkToken,
   async (req: Request & { body: { token: string } }, res: Response) => {
     const { token } = req.body;
@@ -131,12 +131,12 @@ router.post(
 );
 
 // 🔍 CHECK SESSION
-router.post('/checkSession', checkToken, (_req: Request, res: Response) => {
+router.post('/api/checkSession', checkToken, (_req: Request, res: Response) => {
   res.json({ success: true });
 });
 
 // 👥 GET ALL USERS
-router.post('/all', checkToken, async (_req: Request, res: Response) => {
+router.post('/api/all', checkToken, async (_req: Request, res: Response) => {
   const userRepository = AppDataSource.getRepository(User);
   try {
     const users = await userRepository.find();
@@ -153,7 +153,7 @@ router.post('/all', checkToken, async (_req: Request, res: Response) => {
 
 // ✏️ EDIT USER
 router.post(
-  '/edit',
+  '/api/edit',
   checkToken,
   async (
     req: Request & { body: { userID: string; username: string; email: string } },
@@ -181,7 +181,7 @@ router.post(
 );
 
 // 🔧 TEST ROUTE
-router.get('/testme', (_req: Request, res: Response) => {
+router.get('/api/testme', (_req: Request, res: Response) => {
   res.status(200).json({ success: true, msg: 'all good' });
 });
 
