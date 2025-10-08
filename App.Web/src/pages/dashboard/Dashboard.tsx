@@ -1,7 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import Grid from '@mui/material/GridLegacy';
 import {
-  Avatar,
   Box,
   Card,
   CardContent,
@@ -18,8 +17,8 @@ import {
 } from '@mui/material';
 import { AccountBalanceWalletRounded, MoreHorizRounded, ShoppingBagRounded, TrendingUpRounded } from '@mui/icons-material';
 import {
-  Area,
-  AreaChart,
+  Bar,
+  BarChart,
   CartesianGrid,
   ResponsiveContainer,
   Tooltip as RechartsTooltip,
@@ -29,9 +28,8 @@ import {
 import { KpiCard } from '@/components/KpiCard';
 import { SegmentedControl } from '@/components/SegmentedControl';
 import { Sparkline } from '@/components/Sparkline';
-import { growthSeries, kpiMetrics, orderSeries, popularInstruments, sparklineData } from './mockData';
+import { growthSeries, popularInstruments, sparklineData } from './mockData';
 
-type OrderPeriod = 'month' | 'year';
 type GrowthPeriod = 'today' | 'week' | 'month';
 
 const CardActionMenu = ({ anchorEl, onClose }: { anchorEl: HTMLElement | null; onClose: () => void }) => (
@@ -60,18 +58,8 @@ const GrowthChart = ({ period }: { period: GrowthPeriod }) => {
   const data = growthSeries[period];
 
   return (
-    <ResponsiveContainer width="100%" height={320}>
-      <AreaChart data={data} margin={{ top: 16, right: 16, left: 0, bottom: 0 }}>
-        <defs>
-          <linearGradient id="growthDesktop" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="5%" stopColor={alpha(theme.palette.primary.main, 0.55)} />
-            <stop offset="95%" stopColor={alpha(theme.palette.primary.main, 0.05)} />
-          </linearGradient>
-          <linearGradient id="growthMobile" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="5%" stopColor={alpha(theme.palette.info.main, 0.45)} />
-            <stop offset="95%" stopColor={alpha(theme.palette.info.main, 0.04)} />
-          </linearGradient>
-        </defs>
+    <ResponsiveContainer width="100%" height={280}>
+      <BarChart data={data} margin={{ top: 16, right: 16, left: 0, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={alpha(theme.palette.divider, 0.5)} />
         <XAxis
           dataKey="label"
@@ -87,7 +75,7 @@ const GrowthChart = ({ period }: { period: GrowthPeriod }) => {
           width={50}
         />
         <RechartsTooltip
-          cursor={{ strokeDasharray: '4 4' }}
+          cursor={{ fill: alpha(theme.palette.primary.main, 0.1) }}
           contentStyle={{
             borderRadius: 12,
             border: 'none',
@@ -97,25 +85,14 @@ const GrowthChart = ({ period }: { period: GrowthPeriod }) => {
           }}
           labelStyle={{ fontWeight: 600, marginBottom: 4 }}
         />
-        <Area
-          type="monotone"
-          dataKey="desktop"
-          name="Desktop"
-          stroke={theme.palette.primary.main}
-          fill="url(#growthDesktop)"
-          strokeWidth={2}
-          activeDot={{ r: 6 }}
+        <Bar
+          dataKey="total"
+          name="Total"
+          fill={theme.palette.primary.main}
+          radius={[4, 4, 0, 0]}
+          maxBarSize={60}
         />
-        <Area
-          type="monotone"
-          dataKey="mobile"
-          name="Mobile"
-          stroke={theme.palette.info.main}
-          fill="url(#growthMobile)"
-          strokeWidth={2}
-          activeDot={{ r: 6 }}
-        />
-      </AreaChart>
+      </BarChart>
     </ResponsiveContainer>
   );
 };
@@ -162,20 +139,17 @@ const PopularList = () => {
 
 export const DashboardPage = () => {
   const theme = useTheme();
-  const [orderPeriod, setOrderPeriod] = useState<OrderPeriod>('month');
   const [growthPeriod, setGrowthPeriod] = useState<GrowthPeriod>('week');
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
 
-  const orderData = useMemo(() => orderSeries[orderPeriod], [orderPeriod]);
-
   return (
-    <Grid container spacing={3} columns={12}>
-      <Grid xs={12} md={6} lg={4}>
+    <Box sx={{ px: 3, py: 2 }}>
+      <Grid container spacing={2} columns={12}>
+      <Grid xs={12} sm={6} md={3}>
         <KpiCard
           title="Total Earning"
-          value={kpiMetrics.totalEarning.value}
-          subtitle={kpiMetrics.totalEarning.subtitle}
-          delta={{ value: kpiMetrics.totalEarning.delta, trend: 'up' }}
+          value="$500.00"
+          subtitle="Total Earning"
           icon={<AccountBalanceWalletRounded fontSize="small" />}
           variant="gradient"
           color="primary"
@@ -189,77 +163,160 @@ export const DashboardPage = () => {
         />
       </Grid>
 
-      <Grid xs={12} md={6} lg={4}>
-        <Card sx={{ height: '100%', borderRadius: 4, boxShadow: theme.shadows[2] }}>
-          <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Grid xs={12} sm={6} md={3}>
+        <Card sx={{ 
+          height: '100%', 
+          borderRadius: 3, 
+          background: 'linear-gradient(135deg, #1E88E5 0%, #1565C0 100%)',
+          color: 'white',
+          boxShadow: theme.shadows[2] 
+        }}>
+          <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 2.5 }}>
             <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
               <Stack direction="row" spacing={1.5} alignItems="flex-start">
                 <Stack spacing={0.5}>
-                  <Typography variant="caption" color="text.secondary">
-                    Total Orders
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                    Total Order
                   </Typography>
-                  <Typography variant="h2" sx={{ fontSize: '2rem', letterSpacing: '-0.015em' }}>
-                    {kpiMetrics.totalOrder.value}
+                  <Typography variant="h2" sx={{ fontSize: '2rem', letterSpacing: '-0.015em', color: 'white' }}>
+                    $961
                   </Typography>
-                  <Chip label={kpiMetrics.totalOrder.delta} color="success" size="small" />
                 </Stack>
-                <Avatar
-                  variant="rounded"
+                <Box
                   sx={{
                     width: 44,
                     height: 44,
                     borderRadius: 2,
-                    bgcolor: alpha(theme.palette.info.main, 0.12),
-                    color: theme.palette.info.main,
+                    bgcolor: 'rgba(255,255,255,0.2)',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                 >
                   <ShoppingBagRounded fontSize="small" />
-                </Avatar>
+                </Box>
               </Stack>
-              <SegmentedControl
-                options={[
-                  { label: 'Month', value: 'month' },
-                  { label: 'Year', value: 'year' },
-                ]}
-                value={orderPeriod}
-                onChange={(next) => setOrderPeriod(next as OrderPeriod)}
-                ariaLabel="Toggle order period"
-                sx={{ minWidth: 0, width: 'auto' }}
-              />
+              <Stack direction="row" spacing={1}>
+                <Chip label="Month" variant="outlined" size="small" sx={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }} />
+                <Chip label="Year" variant="filled" size="small" sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }} />
+              </Stack>
             </Stack>
 
-            <Sparkline
-              data={orderData.map((point) => ({ label: point.label, value: point.total }))}
-              color={theme.palette.info.main}
-              height={80}
-              ariaLabel="Orders trend"
-            />
+            {/* Sparkline chart area */}
+            <Box sx={{ height: 60, display: 'flex', alignItems: 'center' }}>
+              <svg width="100%" height="40" viewBox="0 0 300 40">
+                <path
+                  d="M0,35 Q75,10 150,20 T300,15"
+                  stroke="white"
+                  strokeWidth="2"
+                  fill="none"
+                />
+              </svg>
+            </Box>
           </CardContent>
         </Card>
       </Grid>
 
-      <Grid xs={12} md={12} lg={4}>
-        <KpiCard
-          title="Total Income"
-          value={kpiMetrics.totalIncome.value}
-          subtitle={kpiMetrics.totalIncome.subtitle}
-          delta={{ value: kpiMetrics.totalIncome.delta, trend: 'up' }}
-          icon={<TrendingUpRounded fontSize="small" />}
-          variant="soft"
-          color="info"
-          footer={
-            <Sparkline
-              data={sparklineData.income}
-              color={theme.palette.info.main}
-              ariaLabel="Income trend"
-            />
-          }
-        />
+      <Grid xs={12} sm={6} md={3}>
+        <Card sx={{ 
+          height: '100%', 
+          borderRadius: 3, 
+          background: 'linear-gradient(135deg, #1E88E5 0%, #1565C0 100%)',
+          color: 'white',
+          boxShadow: theme.shadows[2] 
+        }}>
+          <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 2.5 }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+              <Stack spacing={0.5}>
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                  Total Income
+                </Typography>
+                <Typography variant="h2" sx={{ fontSize: '2rem', letterSpacing: '-0.015em', color: 'white' }}>
+                  $203k
+                </Typography>
+              </Stack>
+              <Box
+                sx={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 2,
+                  bgcolor: 'rgba(255,255,255,0.2)',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <TrendingUpRounded fontSize="small" />
+              </Box>
+            </Stack>
+            {/* Simple sparkline */}
+            <Box sx={{ height: 40, display: 'flex', alignItems: 'center' }}>
+              <svg width="100%" height="30" viewBox="0 0 200 30">
+                <path
+                  d="M0,25 L40,15 L80,20 L120,10 L160,18 L200,12"
+                  stroke="white"
+                  strokeWidth="2"
+                  fill="none"
+                />
+              </svg>
+            </Box>
+          </CardContent>
+        </Card>
+      </Grid>
+
+      <Grid xs={12} sm={6} md={3}>
+        <Card sx={{ 
+          height: '100%', 
+          borderRadius: 3, 
+          backgroundColor: '#FFF3C4', 
+          color: '#B7791F',
+          boxShadow: theme.shadows[2] 
+        }}>
+          <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 2.5 }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+              <Stack spacing={0.5}>
+                <Typography variant="caption" sx={{ color: 'inherit', opacity: 0.8 }}>
+                  Total Income
+                </Typography>
+                <Typography variant="h2" sx={{ fontSize: '2rem', letterSpacing: '-0.015em', color: 'inherit' }}>
+                  $203k
+                </Typography>
+              </Stack>
+              <Box
+                sx={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 2,
+                  bgcolor: alpha('#B7791F', 0.2),
+                  color: '#B7791F',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <AccountBalanceWalletRounded fontSize="small" />
+              </Box>
+            </Stack>
+            {/* Simple sparkline */}
+            <Box sx={{ height: 40, display: 'flex', alignItems: 'center' }}>
+              <svg width="100%" height="30" viewBox="0 0 200 30">
+                <path
+                  d="M0,25 L40,15 L80,20 L120,10 L160,18 L200,12"
+                  stroke="#B7791F"
+                  strokeWidth="2"
+                  fill="none"
+                />
+              </svg>
+            </Box>
+          </CardContent>
+        </Card>
       </Grid>
 
       <Grid xs={12} lg={8}>
-        <Card sx={{ height: '100%', borderRadius: 4, boxShadow: theme.shadows[3] }}>
-          <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+        <Card sx={{ height: '100%', borderRadius: 3, boxShadow: theme.shadows[3] }}>
+          <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, p: 3 }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Box>
                 <Typography variant="h3" fontWeight={600}>
@@ -291,39 +348,32 @@ export const DashboardPage = () => {
 
             <GrowthChart period={growthPeriod} />
 
-            <Stack direction="row" spacing={2}>
-              <Stack spacing={0.5}>
+            <Stack direction="row" spacing={1} justifyContent="space-between" alignItems="center">
+              <Box>
+                <Typography variant="h3" fontWeight={600} color="primary.main">
+                  $2,324.00
+                </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Desktop
+                  Total Growth
                 </Typography>
-                <Typography variant="subtitle1" fontWeight={600}>
-                  {growthSeries[growthPeriod][growthSeries[growthPeriod].length - 1].desktop}
-                </Typography>
-              </Stack>
-              <Stack spacing={0.5}>
-                <Typography variant="caption" color="text.secondary">
-                  Mobile
-                </Typography>
-                <Typography variant="subtitle1" fontWeight={600}>
-                  {growthSeries[growthPeriod][growthSeries[growthPeriod].length - 1].mobile}
-                </Typography>
-              </Stack>
-              <Stack spacing={0.5}>
-                <Typography variant="caption" color="text.secondary">
-                  Total
-                </Typography>
-                <Typography variant="subtitle1" fontWeight={600}>
-                  {growthSeries[growthPeriod][growthSeries[growthPeriod].length - 1].total}
-                </Typography>
-              </Stack>
+              </Box>
+              <SegmentedControl
+                options={[
+                  { label: 'Today', value: 'today' },
+                ]}
+                value="today"
+                onChange={() => {}}
+                ariaLabel="View mode"
+                sx={{ minWidth: 0, width: 'auto' }}
+              />
             </Stack>
           </CardContent>
         </Card>
       </Grid>
 
       <Grid xs={12} lg={4}>
-        <Card sx={{ height: '100%', borderRadius: 4, boxShadow: theme.shadows[3] }}>
-          <CardContent>
+        <Card sx={{ height: '100%', borderRadius: 3, boxShadow: theme.shadows[3] }}>
+          <CardContent sx={{ p: 3 }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Box>
                 <Typography variant="h3" fontWeight={600}>
@@ -345,7 +395,8 @@ export const DashboardPage = () => {
       </Grid>
 
       <CardActionMenu anchorEl={menuAnchor} onClose={() => setMenuAnchor(null)} />
-    </Grid>
+      </Grid>
+    </Box>
   );
 };
 

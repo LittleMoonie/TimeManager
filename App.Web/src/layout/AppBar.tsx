@@ -20,7 +20,6 @@ import {
   LogoutRounded,
   PersonRounded,
 } from '@mui/icons-material';
-import { alpha } from '@mui/material/styles';
 
 type LayoutAppBarProps = {
   onMenuClick: () => void;
@@ -41,8 +40,7 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
       position="fixed" 
       elevation={0} 
       sx={{ 
-        backgroundColor: 'background.paper', // Match sidebar color
-        borderBottom: '1px solid rgba(145,158,171,0.1)',
+        backgroundColor: 'background.default', // Match sidebar color
         borderRadius: 0,
         width: '100%', // Full width across entire screen
         zIndex: (theme) => theme.zIndex.drawer + 1,
@@ -63,12 +61,24 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
       >
         {/* Left side - Company info */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography variant="subtitle2" fontWeight={600} color="text.primary">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box
+              sx={{
+                width: 32,
+                height: 32,
+                borderRadius: 1,
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Typography variant="subtitle2" fontWeight={700} color="white">
+                A
+              </Typography>
+            </Box>
+            <Typography variant="h6" fontWeight={600} color="text.primary" sx={{ fontSize: '1.25rem' }}>
               Acme Corporation
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Enterprise Dashboard
             </Typography>
           </Box>
         </Box>
@@ -89,7 +99,7 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
           </IconButton>
           
           <TextField
-            placeholder="Search projects, tasks..."
+            placeholder="Search"
             variant="outlined"
             InputProps={{
               startAdornment: (

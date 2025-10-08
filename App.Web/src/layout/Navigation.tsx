@@ -1,10 +1,6 @@
-import { useState } from 'react';
 import {
-  Avatar,
   Box,
-  Collapse,
   Drawer,
-  IconButton,
   List,
   ListItem,
   ListItemButton,
@@ -16,16 +12,15 @@ import {
 import {
   AssessmentRounded,
   BarChartRounded,
-  ColorLensRounded,
+  ArticleRounded,
   DashboardRounded,
-  ExpandLessRounded,
-  ExpandMoreRounded,
-  LockRounded,
   PeopleAltRounded,
-  ScheduleRounded,
+  ReceiptRounded,
   SettingsRounded,
   TaskAltRounded,
-  TextFieldsRounded,
+  TrendingUpRounded,
+  DataObjectRounded,
+  ShowChartRounded,
 } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
@@ -67,32 +62,18 @@ const PRIMARY_ITEMS: NavItem[] = [
 
 const PAGE_GROUPS: NavGroup[] = [
   {
-    id: 'pages',
-    title: 'Pages',
+    id: 'application',
+    title: 'Application',
     items: [
-      { id: 'timesheet', label: 'Timesheet', path: '/timesheet', icon: <ScheduleRounded fontSize="small" /> },
       { id: 'tasks', label: 'Tasks', path: '/tasks', icon: <TaskAltRounded fontSize="small" /> },
+      { id: 'timesheet', label: 'Timesheet', path: '/timesheet', icon: <AssessmentRounded fontSize="small" /> },
       { id: 'people', label: 'People', path: '/people', icon: <PeopleAltRounded fontSize="small" /> },
       { id: 'reports', label: 'Reports', path: '/reports', icon: <AssessmentRounded fontSize="small" /> },
       { id: 'settings', label: 'Settings', path: '/settings', icon: <SettingsRounded fontSize="small" /> },
     ],
   },
-  {
-    id: 'utilities',
-    title: 'Utilities',
-    items: [
-      { id: 'typography', label: 'Typography', path: '/utilities/typography', icon: <TextFieldsRounded fontSize="small" /> },
-      { id: 'color', label: 'Color', path: '/utilities/color', icon: <ColorLensRounded fontSize="small" /> },
-      { id: 'shadow', label: 'Shadow', path: '/utilities/shadow', icon: <BarChartRounded fontSize="small" /> },
-      { id: 'sample', label: 'Sample Page', path: '/sample-page', icon: <TaskAltRounded fontSize="small" /> },
-    ],
-  },
 ];
 
-const AUTH_ITEMS: NavItem[] = [
-  { id: 'login', label: 'Login', path: '/login', icon: <LockRounded fontSize="small" /> },
-  { id: 'register', label: 'Register', path: '/register', icon: <LockRounded fontSize="small" /> },
-];
 
 const NavListItem = ({
   item,
@@ -168,8 +149,6 @@ const NavSectionTitle = ({ title }: { title: string }) => (
 
 const NavigationContent = ({ onNavigate, collapsed = false }: { onNavigate: (path?: string) => void; collapsed?: boolean }) => {
   const location = useLocation();
-  const theme = useTheme();
-  const [authExpanded, setAuthExpanded] = useState(true);
 
   const handleNavigate = (path?: string) => {
     onNavigate(path);
@@ -182,10 +161,33 @@ const NavigationContent = ({ onNavigate, collapsed = false }: { onNavigate: (pat
         flexDirection: 'column',
         height: '100%',
         px: 1.5,
-        py: 3,
+        py: 2,
         gap: 2,
       }}
     >
+      {/* BERRY Logo */}
+      {!collapsed && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1, py: 1 }}>
+          <Box
+            sx={{
+              width: 24,
+              height: 24,
+              borderRadius: 0.5,
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Typography variant="caption" fontWeight={700} color="white" sx={{ fontSize: '0.75rem' }}>
+              B
+            </Typography>
+          </Box>
+          <Typography variant="h6" fontWeight={600} color="text.primary" sx={{ fontSize: '1rem' }}>
+            BERRY
+          </Typography>
+        </Box>
+      )}
 
       <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: 0.5 }}>
         <List disablePadding>
@@ -200,18 +202,22 @@ const NavigationContent = ({ onNavigate, collapsed = false }: { onNavigate: (pat
           ))}
         </List>
 
-        {!collapsed && <NavSectionTitle title="Pages" />}
-        <List disablePadding>
-          {PAGE_GROUPS[0].items.map((item) => (
-            <NavListItem
-              key={item.id}
-              item={item}
-              active={location.pathname.startsWith(item.path ?? '')}
-              onClick={handleNavigate}
-              collapsed={collapsed}
-            />
-          ))}
-        </List>
+        {PAGE_GROUPS.map((group) => (
+          <Box key={group.id}>
+            {!collapsed && group.title && <NavSectionTitle title={group.title} />}
+            <List disablePadding>
+              {group.items.map((item) => (
+                <NavListItem
+                  key={item.id}
+                  item={item}
+                  active={location.pathname.startsWith(item.path ?? '')}
+                  onClick={handleNavigate}
+                  collapsed={collapsed}
+                />
+              ))}
+            </List>
+          </Box>
+        ))}
       </Box>
     </Box>
   );
@@ -248,12 +254,12 @@ export const Navigation = ({ variant, open, onClose, collapsed = false }: Naviga
         '& .MuiDrawer-paper': {
           width: drawerWidth,
           borderWidth: 0,
-          borderRadius: 0, // No border radius
-          backgroundColor: theme.palette.background.paper,
+          borderRadius: 0,
+          backgroundColor: theme.palette.background.default,
           boxShadow: '0px 8px 24px rgba(15, 23, 42, 0.08)',
           zIndex: theme.zIndex.drawer,
-          top: 56, // Start below AppBar
-          height: 'calc(100vh - 56px)', // Full height minus AppBar
+          top: 0,
+          height: '100%',
           transition: theme.transitions.create('width', {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.enteringScreen,
