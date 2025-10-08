@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "author": "Lazaro, Alexy, Massi, Lounis",
-  "license": "MIT",
   "description": "API for T-DEV-700 Project for Epitech",
   "main": "build/index.js",
   "scripts": {

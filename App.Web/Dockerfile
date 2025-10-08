@@ -20,4 +20,4 @@ COPY . .
 EXPOSE 3000
 
 # Run development server
-CMD ["yarn", "dev"]
+CMD ["yarn", "dev", "--debug"]
