@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom'
 import { afterEach, vi } from 'vitest'
+import { cleanup } from '@testing-library/react'
 
 // Mock matchMedia for components that use responsive features
 Object.defineProperty(window, 'matchMedia', {
@@ -32,5 +33,6 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
 
 // Cleanup after each test
 afterEach(() => {
+  cleanup()
   vi.clearAllMocks()
 })

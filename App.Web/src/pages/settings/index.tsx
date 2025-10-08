@@ -1,10 +1,10 @@
 import { Box, Card, CardContent, FormControlLabel, Switch, TextField, Typography } from '@mui/material';
 import Grid from '@mui/material/GridLegacy';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { useThemeMode } from '@/themes';
+import { useThemeController } from '@/themes';
 
 const SettingsPage = () => {
-  const { mode, toggleMode } = useThemeMode();
+  const { mode, toggleMode } = useThemeController();
 
   return (
     <Box display="flex" flexDirection="column" gap={3}>
