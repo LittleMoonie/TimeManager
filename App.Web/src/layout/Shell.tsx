@@ -47,9 +47,6 @@ export const Shell = () => {
         sx={{
           flexGrow: 1,
           mt: `${APP_BAR_HEIGHT}px`,
-          pt: PAGE_PADDING - 24,
-          pb: PAGE_PADDING,
-          px: PAGE_PADDING - 30,
           ml: { lg: `${sidebarWidth}px` },
           width: { lg: `calc(100% - ${sidebarWidth}px)` },
           backgroundColor: theme.palette.background.paper,

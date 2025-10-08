@@ -1,403 +1,358 @@
-import { useState } from 'react';
-import Grid from '@mui/material/GridLegacy';
-import {
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  Divider,
-  IconButton,
-  Menu,
-  MenuItem,
-  Stack,
-  Tooltip,
-  Typography,
-  alpha,
-  useTheme,
-} from '@mui/material';
-import { AccountBalanceWalletRounded, MoreHorizRounded, ShoppingBagRounded, TrendingUpRounded } from '@mui/icons-material';
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip as RechartsTooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
-import { KpiCard } from '@/components/KpiCard';
-import { SegmentedControl } from '@/components/SegmentedControl';
-import { Sparkline } from '@/components/Sparkline';
-import { growthSeries, popularInstruments, sparklineData } from './mockData';
+import { Box, Card, CardContent, Chip, Divider, List, ListItem, ListItemText, Stack, Typography } from '@mui/material';
+import { useTasks } from '@/hooks/useTasks';
+import type { Task, TaskPriority, TaskStatus } from '@/types';
 
-type GrowthPeriod = 'today' | 'week' | 'month';
+const statusColors: Record<TaskStatus, 'default' | 'success' | 'warning' | 'info' | 'error'> = {
+  TODO: 'default',
+  IN_PROGRESS: 'warning',
+  REVIEW: 'info',
+  DONE: 'success',
+  CANCELLED: 'error',
+};
 
-const CardActionMenu = ({ anchorEl, onClose }: { anchorEl: HTMLElement | null; onClose: () => void }) => (
-  <Menu
-    anchorEl={anchorEl}
-    open={Boolean(anchorEl)}
-    onClose={onClose}
-    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-    transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-    PaperProps={{
-      elevation: 0,
-      sx: {
-        minWidth: 160,
-        borderRadius: 2,
-        boxShadow: '0px 12px 32px rgba(15, 23, 42, 0.16)',
-      },
+const priorityColors: Record<TaskPriority, 'default' | 'success' | 'warning' | 'error'> = {
+  LOW: 'success',
+  MEDIUM: 'warning',
+  HIGH: 'error',
+  URGENT: 'error',
+};
+
+const timesheetEntries = [
+  { id: 'ts-1', date: '2024-10-14', project: 'GoGoTime Web', hours: 6.25, status: 'Approved' },
+  { id: 'ts-2', date: '2024-10-15', project: 'GoGoTime API', hours: 7.5, status: 'Pending' },
+  { id: 'ts-3', date: '2024-10-16', project: 'Product discovery', hours: 5, status: 'Approved' },
+  { id: 'ts-4', date: '2024-10-17', project: 'Design sync', hours: 4, status: 'Pending' },
+];
+
+const reportSummaries = [
+  { id: 'r1', title: 'Weekly performance summary', description: 'Snapshot of team productivity and velocity.' },
+  { id: 'r2', title: 'Time tracking compliance', description: 'Highlights missing timesheets and overtime alerts.' },
+  { id: 'r3', title: 'Project health', description: 'Shows progress, blockers, and upcoming milestones.' },
+  { id: 'r4', title: 'Billing preview', description: 'Forecasts billable hours and cost allocations.' },
+];
+
+const settingsShortcuts = [
+  { id: 's1', label: 'Profile', description: 'Update contact details and notification preferences.' },
+  { id: 's2', label: 'Teams', description: 'Manage assignments and approval routing.' },
+  { id: 's3', label: 'Integrations', description: 'Connect Slack, Jira, or payroll exports.' },
+];
+
+const renderTask = (task: Task) => (
+  <Box
+    key={task.id}
+    sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 1,
+      bgcolor: 'background.paper',
+      borderRadius: 2,
+      border: '1px solid',
+      borderColor: 'divider',
+      p: 2,
     }}
   >
-    <MenuItem onClick={onClose}>View details</MenuItem>
-    <MenuItem onClick={onClose}>Download report</MenuItem>
-  </Menu>
+    <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
+      <Typography variant="subtitle1" fontWeight={600} noWrap>
+        {task.title}
+      </Typography>
+      <Chip label={task.status} size="small" color={statusColors[task.status]} />
+    </Stack>
+    {task.description && (
+      <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-word' }}>
+        {task.description}
+      </Typography>
+    )}
+    <Stack direction="row" spacing={1} alignItems="center">
+      <Chip label={`Priority: ${task.priority}`} size="small" color={priorityColors[task.priority]} variant="outlined" />
+      {task.dueDate && (
+        <Typography variant="caption" color="text.secondary">
+          Due {new Date(task.dueDate).toLocaleDateString()}
+        </Typography>
+      )}
+    </Stack>
+  </Box>
 );
 
-const GrowthChart = ({ period }: { period: GrowthPeriod }) => {
-  const theme = useTheme();
-  const data = growthSeries[period];
+export const DashboardPage = () => {
+  const { data: taskResponse, isLoading: tasksLoading, error: tasksError } = useTasks({ limit: 10 });
+  const tasks = taskResponse?.data ?? [];
 
   return (
-    <ResponsiveContainer width="100%" height={280}>
-      <BarChart data={data} margin={{ top: 16, right: 16, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={alpha(theme.palette.divider, 0.5)} />
-        <XAxis
-          dataKey="label"
-          axisLine={false}
-          tickLine={false}
-          tick={{ fill: alpha(theme.palette.text.secondary, 0.8), fontSize: 12 }}
-          dy={8}
-        />
-        <YAxis
-          axisLine={false}
-          tickLine={false}
-          tick={{ fill: alpha(theme.palette.text.secondary, 0.7), fontSize: 12 }}
-          width={50}
-        />
-        <RechartsTooltip
-          cursor={{ fill: alpha(theme.palette.primary.main, 0.1) }}
-          contentStyle={{
-            borderRadius: 12,
-            border: 'none',
-            padding: '12px 16px',
-            background: alpha(theme.palette.background.paper, theme.palette.mode === 'light' ? 0.92 : 0.98),
-            boxShadow: theme.shadows[3],
+    <Box sx={{ px: { xs: 2, md: 3 }, py: 2 }}>
+      <Box
+        sx={{
+          display: 'grid',
+          gap: 3,
+          gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))', lg: '2.1fr 1.3fr 0.8fr' },
+          gridTemplateRows: { xs: 'auto', lg: 'auto auto auto' },
+        }}
+      >
+        <Card
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            borderRadius: 3,
+            overflow: 'hidden',
+            gridColumn: { xs: '1 / -1', md: '1 / -1', lg: '1 / 2' },
+            gridRow: { xs: 'auto', lg: '1 / span 2' },
+            minHeight: { xs: 360, md: 400 },
+            aspectRatio: { lg: '1 / 1' },
           }}
-          labelStyle={{ fontWeight: 600, marginBottom: 4 }}
-        />
-        <Bar
-          dataKey="total"
-          name="Total"
-          fill={theme.palette.primary.main}
-          radius={[4, 4, 0, 0]}
-          maxBarSize={60}
-        />
-      </BarChart>
-    </ResponsiveContainer>
-  );
-};
-
-const PopularList = () => {
-  const theme = useTheme();
-  return (
-    <Stack spacing={2.5} divider={<Divider flexItem sx={{ borderStyle: 'dashed', opacity: 0.4 }} />}
-      sx={{ mt: 1 }}
-    >
-      {popularInstruments.map((stock) => (
-        <Stack key={stock.id} spacing={1.5}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
+        >
+          <CardContent
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              p: 3,
+              flex: 1,
+              overflow: 'hidden',
+            }}
+          >
             <Box>
-              <Typography variant="subtitle2" fontWeight={600}>
-                {stock.name}
+              <Typography variant="h5" fontWeight={700}>
+                My Tasks
               </Typography>
-              <Typography variant="caption" color="text.secondary">
-                {stock.symbol}
+              <Typography variant="body2" color="text.secondary">
+                Track progress and jump back into your work.
               </Typography>
             </Box>
-            <Stack direction="row" spacing={1.25} alignItems="center">
-              <Typography variant="subtitle2" fontWeight={600}>
-                {stock.price}
+
+            <Box
+              sx={{
+                flex: 1,
+                overflowY: 'auto',
+                pr: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1.5,
+              }}
+            >
+              {tasksLoading && (
+                <Typography variant="body2" color="text.secondary">
+                  Loading tasks...
+                </Typography>
+              )}
+              {tasksError && !tasksLoading && (
+                <Typography variant="body2" color="error">
+                  Unable to load tasks right now.
+                </Typography>
+              )}
+              {!tasksLoading && !tasksError && tasks.length === 0 && (
+                <Typography variant="body2" color="text.secondary">
+                  No tasks yet. Create one from the Tasks workspace to get started.
+                </Typography>
+              )}
+              {!tasksLoading && !tasksError && tasks.map((task) => renderTask(task))}
+            </Box>
+          </CardContent>
+        </Card>
+
+        <Card
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            borderRadius: 3,
+            overflow: 'hidden',
+            gridColumn: { xs: '1 / -1', md: '1 / 2', lg: '2 / 3' },
+            gridRow: { xs: 'auto', lg: '1 / span 2' },
+            minHeight: { xs: 280, lg: 520 },
+          }}
+        >
+          <CardContent
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              p: 3,
+              flex: 1,
+              overflow: 'hidden',
+            }}
+          >
+            <Box>
+              <Typography variant="h5" fontWeight={700}>
+                Timesheet
               </Typography>
-              <Chip
-                label={stock.change}
-                size="small"
-                color={stock.positive ? 'success' : 'error'}
-                sx={{ fontWeight: 600 }}
-              />
-            </Stack>
-          </Stack>
-          <Sparkline
-            data={stock.data}
-            color={stock.positive ? theme.palette.success.main : theme.palette.error.main}
-            ariaLabel={`${stock.name} price trend`}
-          />
-        </Stack>
-      ))}
-    </Stack>
-  );
-};
+              <Typography variant="body2" color="text.secondary">
+                Review recent entries before submitting your week.
+              </Typography>
+            </Box>
+            <Divider />
 
-export const DashboardPage = () => {
-  const theme = useTheme();
-  const [growthPeriod, setGrowthPeriod] = useState<GrowthPeriod>('week');
-  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
+            <Box
+              sx={{
+                flex: 1,
+                overflowY: 'auto',
+                pr: 1,
+              }}
+            >
+              <List disablePadding>
+                {timesheetEntries.map((entry, index) => (
+                  <ListItem
+                    key={entry.id}
+                    divider={index < timesheetEntries.length - 1}
+                    sx={{ alignItems: 'flex-start', py: 1.5 }}
+                  >
+                    <ListItemText
+                      primary={
+                        <Stack direction="row" justifyContent="space-between" alignItems="baseline" spacing={2}>
+                          <Typography variant="subtitle1" fontWeight={600}>
+                            {new Date(entry.date).toLocaleDateString()}
+                          </Typography>
+                          <Typography variant="subtitle2" color="primary">
+                            {entry.hours.toFixed(2)} hrs
+                          </Typography>
+                        </Stack>
+                      }
+                      secondary={
+                        <Stack spacing={0.75} sx={{ mt: 1 }}>
+                          <Typography variant="body2" color="text.secondary">
+                            {entry.project}
+                          </Typography>
+                          <Chip
+                            label={entry.status}
+                            size="small"
+                            color={entry.status === 'Approved' ? 'success' : entry.status === 'Pending' ? 'warning' : 'default'}
+                            sx={{ alignSelf: 'flex-start' }}
+                          />
+                        </Stack>
+                      }
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+          </CardContent>
+        </Card>
 
-  return (
-    <Box sx={{ px: 3, py: 2 }}>
-      <Grid container spacing={2} columns={12}>
-      <Grid xs={12} sm={6} md={3}>
-        <KpiCard
-          title="Total Earning"
-          value="$500.00"
-          subtitle="Total Earning"
-          icon={<AccountBalanceWalletRounded fontSize="small" />}
-          variant="gradient"
-          color="primary"
-          footer={
-            <Sparkline
-              data={sparklineData.earnings}
-              color={theme.palette.common.white}
-              ariaLabel="Total earning trend"
-            />
-          }
-        />
-      </Grid>
-
-      <Grid xs={12} sm={6} md={3}>
-        <Card sx={{ 
-          height: '100%', 
-          borderRadius: 3, 
-          background: 'linear-gradient(135deg, #1E88E5 0%, #1565C0 100%)',
-          color: 'white',
-          boxShadow: theme.shadows[2] 
-        }}>
-          <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 2.5 }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-              <Stack direction="row" spacing={1.5} alignItems="flex-start">
-                <Stack spacing={0.5}>
-                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-                    Total Order
-                  </Typography>
-                  <Typography variant="h2" sx={{ fontSize: '2rem', letterSpacing: '-0.015em', color: 'white' }}>
-                    $961
-                  </Typography>
-                </Stack>
+        <Card
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            borderRadius: 3,
+            overflow: 'hidden',
+            gridColumn: { xs: '1 / -1', md: '2 / 3', lg: '3 / 4' },
+            gridRow: { xs: 'auto', md: '2 / 3', lg: '1 / 2' },
+            aspectRatio: { md: '1 / 1', lg: '1 / 1' },
+            minHeight: { xs: 220, md: 260 },
+            alignSelf: { md: 'start', lg: 'start' },
+          }}
+        >
+          <CardContent
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              p: 3,
+              flex: 1,
+              overflow: 'hidden',
+            }}
+          >
+            <Box>
+              <Typography variant="h5" fontWeight={700}>
+                Settings
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Quick links to keep your workspace tidy.
+              </Typography>
+            </Box>
+            <Divider />
+            <Stack spacing={1.5} sx={{ flex: 1, overflowY: 'auto', pr: 0.5 }}>
+              {settingsShortcuts.map((item) => (
                 <Box
+                  key={item.id}
                   sx={{
-                    width: 44,
-                    height: 44,
                     borderRadius: 2,
-                    bgcolor: 'rgba(255,255,255,0.2)',
-                    color: 'white',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    p: 1.5,
+                    bgcolor: 'background.default',
                   }}
                 >
-                  <ShoppingBagRounded fontSize="small" />
+                  <Typography variant="subtitle2" fontWeight={600}>
+                    {item.label}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {item.description}
+                  </Typography>
                 </Box>
-              </Stack>
-              <Stack direction="row" spacing={1}>
-                <Chip label="Month" variant="outlined" size="small" sx={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }} />
-                <Chip label="Year" variant="filled" size="small" sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }} />
-              </Stack>
+              ))}
             </Stack>
+          </CardContent>
+        </Card>
 
-            {/* Sparkline chart area */}
-            <Box sx={{ height: 60, display: 'flex', alignItems: 'center' }}>
-              <svg width="100%" height="40" viewBox="0 0 300 40">
-                <path
-                  d="M0,35 Q75,10 150,20 T300,15"
-                  stroke="white"
-                  strokeWidth="2"
-                  fill="none"
-                />
-              </svg>
+        <Card
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            borderRadius: 3,
+            overflow: 'hidden',
+            gridColumn: { xs: '1 / -1', md: '1 / -1', lg: '1 / span 3' },
+            gridRow: { xs: 'auto', lg: '3 / 4' },
+            minHeight: { xs: 260, md: 280 },
+          }}
+        >
+          <CardContent
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              p: 3,
+              flex: 1,
+              overflow: 'hidden',
+            }}
+          >
+            <Box>
+              <Typography variant="h5" fontWeight={700}>
+                Reports
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Stay ahead with ready-made analytics and compliance snapshots.
+              </Typography>
+            </Box>
+            <Divider />
+
+            <Box
+              sx={{
+                flex: 1,
+                overflowX: 'auto',
+                pr: 1,
+              }}
+            >
+              <List disablePadding sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: { xs: 1.5, md: 2 } }}>
+                {reportSummaries.map((report) => (
+                  <ListItem
+                    key={report.id}
+                    sx={{
+                      flex: { md: '1 1 0' },
+                      px: 0,
+                      py: { xs: 1.5, md: 0 },
+                      borderRadius: 2,
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      bgcolor: 'background.default',
+                    }}
+                  >
+                    <ListItemText
+                      primary={
+                        <Typography variant="subtitle1" fontWeight={600}>
+                          {report.title}
+                        </Typography>
+                      }
+                      secondary={
+                        <Typography variant="body2" color="text.secondary">
+                          {report.description}
+                        </Typography>
+                      }
+                      sx={{ m: 0, px: { md: 2 }, py: { md: 2 } }}
+                    />
+                  </ListItem>
+                ))}
+              </List>
             </Box>
           </CardContent>
         </Card>
-      </Grid>
-
-      <Grid xs={12} sm={6} md={3}>
-        <Card sx={{ 
-          height: '100%', 
-          borderRadius: 3, 
-          background: 'linear-gradient(135deg, #1E88E5 0%, #1565C0 100%)',
-          color: 'white',
-          boxShadow: theme.shadows[2] 
-        }}>
-          <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 2.5 }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-              <Stack spacing={0.5}>
-                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-                  Total Income
-                </Typography>
-                <Typography variant="h2" sx={{ fontSize: '2rem', letterSpacing: '-0.015em', color: 'white' }}>
-                  $203k
-                </Typography>
-              </Stack>
-              <Box
-                sx={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 2,
-                  bgcolor: 'rgba(255,255,255,0.2)',
-                  color: 'white',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <TrendingUpRounded fontSize="small" />
-              </Box>
-            </Stack>
-            {/* Simple sparkline */}
-            <Box sx={{ height: 40, display: 'flex', alignItems: 'center' }}>
-              <svg width="100%" height="30" viewBox="0 0 200 30">
-                <path
-                  d="M0,25 L40,15 L80,20 L120,10 L160,18 L200,12"
-                  stroke="white"
-                  strokeWidth="2"
-                  fill="none"
-                />
-              </svg>
-            </Box>
-          </CardContent>
-        </Card>
-      </Grid>
-
-      <Grid xs={12} sm={6} md={3}>
-        <Card sx={{ 
-          height: '100%', 
-          borderRadius: 3, 
-          backgroundColor: '#FFF3C4', 
-          color: '#B7791F',
-          boxShadow: theme.shadows[2] 
-        }}>
-          <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 2.5 }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-              <Stack spacing={0.5}>
-                <Typography variant="caption" sx={{ color: 'inherit', opacity: 0.8 }}>
-                  Total Income
-                </Typography>
-                <Typography variant="h2" sx={{ fontSize: '2rem', letterSpacing: '-0.015em', color: 'inherit' }}>
-                  $203k
-                </Typography>
-              </Stack>
-              <Box
-                sx={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 2,
-                  bgcolor: alpha('#B7791F', 0.2),
-                  color: '#B7791F',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <AccountBalanceWalletRounded fontSize="small" />
-              </Box>
-            </Stack>
-            {/* Simple sparkline */}
-            <Box sx={{ height: 40, display: 'flex', alignItems: 'center' }}>
-              <svg width="100%" height="30" viewBox="0 0 200 30">
-                <path
-                  d="M0,25 L40,15 L80,20 L120,10 L160,18 L200,12"
-                  stroke="#B7791F"
-                  strokeWidth="2"
-                  fill="none"
-                />
-              </svg>
-            </Box>
-          </CardContent>
-        </Card>
-      </Grid>
-
-      <Grid xs={12} lg={8}>
-        <Card sx={{ height: '100%', borderRadius: 3, boxShadow: theme.shadows[3] }}>
-          <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, p: 3 }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Box>
-                <Typography variant="h3" fontWeight={600}>
-                  Total Growth
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Sessions split between desktop and mobile
-                </Typography>
-              </Box>
-              <Stack direction="row" spacing={1.5} alignItems="center">
-                <SegmentedControl
-                  options={[
-                    { label: 'Today', value: 'today' },
-                    { label: 'Week', value: 'week' },
-                    { label: 'Month', value: 'month' },
-                  ]}
-                  value={growthPeriod}
-                  onChange={(next) => setGrowthPeriod(next as GrowthPeriod)}
-                  ariaLabel="Select growth period"
-                  sx={{ minWidth: 0, width: 'auto' }}
-                />
-                <Tooltip title="More options">
-                  <IconButton aria-label="Open growth options" onClick={(event) => setMenuAnchor(event.currentTarget)}>
-                    <MoreHorizRounded />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-            </Stack>
-
-            <GrowthChart period={growthPeriod} />
-
-            <Stack direction="row" spacing={1} justifyContent="space-between" alignItems="center">
-              <Box>
-                <Typography variant="h3" fontWeight={600} color="primary.main">
-                  $2,324.00
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  Total Growth
-                </Typography>
-              </Box>
-              <SegmentedControl
-                options={[
-                  { label: 'Today', value: 'today' },
-                ]}
-                value="today"
-                onChange={() => {}}
-                ariaLabel="View mode"
-                sx={{ minWidth: 0, width: 'auto' }}
-              />
-            </Stack>
-          </CardContent>
-        </Card>
-      </Grid>
-
-      <Grid xs={12} lg={4}>
-        <Card sx={{ height: '100%', borderRadius: 3, boxShadow: theme.shadows[3] }}>
-          <CardContent sx={{ p: 3 }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Box>
-                <Typography variant="h3" fontWeight={600}>
-                  Popular Stocks
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Based on last 7 days performance
-                </Typography>
-              </Box>
-              <Tooltip title="More options">
-                <IconButton aria-label="Open stocks options" onClick={(event) => setMenuAnchor(event.currentTarget)}>
-                  <MoreHorizRounded />
-                </IconButton>
-              </Tooltip>
-            </Stack>
-            <PopularList />
-          </CardContent>
-        </Card>
-      </Grid>
-
-      <CardActionMenu anchorEl={menuAnchor} onClose={() => setMenuAnchor(null)} />
-      </Grid>
+      </Box>
     </Box>
   );
 };
-
-export default DashboardPage;
