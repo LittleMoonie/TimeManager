@@ -33,7 +33,7 @@ function TotalOrderLineChartCard({ isLoading }: TotalOrderLineChartCardProps) {
     <MainCard>
       <Box sx={{ p: 2.25 }}>
         <Grid container alignItems="center" justifyContent="space-between">
-          <Grid item>
+          <Grid>
             <Avatar
               variant="rounded"
               sx={{
@@ -46,7 +46,7 @@ function TotalOrderLineChartCard({ isLoading }: TotalOrderLineChartCardProps) {
               <ArrowUpwardIcon fontSize="inherit" />
             </Avatar>
           </Grid>
-          <Grid item>
+          <Grid>
             <Avatar
               variant="rounded"
               sx={{
@@ -86,7 +86,7 @@ function TotalOrderLineChartCard({ isLoading }: TotalOrderLineChartCardProps) {
         </Grid>
         
         <Grid container direction="column">
-          <Grid item sx={{ mb: 0.75 }}>
+          <Grid sx={{ mb: 0.75 }}>
             <Typography
               sx={{
                 fontSize: '2.125rem',
@@ -97,7 +97,7 @@ function TotalOrderLineChartCard({ isLoading }: TotalOrderLineChartCardProps) {
               486
             </Typography>
           </Grid>
-          <Grid item>
+          <Grid>
             <Typography
               sx={{
                 fontSize: '1rem',

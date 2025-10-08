@@ -1,59 +1,44 @@
-export * from './theme'
+import type { ComponentType } from 'react';
 
-/**
- * Common utility types
- */
+export * from './domain';
+export * from './theme';
+
 export interface MenuItem {
-  id: string
-  title: string
-  type: 'item' | 'group' | 'collapse'
-  url?: string
-  icon?: React.ComponentType<any>
-  children?: MenuItem[]
-  external?: boolean
-  target?: boolean
-  breadcrumbs?: boolean
-  disabled?: boolean
+  id: string;
+  title: string;
+  type: 'item' | 'group' | 'collapse';
+  url?: string;
+  icon?: ComponentType<any>;
+  children?: MenuItem[];
+  external?: boolean;
+  target?: boolean;
+  breadcrumbs?: boolean;
+  disabled?: boolean;
 }
 
-/**
- * Navigation configuration
- */
 export interface MenuConfig {
-  items: MenuItem[]
+  items: MenuItem[];
 }
 
-/**
- * Auth user interface
- */
-export interface User {
-  id: string
-  name: string
-  email: string
-  avatar?: string
-  role?: string
+export interface LegacyUser {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  role?: string;
 }
 
-/**
- * API Response wrapper
- */
-export interface ApiResponse<T = any> {
-  success: boolean
-  data?: T
-  message?: string
-  error?: string
+export interface ApiResponse<T = unknown> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
 }
 
-/**
- * Loading states
- */
-export type LoadingState = 'idle' | 'pending' | 'succeeded' | 'failed'
+export type LoadingState = 'idle' | 'pending' | 'succeeded' | 'failed';
 
-/**
- * Generic async thunk state
- */
-export interface AsyncState<T = any> {
-  data: T | null
-  status: LoadingState
-  error: string | null
+export interface AsyncState<T = unknown> {
+  data: T | null;
+  status: LoadingState;
+  error: string | null;
 }

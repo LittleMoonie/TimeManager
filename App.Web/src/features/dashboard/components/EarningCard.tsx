@@ -7,7 +7,7 @@ import MainCard from '@/components/cards/MainCard'
 import SkeletonEarningCard from '@/components/cards/skeleton/EarningCard'
 
 // Assets
-import EarningIcon from '@/assets/images/icons/earning.svg'
+// import EarningIcon from '@/assets/images/icons/earning.svg'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import GetAppTwoToneIcon from '@mui/icons-material/GetAppOutlined'
@@ -52,7 +52,7 @@ function EarningCard({ isLoading = false }: EarningCardProps) {
           position: 'absolute',
           width: '210px',
           height: '210px',
-          background: theme.palette.secondary[800],
+          background: theme.palette.secondary.dark,
           borderRadius: '50%',
           top: '-85px',
           right: '-95px',
@@ -66,7 +66,7 @@ function EarningCard({ isLoading = false }: EarningCardProps) {
           position: 'absolute',
           width: '210px',
           height: '210px',
-          background: theme.palette.secondary[800],
+          background: theme.palette.secondary.dark,
           borderRadius: '50%',
           top: '-125px',
           right: '-15px',
@@ -80,27 +80,27 @@ function EarningCard({ isLoading = false }: EarningCardProps) {
       contentSX={{ p: '20px !important' }}
     >
       <Grid container direction="column">
-        <Grid item>
+        <Grid>
           <Grid container justifyContent="space-between">
-            <Grid item>
+            <Grid>
               <Avatar
                 variant="rounded"
                 sx={{
-                  backgroundColor: theme.palette.secondary[800],
+                  backgroundColor: theme.palette.secondary.dark,
                   mt: 1,
                   width: 56,
                   height: 56
                 }}
               >
-                <img src={EarningIcon} alt="Earning" />
+                {/* <img src={EarningIcon} alt="Earning" /> */}
               </Avatar>
             </Grid>
-            <Grid item>
+            <Grid>
               <Avatar
                 variant="rounded"
                 sx={{
                   backgroundColor: theme.palette.secondary.dark,
-                  color: theme.palette.secondary[200],
+                  color: theme.palette.secondary.light,
                   zIndex: 1,
                   width: 34,
                   height: 34,
@@ -149,9 +149,9 @@ function EarningCard({ isLoading = false }: EarningCardProps) {
           </Grid>
         </Grid>
         
-        <Grid item>
+        <Grid>
           <Grid container alignItems="center">
-            <Grid item>
+            <Grid>
               <Typography
                 sx={{
                   fontSize: '2.125rem',
@@ -164,11 +164,11 @@ function EarningCard({ isLoading = false }: EarningCardProps) {
                 $500.00
               </Typography>
             </Grid>
-            <Grid item>
+            <Grid>
               <Avatar
                 sx={{
                   cursor: 'pointer',
-                  backgroundColor: theme.palette.secondary[200],
+                  backgroundColor: theme.palette.secondary.light,
                   color: theme.palette.secondary.dark,
                   width: 16,
                   height: 16
@@ -183,12 +183,12 @@ function EarningCard({ isLoading = false }: EarningCardProps) {
           </Grid>
         </Grid>
         
-        <Grid item sx={{ mb: 1.25 }}>
+        <Grid sx={{ mb: 1.25 }}>
           <Typography
             sx={{
               fontSize: '1rem',
               fontWeight: 500,
-              color: theme.palette.secondary[200]
+              color: theme.palette.secondary.light
             }}
           >
             Total Earning

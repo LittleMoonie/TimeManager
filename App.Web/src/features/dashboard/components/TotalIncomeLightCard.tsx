@@ -53,11 +53,11 @@ function TotalIncomeLightCard({ isLoading }: TotalIncomeLightCardProps) {
     >
       <Box sx={{ p: 2.25 }}>
         <Grid container direction="column">
-          <Grid item sx={{ mb: 0.75 }}>
+          <Grid sx={{ mb: 0.75 }}>
             <Grid container alignItems="center">
-              <Grid item xs={6}>
+              <Grid xs={6}>
                 <Grid container alignItems="center">
-                  <Grid item>
+                  <Grid>
                     <Typography
                       sx={{
                         fontSize: '2.125rem',
@@ -70,7 +70,7 @@ function TotalIncomeLightCard({ isLoading }: TotalIncomeLightCardProps) {
                       $203k
                     </Typography>
                   </Grid>
-                  <Grid item>
+                  <Grid>
                     <Avatar
                       sx={{
                         cursor: 'pointer',
@@ -82,7 +82,7 @@ function TotalIncomeLightCard({ isLoading }: TotalIncomeLightCardProps) {
                       <ArrowUpwardIcon fontSize="inherit" sx={{ transform: 'rotate3d(1, 1, 1, 45deg)' }} />
                     </Avatar>
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid xs={12}>
                     <Typography
                       sx={{
                         fontSize: '1rem',
@@ -95,7 +95,7 @@ function TotalIncomeLightCard({ isLoading }: TotalIncomeLightCardProps) {
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item xs={6}>
+              <Grid xs={6}>
                 <Avatar
                   sx={{
                     ...theme.typography.commonAvatar,

@@ -41,7 +41,7 @@ function TablerIconsPage() {
       </Typography>
       
       <Grid container spacing={3}>
-        <Grid item xs={12}>
+        <Grid xs={12}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -49,7 +49,7 @@ function TablerIconsPage() {
               </Typography>
               <Grid container spacing={2}>
                 {icons.map((item) => (
-                  <Grid item xs={6} sm={4} md={3} lg={2} key={item.name}>
+                  <Grid xs={6} sm={4} md={3} lg={2} key={item.name}>
                     <Box
                       sx={{
                         display: 'flex',

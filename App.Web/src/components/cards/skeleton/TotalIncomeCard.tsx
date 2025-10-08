@@ -9,20 +9,20 @@ function SkeletonTotalIncomeCard() {
     <Card>
       <CardContent>
         <Grid container direction="column">
-          <Grid item>
+          <Grid>
             <Grid container alignItems="center" justifyContent="space-between">
-              <Grid item>
+              <Grid>
                 <Skeleton variant="rectangular" width={44} height={44} />
               </Grid>
-              <Grid item>
+              <Grid>
                 <Skeleton variant="rectangular" width={34} height={34} />
               </Grid>
             </Grid>
           </Grid>
-          <Grid item sx={{ mb: 0.75 }}>
+          <Grid sx={{ mb: 0.75 }}>
             <Skeleton variant="text" sx={{ fontSize: '2.125rem' }} />
           </Grid>
-          <Grid item>
+          <Grid>
             <Skeleton variant="text" />
           </Grid>
         </Grid>

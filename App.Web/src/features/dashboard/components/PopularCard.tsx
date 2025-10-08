@@ -67,12 +67,12 @@ function PopularCard({ isLoading = false }: PopularCardProps) {
     <MainCard content={false}>
       <CardContent>
         <Grid container spacing={GRID_SPACING}>
-          <Grid item xs={12}>
+          <Grid xs={12}>
             <Grid container alignContent="center" justifyContent="space-between">
-              <Grid item>
+              <Grid>
                 <Typography variant="h4">Popular Stocks</Typography>
               </Grid>
-              <Grid item>
+              <Grid>
                 <MoreHorizOutlinedIcon
                   fontSize="small"
                   sx={{
@@ -107,29 +107,29 @@ function PopularCard({ isLoading = false }: PopularCardProps) {
             </Grid>
           </Grid>
           
-          <Grid item xs={12} sx={{ pt: '16px !important' }}>
+          <Grid xs={12} sx={{ pt: '16px !important' }}>
             <BajajAreaChartCard />
           </Grid>
           
-          <Grid item xs={12}>
+          <Grid xs={12}>
             {stockData.map((stock, index) => (
               <div key={index}>
                 <Grid container direction="column">
-                  <Grid item>
+                  <Grid>
                     <Grid container alignItems="center" justifyContent="space-between">
-                      <Grid item>
+                      <Grid>
                         <Typography variant="subtitle1" color="inherit">
                           {stock.name}
                         </Typography>
                       </Grid>
-                      <Grid item>
+                      <Grid>
                         <Grid container alignItems="center" justifyContent="space-between">
-                          <Grid item>
+                          <Grid>
                             <Typography variant="subtitle1" color="inherit">
                               {stock.price}
                             </Typography>
                           </Grid>
-                          <Grid item>
+                          <Grid>
                             <Avatar
                               variant="rounded"
                               sx={{
@@ -156,7 +156,7 @@ function PopularCard({ isLoading = false }: PopularCardProps) {
                       </Grid>
                     </Grid>
                   </Grid>
-                  <Grid item>
+                  <Grid>
                     <Typography
                       variant="subtitle2"
                       sx={{

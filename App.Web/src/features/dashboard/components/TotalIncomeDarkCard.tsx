@@ -44,11 +44,11 @@ function TotalIncomeDarkCard({ isLoading }: TotalIncomeDarkCardProps) {
     >
       <Box sx={{ p: 2.25 }}>
         <Grid container direction="column">
-          <Grid item sx={{ mb: 0.75 }}>
+          <Grid sx={{ mb: 0.75 }}>
             <Grid container alignItems="center">
-              <Grid item xs={6}>
+              <Grid xs={6}>
                 <Grid container alignItems="center">
-                  <Grid item>
+                  <Grid>
                     <Typography
                       sx={{
                         fontSize: '2.125rem',
@@ -61,7 +61,7 @@ function TotalIncomeDarkCard({ isLoading }: TotalIncomeDarkCardProps) {
                       $203k
                     </Typography>
                   </Grid>
-                  <Grid item>
+                  <Grid>
                     <Avatar
                       sx={{
                         cursor: 'pointer',
@@ -75,7 +75,7 @@ function TotalIncomeDarkCard({ isLoading }: TotalIncomeDarkCardProps) {
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item xs={6}>
+              <Grid xs={6}>
                 <Avatar
                   sx={{
                     ...theme.typography.commonAvatar,
@@ -90,7 +90,7 @@ function TotalIncomeDarkCard({ isLoading }: TotalIncomeDarkCardProps) {
               </Grid>
             </Grid>
           </Grid>
-          <Grid item>
+          <Grid>
             <Typography
               sx={{
                 fontSize: '1rem',

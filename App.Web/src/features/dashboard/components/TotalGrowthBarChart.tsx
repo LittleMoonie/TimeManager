@@ -33,10 +33,10 @@ function TotalGrowthBarChart({ isLoading }: TotalGrowthBarChartProps) {
     <MainCard>
       <Box sx={{ p: 2.25 }}>
         <Grid container alignItems="center" justifyContent="space-between">
-          <Grid item>
+          <Grid>
             <Typography variant="h6">Total Growth</Typography>
           </Grid>
-          <Grid item>
+          <Grid>
             <Avatar
               variant="rounded"
               sx={{
@@ -93,14 +93,14 @@ function TotalGrowthBarChart({ isLoading }: TotalGrowthBarChartProps) {
         </Box>
 
         <Grid container sx={{ mt: 1.5 }}>
-          <Grid item xs={6}>
+          <Grid xs={6}>
             <Grid container alignItems="center">
-              <Grid item>
+              <Grid>
                 <Typography variant="subtitle2" color="inherit">
                   Total Growth
                 </Typography>
               </Grid>
-              <Grid item>
+              <Grid>
                 <Avatar
                   sx={{
                     width: 16,
@@ -116,7 +116,7 @@ function TotalGrowthBarChart({ isLoading }: TotalGrowthBarChartProps) {
               </Grid>
             </Grid>
           </Grid>
-          <Grid item xs={6}>
+          <Grid xs={6}>
             <Typography variant="subtitle2" color="inherit">
               16,15%
             </Typography>
