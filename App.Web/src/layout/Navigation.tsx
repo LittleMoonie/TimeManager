@@ -165,29 +165,6 @@ const NavigationContent = ({ onNavigate, collapsed = false }: { onNavigate: (pat
         gap: 2,
       }}
     >
-      {/* BERRY Logo */}
-      {!collapsed && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1, py: 1 }}>
-          <Box
-            sx={{
-              width: 24,
-              height: 24,
-              borderRadius: 0.5,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Typography variant="caption" fontWeight={700} color="white" sx={{ fontSize: '0.75rem' }}>
-              B
-            </Typography>
-          </Box>
-          <Typography variant="h6" fontWeight={600} color="text.primary" sx={{ fontSize: '1rem' }}>
-            BERRY
-          </Typography>
-        </Box>
-      )}
 
       <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: 0.5 }}>
         <List disablePadding>
@@ -258,8 +235,8 @@ export const Navigation = ({ variant, open, onClose, collapsed = false }: Naviga
           backgroundColor: theme.palette.background.default,
           boxShadow: '0px 8px 24px rgba(15, 23, 42, 0.08)',
           zIndex: theme.zIndex.drawer,
-          top: 0,
-          height: '100%',
+          top: 56, // Start below AppBar
+          height: 'calc(100% - 56px)', // Full height minus AppBar
           transition: theme.transitions.create('width', {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.enteringScreen,

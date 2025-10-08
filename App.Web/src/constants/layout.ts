@@ -1,4 +1,4 @@
-// Layout constants matching Berry theme specifications
+// Layout constants
 export const APP_BAR_HEIGHT = 56;
 export const DRAWER_WIDTH = 260;
 export const PAGE_PADDING = 36;

@@ -17,8 +17,8 @@ import { alpha } from '@mui/material/styles';
 import { useThemeController, primarySwatches, type PrimaryColor } from '@/themes';
 
 const PRIMARY_OPTIONS: { key: PrimaryColor; label: string }[] = [
-  { key: 'purple', label: 'Berry Purple' },
-  { key: 'blue', label: 'Berry Blue' },
+  { key: 'purple', label: 'Purple' },
+  { key: 'blue', label: 'Blue' },
   { key: 'teal', label: 'Teal' },
 ];
 
