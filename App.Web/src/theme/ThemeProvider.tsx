@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { CssBaseline, GlobalStyles, useMediaQuery } from '@mui/material';
 import { ThemeProvider as MuiThemeProvider, useTheme as useMuiTheme } from '@mui/material/styles';
 import type { PaletteMode, Theme } from '@mui/material';
-import { createAppTheme, type PrimaryColor } from './appTheme';
+import { createTheme, type PrimaryKey as PrimaryColor } from './theme';
 
 export type DensitySetting = 'comfortable' | 'compact';
 
@@ -74,7 +74,7 @@ export const AppThemeProvider = ({ children }: { children: ReactNode }) => {
     setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
   }, []);
 
-  const theme = useMemo(() => createAppTheme(mode, primaryColor, density), [mode, primaryColor, density]);
+  const theme = useMemo(() => createTheme(mode, primaryColor, density), [mode, primaryColor, density]);
 
   const contextValue = useMemo<ThemeControllerContextValue>(
     () => ({

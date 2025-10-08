@@ -1,6 +1,12 @@
 import { alpha, createTheme as muiCreateTheme, responsiveFontSizes } from '@mui/material/styles';
 import type { PaletteMode, ThemeOptions } from '@mui/material';
 
+declare module '@mui/material/Button' {
+  interface ButtonPropsVariantOverrides {
+    soft: true;
+  }
+}
+
 export type PrimaryKey = 'purple' | 'blue' | 'teal';
 
 export const primarySwatches: Record<PrimaryKey, { light: string; main: string; dark: string }> = {
@@ -197,9 +203,18 @@ const buildComponentOverrides = (mode: PaletteMode) => {
     MuiAppBar: {
       styleOverrides: {
         root: {
+          height: 56,
           boxShadow: '0px 1px 3px rgba(15, 23, 42, 0.08)',
           backgroundColor: isLight ? alpha('#FFFFFF', 0.92) : alpha('#111827', 0.9),
           backdropFilter: 'blur(12px)',
+        },
+      },
+    },
+    MuiToolbar: {
+      styleOverrides: {
+        root: {
+          minHeight: '56px !important',
+          height: 56,
         },
       },
     },
@@ -221,7 +236,7 @@ const buildComponentOverrides = (mode: PaletteMode) => {
       },
       variants: [
         {
-          props: { variant: 'soft' as any },
+          props: { variant: 'soft' },
           style: ({ theme }) => ({
             backgroundColor: alpha(theme.palette.primary.main, 0.12),
             color: theme.palette.primary.main,
@@ -243,26 +258,28 @@ const buildComponentOverrides = (mode: PaletteMode) => {
     MuiListItemButton: {
       styleOverrides: {
         root: ({ theme }) => ({
+          height: 44,
           borderRadius: 12,
-          paddingBlock: 10,
-          paddingInline: 16,
+          paddingLeft: 16,
+          paddingRight: 12,
           marginBlock: 2,
           transition: theme.transitions.create(['background-color', 'transform'], { duration: 120 }),
           '&:hover': {
             backgroundColor: alpha(theme.palette.primary.main, 0.08),
-            transform: 'translateX(2px)',
           },
           '&.Mui-selected': {
-            backgroundColor: alpha(theme.palette.primary.main, 0.15),
+            backgroundColor: alpha(theme.palette.primary.main, 0.08),
             color: theme.palette.primary.main,
             fontWeight: 600,
+            position: 'relative',
             '&::before': {
               content: '""',
               position: 'absolute',
-              insetBlock: 10,
-              left: 4,
+              left: 0,
+              top: 8,
+              bottom: 8,
               width: 3,
-              borderRadius: 3,
+              borderRadius: 2,
               backgroundColor: theme.palette.primary.main,
             },
           },
@@ -281,9 +298,10 @@ const buildComponentOverrides = (mode: PaletteMode) => {
       styleOverrides: {
         root: ({ theme }) => ({
           '& .MuiOutlinedInput-root': {
+            height: 44,
             borderRadius: 12,
             backgroundColor: isLight ? '#FFFFFF' : alpha('#1E293B', 0.8),
-            boxShadow: isLight ? '0 8px 16px rgba(15, 23, 42, 0.08)' : '0 8px 16px rgba(8, 15, 35, 0.52)',
+            boxShadow: isLight ? '0 1px 2px rgba(16,24,40,0.06), 0 1px 1px rgba(16,24,40,0.04)' : '0 8px 16px rgba(8, 15, 35, 0.52)',
             '& fieldset': {
               borderColor: 'transparent',
             },
@@ -293,6 +311,16 @@ const buildComponentOverrides = (mode: PaletteMode) => {
             },
           },
         }),
+      },
+    },
+    MuiCardContent: {
+      styleOverrides: {
+        root: {
+          padding: 24,
+          '&:last-child': {
+            paddingBottom: 24,
+          },
+        },
       },
     },
     MuiIconButton: {
@@ -360,8 +388,8 @@ export const createTheme  = (
   const baseTheme = muiCreateTheme({
     palette,
     typography,
-    shape: { borderRadius: 12 },
-    spacing: density === 'compact' ? 6 : 8,
+    shape: { borderRadius: 16 },
+    spacing: 8, // 1 unit = 8px, so spacing={3} = 24px
     shadows: buildShadows(mode),
   });
 
@@ -373,5 +401,5 @@ export const createTheme  = (
   themeWithOverrides.palette.background = palette.background!;
   themeWithOverrides.palette.text = palette.text!;
 
-  return themeWithOverrides;
+  return responsiveFontSizes(themeWithOverrides);
 };

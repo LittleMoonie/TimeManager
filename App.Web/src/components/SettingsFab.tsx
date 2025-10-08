@@ -44,8 +44,8 @@ export const SettingsFab = () => {
           aria-label="Open appearance settings"
           sx={{
             position: 'fixed',
-            right: { xs: 16, md: 32 },
-            bottom: { xs: 24, md: 36 },
+            right: 24,
+            bottom: 24,
             zIndex: (theme) => theme.zIndex.tooltip + 1,
             boxShadow: (theme) => theme.shadows[4],
           }}

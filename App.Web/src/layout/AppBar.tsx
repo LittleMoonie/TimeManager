@@ -37,59 +37,108 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
   const handleMenuClose = () => setAnchorEl(null);
 
   return (
-    <AppBar position="fixed" color="default" elevation={0} sx={{ borderBottom: '1px solid rgba(145,158,171,0.1)' }}>
+    <AppBar 
+      position="fixed" 
+      elevation={0} 
+      sx={{ 
+        backgroundColor: 'background.paper', // Match sidebar color
+        borderBottom: '1px solid rgba(145,158,171,0.1)',
+        borderRadius: 0,
+        width: '100%', // Full width across entire screen
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+        '& .MuiToolbar-root': {
+          borderRadius: 0,
+        }
+      }}
+    >
       <Toolbar
         sx={{
-          minHeight: 64,
+          minHeight: 56,
+          height: 56,
           px: { xs: 2, md: 3 },
-          gap: 2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
         }}
       >
-        {!isDesktop && (
+        {/* Left side - Company info */}
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Typography variant="subtitle2" fontWeight={600} color="text.primary">
+              Acme Corporation
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Enterprise Dashboard
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Center - Hamburger and Search */}
+        <Box sx={{ display: 'flex', justifyContent: 'center', flexGrow: 1, alignItems: 'center', gap: 3 }}>
           <IconButton
-            edge="start"
-            aria-label="Open navigation menu"
+            aria-label="Toggle navigation menu"
             onClick={onMenuClick}
-            sx={{ display: { xs: 'inline-flex', lg: 'none' } }}
+            sx={{ 
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 1,
+              p: 0.75,
+            }}
           >
-            <MenuRounded />
+            <MenuRounded fontSize="small" />
           </IconButton>
-        )}
-
-        <TextField
-          fullWidth
-          placeholder="Search projects, tasks..."
-          variant="outlined"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchRounded fontSize="small" />
-              </InputAdornment>
-            ),
-            sx: {
-              borderRadius: 3,
-              backgroundColor: (theme) => alpha(theme.palette.background.paper, 0.92),
-              '& .MuiOutlinedInput-input': {
-                py: 1.2,
+          
+          <TextField
+            placeholder="Search projects, tasks..."
+            variant="outlined"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchRounded fontSize="small" />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton 
+                    aria-label="Notifications" 
+                    size="small"
+                    sx={{ mr: -1 }}
+                  >
+                    <TuneRounded />
+                  </IconButton>
+                </InputAdornment>
+              ),
+              sx: {
+                borderRadius: 1.5,
+                backgroundColor: 'background.default',
+                '& .MuiOutlinedInput-input': {
+                  py: 1,
+                },
+                '& fieldset': {
+                  borderColor: 'divider',
+                },
+                '&:hover fieldset': {
+                  borderColor: 'primary.main',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: 'primary.main',
+                },
               },
-            },
-          }}
-          sx={{
-            maxWidth: { xs: '100%', md: 420, lg: 520 },
-            flexGrow: 1,
-          }}
-          aria-label="Search"
-        />
+            }}
+            sx={{
+              width: { xs: '100%', md: 420, lg: 520 },
+              maxWidth: 520,
+            }}
+            aria-label="Search"
+          />
+        </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <IconButton aria-label="Notifications" sx={{ position: 'relative' }}>
-            <Badge color="error" variant="dot" overlap="circular">
-              <NotificationsRounded />
-            </Badge>
-          </IconButton>
-
+        {/* Right side - Settings and Avatar */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <IconButton aria-label="Interface settings">
-            <TuneRounded />
+            <Badge color="error" variant="dot" overlap="circular">
+              <NotificationsRounded fontSize="small" />
+            </Badge>
           </IconButton>
 
           <IconButton
@@ -98,7 +147,7 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
             aria-haspopup="true"
             aria-expanded={anchorEl ? 'true' : undefined}
             onClick={handleAvatarClick}
-            sx={{ p: 0 }}
+            sx={{ p: 0, ml: 1 }}
           >
             <Avatar sx={{ width: 36, height: 36, fontSize: '0.95rem', fontWeight: 600 }}>HJ</Avatar>
           </IconButton>
