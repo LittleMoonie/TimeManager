@@ -14,7 +14,7 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
           │
     ┌─────▼─────┐
     │  Frontend │
-    │ (Next.js) │
+    │  (React)  │
     └─────┬─────┘
           │
     ┌─────▼─────┐
@@ -32,7 +32,7 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
 
 ### 1. Presentation Layer (Frontend)
 
-**Technology**: Next.js 15+ with App Router, React 19, TypeScript
+**Technology**: React 19 & Vite App Router, TypeScript
 
 **Responsibilities**:
 - User interface and user experience
@@ -342,7 +342,7 @@ CMD ["npm", "start"]
 
 ### Frontend Choices
 
-- **Next.js**: Server-side rendering and performance optimization
+- **React 19 + Vite**: Fast development and optimized builds
 - **TypeScript**: Type safety and developer experience
 - **MUI**: Consistent design system and accessibility
 - **Zustand**: Lightweight state management

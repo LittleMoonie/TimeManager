@@ -30,7 +30,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 
 **Key Topics**:
 - Project overview and business context
-- Technology stack summary (Next.js, Node.js, PostgreSQL, Redis, Docker)
+- Technology stack summary (React + Vite, Node.js, PostgreSQL, Docker)
 - Quick start instructions for developers
 - Development environment setup
 - Project structure and monorepo organization
@@ -44,7 +44,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 
 **Key Topics**:
 - System overview and high-level architecture
-- Frontend architecture (Next.js, React, TypeScript, MUI)
+- Frontend architecture (React 19, Vite, TypeScript, MUI)
 - Backend architecture (Node.js, Express, TypeScript)
 - Database design and Prisma ORM integration
 - Caching layer with Redis
@@ -109,7 +109,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 **Purpose**: Authentication, authorization, and comprehensive security policies.
 
 **Key Topics**:
-- JWT and OIDC implementation with NextAuth
+- JWT authentication with bcrypt password hashing
 - Role-based access control (RBAC) and attribute-based access control (ABAC)
 - Password hashing with bcrypt and security policies
 - Input validation and sanitization with Zod
@@ -251,7 +251,7 @@ ncy-8/
 │   ├── NETWORKING_DELIVERY.md
 │   ├── DEVELOPER_EXPERIENCE.md
 │   └── THREAT_MODEL.md
-├── front/                         # Next.js frontend application
+├── App.Web/                       # React + Vite frontend application
 │   ├── src/
 │   │   ├── app/                   # App Router pages
 │   │   ├── components/            # Reusable React components
