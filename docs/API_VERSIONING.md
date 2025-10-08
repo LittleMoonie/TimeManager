@@ -108,13 +108,13 @@ v1.0 (Stable)     v1.1 (Stable)     v2.0 (Stable)
    ```
 
 3. **Changing Endpoint Behavior**:
-   ```javascript
+   ```typescript
    // v1.0: GET /users returns all users
    // v2.0: GET /users requires organization filter
    ```
 
 4. **Removing Endpoints**:
-   ```javascript
+   ```typescript
    // v1.0: DELETE /users/:id
    // v2.0: Endpoint removed, use DELETE /api/v2/users/:id/archive
    ```
@@ -204,7 +204,7 @@ GET /api/versions HTTP/1.1
 
 ### SDK Version Strategy
 
-```javascript
+```typescript
 // SDK versioning
 const client = new NCY8Client({
   apiVersion: 'v2.0',
@@ -283,7 +283,7 @@ jobs:
 ## Breaking Changes
 
 ### User Creation
-```javascript
+```typescript
 // v1.0
 POST /api/v1/users
 {
@@ -301,7 +301,7 @@ POST /api/v2/users
 ```
 
 ### Response Format
-```javascript
+```typescript
 // v1.0
 {
   "id": "user_123",
@@ -331,10 +331,10 @@ POST /api/v2/users
 
 ### Automated Migration Tools
 
-```javascript
+```typescript
 // Migration helper
 class APIMigrator {
-  async migrateUser(userData) {
+  async migrateUser(userData: UserData): Promise<User> {
     if (this.apiVersion === 'v1.0') {
       return this.createUserV1(userData);
     } else {
@@ -342,7 +342,7 @@ class APIMigrator {
     }
   }
   
-  async createUserV2(userData) {
+  async createUserV2(userData: UserData): Promise<User> {
     // Ensure organization_id is present
     if (!userData.organization_id) {
       throw new Error('organization_id required in v2.0');
@@ -356,10 +356,10 @@ class APIMigrator {
 
 ### Version Compatibility Testing
 
-```javascript
+```typescript
 // Version compatibility tests
 describe('API Version Compatibility', () => {
-  test.each(['v1.0', 'v1.1', 'v2.0'])('should support %s', async (version) => {
+  test.each(['v1.0', 'v1.1', 'v2.0'])('should support %s', async (version: string) => {
     const client = new NCY8Client({ apiVersion: version });
     const users = await client.users.list();
     expect(users).toBeDefined();
@@ -375,7 +375,7 @@ describe('API Version Compatibility', () => {
 
 ### Contract Testing
 
-```javascript
+```typescript
 // API contract tests
 describe('API Contracts', () => {
   test('v2.0 user response contract', async () => {
@@ -405,9 +405,9 @@ describe('API Contracts', () => {
 
 ### Version Usage Tracking
 
-```javascript
+```typescript
 // Version usage metrics
-const versionMetrics = {
+const versionMetrics: Record<string, VersionMetrics> = {
   'v1.0': {
     requests: 15000,
     users: 500,
@@ -423,9 +423,9 @@ const versionMetrics = {
 
 ### Migration Progress Tracking
 
-```javascript
+```typescript
 // Migration dashboard
-const migrationStatus = {
+const migrationStatus: MigrationStatus = {
   total_clients: 1000,
   migrated_to_v2: 750,
   still_on_v1: 250,

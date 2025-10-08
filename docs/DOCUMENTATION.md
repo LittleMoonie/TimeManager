@@ -44,8 +44,8 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 
 **Key Topics**:
 - System overview and high-level architecture
-- Frontend architecture (Next.js, React, Javascript, MUI)
-- Backend architecture (Node.js, Express, Javascript)
+- Frontend architecture (Next.js, React, TypeScript, MUI)
+- Backend architecture (Node.js, Express, TypeScript)
 - Database design and Prisma ORM integration
 - Caching layer with Redis
 - Infrastructure components (Docker, Nginx, monitoring)
@@ -64,7 +64,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 - Conventional commits and commitlint setup
 - ESLint and Prettier configuration
 - Husky pre-commit hooks and lint-staged
-- Javascript configuration and strict mode
+- TypeScript configuration and strict mode
 - Code review guidelines and quality gates
 - Automated testing integration
 - Documentation standards and JSDoc usage
@@ -268,7 +268,7 @@ ncy-8/
 │   │   └── utils/                 # Utility functions
 │   └── package.json
 ├── shared/                        # Shared code and types
-│   ├── types/                     # Shared Javascript types
+│   ├── types/                     # Shared TypeScript types
 │   ├── schemas/                   # Zod validation schemas
 │   └── constants/                 # Shared constants
 ├── infrastructure/                # Infrastructure as Code

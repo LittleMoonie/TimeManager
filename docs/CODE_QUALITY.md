@@ -63,7 +63,7 @@ module.exports = {
 }
 ```
 
-### Javascript Configuration
+### TypeScript Configuration
 
 ```json
 {
@@ -407,7 +407,7 @@ jobs:
 **Recommended Extensions**:
 - ESLint
 - Prettier
-- Javascript Importer
+- TypeScript Importer
 - GitLens
 - Thunder Client (API testing)
 

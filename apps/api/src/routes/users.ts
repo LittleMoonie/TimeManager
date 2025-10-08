@@ -1,278 +1,188 @@
-import { Router } from 'express';
-import { z } from 'zod';
-import { prisma } from '@ncy-8/database';
-import { authenticateToken, requireRole, AuthenticatedRequest } from '../middleware/auth';
-import { validateBody, validateQuery, validateParams } from '../middleware/validation';
+import * as bcrypt from '@node-rs/bcrypt';
+import express, { Request, Response, Router } from 'express';
+import Joi from 'joi';
+import jwt from 'jsonwebtoken';
 
-const router = Router();
+import { checkToken } from '../config/safeRoutes';
+import ActiveSession from '../models/activeSession';
+import User from '../models/user';
+import { AppDataSource } from '../server/database';
 
-// Validation schemas
-const createUserSchema = z.object({
-  email: z.string().email('Invalid email format'),
-  password: z.string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 
-      'Password must contain uppercase, lowercase, number, and special character'),
-  name: z.string().min(1, 'Name is required').max(100, 'Name too long'),
-  role: z.enum(['ADMIN', 'MANAGER', 'EMPLOYEE']),
-  organizationId: z.string().uuid().optional(),
+
+const router: Router = express.Router();
+
+// Joi schema for validation
+const userSchema = Joi.object({
+  email: Joi.string().email().required(),
+  username: Joi.string().alphanum().min(4).max(15).optional(),
+  password: Joi.string().required(),
 });
 
-const updateUserSchema = z.object({
-  name: z.string().min(1).max(100).optional(),
-  role: z.enum(['ADMIN', 'MANAGER', 'EMPLOYEE']).optional(),
-  status: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED', 'PENDING']).optional(),
-});
+// 🧩 REGISTER
+router.post(
+  '/register',
+  async (
+    req: Request & { body: { username: string; email: string; password: string } },
+    res: Response
+  ) => {
+    const { error } = userSchema.validate(req.body);
+    if (error) {
+      return res.status(422).json({
+        success: false,
+        msg: `Validation error: ${error.details[0].message}`,
+      });
+    }
 
-const querySchema = z.object({
-  page: z.string().transform(Number).default('1'),
-  limit: z.string().transform(Number).default('20'),
-  search: z.string().optional(),
-  role: z.enum(['ADMIN', 'MANAGER', 'EMPLOYEE']).optional(),
-  status: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED', 'PENDING']).optional(),
-});
+    const { username, email, password } = req.body;
+    const userRepository = AppDataSource.getRepository(User);
 
-const paramsSchema = z.object({
-  id: z.string().uuid(),
-});
-
-// GET /api/v1/users
-router.get('/', 
-  authenticateToken, 
-  requireRole(['ADMIN', 'MANAGER']), 
-  validateQuery(querySchema),
-  async (req: AuthenticatedRequest, res, next) => {
     try {
-      const { page, limit, search, role, status } = req.query as any;
-      const skip = (page - 1) * limit;
-
-      const where: any = {
-        deletedAt: null,
-      };
-
-      if (search) {
-        where.OR = [
-          { name: { contains: search, mode: 'insensitive' } },
-          { email: { contains: search, mode: 'insensitive' } },
-        ];
+      const existingUser = await userRepository.findOne({ where: { email } });
+      if (existingUser) {
+        return res.json({ success: false, msg: 'Email already exists' });
       }
 
-      if (role) where.role = role;
-      if (status) where.status = status;
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-      const [users, total] = await Promise.all([
-        prisma.user.findMany({
-          where,
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            role: true,
-            status: true,
-            lastLoginAt: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-          skip,
-          take: limit,
-          orderBy: { createdAt: 'desc' },
-        }),
-        prisma.user.count({ where }),
-      ]);
+      const newUser = userRepository.create({
+        username,
+        email,
+        password: hashedPassword,
+      });
+      const savedUser = await userRepository.save(newUser);
 
       res.json({
-        data: users,
-        meta: {
-          total,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit),
-        },
+        success: true,
+        userID: savedUser.id,
+        msg: 'The user was successfully registered',
       });
-    } catch (error) {
-      next(error);
+    } catch (err) {
+      console.error('❌ Register error:', err);
+      res.status(500).json({ success: false, msg: 'Internal server error' });
     }
   }
 );
 
-// GET /api/v1/users/:id
-router.get('/:id', 
-  authenticateToken, 
-  validateParams(paramsSchema),
-  async (req: AuthenticatedRequest, res, next) => {
-    try {
-      const { id } = req.params;
-      const userId = req.user!.id;
-      const userRole = req.user!.role;
+// 🧠 LOGIN
+router.post(
+  '/login',
+  async (req: Request & { body: { email: string; password: string } }, res: Response) => {
+    const { error } = userSchema.validate(req.body);
+    if (error) {
+      return res.status(422).json({
+        success: false,
+        msg: `Validation error: ${error.details[0].message}`,
+      });
+    }
 
-      // Users can view their own profile, admins/managers can view others
-      if (id !== userId && !['ADMIN', 'MANAGER'].includes(userRole)) {
-        return res.status(403).json({
-          error: 'Forbidden',
-          message: 'You can only view your own profile',
-        });
+    const { email, password } = req.body;
+    const userRepository = AppDataSource.getRepository(User);
+    const activeSessionRepository = AppDataSource.getRepository(ActiveSession);
+
+    try {
+      const user = await userRepository.findOne({ where: { email } });
+      if (!user?.password) {
+        return res.json({ success: false, msg: 'Wrong credentials' });
       }
 
-      const user = await prisma.user.findUnique({
-        where: { id, deletedAt: null },
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          role: true,
-          status: true,
-          lastLoginAt: true,
-          createdAt: true,
-          updatedAt: true,
-          organizationMembers: {
-            where: { deletedAt: null },
-            include: {
-              organization: {
-                select: {
-                  id: true,
-                  name: true,
-                  slug: true,
-                },
-              },
-            },
-          },
-        },
-      });
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.json({ success: false, msg: 'Wrong credentials' });
+      }
 
+      if (!process.env.SECRET) {
+        throw new Error('SECRET not provided');
+      }
+
+      const token = jwt.sign(
+        { id: user.id, username: user.username, email: user.email },
+        process.env.SECRET,
+        { expiresIn: 86400 } // 1 day
+      );
+
+      await activeSessionRepository.save({ userId: user.id, token });
+
+      // Hide password in response
+      (user as { password?: string }).password = undefined;
+
+      res.json({ success: true, token, user });
+    } catch (err) {
+      console.error('❌ Login error:', err);
+      res.status(500).json({ success: false, msg: 'Internal server error' });
+    }
+  }
+);
+
+// 🚪 LOGOUT
+router.post(
+  '/logout',
+  checkToken,
+  async (req: Request & { body: { token: string } }, res: Response) => {
+    const { token } = req.body;
+    const activeSessionRepository = AppDataSource.getRepository(ActiveSession);
+
+    try {
+      await activeSessionRepository.delete({ token });
+      res.json({ success: true });
+    } catch {
+      res.json({ success: false, msg: 'Token revocation failed' });
+    }
+  }
+);
+
+// 🔍 CHECK SESSION
+router.post('/checkSession', checkToken, (_req: Request, res: Response) => {
+  res.json({ success: true });
+});
+
+// 👥 GET ALL USERS
+router.post('/all', checkToken, async (_req: Request, res: Response) => {
+  const userRepository = AppDataSource.getRepository(User);
+  try {
+    const users = await userRepository.find();
+    const sanitizedUsers = users.map((u) => {
+      const user = { ...u };
+      delete (user as { password?: string }).password;
+      return user;
+    });
+    res.json({ success: true, users: sanitizedUsers });
+  } catch {
+    res.json({ success: false });
+  }
+});
+
+// ✏️ EDIT USER
+router.post(
+  '/edit',
+  checkToken,
+  async (
+    req: Request & { body: { userID: string; username: string; email: string } },
+    res: Response
+  ) => {
+    const { userID, username, email } = req.body;
+    const userRepository = AppDataSource.getRepository(User);
+
+    try {
+      const user = await userRepository.findOne({ where: { id: userID } });
       if (!user) {
-        return res.status(404).json({
-          error: 'Not Found',
-          message: 'User not found',
-        });
+        return res.json({ success: false, msg: 'User not found' });
       }
 
-      res.json({ data: user });
-    } catch (error) {
-      next(error);
+      user.username = username;
+      user.email = email;
+      await userRepository.save(user);
+
+      res.json({ success: true });
+    } catch (err) {
+      console.error('❌ Edit error:', err);
+      res.json({ success: false, msg: 'There was an error updating user' });
     }
   }
 );
 
-// POST /api/v1/users
-router.post('/', 
-  authenticateToken, 
-  requireRole(['ADMIN']), 
-  validateBody(createUserSchema),
-  async (req: AuthenticatedRequest, res, next) => {
-    try {
-      const { email, password, name, role, organizationId } = req.body;
-      
-      // Hash password
-      const bcrypt = require('bcryptjs');
-      const passwordHash = await bcrypt.hash(password, 12);
+// 🔧 TEST ROUTE
+router.get('/testme', (_req: Request, res: Response) => {
+  res.status(200).json({ success: true, msg: 'all good' });
+});
 
-      const user = await prisma.user.create({
-        data: {
-          email,
-          passwordHash,
-          name,
-          role,
-          status: 'ACTIVE',
-        },
-      });
-
-      // Add to organization if provided
-      if (organizationId) {
-        await prisma.organizationMember.create({
-          data: {
-            organizationId,
-            userId: user.id,
-            role: 'MEMBER',
-          },
-        });
-      }
-
-      res.status(201).json({
-        data: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          status: user.status,
-          createdAt: user.createdAt,
-        },
-        message: 'User created successfully',
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
-// PUT /api/v1/users/:id
-router.put('/:id', 
-  authenticateToken, 
-  validateParams(paramsSchema),
-  validateBody(updateUserSchema),
-  async (req: AuthenticatedRequest, res, next) => {
-    try {
-      const { id } = req.params;
-      const userId = req.user!.id;
-      const userRole = req.user!.role;
-      const updateData = req.body;
-
-      // Users can update their own profile (limited fields), admins can update others
-      if (id !== userId && !['ADMIN'].includes(userRole)) {
-        return res.status(403).json({
-          error: 'Forbidden',
-          message: 'You can only update your own profile',
-        });
-      }
-
-      // Non-admins can only update their name
-      if (id !== userId || !['ADMIN'].includes(userRole)) {
-        delete updateData.role;
-        delete updateData.status;
-      }
-
-      const user = await prisma.user.update({
-        where: { id, deletedAt: null },
-        data: updateData,
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          role: true,
-          status: true,
-          updatedAt: true,
-        },
-      });
-
-      res.json({
-        data: user,
-        message: 'User updated successfully',
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
-// DELETE /api/v1/users/:id
-router.delete('/:id', 
-  authenticateToken, 
-  requireRole(['ADMIN']), 
-  validateParams(paramsSchema),
-  async (req: AuthenticatedRequest, res, next) => {
-    try {
-      const { id } = req.params;
-
-      // Soft delete user
-      await prisma.user.update({
-        where: { id },
-        data: { deletedAt: new Date() },
-      });
-
-      res.status(204).send();
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
-export { router as userRoutes };
+export default router;

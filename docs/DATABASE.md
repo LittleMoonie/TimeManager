@@ -9,8 +9,8 @@ This document outlines the database strategy for the NCY_8 platform, including s
 ### Technology Stack
 
 - **Database**: PostgreSQL 15+
-- **ORM**: Prisma 5+
-- **Connection Pooling**: PgBouncer
+- **ORM**: TypeORM 0.3+
+- **Connection Pooling**: Built-in PostgreSQL driver
 - **Backup**: pg_dump with point-in-time recovery
 - **Monitoring**: postgres_exporter + Prometheus
 

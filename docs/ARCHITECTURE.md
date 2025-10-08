@@ -32,7 +32,7 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
 
 ### 1. Presentation Layer (Frontend)
 
-**Technology**: Next.js 15+ with App Router, React 19, Javascript
+**Technology**: Next.js 15+ with App Router, React 19, TypeScript
 
 **Responsibilities**:
 - User interface and user experience
@@ -56,7 +56,7 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
 
 ### 2. API Layer (Backend)
 
-**Technology**: Node.js, Express.js, Javascript
+**Technology**: Node.js, Express.js, TypeScript
 
 **Responsibilities**:
 - RESTful API endpoints
@@ -343,13 +343,13 @@ CMD ["npm", "start"]
 ### Frontend Choices
 
 - **Next.js**: Server-side rendering and performance optimization
-- **Javascript**: Type safety and developer experience
+- **TypeScript**: Type safety and developer experience
 - **MUI**: Consistent design system and accessibility
 - **Zustand**: Lightweight state management
 
 ### Backend Choices
 
-- **Node.js**: JavaScript ecosystem consistency
+- **Node.js**: TypeScript ecosystem consistency
 - **Express**: Mature and flexible web framework
 - **Prisma**: Type-safe database access and migrations
 - **Redis**: High-performance caching and session storage
