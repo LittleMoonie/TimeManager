@@ -7,8 +7,8 @@ WORKDIR /app
 # Enable Yarn
 RUN corepack enable && corepack prepare yarn@stable --activate
 
-# Copy package manifests and install dependencies
-COPY package.json yarn.lock* ./
+# Copy dependency manifests first (cache layer)
+COPY package.json yarn.lock ./
 
 # Install dependencies with strict mode (fallback for dev env)
 RUN yarn install --immutable || yarn install

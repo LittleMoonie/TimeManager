@@ -527,8 +527,8 @@ COPY nginx.conf /etc/nginx/nginx.conf
 
 # Security: non-root user
 RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
-USER nextjs
+RUN adduser -S reactjs -u 1001
+USER reactjs
 
 EXPOSE 3000
 CMD ["nginx", "-g", "daemon off;"]
@@ -630,8 +630,6 @@ services:
       dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:3001
     depends_on:
       - backend
     volumes:
@@ -671,9 +669,6 @@ spec:
         image: ncy8/frontend:latest
         ports:
         - containerPort: 3000
-        env:
-        - name: NEXT_PUBLIC_API_URL
-          value: "https://api.ncy-8.com"
         resources:
           requests:
             memory: "128Mi"

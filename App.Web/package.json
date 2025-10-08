@@ -17,7 +17,9 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "prepare": "husky"
+    "prepare": "husky",
+    "api:generate-client": "openapi-typescript ../App.API/swagger.json -o src/lib/api/client.ts",
+    "api:client": "yarn api:generate-client"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -58,6 +60,7 @@
     "husky": "^9.1.7",
     "jsdom": "^25.0.1",
     "lint-staged": "^15.2.10",
+    "openapi-typescript": "^7.9.1",
     "prettier": "^3.3.3",
     "sass": "^1.81.0",
     "typescript": "^5.9.3",
