@@ -24,12 +24,13 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@/app': path.resolve(__dirname, './src/app'),
+      '@/assets': path.resolve(__dirname, './src/assets'),
       '@/components': path.resolve(__dirname, './src/components'),
-      '@/features': path.resolve(__dirname, './src/features'),
       '@/hooks': path.resolve(__dirname, './src/hooks'),
       '@/lib': path.resolve(__dirname, './src/lib'),
-      '@/styles': path.resolve(__dirname, './src/styles'),
-      '@/assets': path.resolve(__dirname, './src/assets'),
+      '@/pages': path.resolve(__dirname, './src/pages'),
+      '@/themes': path.resolve(__dirname, './src/themes'),
       '@/types': path.resolve(__dirname, './src/types'),
     },
   },
