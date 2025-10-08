@@ -1,52 +1,89 @@
-# NCY_8 - Enterprise Application Platform
+# GoGoTime - Modern Time Tracking Platform
 
-[![CI/CD](https://github.com/your-org/ncy-8/workflows/CI/badge.svg)](https://github.com/your-org/ncy-8/actions)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-19+-61dafb.svg)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-24+-green.svg)](https://nodejs.org/)
+[![Docker](https://img.shields.io/badge/Docker-Enabled-2496ed.svg)](https://docker.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Javascript](https://img.shields.io/badge/Javascript-5.0+-blue.svg)](https://www.typescriptlang.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
 
-## Overview
+## 📊 Overview
 
-NCY_8 is a modern, enterprise-grade application platform built with a focus on scalability, security, and developer experience. The platform provides a comprehensive solution for business operations with robust authentication, role-based access control, and real-time capabilities.
+> [!SUMMARY] **GoGoTime at a Glance**
+> GoGoTime is a modern, full-stack time tracking and project management platform designed for teams and individuals. Built with React, Node.js, and PostgreSQL, it emphasizes developer experience, type safety, and scalable architecture.
 
-### Key Features
+**🎯 Core Purpose:** Streamline time tracking, project management, and team collaboration with an intuitive, powerful interface.
 
-- **Modern Stack**: Next.js frontend with Node.js/Express backend
-- **Type Safety**: Full Javascript implementation with shared type definitions
-- **Authentication**: JWT-based auth with NextAuth.js and OIDC support
-- **Database**: PostgreSQL with Prisma ORM for type-safe database operations
-- **Caching**: Redis for session management and performance optimization
-- **Real-time**: WebSocket support for live updates and notifications
-- **Monitoring**: Comprehensive observability with Prometheus, Grafana, and structured logging
-- **Security**: Enterprise-grade security with RBAC, input validation, and threat protection
-- **DevOps**: Containerized deployment with Docker and automated CI/CD pipelines
+### ✨ Key Features
 
-## Technology Stack
+- **🎨 Modern Frontend**: React 19 + Vite + TypeScript + Material-UI for fast, responsive UIs
+- **⚡ Type-Safe Backend**: Node.js + Express + TypeScript + TypeORM for robust API development  
+- **🔐 Secure Authentication**: JWT-based auth with session management and password hashing
+- **🗄️ Reliable Database**: PostgreSQL with TypeORM for type-safe data operations
+- **📦 Containerized**: Docker Compose setup for consistent development and deployment
+- **🎯 Developer Experience**: Hot reload, linting, testing, and modern tooling
+- **♿ Accessible Design**: Material-UI components with WCAG compliance
+- **🔧 Extensible**: Modular architecture for easy feature addition and customization
 
-### Frontend
-- **Framework**: Next.js 15+ with App Router
-- **Language**: Javascript 
-- **UI Library**: Material-UI (MUI) v5
-- **Styling**: Tailwind CSS v4
-- **State Management**: React Context + Zustand
-- **Forms**: React Hook Form with Zod validation
-- **Testing**: Jest + React Testing Library + Playwright
+## 🛠️ Technology Stack
 
-### Backend
-- **Runtime**: Node.js 18+
-- **Framework**: Express.js with Javascript
-- **Database**: PostgreSQL 15+ with Prisma ORM
-- **Cache**: Redis 7+ with BullMQ for job queues
-- **Authentication**: NextAuth.js with JWT and OIDC
-- **Validation**: Zod schemas for runtime type checking
-- **Testing**: Jest + Supertest for API testing
+```mermaid
+graph TB
+    subgraph "Frontend Layer"
+        A[React 19] --> B[Vite]
+        A --> C[TypeScript]
+        A --> D[Material-UI v7]
+        A --> E[Redux Toolkit]
+    end
+    
+    subgraph "Backend Layer"
+        F[Node.js 24] --> G[Express.js]
+        F --> H[TypeScript]
+        G --> I[TypeORM]
+        G --> J[JWT Auth]
+    end
+    
+    subgraph "Data Layer"
+        K[PostgreSQL 18]
+        L[Docker Volumes]
+    end
+    
+    subgraph "Infrastructure"
+        M[Docker Compose]
+        N[Hot Reload]
+        O[Health Checks]
+    end
+    
+    A -.->|API Calls| G
+    I --> K
+    M --> A
+    M --> F
+    M --> K
+```
 
-### Infrastructure
-- **Containerization**: Docker with multi-stage builds
-- **Reverse Proxy**: Nginx with Let's Encrypt SSL
-- **Monitoring**: Prometheus + Grafana + Loki
-- **CI/CD**: GitHub Actions + Jenkins
-- **Load Testing**: k6 for performance validation
+### 🎨 Frontend Stack
+- **⚛️ Framework**: React 19 with modern hooks and concurrent features
+- **🏗️ Build Tool**: Vite for lightning-fast development and optimized builds
+- **📝 Language**: TypeScript 5+ for type safety and better DX
+- **🎨 UI Framework**: Material-UI v7 with emotion-based styling
+- **🗂️ State Management**: Redux Toolkit with RTK Query for API state
+- **🧪 Testing**: Vitest + React Testing Library for component testing
+- **📐 Linting**: ESLint + Prettier for consistent code quality
+
+### ⚙️ Backend Stack  
+- **🚀 Runtime**: Node.js 24+ with ES modules support
+- **🌐 Framework**: Express.js with TypeScript for robust API development
+- **🗃️ ORM**: TypeORM for type-safe database operations and migrations
+- **🔐 Authentication**: JWT with bcrypt password hashing
+- **✅ Validation**: Joi schemas for request validation
+- **🧪 Testing**: Jest + Supertest for API endpoint testing
+- **📊 Monitoring**: Built-in health check endpoints
+
+### 🗄️ Database & Infrastructure
+- **💾 Database**: PostgreSQL 18 with Alpine Linux for performance
+- **📦 Containerization**: Docker Compose for development consistency  
+- **🔄 Development**: Hot reload and file watching for both frontend and backend
+- **💾 Data Persistence**: Named volumes for database and node_modules caching
+- **🌐 Networking**: Bridge network for secure inter-service communication
 
 ## Quick Start
 
@@ -59,191 +96,330 @@ NCY_8 is a modern, enterprise-grade application platform built with a focus on s
 
 ### Development Setup
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-org/ncy-8.git
-   cd ncy-8
-   ```
+```bash
+# 1. Clone the repository
+git clone <your-repo-url>
+cd T-DEV-700-project-NCY_8
 
-2. **Install dependencies**
-   ```bash
-   pnpm install
-   ```
+# 2. Create environment file (optional - has sensible defaults)
+cp .env.example .env
 
-3. **Environment configuration**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
+# 3. Start everything with Docker Compose
+cd App.Infra
+docker compose up --build
 
-4. **Start development environment**
-   ```bash
-   # Start all services with Docker Compose
-   docker-compose up -d postgres redis
-   
-   # Run database migrations
-   pnpm db:migrate
-   
-   # Seed development data
-   pnpm db:seed
-   
-   # Start development servers
-   pnpm dev
-   ```
+# 4. Access the application
+# Frontend: http://localhost:3000
+# Backend API: http://localhost:4000
+# Database: localhost:5432
+```
 
-5. **Access the application**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:3001
-   - API Documentation: http://localhost:3001/docs
+> [!TIP] **First Time Setup**
+> The application will automatically:
+> - Install all dependencies
+> - Set up the PostgreSQL database
+> - Run database migrations
+> - Start development servers with hot reload
 
-### Production Deployment
+### 🏗️ Development Commands
 
 ```bash
-# Build and deploy with Docker
-docker-compose -f docker-compose.prod.yml up -d
+# Start development environment
+cd App.Infra
+docker compose up
 
-# Or use the deployment script
-./scripts/deployment/deploy.sh production
+# Start specific services
+docker compose up db api        # Database + API only
+docker compose up db web        # Database + Frontend only
+
+# View logs
+docker compose logs -f api      # API logs
+docker compose logs -f web      # Frontend logs
+
+# Stop services
+docker compose down             # Stop all
+docker compose down -v          # Stop all + remove volumes
 ```
 
-## Project Structure
+### 🧪 Testing & Quality
+
+```bash
+# Frontend tests
+cd App.Web
+yarn test                       # Run tests
+yarn test:coverage              # Coverage report
+yarn lint                       # Lint code
+
+# Backend tests
+cd App.API
+yarn test                       # Run API tests
+yarn lint                       # Lint code
+```
+
+## 📁 Project Structure
+
+> [!NOTE] **Monorepo Architecture**
+> GoGoTime uses a organized monorepo structure with clear separation of concerns between frontend, backend, infrastructure, and documentation.
 
 ```
-ncy-8/
-├── front/                 # Next.js frontend application
+T-DEV-700-project-NCY_8/
+├── 📱 App.Web/                    # React Frontend Application
 │   ├── src/
-│   │   ├── app/          # App Router pages and layouts
-│   │   ├── components/   # Reusable React components
-│   │   ├── lib/          # Utilities and configurations
-│   │   └── types/        # Javascript type definitions
-│   └── public/           # Static assets
-├── back/                 # Node.js backend API
+│   │   ├── components/           # Reusable React components
+│   │   │   ├── layout/           # Layout components (Header, Sidebar, etc.)
+│   │   │   ├── common/           # Shared UI components
+│   │   │   └── guards/           # Route protection components
+│   │   ├── features/             # Feature-based modules
+│   │   │   ├── auth/             # Authentication pages
+│   │   │   ├── dashboard/        # Dashboard components
+│   │   │   └── utilities/        # Utility pages
+│   │   ├── lib/                  # Core application logic
+│   │   │   ├── store/            # Redux store configuration
+│   │   │   ├── routes/           # React Router setup
+│   │   │   └── menu-items/       # Navigation configuration
+│   │   ├── hooks/                # Custom React hooks
+│   │   ├── themes/               # Material-UI theme customization
+│   │   └── types/                # TypeScript type definitions
+│   ├── public/                   # Static assets
+│   ├── package.json              # Frontend dependencies
+│   └── vite.config.ts            # Vite build configuration
+│
+├── 🔧 App.API/                    # Node.js Backend API
 │   ├── src/
-│   │   ├── routes/       # API route handlers
-│   │   ├── middleware/   # Express middleware
-│   │   ├── services/     # Business logic services
-│   │   ├── models/       # Database models and Prisma
-│   │   └── utils/        # Utility functions
-├── shared/               # Shared code and types
-│   ├── types/            # Shared Javascript types
-│   ├── schemas/          # Zod validation schemas
-│   └── constants/        # Shared constants
-├── infrastructure/       # Infrastructure as Code
-├── scripts/              # Automation scripts
-├── tests/                # Integration and E2E tests
-└── docs/                 # Technical documentation
+│   │   ├── routes/               # Express route handlers
+│   │   │   └── users.ts          # User management endpoints
+│   │   ├── models/               # TypeORM entity definitions
+│   │   │   ├── user.ts           # User entity
+│   │   │   ├── activeSession.ts  # Session management
+│   │   │   └── BaseEntity.ts     # Common entity fields
+│   │   ├── config/               # Configuration files
+│   │   │   └── safeRoutes.ts     # JWT middleware
+│   │   ├── server/               # Server setup and database
+│   │   └── migrations/           # Database migrations
+│   ├── tests/                    # API tests
+│   ├── package.json              # Backend dependencies
+│   └── ecosystem.config.cjs      # PM2 configuration
+│
+├── 🏗️ App.Infra/                  # Infrastructure & DevOps
+│   ├── docker-compose.yml        # Development environment
+│   ├── init-scripts/             # Database initialization
+│   └── README.md                 # Infrastructure documentation
+│
+├── 📚 App.Docs/                   # Comprehensive Documentation
+│   ├── INDEX.md                  # Documentation hub (Obsidian-ready)
+│   ├── ARCHITECTURE.md           # System architecture
+│   ├── API_SPECIFICATION.md      # API documentation
+│   ├── DATABASE_DESIGN.md        # Database schema
+│   ├── QUICK_START.md            # Getting started guide
+│   └── [Additional docs...]       # Feature and technical docs
+│
+└── 📄 Root Files
+    ├── README.md                  # Project overview (this file)
+    ├── OVERVIEW.md                # Technical requirements
+    └── .env.example               # Environment template
 ```
 
-## Development Workflow
+### 🎯 Key Architectural Decisions
 
-### Code Quality
+- **🔄 Separation of Concerns**: Clear boundaries between presentation, business logic, and data layers
+- **📦 Feature-Based Organization**: Frontend organized by features rather than file types  
+- **🏷️ TypeScript First**: Full type safety across the entire stack
+- **🐳 Container-Ready**: Docker configuration for consistent development and deployment
+- **📖 Documentation-Driven**: Comprehensive docs with Obsidian integration for better knowledge management
 
-- **Linting**: ESLint with Next.js and Javascript rules
-- **Formatting**: Prettier with consistent configuration
-- **Type Checking**: Strict Javascript configuration
-- **Pre-commit Hooks**: Husky with lint-staged for quality gates
+## 🔄 Development Workflow
 
-### Testing Strategy
+### 📝 Code Quality Standards
 
-- **Unit Tests**: Jest for components and utilities
-- **Integration Tests**: API endpoint testing with Supertest
-- **E2E Tests**: Playwright for user journey validation
-- **Load Tests**: k6 for performance and scalability testing
+- **🔍 Linting**: ESLint with TypeScript and React best practices
+- **🎨 Formatting**: Prettier for consistent code formatting
+- **📊 Type Checking**: Strict TypeScript configuration
+- **🚨 Pre-commit Hooks**: Husky + lint-staged for automated quality checks
 
-### Git Workflow
+### 🧪 Testing Strategy
 
-- **Branching**: Git Flow with feature branches
-- **Commits**: Conventional commits with commitlint
-- **PR Process**: Automated checks and code review requirements
-- **Versioning**: Semantic versioning with automated changelog
+- **⚛️ Unit Tests**: Vitest for React components and utilities
+- **🔗 Integration Tests**: Supertest for API endpoint validation
+- **🎭 E2E Tests**: Playwright for complete user journey testing
+- **🚀 Manual Testing**: Comprehensive test cases and scenarios
 
-## API Documentation
+### 🌿 Git Workflow
 
-The API follows RESTful conventions with comprehensive OpenAPI documentation:
+- **🔀 Branching**: Feature branch workflow with main/develop
+- **📝 Commits**: Conventional commits for clear history
+- **🔄 PR Process**: Code review requirements and automated checks
+- **📋 Issue Tracking**: GitHub Issues with templates and labels
 
-- **Base URL**: `https://api.your-domain.com/api/v1`
-- **Authentication**: Bearer token (JWT) or API key
-- **Content-Type**: `application/json`
-- **Documentation**: Available at `/docs` endpoint
+## 🔌 API Documentation
 
-### Key Endpoints
+> [!NOTE] **RESTful API Design**
+> The API follows REST conventions with consistent response patterns and comprehensive error handling.
 
-- `POST /auth/login` - User authentication
-- `GET /users` - List users (admin only)
-- `GET /organizations` - List user organizations
-- `POST /projects` - Create new project
-- `GET /health` - Health check endpoint
+**Base URL**: `http://localhost:4000/api`
 
-## Security
+### 🔐 Authentication Endpoints
 
-### Authentication & Authorization
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/users/register` | User registration |
+| `POST` | `/users/login` | User login (returns JWT) |
+| `POST` | `/users/logout` | User logout |
+| `POST` | `/users/checkSession` | Validate JWT token |
 
-- **JWT Tokens**: Access and refresh token pattern
-- **Role-Based Access**: Granular permissions system
-- **Session Management**: Secure session handling with Redis
-- **Password Security**: bcrypt hashing with salt rounds
+### 👥 User Management
 
-### Security Headers
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `POST` | `/users/all` | List all users | ✅ |
+| `POST` | `/users/edit` | Update user profile | ✅ |
+| `GET` | `/users/testme` | Health check | ❌ |
 
-- **CSP**: Content Security Policy with nonce-based scripts
-- **HSTS**: HTTP Strict Transport Security
-- **CORS**: Configurable cross-origin resource sharing
-- **Rate Limiting**: Redis-based rate limiting per user/IP
+### 📋 API Response Format
 
-## Monitoring & Observability
+```json
+{
+  "success": true,
+  "data": { /* response data */ },
+  "message": "Operation completed successfully"
+}
+```
 
-### Metrics
+**Error Response:**
+```json
+{
+  "success": false,
+  "msg": "Error description",
+  "details": { /* error context */ }
+}
+```
 
-- **Application Metrics**: Custom Prometheus metrics
-- **System Metrics**: Node.js and database performance
-- **Business Metrics**: User activity and feature usage
-- **Dashboards**: Grafana dashboards for visualization
+## 🔐 Security & Authentication
 
-### Logging
+### 🛡️ Security Measures
 
-- **Structured Logging**: JSON format with Pino
-- **Log Levels**: Debug, Info, Warn, Error with appropriate filtering
-- **Log Aggregation**: ELK stack for log analysis
-- **Audit Trails**: Comprehensive audit logging for compliance
+- **🔑 JWT Authentication**: Stateless authentication with secure token management
+- **🔒 Password Security**: bcrypt hashing with salt rounds for password protection
+- **⏱️ Session Management**: Active session tracking with database storage
+- **✅ Input Validation**: Joi schema validation for all API endpoints
+- **🔧 CORS**: Configured cross-origin resource sharing
+- **🛡️ Headers**: Security headers for XSS and CSRF protection
 
-## Contributing
+### 🔍 Authentication Flow
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant F as Frontend
+    participant A as API
+    participant D as Database
+    
+    U->>F: Login Request
+    F->>A: POST /users/login
+    A->>D: Validate Credentials
+    D-->>A: User Data
+    A->>A: Generate JWT Token
+    A->>D: Store Active Session
+    A-->>F: JWT Token
+    F->>F: Store Token
+    
+    Note over F,A: Subsequent Requests
+    F->>A: Request with Bearer Token
+    A->>A: Validate JWT
+    A->>D: Check Active Session
+    A-->>F: Authorized Response
+```
 
-### Development Setup
+## 🎯 Design Philosophy
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes following our coding standards
-4. Add tests for new functionality
-5. Ensure all tests pass: `pnpm test`
-6. Commit your changes: `git commit -m 'feat: add amazing feature'`
-7. Push to the branch: `git push origin feature/amazing-feature`
-8. Open a Pull Request
+### 🧠 Technical Choices Explained
 
-### Code Standards
+> [!NOTE] **Why These Technologies?**
+> Each technology choice was made to optimize developer experience, maintainability, and long-term scalability.
 
-- Follow Javascript strict mode
-- Use ESLint and Prettier configurations
-- Write comprehensive tests
-- Update documentation for new features
-- Follow conventional commit messages
+#### Frontend Architecture
+- **⚛️ React 19**: Latest React with concurrent features for better UX
+- **⚡ Vite**: Faster development builds compared to webpack-based solutions
+- **🎨 Material-UI v7**: Comprehensive component library with accessibility built-in
+- **📊 Redux Toolkit**: Predictable state management with excellent DevTools
+- **🔍 TypeScript**: Catch errors at compile time, better refactoring support
 
-## License
+#### Backend Architecture  
+- **🚀 Express.js**: Mature, lightweight, and highly customizable
+- **🏗️ TypeORM**: Decorator-based ORM with migration support
+- **🔐 JWT Authentication**: Stateless auth suitable for API-first architecture
+- **✅ Joi Validation**: Schema validation with detailed error messages
+
+#### Infrastructure Decisions
+- **🐳 Docker Compose**: Consistent development environment across all platforms
+- **🐘 PostgreSQL**: ACID compliance, JSON support, and excellent TypeORM integration
+- **📦 Yarn Workspaces**: Efficient dependency management for monorepo
+- **🔄 Hot Reload**: Immediate feedback during development
+
+## 🤝 Contributing
+
+We welcome contributions! See our [Contributing Guide](App.Docs/CONTRIBUTING.md) for:
+- Development setup instructions
+- Code style guidelines  
+- Pull request process
+- Issue reporting templates
+
+### 🚀 Quick Contribution Steps
+
+1. **🍴 Fork & Clone**
+   ```bash
+   git clone <your-fork-url>
+   cd T-DEV-700-project-NCY_8
+   ```
+
+2. **🌿 Create Feature Branch**
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
+
+3. **💻 Make Changes**
+   - Follow TypeScript and React best practices
+   - Add tests for new functionality
+   - Update documentation as needed
+
+4. **🧪 Test Your Changes**
+   ```bash
+   cd App.Web && yarn test
+   cd App.API && yarn test
+   ```
+
+5. **📝 Commit & Push**
+   ```bash
+   git commit -m "feat: add amazing feature"
+   git push origin feature/amazing-feature
+   ```
+
+6. **🔄 Open Pull Request**
+   - Use the provided PR template
+   - Include screenshots for UI changes
+   - Reference related issues
+
+## 📞 Support & Community
+
+> [!TIP] **Getting Help**
+> We're here to help! Choose the appropriate channel based on your needs.
+
+- **📚 Documentation**: [Complete Documentation Hub](App.Docs/INDEX.md)
+- **🐛 Bug Reports**: [GitHub Issues](https://github.com/your-org/gogotime/issues)
+- **💬 Questions**: [GitHub Discussions](https://github.com/your-org/gogotime/discussions)
+- **🔒 Security**: security@your-domain.com
+- **📖 API Reference**: [API Documentation](App.Docs/API_SPECIFICATION.md)
+
+## 📈 Changelog
+
+See [CHANGELOG.md](App.API/CHANGELOG.md) for detailed release notes and version history.
+
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Support
-
-- **Documentation**: [Technical Documentation](docs/)
-- **Issues**: [GitHub Issues](https://github.com/your-org/ncy-8/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-org/ncy-8/discussions)
-- **Security**: security@your-domain.com
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes and releases.
-
 ---
 
-**Built with ❤️ by the NCY_8 Engineering Team**
+> [!NOTE] **Project Team**
+> **Built with ❤️ by:** Lazaro, Alexy, Massi, Lounis  
+> **Project**: T-DEV-700 (Epitech)  
+> **Version**: 1.0.0

@@ -1,384 +1,605 @@
-# System Architecture
+# GoGoTime System Architecture
 
-## Overview
+> [!SUMMARY] **Architecture Overview**
+> GoGoTime follows a modern, layered architecture with React frontend, Node.js backend, and PostgreSQL database. The system emphasizes type safety, developer experience, and maintainable code organization.
 
-NCY_8 follows a modern, scalable architecture pattern with clear separation of concerns, microservices principles, and enterprise-grade security. The system is designed for high availability, performance, and maintainability.
+## 📋 Table of Contents
 
-## High-Level Architecture
+- [[#🏗️ High-Level Architecture|High-Level Architecture]]
+- [[#⚛️ Frontend Architecture|Frontend Architecture]]  
+- [[#🔧 Backend Architecture|Backend Architecture]]
+- [[#🗄️ Database Architecture|Database Architecture]]
+- [[#🔐 Security Architecture|Security Architecture]]
+- [[#🐳 Infrastructure Architecture|Infrastructure Architecture]]
+- [[#🎯 Design Decisions|Design Decisions]]
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Load Balancer │    │   CDN/Static    │    │   Monitoring    │
-│     (Nginx)     │    │     Assets      │    │   (Grafana)     │
-└─────────┬───────┘    └─────────────────┘    └─────────────────┘
-          │
-    ┌─────▼─────┐
-    │  Frontend │
-    │ (Next.js) │
-    └─────┬─────┘
-          │
-    ┌─────▼─────┐
-    │   API     │
-    │ (Express) │
-    └─────┬─────┘
-          │
-    ┌─────▼─────┐    ┌─────────────────┐    ┌─────────────────┐
-    │ Database  │    │     Cache       │    │   Job Queue     │
-    │(PostgreSQL)│    │    (Redis)      │    │   (BullMQ)      │
-    └───────────┘    └─────────────────┘    └─────────────────┘
-```
+---
 
-## Architecture Layers
+## 🏗️ High-Level Architecture
 
-### 1. Presentation Layer (Frontend)
+> [!NOTE] **System Overview**
+> GoGoTime uses a three-tier architecture with clear separation between presentation, application, and data layers.
 
-**Technology**: Next.js 15+ with App Router, React 19, TypeScript
-
-**Responsibilities**:
-- User interface and user experience
-- Client-side routing and navigation
-- State management and data fetching
-- Form handling and validation
-- Real-time updates via WebSocket
-
-**Key Components**:
-- **Pages**: App Router-based page components
-- **Components**: Reusable UI components with MUI
-- **Hooks**: Custom React hooks for business logic
-- **Services**: API client and data fetching logic
-- **Store**: Zustand for global state management
-
-**Design Patterns**:
-- Server-Side Rendering (SSR) for SEO and performance
-- Static Site Generation (SSG) for static content
-- Incremental Static Regeneration (ISR) for dynamic content
-- Client-side hydration for interactivity
-
-### 2. API Layer (Backend)
-
-**Technology**: Node.js, Express.js, TypeScript
-
-**Responsibilities**:
-- RESTful API endpoints
-- Authentication and authorization
-- Business logic orchestration
-- Data validation and transformation
-- Error handling and logging
-
-**Key Components**:
-- **Routes**: API endpoint definitions
-- **Controllers**: Request/response handling
-- **Services**: Business logic implementation
-- **Middleware**: Cross-cutting concerns (auth, validation, logging)
-- **Models**: Data access layer with Prisma
-
-**Design Patterns**:
-- Layered architecture (Controller → Service → Repository)
-- Dependency injection for testability
-- Middleware pipeline for cross-cutting concerns
-- Error handling with global error middleware
-
-### 3. Data Layer
-
-**Technology**: PostgreSQL 15+, Prisma ORM
-
-**Responsibilities**:
-- Data persistence and retrieval
-- Data integrity and constraints
-- Query optimization and indexing
-- Migration management
-- Audit trails and compliance
-
-**Key Components**:
-- **Schema**: Database schema definition with Prisma
-- **Migrations**: Version-controlled schema changes
-- **Seeds**: Development and test data
-- **Indexes**: Performance optimization
-- **Views**: Complex query abstractions
-
-### 4. Cache Layer
-
-**Technology**: Redis 7+
-
-**Responsibilities**:
-- Session storage and management
-- API response caching
-- Rate limiting and throttling
-- Job queue storage
-- Real-time data caching
-
-**Key Components**:
-- **Session Store**: JWT refresh token storage
-- **API Cache**: Response caching with TTL
-- **Rate Limiter**: Request throttling per user/IP
-- **Job Queue**: Background job storage
-- **Real-time Cache**: WebSocket connection data
-
-### 5. Infrastructure Layer
-
-**Technology**: Docker, Nginx, Prometheus, Grafana
-
-**Responsibilities**:
-- Container orchestration
-- Load balancing and reverse proxy
-- SSL/TLS termination
-- Monitoring and alerting
-- Log aggregation
-
-## Database Architecture
-
-### Schema Design
-
-The database follows a normalized design with clear relationships and constraints:
-
-```sql
--- Core Identity Tables
-User (id, email, password_hash, role, status, created_at, updated_at)
-Session (id, user_id, refresh_token, ip_address, user_agent, expires_at)
-ApiKey (id, key_hash, user_id, scopes, last_used_at, expires_at)
-
--- RBAC System
-Role (id, name, description)
-Permission (id, key, description)
-RolePermission (role_id, permission_id)
-UserRoleMap (user_id, role_id)
-
--- Organization Structure
-Organization (id, name, slug, owner_id, created_at, updated_at)
-OrganizationMember (id, organization_id, user_id, role, joined_at)
-Team (id, organization_id, name, description)
-TeamMember (team_id, user_id)
-
--- Business Entities
-Project (id, organization_id, name, description, status, created_at)
-Task (id, project_id, assignee_id, title, description, status, due_date, priority)
-
--- System Tables
-Settings (id, user_id, preferences, timezone, locale)
-FeatureFlag (id, key, description, enabled, rollout_percentage)
-Config (key, value, updated_at)
-ApiRateLimit (id, user_id, endpoint, window_start, count)
-
--- Audit & Logging
-AuditLog (id, user_id, action, target_table, target_id, old_value, new_value, ip_address, created_at)
-ErrorLog (id, service, level, message, stack, context, created_at)
-JobLog (id, job_name, status, attempts, payload, created_at)
-AccessLog (id, user_id, method, endpoint, status_code, latency_ms, timestamp)
-LoginAttempt (id, email, ip_address, success, created_at)
-
--- Communication
-Notification (id, user_id, type, message, metadata, read, created_at)
-File (id, user_id, url, mime_type, size, storage_provider, created_at)
-Message (id, sender_id, recipient_id, content, attachments, created_at)
-EmailLog (id, to, subject, template, status, sent_at)
-
--- System Operations
-SystemMetric (id, service, metric_name, value, timestamp)
-BackupSnapshot (id, path, created_at, size, verified)
-DeploymentLog (id, version, environment, status, commit_sha, deployed_by, created_at)
-Environment (id, name, url, created_at, active)
-
--- Compliance
-GdprRequest (id, user_id, type, status, requested_at, resolved_at)
-Consent (id, user_id, consent_type, granted, timestamp)
-
--- Utility Tables
-MigrationHistory (id, name, applied_at, checksum)
-SeedHistory (id, name, applied_at)
-Tag (id, name, color, created_at)
-TagAssignment (tag_id, entity_type, entity_id)
+```mermaid
+graph TB
+    subgraph "User Interface"
+        U[👤 Users]
+    end
+    
+    subgraph "Presentation Layer"
+        W[🌐 Web Browser]
+        M[📱 Mobile Browser]
+    end
+    
+    subgraph "Application Layer"
+        F[⚛️ React Frontend<br/>Vite + TypeScript + MUI]
+        A[🔧 Express.js API<br/>Node.js + TypeScript + TypeORM]
+    end
+    
+    subgraph "Data Layer"
+        D[🐘 PostgreSQL<br/>Primary Database]
+        S[💾 Active Sessions<br/>Authentication State]
+    end
+    
+    subgraph "Infrastructure"
+        DC[🐳 Docker Compose<br/>Development Environment]
+        V[📁 Named Volumes<br/>Data Persistence]
+    end
+    
+    U --> W
+    U --> M
+    W --> F
+    M --> F
+    F -.->|HTTP/REST| A
+    A --> D
+    A --> S
+    DC --> F
+    DC --> A
+    DC --> D
+    V --> D
 ```
 
-### Key Design Decisions
+### 🎯 Architecture Principles
 
-1. **UUID Primary Keys**: All tables use UUID for better distribution and security
-2. **Soft Deletes**: Critical tables support soft deletion for audit trails
-3. **Audit Logging**: Comprehensive audit trail for compliance requirements
-4. **RBAC System**: Flexible role-based access control with permissions
-5. **Multi-tenancy**: Organization-based data isolation
-6. **Indexing Strategy**: Optimized indexes for common query patterns
+1. **📦 Separation of Concerns**: Clear boundaries between layers
+2. **🔄 Stateless API**: RESTful design with JWT authentication
+3. **🏷️ Type Safety**: End-to-end TypeScript coverage
+4. **🧪 Testability**: Modular design for easy unit testing
+5. **🔄 Scalability**: Containerized for horizontal scaling
 
-## API Architecture
+---
 
-### RESTful Design
+## ⚛️ Frontend Architecture
 
-The API follows RESTful conventions with clear resource modeling:
+> [!NOTE] **React Application Structure**
+> The frontend follows a feature-based organization pattern with shared components and centralized state management.
 
+```mermaid
+graph TB
+    subgraph "React Application"
+        subgraph "Entry Point"
+            MAIN[📍 main.tsx]
+            APP[🎯 App.tsx]
+        end
+        
+        subgraph "Routing Layer"
+            AR[🗺️ AppRouter]
+            MR[📋 MainRoutes] 
+            AUTH[🔐 AuthRoutes]
+        end
+        
+        subgraph "Layout Components"
+            ML[🏗️ MainLayout]
+            SB[📊 Sidebar]
+            HDR[📢 Header]
+        end
+        
+        subgraph "Feature Modules"
+            DASH[📈 Dashboard]
+            UTILS[🔧 Utilities]
+            SAMPLE[📄 Sample Pages]
+        end
+        
+        subgraph "Shared Components"
+            COMMON[🧩 Common UI]
+            CARDS[🃏 Cards]
+            EXT[📦 Extended]
+        end
+        
+        subgraph "Core Logic"
+            STORE[🗃️ Redux Store]
+            HOOKS[🎣 Custom Hooks]
+            TYPES[🏷️ Type Definitions]
+        end
+    end
+    
+    MAIN --> APP
+    APP --> AR
+    AR --> MR
+    AR --> AUTH
+    MR --> ML
+    ML --> SB
+    ML --> HDR
+    ML --> DASH
+    ML --> UTILS
+    ML --> SAMPLE
+    DASH --> COMMON
+    UTILS --> CARDS
+    SAMPLE --> EXT
+    APP --> STORE
+    DASH --> HOOKS
+    HOOKS --> TYPES
 ```
-GET    /api/v1/users              # List users
-POST   /api/v1/users              # Create user
-GET    /api/v1/users/:id          # Get user
-PUT    /api/v1/users/:id          # Update user
-DELETE /api/v1/users/:id          # Delete user
 
-GET    /api/v1/organizations      # List organizations
-POST   /api/v1/organizations      # Create organization
-GET    /api/v1/organizations/:id  # Get organization
-PUT    /api/v1/organizations/:id  # Update organization
-DELETE /api/v1/organizations/:id  # Delete organization
+### 🗂️ Frontend Directory Structure
+
+```typescript
+App.Web/
+├── src/
+│   ├── components/          // 🧩 Reusable UI Components
+│   │   ├── layout/         // 🏗️ Layout-specific components
+│   │   │   ├── MainLayout.tsx
+│   │   │   ├── Sidebar.tsx
+│   │   │   └── Header.tsx
+│   │   ├── common/         // 🔄 Shared components
+│   │   │   ├── Loader.tsx
+│   │   │   └── Loadable.tsx
+│   │   ├── guards/         // 🛡️ Route protection
+│   │   │   ├── AuthGuard.tsx
+│   │   │   └── GuestGuard.tsx
+│   │   └── cards/          // 🃏 Card components
+│   │
+│   ├── features/           // 📦 Feature-based modules
+│   │   ├── dashboard/      // 📈 Dashboard functionality
+│   │   ├── auth/           // 🔐 Authentication pages
+│   │   ├── utilities/      // 🔧 Utility pages
+│   │   └── sample-page/    // 📄 Example page
+│   │
+│   ├── lib/                // 🛠️ Core application logic
+│   │   ├── store/          // 🗃️ Redux store configuration
+│   │   ├── routes/         // 🗺️ React Router setup
+│   │   └── menu-items/     // 📋 Navigation configuration
+│   │
+│   ├── hooks/              // 🎣 Custom React hooks
+│   ├── themes/             // 🎨 Material-UI themes
+│   ├── types/              // 🏷️ TypeScript definitions
+│   └── styles/             // 💄 Global styles
 ```
 
-### Authentication Flow
+### 🔄 State Management
+
+```mermaid
+graph LR
+    subgraph "Redux Store"
+        CS[🔧 Customization State]
+        US[👤 User State]
+        AS[🔐 Auth State]
+    end
+    
+    subgraph "Components"
+        C1[⚛️ Component A]
+        C2[⚛️ Component B]
+        C3[⚛️ Component C]
+    end
+    
+    subgraph "Actions"
+        A1[📤 Actions]
+        A2[📥 Reducers]
+    end
+    
+    C1 -.->|useSelector| CS
+    C2 -.->|useSelector| US
+    C3 -.->|useSelector| AS
+    C1 -->|dispatch| A1
+    A1 --> A2
+    A2 --> CS
+```
+
+---
+
+## 🔧 Backend Architecture
+
+> [!NOTE] **Express.js API Design**
+> The backend follows a layered architecture with clear separation between routes, business logic, and data access.
+
+```mermaid
+graph TB
+    subgraph "Express.js Application"
+        subgraph "Entry Layer"
+            SERVER[🚀 Server Entry Point]
+            APP[🎯 Express App]
+        end
+        
+        subgraph "Route Layer"
+            ROUTES[🗺️ Route Handlers]
+            USERS[👥 User Routes]
+        end
+        
+        subgraph "Middleware Layer"
+            AUTH[🔐 JWT Middleware]
+            CORS[🌐 CORS Middleware]
+            VALID[✅ Validation Middleware]
+            ERROR[❌ Error Handler]
+        end
+        
+        subgraph "Business Logic"
+            CONTROLLERS[🎮 Controllers]
+            SERVICES[🔧 Services]
+        end
+        
+        subgraph "Data Access Layer"
+            ORM[🗃️ TypeORM]
+            MODELS[📊 Entity Models]
+            REPO[🏪 Repositories]
+        end
+    end
+    
+    SERVER --> APP
+    APP --> ROUTES
+    ROUTES --> USERS
+    USERS --> AUTH
+    USERS --> VALID
+    AUTH --> CONTROLLERS
+    CONTROLLERS --> SERVICES
+    SERVICES --> ORM
+    ORM --> MODELS
+    MODELS --> REPO
+    ERROR -.->|Global Handler| APP
+```
+
+### 🗂️ Backend Directory Structure
+
+```typescript
+App.API/
+├── src/
+│   ├── routes/             // 🗺️ API Route Definitions
+│   │   └── users.ts        // 👥 User management endpoints
+│   │
+│   ├── models/             // 📊 TypeORM Entity Models
+│   │   ├── BaseEntity.ts   // 🏗️ Common entity fields
+│   │   ├── user.ts         // 👤 User entity
+│   │   └── activeSession.ts // 🔐 Session management
+│   │
+│   ├── config/             // ⚙️ Configuration Files
+│   │   └── safeRoutes.ts   // 🛡️ JWT middleware
+│   │
+│   ├── server/             // 🚀 Server Setup
+│   │   └── database.ts     // 🗄️ Database connection
+│   │
+│   └── migrations/         // 📈 Database Migrations
+│
+├── tests/                  // 🧪 API Tests
+└── ecosystem.config.cjs    // 🔄 PM2 Configuration
+```
+
+### 🔗 API Flow
 
 ```mermaid
 sequenceDiagram
     participant C as Client
-    participant F as Frontend
-    participant A as API
+    participant R as Routes
+    participant M as Middleware
+    participant S as Service
     participant D as Database
-    participant R as Redis
-
-    C->>F: Login Request
-    F->>A: POST /auth/login
-    A->>D: Validate Credentials
-    D-->>A: User Data
-    A->>A: Generate JWT Tokens
-    A->>R: Store Refresh Token
-    A-->>F: Access + Refresh Tokens
-    F-->>C: Set Tokens in Storage
     
-    Note over C,R: Subsequent Requests
-    C->>F: API Request
-    F->>A: Request with Bearer Token
-    A->>A: Validate JWT Token
-    A->>D: Process Request
-    A-->>F: Response
-    F-->>C: Data
+    C->>R: HTTP Request
+    R->>M: Validate Request
+    M->>M: Check JWT Token
+    M->>S: Business Logic
+    S->>D: Data Operations
+    D-->>S: Query Results
+    S-->>M: Processed Data
+    M-->>R: Response Data
+    R-->>C: HTTP Response
 ```
-
-### Error Handling
-
-Consistent error response format:
-
-```json
-{
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Invalid input data",
-    "details": {
-      "field": "email",
-      "reason": "Invalid email format"
-    },
-    "timestamp": "2024-01-15T10:30:00Z",
-    "requestId": "req_123456789"
-  }
-}
-```
-
-## Security Architecture
-
-### Authentication & Authorization
-
-- **JWT Tokens**: Stateless authentication with access/refresh token pattern
-- **Session Management**: Redis-based session storage for refresh tokens
-- **Role-Based Access**: Granular permissions with RBAC system
-- **API Keys**: Machine-to-machine authentication for integrations
-
-### Security Layers
-
-1. **Network Security**: HTTPS/TLS encryption, firewall rules
-2. **Application Security**: Input validation, SQL injection prevention
-3. **Data Security**: Encryption at rest, secure password hashing
-4. **Access Control**: Role-based permissions, API rate limiting
-5. **Monitoring**: Security event logging, intrusion detection
-
-## Scalability Considerations
-
-### Horizontal Scaling
-
-- **Stateless API**: No server-side session storage
-- **Database Sharding**: Organization-based data partitioning
-- **Cache Distribution**: Redis cluster for high availability
-- **Load Balancing**: Nginx with health checks
-
-### Performance Optimization
-
-- **Database Indexing**: Optimized indexes for query patterns
-- **API Caching**: Redis-based response caching
-- **CDN Integration**: Static asset delivery optimization
-- **Connection Pooling**: Database connection management
-
-### Monitoring & Observability
-
-- **Metrics Collection**: Prometheus exporters for system metrics
-- **Distributed Tracing**: Request tracing across services
-- **Log Aggregation**: Centralized logging with ELK stack
-- **Health Checks**: Liveness and readiness probes
-
-## Deployment Architecture
-
-### Container Strategy
-
-```dockerfile
-# Multi-stage build for optimization
-FROM node:18-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-
-FROM node:18-alpine AS runtime
-WORKDIR /app
-COPY --from=builder /app/node_modules ./node_modules
-COPY . .
-EXPOSE 3000
-CMD ["npm", "start"]
-```
-
-### Environment Configuration
-
-- **Development**: Docker Compose with hot reload
-- **Staging**: Kubernetes with CI/CD pipeline
-- **Production**: High-availability deployment with monitoring
-
-### CI/CD Pipeline
-
-1. **Code Commit**: Trigger automated pipeline
-2. **Quality Gates**: Linting, testing, security scanning
-3. **Build**: Container image creation and scanning
-4. **Deploy**: Blue-green deployment strategy
-5. **Monitor**: Health checks and rollback capability
-
-## Technology Decisions
-
-### Frontend Choices
-
-- **Next.js**: Server-side rendering and performance optimization
-- **TypeScript**: Type safety and developer experience
-- **MUI**: Consistent design system and accessibility
-- **Zustand**: Lightweight state management
-
-### Backend Choices
-
-- **Node.js**: TypeScript ecosystem consistency
-- **Express**: Mature and flexible web framework
-- **Prisma**: Type-safe database access and migrations
-- **Redis**: High-performance caching and session storage
-
-### Infrastructure Choices
-
-- **Docker**: Containerization for consistency and scalability
-- **PostgreSQL**: ACID compliance and advanced features
-- **Nginx**: High-performance reverse proxy and load balancer
-- **Prometheus**: Metrics collection and alerting
-
-## Future Considerations
-
-### Planned Enhancements
-
-1. **Microservices**: Service decomposition for scalability
-2. **Event Sourcing**: Audit trail and event-driven architecture
-3. **GraphQL**: Flexible API querying for complex clients
-4. **Real-time**: WebSocket integration for live updates
-5. **Mobile**: React Native or PWA for mobile access
-
-### Scalability Roadmap
-
-1. **Database**: Read replicas and connection pooling
-2. **Caching**: Multi-layer caching strategy
-3. **CDN**: Global content delivery network
-4. **Monitoring**: Advanced observability and alerting
-5. **Security**: Enhanced threat detection and response
 
 ---
 
-*This architecture document is maintained by the engineering team and updated with each major system change. For questions or contributions, please refer to the contributing guidelines.*
+## 🗄️ Database Architecture
+
+> [!NOTE] **PostgreSQL Schema Design**
+> The database uses a normalized design with proper relationships and constraints for data integrity.
+
+```mermaid
+erDiagram
+    User {
+        uuid id PK
+        varchar username
+        varchar email UK
+        varchar password
+        timestamp createdAt
+        timestamp updatedAt
+    }
+    
+    ActiveSession {
+        uuid id PK
+        uuid userId FK
+        varchar token UK
+        timestamp createdAt
+        timestamp updatedAt
+    }
+    
+    BaseEntity {
+        uuid id PK
+        timestamp createdAt
+        timestamp updatedAt
+    }
+    
+    User ||--o{ ActiveSession : "has sessions"
+    User ||--|| BaseEntity : "extends"
+    ActiveSession ||--|| BaseEntity : "extends"
+```
+
+### 📊 Entity Relationships
+
+| Entity | Purpose | Key Fields |
+|--------|---------|------------|
+| **BaseEntity** | 🏗️ Common fields for all entities | `id`, `createdAt`, `updatedAt` |
+| **User** | 👤 User account management | `username`, `email`, `password` |
+| **ActiveSession** | 🔐 JWT token tracking | `userId`, `token` |
+
+### 🔧 TypeORM Configuration
+
+```typescript
+// Database connection configuration
+export const AppDataSource = new DataSource({
+  type: "postgres",
+  host: process.env.DB_HOST || "localhost",
+  port: parseInt(process.env.DB_PORT || "5432"),
+  username: process.env.DB_USER || "postgres",
+  password: process.env.DB_PASS || "password",
+  database: process.env.DB_NAME || "gogotime",
+  synchronize: process.env.NODE_ENV === "development",
+  logging: process.env.NODE_ENV === "development",
+  entities: [User, ActiveSession],
+  migrations: ["src/migrations/*.ts"],
+})
+```
+
+---
+
+## 🔐 Security Architecture
+
+> [!WARNING] **Security Implementation**
+> GoGoTime implements multiple layers of security to protect user data and prevent unauthorized access.
+
+```mermaid
+graph TB
+    subgraph "Security Layers"
+        subgraph "Authentication Layer"
+            JWT[🔑 JWT Tokens]
+            HASH[🔒 Password Hashing]
+            SESSION[⏱️ Session Management]
+        end
+        
+        subgraph "Validation Layer"
+            JOI[✅ Joi Schema Validation]
+            TYPES[🏷️ TypeScript Types]
+            SANITIZE[🧹 Input Sanitization]
+        end
+        
+        subgraph "Transport Layer"
+            HTTPS[🔐 HTTPS/TLS]
+            CORS[🌐 CORS Policy]
+            HEADERS[📋 Security Headers]
+        end
+        
+        subgraph "Database Layer"
+            ENCRYPT[🔒 Data Encryption]
+            CONNECT[🔗 Connection Security]
+            AUDIT[📊 Audit Logging]
+        end
+    end
+    
+    JWT --> SESSION
+    HASH --> JWT
+    JOI --> SANITIZE
+    TYPES --> JOI
+    HTTPS --> CORS
+    CORS --> HEADERS
+    ENCRYPT --> CONNECT
+    CONNECT --> AUDIT
+```
+
+### 🛡️ Security Measures
+
+1. **🔑 Authentication**
+   - JWT token-based stateless authentication
+   - bcrypt password hashing with salt rounds
+   - Active session tracking in database
+
+2. **✅ Input Validation**
+   - Joi schema validation for all endpoints
+   - TypeScript compile-time type checking
+   - SQL injection prevention via TypeORM
+
+3. **🌐 Transport Security**
+   - HTTPS enforcement in production
+   - CORS configuration for API access
+   - Security headers (CSP, HSTS, etc.)
+
+4. **📊 Monitoring**
+   - Failed login attempt tracking
+   - Session activity logging
+   - API access monitoring
+
+---
+
+## 🐳 Infrastructure Architecture
+
+> [!NOTE] **Containerized Development**
+> Docker Compose provides a consistent development environment with hot reload and proper service isolation.
+
+```mermaid
+graph TB
+    subgraph "Docker Compose Environment"
+        subgraph "Application Services"
+            WEB[🌐 Web Service<br/>React + Vite<br/>Port 3000]
+            API[🔧 API Service<br/>Node.js + Express<br/>Port 4000]
+        end
+        
+        subgraph "Data Services"
+            DB[🐘 PostgreSQL<br/>Port 5432<br/>Named Volume]
+        end
+        
+        subgraph "Development Features"
+            HR[🔄 Hot Reload]
+            FW[👀 File Watching]
+            HL[🏥 Health Checks]
+        end
+        
+        subgraph "Networking"
+            NET[🌐 Bridge Network<br/>gogotime-network]
+        end
+    end
+    
+    WEB -.->|API Calls| API
+    API --> DB
+    HR --> WEB
+    HR --> API
+    FW --> WEB
+    FW --> API
+    HL --> WEB
+    HL --> API
+    HL --> DB
+    NET --> WEB
+    NET --> API
+    NET --> DB
+```
+
+### 📦 Container Configuration
+
+| Service | Image | Purpose | Ports | Volumes |
+|---------|-------|---------|--------|---------|
+| **web** | 🌐 Node.js + Vite | Frontend development server | `3000:3000` | Hot reload source |
+| **api** | 🔧 Node.js + TypeScript | Backend API server | `4000:4000` | Hot reload source |
+| **db** | 🐘 PostgreSQL 18 Alpine | Primary database | `5432:5432` | Persistent data |
+
+### 🔄 Development Workflow
+
+```mermaid
+sequenceDiagram
+    participant D as Developer
+    participant DC as Docker Compose
+    participant FS as File System
+    participant C as Containers
+    
+    D->>DC: docker compose up
+    DC->>C: Start all services
+    C->>C: Install dependencies
+    C->>C: Run health checks
+    
+    loop Development
+        D->>FS: Edit source files
+        FS->>C: File watcher triggers
+        C->>C: Hot reload application
+        C-->>D: Updated application
+    end
+```
+
+---
+
+## 🎯 Design Decisions
+
+> [!NOTE] **Architectural Choices**
+> Key decisions that shaped the GoGoTime architecture and their reasoning.
+
+### 🧠 Technology Selection
+
+#### Frontend Decisions
+
+| Technology | Why Chosen | Alternatives Considered |
+|------------|------------|------------------------|
+| **React 19** | ⚛️ Latest features, concurrent rendering | Vue.js, Angular, Svelte |
+| **Vite** | ⚡ Fast builds, HMR, ES modules | Webpack, Parcel, Rollup |
+| **Material-UI v7** | 🎨 Comprehensive components, accessibility | Ant Design, Chakra UI |
+| **Redux Toolkit** | 📊 Predictable state, DevTools | Zustand, Jotai, Context API |
+| **TypeScript** | 🏷️ Type safety, better DX | JavaScript, Flow |
+
+#### Backend Decisions
+
+| Technology | Why Chosen | Alternatives Considered |
+|------------|------------|------------------------|
+| **Express.js** | 🚀 Mature, flexible, ecosystem | Fastify, Koa.js, NestJS |
+| **TypeORM** | 🏗️ Decorator syntax, migrations | Prisma, Sequelize, Knex.js |
+| **PostgreSQL** | 🐘 ACID compliance, JSON support | MySQL, MongoDB, SQLite |
+| **JWT** | 🔑 Stateless, scalable | Sessions, OAuth, Passport |
+
+### 🏗️ Architectural Patterns
+
+1. **🔄 Layered Architecture**
+   - **Why**: Clear separation of concerns, testability
+   - **Implementation**: Routes → Services → Data Access
+
+2. **📦 Feature-Based Organization**
+   - **Why**: Scalability, maintainability, team collaboration
+   - **Implementation**: Features as self-contained modules
+
+3. **🏷️ TypeScript-First Development**
+   - **Why**: Catch errors early, better refactoring, documentation
+   - **Implementation**: Strict TypeScript across frontend and backend
+
+4. **🐳 Container-First Infrastructure**
+   - **Why**: Consistency, reproducibility, easy deployment
+   - **Implementation**: Docker Compose for development, production-ready images
+
+### 🔮 Future Considerations
+
+> [!TIP] **Scalability Roadmap**
+> Planned improvements for handling growth and new requirements.
+
+```mermaid
+graph TB
+    subgraph "Current State"
+        C1[📦 Monorepo Structure]
+        C2[🐳 Docker Compose]
+        C3[🗄️ Single Database]
+    end
+    
+    subgraph "Phase 1: Enhancement"
+        P1[🧪 Enhanced Testing]
+        P2[📊 Monitoring & Metrics]
+        P3[🔄 CI/CD Pipeline]
+    end
+    
+    subgraph "Phase 2: Scale"
+        P4[📈 Microservices]
+        P5[💾 Caching Layer]
+        P6[🌐 Load Balancing]
+    end
+    
+    subgraph "Phase 3: Advanced"
+        P7[📱 Mobile App]
+        P8[🔄 Event Sourcing]
+        P9[☁️ Cloud Native]
+    end
+    
+    C1 --> P1
+    C2 --> P2
+    C3 --> P3
+    P1 --> P4
+    P2 --> P5
+    P3 --> P6
+    P4 --> P7
+    P5 --> P8
+    P6 --> P9
+```
+
+---
+
+## 🏷️ Tags
+
+#architecture #gogotime #react #nodejs #postgresql #typescript #docker #security #design-patterns
+
+**Related Documentation:**
+- [[DATABASE_DESIGN]] - Detailed database schema
+- [[API_SPECIFICATION]] - API endpoints and contracts
+- [[SECURITY_MEASURES]] - Security implementation details
+- [[DEPLOYMENT_GUIDE]] - Infrastructure setup
+
+---
+
+> [!NOTE] **Document Maintenance**
+> **Last Updated:** {date}  
+> **Version:** 1.0.0  
+> **Maintainers:** Architecture Team (Lazaro, Alexy, Massi, Lounis)

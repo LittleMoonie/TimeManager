@@ -4,21 +4,19 @@
     "type": "split",
     "children": [
       {
-        "id": "554956dc6c123261",
+        "id": "2b7b05fe330c0180",
         "type": "tabs",
         "children": [
           {
-            "id": "23435ee28938e99e",
+            "id": "97d2a411e796194e",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "AUTH_SECURITY.md",
+                "file": "INDEX.md",
                 "mode": "source",
                 "source": false
-              },
-              "icon": "lucide-file",
-              "title": "AUTH_SECURITY"
+              }
             }
           }
         ]
@@ -40,11 +38,8 @@
             "state": {
               "type": "file-explorer",
               "state": {
-                "sortOrder": "alphabetical",
-                "autoReveal": false
-              },
-              "icon": "lucide-folder-closed",
-              "title": "Files"
+                "sortOrder": "alphabetical"
+              }
             }
           },
           {
@@ -59,9 +54,7 @@
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical"
-              },
-              "icon": "lucide-search",
-              "title": "Search"
+              }
             }
           },
           {
@@ -69,9 +62,7 @@
             "type": "leaf",
             "state": {
               "type": "bookmarks",
-              "state": {},
-              "icon": "lucide-bookmark",
-              "title": "Bookmarks"
+              "state": {}
             }
           }
         ]
@@ -94,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "AUTH_SECURITY.md",
+                "file": "INDEX.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,9 +93,7 @@
                 "searchQuery": "",
                 "backlinkCollapsed": false,
                 "unlinkedCollapsed": true
-              },
-              "icon": "links-coming-in",
-              "title": "Backlinks for AUTH_SECURITY"
+              }
             }
           },
           {
@@ -113,12 +102,10 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "AUTH_SECURITY.md",
+                "file": "INDEX.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
-              },
-              "icon": "links-going-out",
-              "title": "Outgoing links from AUTH_SECURITY"
+              }
             }
           },
           {
@@ -128,12 +115,8 @@
               "type": "tag",
               "state": {
                 "sortOrder": "frequency",
-                "useHierarchy": true,
-                "showSearch": false,
-                "searchQuery": ""
-              },
-              "icon": "lucide-tags",
-              "title": "Tags"
+                "useHierarchy": true
+              }
             }
           },
           {
@@ -142,13 +125,8 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "AUTH_SECURITY.md",
-                "followCursor": false,
-                "showSearch": false,
-                "searchQuery": ""
-              },
-              "icon": "lucide-list",
-              "title": "Outline of AUTH_SECURITY"
+                "file": "INDEX.md"
+              }
             }
           }
         ]
@@ -165,18 +143,36 @@
       "canvas:Create new canvas": false,
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
-      "command-palette:Open command palette": false,
-      "bases:Create new base": false
+      "command-palette:Open command palette": false
     }
   },
-  "active": "23435ee28938e99e",
+  "active": "97d2a411e796194e",
   "lastOpenFiles": [
-    "CI_CD.md",
-    "CACHE_QUEUES_REALTIME.md",
-    "DOCUMENTATION.md",
-    "DATABASE.md",
-    "API_VERSIONING.md",
+    "COMPONENT_LIBRARY.md",
+    "API_REFERENCE.md",
+    "CODING_STANDARDS.md",
+    "TIME_TRACKING.md",
+    "DASHBOARD_FEATURES.md",
+    "USER_MANAGEMENT.md",
+    "RBAC_SYSTEM.md",
+    "PERFORMANCE_OPTIMIZATION.md",
+    "CI_CD_PIPELINE.md",
+    "AUTHENTICATION_FLOW.md",
+    "INDEX.md",
+    "ENVIRONMENT_CONFIGURATION.md",
+    "TROUBLESHOOTING.md",
+    "CONTRIBUTING.md",
+    "TESTING_STRATEGY.md",
+    "SECURITY_MEASURES.md",
+    "DEPLOYMENT_GUIDE.md",
+    "DEVELOPMENT_SETUP.md",
+    "QUICK_START.md",
     "CODE_QUALITY.md",
-    "ARCHITECTURE.md"
+    "FRONTEND_ARCHITECTURE.md",
+    "API_SPECIFICATION.md",
+    "DATABASE_DESIGN.md",
+    "ARCHITECTURE.md",
+    "OBSERVABILITY.md",
+    "AUTH_SECURITY.md"
   ]
 }
