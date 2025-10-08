@@ -96,9 +96,6 @@ Thumbs.db
 *.sqlite
 *.sqlite3
 
-# Docker
-.dockerignore
-
 # Prisma
 prisma/migrations/
 
