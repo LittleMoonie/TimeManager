@@ -108,6 +108,8 @@ coverage/
 test-results/
 playwright-report/
 
+# AI
+AGENTS.md
 # Monitoring
 .prometheus/
 .grafana/
