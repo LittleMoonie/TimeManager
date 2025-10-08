@@ -27,12 +27,12 @@ services:
   api:
     container_name: gogotime-api
     build:
-      context: ../apps/api
+      context: ../App.API
       dockerfile: Dockerfile
     ports:
       - "${API_PORT:-4000}:4000"
     env_file:
-      - ../env
+      - ../.env
     environment:
       NODE_ENV: development
       CHOKIDAR_USEPOLLING: "true"   # Force polling for Windows/WSL2
@@ -42,7 +42,7 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - ../apps/api:/app
+      - ../App.API:/app
       - api_node_modules:/app/node_modules
     command: sh -c "yarn install && npx ts-node-dev --respawn --transpile-only --poll src/index.ts"
     healthcheck:
@@ -56,26 +56,26 @@ services:
     develop:
       watch:
         - action: sync
-          path: ../apps/api/src
+          path: ../App.API/src
           target: /app/src
           ignore:
             - node_modules/
         - action: sync
-          path: ../apps/api/package.json
+          path: ../App.API/package.json
           target: /app/package.json
         - action: rebuild
-          path: ../apps/api/yarn.lock
+          path: ../App.API/yarn.lock
 
   # 💅 React Frontend (Vite Dev Server + Hot Reload)
   web:
     container_name: gogotime-web
     build:
-      context: ../apps/web
+      context: ../App.Web
       dockerfile: Dockerfile
     ports:
       - "${WEB_PORT:-3000}:3000"
     env_file:
-      - ../env
+      - ../.env
     environment:
       NODE_ENV: development
       CHOKIDAR_USEPOLLING: "true"   # Required for WSL2 hot reload
@@ -91,7 +91,7 @@ services:
       api:
         condition: service_healthy
     volumes:
-      - ../apps/web:/app
+      - ../App.Web:/app
       - web_node_modules:/app/node_modules
     command: yarn dev
     healthcheck:
@@ -105,18 +105,18 @@ services:
     develop:
       watch:
         - action: sync
-          path: ../apps/web/src
+          path: ../App.Web/src
           target: /app/src
           ignore:
             - node_modules/
         - action: sync
-          path: ../apps/web/public
+          path: ../App.Web/public
           target: /app/public
         - action: sync
-          path: ../apps/web/package.json
+          path: ../App.Web/package.json
           target: /app/package.json
         - action: rebuild
-          path: ../apps/web/yarn.lock
+          path: ../App.Web/yarn.lock
 
 # 📦 Named Volumes for Persistent Data and Cache Isolation
 volumes:
