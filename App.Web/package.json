@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "author": "Lazaro, Alexy, Massi, Lounis",
-  "license": "MIT",
   "description": "Front End for T-DEV-700 Project for Epitech",
   "type": "module",
   "scripts": {
@@ -65,16 +64,9 @@
     "vite": "^7.1.9",
     "vitest": "^2.1.4"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "packageManager": "yarn@4.10.3",
+  "engines": {
+    "node": ">=24.9.0",
+    "yarn": ">=4.10.3"
   }
 }

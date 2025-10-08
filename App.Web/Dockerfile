@@ -9,7 +9,9 @@ RUN corepack enable && corepack prepare yarn@stable --activate
 
 # Copy package manifests and install dependencies
 COPY package.json yarn.lock* ./
-RUN yarn install
+
+# Install dependencies with strict mode (fallback for dev env)
+RUN yarn install --immutable || yarn install
 
 # Copy source code
 COPY . .
@@ -18,4 +20,4 @@ COPY . .
 EXPOSE 3000
 
 # Run development server
-CMD ["yarn", "dev"]
+CMD ["yarn", "dev", "--debug"]
