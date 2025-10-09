@@ -36,7 +36,7 @@ CREATE TABLE "User" (
   "status" "UserStatus" NOT NULL DEFAULT 'ACTIVE',
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  "deleted_at" TIMESTAMP(3)
+  "deleted_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 );
 
 CREATE TABLE "Session" (
@@ -105,16 +105,17 @@ CREATE TABLE "Organization" (
   "settings" JSONB DEFAULT '{}',
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  "deleted_at" TIMESTAMP(3)
+  "deleted_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 );
 
 CREATE TABLE "OrganizationMember" (
   "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "organization_id" UUID NOT NULL REFERENCES "Organization"("id") ON DELETE CASCADE,
   "user_id" UUID NOT NULL REFERENCES "User"("id") ON DELETE CASCADE,
-  "role" "OrgRole" NOT NULL DEFAULT 'MEMBER',
+  "role" NOT NULL DEFAULT 'MEMBER',
+  "OrgRole" NOT NULL DEFAULT 'MEMBER',
   "joined_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  "deleted_at" TIMESTAMP(3),
+  "deleted_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
   UNIQUE ("organization_id", "user_id")
 );
 
@@ -169,6 +170,48 @@ CREATE TABLE "Task" (
 );
 ```
 
+### Planing manager  
+```sql
+-- Clock & Schredule 
+
+CREATE TABLE "CLOCKS"(
+  "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "user_id" UUID REFERENCES "user"("id"),
+  "clock_in" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "clock_out" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "duration" TIMESTAMP(30)
+)
+
+CREATE TABLE "REPORTS"(
+  "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "user_id" UUID REFERENCES "user"("id"),
+  "period_start" DATE NOT NULL,
+  "period_end" DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "total_hours" NUMERIC(10,2),
+  "avg_dayly_hours" NUMERIC(10,2),
+  "avg_week_hours" NUMERIC(10,2),
+  "created_at"  TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+)
+
+CREATE TABLE "PLANNING"(
+  "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "date" DATE NOT NULL,
+  "start_time" TIMESTAMP(3) NOT NULL,
+  "end_time" TIMESTAMP(3) NOT NULL,
+  "description" TEXT,
+  "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CHECK("end_time" > "start_time")
+)
+
+CREATE TABLE "PLANNING_USER"(
+  "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "planning_id" UUID REFERENCES "planning"("id"),
+  "user_id" UUID REFERENCES "user"("id"),
+  UNIQUE ("planning_id", "user_id")
+)
+```
+
 ### Audit & Logging Tables
 
 ```sql
@@ -206,6 +249,7 @@ CREATE TABLE "AccessLog" (
   "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 ```
+
 
 ## Prisma Configuration
 
