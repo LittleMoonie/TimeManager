@@ -33,7 +33,7 @@ export const Shell = () => {
         p: 2,
       }}
     >
-      <LayoutAppBar onMenuClick={handleDrawerToggle} isDesktop={isDesktop} />
+      <LayoutAppBar onMenuClick={handleDrawerToggle} />
       
       <Navigation 
         variant={isDesktop ? 'permanent' : 'temporary'} 

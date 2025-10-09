@@ -24,10 +24,9 @@ import { useAuth } from '@/hooks/useAuth';
 
 type LayoutAppBarProps = {
   onMenuClick: () => void;
-  isDesktop: boolean;
 };
 
-export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
+export const LayoutAppBar = ({ onMenuClick }: LayoutAppBarProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { user } = useAuth();
   const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {

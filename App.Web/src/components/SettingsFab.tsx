@@ -16,15 +16,11 @@ import { SettingsRounded } from '@mui/icons-material';
 import { alpha, useTheme } from '@mui/material/styles';
 import { useThemeController, type ThemePreset } from '@/themes';
 
-type PresetGradientColor = {
-  light?: string;
-  main: string;
-  dark?: string;
-};
-
 const getPresetGradient = (preset: ThemePreset) => {
-  const start = preset.palette.primary?.light as PresetGradientColor;
-  const end = preset.palette.secondary?.main as PresetGradientColor;
+  const primary = preset.palette.primary as { light?: string; main?: string } | undefined;
+  const secondary = preset.palette.secondary as { main?: string } | undefined;
+  const start = primary?.light ?? primary?.main ?? secondary?.main ?? '#1976d2';
+  const end = secondary?.main ?? primary?.main ?? start;
   return `linear-gradient(135deg, ${start}, ${end})`;
 };
 
@@ -52,8 +48,8 @@ export const SettingsFab = () => {
 
   const open = Boolean(anchorEl);
   const focusRing = useMemo(
-    () => `0 0 0 3px ${alpha(theme.palette.primary.main, theme.palette.mode === 'lagoon-light' ? 0.28 : 0.42)}`,
-    [theme.palette.mode, theme.palette.primary.main]
+    () => `0 0 0 3px ${alpha(theme.palette.primary.main, mode === 'light' ? 0.28 : 0.42)}`,
+    [mode, theme.palette.primary.main]
   );
 
   return (
@@ -101,6 +97,8 @@ export const SettingsFab = () => {
               {availableThemes.map((preset) => {
                 const selected = preset.id === themeId;
                 const gradient = getPresetGradient(preset);
+                const primaryMain =
+                  (preset.palette.primary as { main?: string })?.main ?? theme.palette.primary.main;
                 return (
                   <ButtonBase
                     key={preset.id}
@@ -114,7 +112,7 @@ export const SettingsFab = () => {
                         `1px solid ${
                           selected
                             ? themeArg.palette.primary.main
-                            : alpha(themeArg.palette.divider, themeArg.palette.mode === 'lagoon-light' ? 1 : 0.6)
+                            : alpha(themeArg.palette.divider, themeArg.palette.mode === 'light' ? 1 : 0.6)
                         }`,
                       boxShadow: selected ? theme.shadows[3] : 'none',
                       transform: selected ? 'translateY(-2px)' : 'none',
@@ -134,14 +132,14 @@ export const SettingsFab = () => {
                         gap: 1,
                         alignItems: 'flex-start',
                         background: gradient,
-                        color: theme.palette.getContrastText(preset.palette.primary?.main ?? theme.palette.primary.main),
+                        color: theme.palette.getContrastText(primaryMain),
                       }}
                     >
                       <Typography variant="subtitle2" fontWeight={700}>
                         {preset.label}
                       </Typography>
                       <Typography variant="caption" sx={{ opacity: 0.8 }}>
-                        {preset.mode === 'lagoon-light' ? 'Light' : 'Dark'} &bull; {preset.group.toUpperCase()}
+                        {preset.mode === 'light' ? 'Light' : 'Dark'} &bull; {preset.group.toUpperCase()}
                       </Typography>
                     </Box>
                   </ButtonBase>

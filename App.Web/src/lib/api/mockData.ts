@@ -10,6 +10,7 @@ export const mockUsers: User[] = [
     status: 'ACTIVE',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
+    companyName: 'GoGoTime',
   },
   {
     id: '2',
@@ -21,6 +22,7 @@ export const mockUsers: User[] = [
     status: 'ACTIVE',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
+    companyName: 'GoGoTime',
   },
 ];
 

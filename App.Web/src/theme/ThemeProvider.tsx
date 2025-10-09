@@ -82,7 +82,7 @@ export const AppThemeProvider = ({ children }: { children: ReactNode }) => {
   }, [themeId, density]);
 
   const setMode = useCallback((nextMode: PaletteMode) => {
-    setThemeId((current) => {
+    setThemeId((current: ThemeId) => {
       const preset = getThemePreset(current);
       const sibling = themePresetList.find(
         (candidate) => candidate.group === preset.group && candidate.mode === nextMode
@@ -94,7 +94,7 @@ export const AppThemeProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const toggleMode = useCallback(() => {
-    setThemeId((current) => {
+    setThemeId((current: ThemeId) => {
       const preset = getThemePreset(current);
       const targetMode: PaletteMode = preset.mode === 'light' ? 'dark' : 'light';
       const sibling = themePresetList.find(
@@ -107,7 +107,7 @@ export const AppThemeProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const selectNextTheme = useCallback((direction: 1 | -1) => {
-    setThemeId((current) => getNextTheme(current, direction).id);
+    setThemeId((current: ThemeId) => getNextTheme(current, direction).id);
   }, []);
 
   const theme = useMemo(() => createAppTheme(currentPreset, density), [currentPreset, density]);
