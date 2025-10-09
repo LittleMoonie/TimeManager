@@ -9,7 +9,7 @@ import {
   Typography,
   alpha,
 } from '@mui/material';
-import { AssessmentRounded, DashboardRounded, PeopleAltRounded, SettingsRounded, TaskAltRounded } from '@mui/icons-material';
+import { AssessmentRounded, DashboardRounded, PeopleAltRounded, TaskAltRounded, PersonRounded } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 
@@ -57,7 +57,7 @@ const PAGE_GROUPS: NavGroup[] = [
       { id: 'timesheet', label: 'Timesheet', path: '/timesheet', icon: <AssessmentRounded fontSize="small" /> },
       { id: 'people', label: 'People', path: '/people', icon: <PeopleAltRounded fontSize="small" /> },
       { id: 'reports', label: 'Reports', path: '/reports', icon: <AssessmentRounded fontSize="small" /> },
-      { id: 'settings', label: 'Settings', path: '/settings', icon: <SettingsRounded fontSize="small" /> },
+      { id: 'profile', label: 'Profile', path: '/profile', icon: <PersonRounded fontSize="small" /> },
     ],
   },
 ];

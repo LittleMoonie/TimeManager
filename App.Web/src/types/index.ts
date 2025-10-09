@@ -12,6 +12,12 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   companyName: string;
+  roleTitle?: string;
+  avatarUrl?: string;
+  aboutMe?: string;
+  companyLocation?: string;
+  companyPhone?: string;
+  teams?: string[];
 }
 
 export interface Team {
@@ -125,6 +131,30 @@ export interface Theme {
   id: string;
   mode: 'light' | 'dark';
   density: 'comfortable' | 'compact';
+}
+
+// Security Types
+export interface RecognizedDevice {
+  id: string;
+  name: string;
+  location: string;
+  lastActive: string;
+  deviceType: 'desktop' | 'mobile' | 'tablet';
+}
+
+export interface ActiveSession {
+  id: string;
+  name: string;
+  location: string;
+  current: boolean;
+  deviceType: 'desktop' | 'mobile' | 'tablet';
+}
+
+export interface UserSecuritySettings {
+  loginNotificationsEnabled: boolean;
+  loginApprovalsRequired: boolean;
+  recognizedDevices: RecognizedDevice[];
+  activeSessions: ActiveSession[];
 }
 
 export type { Person, PersonStatus } from './people';

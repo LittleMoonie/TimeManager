@@ -23,6 +23,7 @@ import { Add, Delete, Edit } from '@mui/icons-material';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { AppBreadcrumbs } from '@/components/ui/Breadcrumbs';
 import { useCreateTask, useDeleteTask, useTasks } from '@/hooks/useTasks';
 import type { Task, TaskPriority, TaskStatus } from '@/types';
 
@@ -163,6 +164,13 @@ const TasksPage = () => {
 
   return (
     <Box display="flex" flexDirection="column" gap={3}>
+      <AppBreadcrumbs 
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Tasks' }
+        ]}
+      />
+      
       <PageHeader
         title="Tasks"
         subtitle="Manage your work, track progress, and collaborate with your team."

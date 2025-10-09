@@ -9,7 +9,6 @@ import LoginPage from '@/pages/login';
 import PeoplePage from '@/pages/people';
 import ProfilePage from '@/pages/profile';
 import ReportsPage from '@/pages/reports';
-import SettingsPage from '@/pages/settings';
 import TasksPage from '@/pages/tasks';
 import TimesheetPage from '@/pages/timesheet';
 
@@ -63,7 +62,6 @@ const routeConfig: RouteObject[] = [
       { path: 'timesheet', element: <TimesheetPage /> },
       { path: 'people', element: <PeoplePage /> },
       { path: 'reports', element: <ReportsPage /> },
-      { path: 'settings', element: <SettingsPage /> },
       { path: 'profile', element: <ProfilePage /> },
     ],
   },
