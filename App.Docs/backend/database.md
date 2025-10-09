@@ -30,8 +30,9 @@ This document outlines the database strategy for the NCY_8 platform, including s
 -- Users and Authentication
 CREATE TABLE "User" (
   "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  "email" VARCHAR(255) UNIQUE NOT NULL,
+  "email" VARCHAR(100) UNIQUE NOT NULL,
   "password_hash" VARCHAR(255) NOT NULL,
+  "phone_number" VARCHAR(12) NOT NULL,
   "role" "UserRole" NOT NULL DEFAULT 'EMPLOYEE',
   "status" "UserStatus" NOT NULL DEFAULT 'ACTIVE',
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -67,6 +68,7 @@ CREATE TABLE "ApiKey" (
 CREATE TABLE "Role" (
   "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "name" VARCHAR(100) UNIQUE NOT NULL,
+  "code" VARCHAR(100) UNIQUE NOT NULL,
   "description" TEXT,
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -74,6 +76,7 @@ CREATE TABLE "Role" (
 CREATE TABLE "Permission" (
   "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "key" VARCHAR(100) UNIQUE NOT NULL,
+  "code" VARCHAR(100) UNIQUE NOT NULL,
   "description" TEXT,
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -85,12 +88,19 @@ CREATE TABLE "RolePermission" (
 );
 
 CREATE TABLE "UserRoleMap" (
+  "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "user_id" UUID NOT NULL REFERENCES "User"("id") ON DELETE CASCADE,
   "role_id" UUID NOT NULL REFERENCES "Role"("id") ON DELETE CASCADE,
-  "granted_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  "granted_by" UUID REFERENCES "User"("id"),
-  PRIMARY KEY ("user_id", "role_id")
+  "is_removed" BOOL NOT NULL DEFAULT FALSE,
 );
+
+CREATE TABLE "UserRoleActionHistory"(
+  "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "user_role_id" UUID REFERENCES "userRoleMap"("id"),
+  "action_done" 
+  "done_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "done_by" UUID NOT NULL REFERENCES "User"("id"),
+)
 ```
 
 ### Organization Structure
@@ -115,7 +125,7 @@ CREATE TABLE "OrganizationMember" (
   "role" NOT NULL DEFAULT 'MEMBER',
   "OrgRole" NOT NULL DEFAULT 'MEMBER',
   "joined_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  "deleted_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+  "deleted_at" TIMESTAMP(3) NOT NULL,
   UNIQUE ("organization_id", "user_id")
 );
 
@@ -125,7 +135,7 @@ CREATE TABLE "Team" (
   "name" VARCHAR(255) NOT NULL,
   "description" TEXT,
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" TIMESTAMP(3) NOT NULL,
   "deleted_at" TIMESTAMP(3)
 );
 
@@ -133,6 +143,7 @@ CREATE TABLE "TeamMember" (
   "team_id" UUID NOT NULL REFERENCES "Team"("id") ON DELETE CASCADE,
   "user_id" UUID NOT NULL REFERENCES "User"("id") ON DELETE CASCADE,
   "joined_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" TIMESTAMP(3) NOT NULL,
   "deleted_at" TIMESTAMP(3),
   PRIMARY KEY ("team_id", "user_id")
 );
@@ -171,10 +182,11 @@ CREATE TABLE "Task" (
 ```
 
 ### Planing manager  
+
 ```sql
 -- Clock & Schredule 
 
-CREATE TABLE "CLOCKS"(
+CREATE TABLE "CLOCK"(
   "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "user_id" UUID REFERENCES "user"("id"),
   "clock_in" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -182,7 +194,7 @@ CREATE TABLE "CLOCKS"(
   "duration" TIMESTAMP(30)
 )
 
-CREATE TABLE "REPORTS"(
+CREATE TABLE "REPORT"(
   "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "user_id" UUID REFERENCES "user"("id"),
   "period_start" DATE NOT NULL,
@@ -193,23 +205,62 @@ CREATE TABLE "REPORTS"(
   "created_at"  TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 )
 
-CREATE TABLE "PLANNING"(
+-- CREATE TABLE "PLANNING"(
+--   "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   "date" DATE NOT NULL,
+--   "start_time" TIMESTAMP(3) NOT NULL,
+--   "end_time" TIMESTAMP(3) NOT NULL,
+--   "description" TEXT,
+--   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--   "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--   CHECK("end_time" > "start_time")
+-- )
+
+-- CREATE TABLE "PLANNING_USER"(
+--   "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   "planning_id" UUID REFERENCES "planning"("id"),
+--   "user_id" UUID REFERENCES "user"("id"),
+--   UNIQUE ("planning_id", "user_id")
+-- )
+
+CREATE TABLE "HOLIDAY"(
   "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  "date" DATE NOT NULL,
-  "start_time" TIMESTAMP(3) NOT NULL,
-  "end_time" TIMESTAMP(3) NOT NULL,
-  "description" TEXT,
+  "user_id" UUID REFERENCES "user"("id"),
+  "reviewer_id" UUID REFERENCES "user"("id")
+  "start_date" TIMESTAMP(3) NOT NULL,
+  "end_date" TIMESTAMP(3) NOT NULL,
+  "is_payed" BOOL,
+  "decision" BOOL NOT NULL IS DEFAULT FALSE,
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CHECK("end_time" > "start_time")
+  CHECK("reviewer_id" != "user_id")
 )
 
-CREATE TABLE "PLANNING_USER"(
+CREATE TABLE "ABSENCE"(
   "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  "planning_id" UUID REFERENCES "planning"("id"),
   "user_id" UUID REFERENCES "user"("id"),
-  UNIQUE ("planning_id", "user_id")
+  "reviewer_id" UUID REFERENCES "user"("id")
+  "document_id" UUID REFERENCES "document"("id"),
+  "start_date" TIMESTAMP(3) NOT NULL,
+  "end_date" TIMESTAMP(3) NOT NULL,
+  "is_justified" BOOL NOT NULL IS DEFAULT FALSE,
+  "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CHECK("reviewer_id" != "user_id")
+
 )
+
+CREATE TABLE "DOCUMENT"(
+  "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "document_id" UUID NOT NULL,
+  "document_name" TEXT NOT NULL,
+  "uploaded_by" UUID REFERENCES "user"("id"),
+  "is_deleted" BOOL NOT NULL DEFAULT FALSE,
+  "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+)
+
+
 ```
 
 ### Audit & Logging Tables
@@ -249,7 +300,6 @@ CREATE TABLE "AccessLog" (
   "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 ```
-
 
 ## Prisma Configuration
 
@@ -499,7 +549,7 @@ CREATE INDEX "AuditLog_created_at_idx" ON "AuditLog"("created_at");
 CREATE INDEX "Task_project_status_idx" ON "Task"("project_id", "status") WHERE "deleted_at" IS NULL;
 CREATE INDEX "OrganizationMember_org_user_idx" ON "OrganizationMember"("organization_id", "user_id") WHERE "deleted_at" IS NULL;
 ```
-\
+
 ### Query Optimization
 
 ```typescript

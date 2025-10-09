@@ -147,3 +147,8 @@ Desktop.ini
 # Temporary files
 *.tmp
 *.temp
+
+
+.gz
+App.API/.yarn/install-state.gz
+App.Web/.yarn/install-state.gz
