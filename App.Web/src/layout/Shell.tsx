@@ -5,7 +5,7 @@ import { Outlet } from 'react-router-dom';
 import { Navigation } from '@/layout/Navigation';
 import { LayoutAppBar } from '@/layout/AppBar';
 import { SettingsFab } from '@/components/SettingsFab';
-import { APP_BAR_HEIGHT, DRAWER_WIDTH, PAGE_PADDING } from '@/constants/layout';
+import { APP_BAR_HEIGHT, DRAWER_WIDTH } from '@/constants/layout';
 
 export const Shell = () => {
   const theme = useTheme();

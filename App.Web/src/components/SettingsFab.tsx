@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
+  ButtonBase,
   Box,
   Chip,
   Divider,
   Fab,
-  IconButton,
   Popover,
   Stack,
   ToggleButton,
@@ -13,17 +13,29 @@ import {
   Typography,
 } from '@mui/material';
 import { SettingsRounded } from '@mui/icons-material';
-import { alpha } from '@mui/material/styles';
-import { useThemeController, primarySwatches, type PrimaryColor } from '@/themes';
+import { alpha, useTheme } from '@mui/material/styles';
+import { useThemeController, type ThemePreset } from '@/themes';
 
-const PRIMARY_OPTIONS: { key: PrimaryColor; label: string }[] = [
-  { key: 'purple', label: 'Purple' },
-  { key: 'blue', label: 'Blue' },
-  { key: 'teal', label: 'Teal' },
-];
+const getPresetGradient = (preset: ThemePreset, fallback: string) => {
+  const start = preset.palette.primary?.light ?? preset.palette.primary?.main ?? fallback;
+  const end = preset.palette.secondary?.main ?? preset.palette.primary?.dark ?? start;
+  return `linear-gradient(135deg, ${start}, ${end})`;
+};
 
 export const SettingsFab = () => {
-  const { mode, setMode, toggleMode, density, setDensity, primaryColor, setPrimaryColor } = useThemeController();
+  const {
+    themeId,
+    setThemeId,
+    availableThemes,
+    currentPreset,
+    mode,
+    setMode,
+    toggleMode,
+    selectNextTheme,
+    density,
+    setDensity,
+  } = useThemeController();
+  const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -33,6 +45,10 @@ export const SettingsFab = () => {
   const handleClose = () => setAnchorEl(null);
 
   const open = Boolean(anchorEl);
+  const focusRing = useMemo(
+    () => `0 0 0 3px ${alpha(theme.palette.primary.main, theme.palette.mode === 'light' ? 0.28 : 0.42)}`,
+    [theme.palette.mode, theme.palette.primary.main]
+  );
 
   return (
     <>
@@ -65,12 +81,76 @@ export const SettingsFab = () => {
           sx: {
             p: 2.5,
             borderRadius: 3,
-            width: 280,
-            boxShadow: '0px 14px 40px rgba(15, 23, 42, 0.14)',
+            width: 320,
+            boxShadow: (themeArg) => themeArg.shadows[4],
           },
         }}
       >
         <Stack spacing={2.5}>
+          <Box>
+            <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+              Theme palette
+            </Typography>
+            <Stack direction="row" flexWrap="wrap" gap={1.5}>
+              {availableThemes.map((preset) => {
+                const selected = preset.id === themeId;
+                const gradient = getPresetGradient(preset, theme.palette.primary.main);
+                return (
+                  <ButtonBase
+                    key={preset.id}
+                    onClick={() => setThemeId(preset.id)}
+                    focusRipple
+                    sx={{
+                      width: 'calc(50% - 6px)',
+                      borderRadius: 2,
+                      overflow: 'hidden',
+                      border: (themeArg) =>
+                        `1px solid ${
+                          selected
+                            ? themeArg.palette.primary.main
+                            : alpha(themeArg.palette.divider, themeArg.palette.mode === 'light' ? 1 : 0.6)
+                        }`,
+                      boxShadow: selected ? theme.shadows[3] : 'none',
+                      transform: selected ? 'translateY(-2px)' : 'none',
+                      transition: 'all 120ms ease',
+                      '&:focus-visible': {
+                        outline: 'none',
+                        boxShadow: focusRing,
+                      },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: '100%',
+                        p: 1.5,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 1,
+                        alignItems: 'flex-start',
+                        background: gradient,
+                        color: theme.palette.getContrastText(preset.palette.primary?.main ?? theme.palette.primary.main),
+                      }}
+                    >
+                      <Typography variant="subtitle2" fontWeight={700}>
+                        {preset.label}
+                      </Typography>
+                      <Typography variant="caption" sx={{ opacity: 0.8 }}>
+                        {preset.mode === 'light' ? 'Light' : 'Dark'} &bull; {preset.group.toUpperCase()}
+                      </Typography>
+                    </Box>
+                  </ButtonBase>
+                );
+              })}
+            </Stack>
+            <Chip
+              label={`Active: ${currentPreset.label}`}
+              size="small"
+              sx={{ mt: 1.5, alignSelf: 'flex-start' }}
+            />
+          </Box>
+
+          <Divider flexItem />
+
           <Box>
             <Typography variant="subtitle2" fontWeight={600} gutterBottom>
               Theme mode
@@ -109,52 +189,19 @@ export const SettingsFab = () => {
 
           <Box>
             <Typography variant="subtitle2" fontWeight={600} gutterBottom>
-              Primary accent
-            </Typography>
-            <Stack direction="row" spacing={1.5}>
-              {PRIMARY_OPTIONS.map((option) => {
-                const swatch = primarySwatches[option.key];
-                const selected = option.key === primaryColor;
-                return (
-                  <Tooltip key={option.key} title={option.label} placement="top">
-                    <IconButton
-                      aria-label={`Set primary color to ${option.label}`}
-                      onClick={() => setPrimaryColor(option.key)}
-                      sx={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: 2.5,
-                        border: (theme) => `1px solid ${alpha(theme.palette.grey[400], 0.4)}`,
-                        background: `linear-gradient(135deg, ${alpha(swatch.light, 0.9)}, ${swatch.dark})`,
-                        boxShadow: selected ? '0px 6px 16px rgba(15, 23, 42, 0.18)' : 'none',
-                        transform: selected ? 'translateY(-2px)' : 'none',
-                        transition: 'all 120ms ease',
-                        '&:focus-visible': {
-                          outline: (theme) => `2px solid ${alpha(theme.palette.primary.main, 0.5)}`,
-                          outlineOffset: 2,
-                        },
-                      }}
-                    />
-                  </Tooltip>
-                );
-              })}
-            </Stack>
-            <Chip
-              label={`Current: ${PRIMARY_OPTIONS.find((option) => option.key === primaryColor)?.label ?? ''}`}
-              size="small"
-              sx={{ mt: 1.5, alignSelf: 'flex-start' }}
-            />
-          </Box>
-
-          <Divider flexItem />
-
-          <Box>
-            <Typography variant="subtitle2" fontWeight={600} gutterBottom>
               Quick actions
             </Typography>
             <Stack direction="row" spacing={1.5}>
               <ToggleButton value="toggle-mode" selected={false} onClick={toggleMode} size="small">
                 Toggle mode
+              </ToggleButton>
+              <ToggleButton
+                value="cycle-theme"
+                selected={false}
+                onClick={() => selectNextTheme(1)}
+                size="small"
+              >
+                Next theme
               </ToggleButton>
             </Stack>
           </Box>

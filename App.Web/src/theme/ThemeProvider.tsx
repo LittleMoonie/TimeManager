@@ -1,53 +1,35 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, useRef, type ReactNode } from 'react';
 import { CssBaseline, GlobalStyles, useMediaQuery } from '@mui/material';
 import { ThemeProvider as MuiThemeProvider, useTheme as useMuiTheme } from '@mui/material/styles';
 import type { PaletteMode, Theme } from '@mui/material';
-import { createTheme, type PrimaryKey as PrimaryColor } from './theme';
-
-export type DensitySetting = 'comfortable' | 'compact';
+import {
+  createAppTheme,
+  defaultThemeId,
+  getNextTheme,
+  getThemePreset,
+  themePresetList,
+  type DensitySetting,
+  type ThemeId,
+  type ThemePreset,
+} from './theme';
 
 const STORAGE_KEY = 'gogotime-theme';
 
 type StoredSettings = {
-  mode: PaletteMode;
-  density: DensitySetting;
-  primaryColor: PrimaryColor;
+  themeId?: ThemeId;
+  density?: DensitySetting;
 };
-
-const defaultSettings: StoredSettings = {
-  mode: 'light',
-  density: 'comfortable',
-  primaryColor: 'purple',
-};
-
-export type ThemeControllerContextValue = {
-  mode: PaletteMode;
-  setMode: (mode: PaletteMode) => void;
-  toggleMode: () => void;
-  density: DensitySetting;
-  setDensity: (density: DensitySetting) => void;
-  primaryColor: PrimaryColor;
-  setPrimaryColor: (primary: PrimaryColor) => void;
-  theme: Theme;
-};
-
-const ThemeControllerContext = createContext<ThemeControllerContextValue | undefined>(undefined);
 
 const readStoredSettings = (): StoredSettings => {
   if (typeof window === 'undefined') {
-    return defaultSettings;
+    return {};
   }
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return defaultSettings;
-    const parsed = JSON.parse(raw) as Partial<StoredSettings>;
-    return {
-      mode: parsed.mode ?? defaultSettings.mode,
-      density: parsed.density ?? defaultSettings.density,
-      primaryColor: parsed.primaryColor ?? defaultSettings.primaryColor,
-    };
+    if (!raw) return {};
+    return JSON.parse(raw) as StoredSettings;
   } catch {
-    return defaultSettings;
+    return {};
   }
 };
 
@@ -56,38 +38,95 @@ const writeStoredSettings = (settings: StoredSettings) => {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
 };
 
+export type ThemeControllerContextValue = {
+  themeId: ThemeId;
+  setThemeId: (id: ThemeId) => void;
+  availableThemes: ThemePreset[];
+  currentPreset: ThemePreset;
+  mode: PaletteMode;
+  setMode: (mode: PaletteMode) => void;
+  toggleMode: () => void;
+  selectNextTheme: (direction: 1 | -1) => void;
+  density: DensitySetting;
+  setDensity: (density: DensitySetting) => void;
+  theme: Theme;
+};
+
+const ThemeControllerContext = createContext<ThemeControllerContextValue | undefined>(undefined);
+
 export const AppThemeProvider = ({ children }: { children: ReactNode }) => {
   const prefersDark = useMediaQuery('(prefers-color-scheme: dark)', { noSsr: true });
-  const [mode, setMode] = useState<PaletteMode>(() => {
-    const stored = readStoredSettings().mode;
-    if (stored) return stored;
-    return prefersDark ? 'dark' : 'light';
-  });
-  const [density, setDensity] = useState<DensitySetting>(() => readStoredSettings().density);
-  const [primaryColor, setPrimaryColor] = useState<PrimaryColor>(() => readStoredSettings().primaryColor);
+  const storedRef = useRef<StoredSettings | null>(null);
+  if (storedRef.current === null) {
+    storedRef.current = readStoredSettings();
+  }
+  const stored = storedRef.current;
+
+  const [themeId, setThemeId] = useState<ThemeId>(() => stored?.themeId ?? defaultThemeId);
+  const [density, setDensity] = useState<DensitySetting>(() => stored?.density ?? 'comfortable');
+
+  const currentPreset = useMemo(() => getThemePreset(themeId), [themeId]);
+  const mode = currentPreset.mode;
 
   useEffect(() => {
-    writeStoredSettings({ mode, density, primaryColor });
-  }, [mode, density, primaryColor]);
+    if (!stored?.themeId && prefersDark) {
+      const firstDark = themePresetList.find((preset) => preset.mode === 'dark');
+      if (firstDark) {
+        setThemeId(firstDark.id);
+      }
+    }
+  }, [prefersDark, stored?.themeId]);
 
-  const toggleMode = useCallback(() => {
-    setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
+  useEffect(() => {
+    writeStoredSettings({ themeId, density });
+  }, [themeId, density]);
+
+  const setMode = useCallback((nextMode: PaletteMode) => {
+    setThemeId((current) => {
+      const preset = getThemePreset(current);
+      const sibling = themePresetList.find(
+        (candidate) => candidate.group === preset.group && candidate.mode === nextMode
+      );
+      if (sibling) return sibling.id;
+      const fallback = themePresetList.find((candidate) => candidate.mode === nextMode);
+      return fallback?.id ?? current;
+    });
   }, []);
 
-  const theme = useMemo(() => createTheme(mode, primaryColor, density), [mode, primaryColor, density]);
+  const toggleMode = useCallback(() => {
+    setThemeId((current) => {
+      const preset = getThemePreset(current);
+      const targetMode: PaletteMode = preset.mode === 'light' ? 'dark' : 'light';
+      const sibling = themePresetList.find(
+        (candidate) => candidate.group === preset.group && candidate.mode === targetMode
+      );
+      if (sibling) return sibling.id;
+      const fallback = themePresetList.find((candidate) => candidate.mode === targetMode);
+      return fallback?.id ?? current;
+    });
+  }, []);
+
+  const selectNextTheme = useCallback((direction: 1 | -1) => {
+    setThemeId((current) => getNextTheme(current, direction).id);
+  }, []);
+
+  const theme = useMemo(() => createAppTheme(currentPreset, density), [currentPreset, density]);
 
   const contextValue = useMemo<ThemeControllerContextValue>(
     () => ({
+      themeId,
+      setThemeId,
+      availableThemes: themePresetList,
+      currentPreset,
       mode,
       setMode,
       toggleMode,
+      selectNextTheme,
       density,
       setDensity,
-      primaryColor,
-      setPrimaryColor,
       theme,
     }),
-    [mode, density, primaryColor, theme, toggleMode]
+    [themeId, currentPreset, mode, setMode, toggleMode, selectNextTheme, density, theme]
   );
 
   return (
@@ -99,7 +138,10 @@ export const AppThemeProvider = ({ children }: { children: ReactNode }) => {
             body: {
               fontFeatureSettings: '"kern","liga","clig","calt"',
             },
-            a: { textDecoration: 'none' },
+            a: {
+              color: 'inherit',
+              textDecoration: 'none',
+            },
           }}
         />
         {children}

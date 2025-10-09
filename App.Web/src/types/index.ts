@@ -121,6 +121,7 @@ export interface MenuItem {
 }
 
 export interface Theme {
+  id: string;
   mode: 'light' | 'dark';
-  primaryColor: string;
+  density: 'comfortable' | 'compact';
 }

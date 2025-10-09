@@ -16,6 +16,7 @@ type SparklineProps = {
 };
 
 const SparklineTooltip = ({ active, payload }: TooltipProps<number, string>) => {
+  const theme = useTheme();
   if (!active || !payload?.length) return null;
   const item = payload[0];
   return (
@@ -27,7 +28,7 @@ const SparklineTooltip = ({ active, payload }: TooltipProps<number, string>) => 
         borderRadius: 1,
         typography: 'caption',
         color: 'common.white',
-        backgroundColor: alpha(item.color ?? '#5E35B1', 0.96),
+        backgroundColor: alpha(item.color ?? theme.palette.primary.main, 0.96),
       }}
     >
       {item.value}

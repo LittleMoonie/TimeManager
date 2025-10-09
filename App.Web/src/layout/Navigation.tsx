@@ -9,19 +9,7 @@ import {
   Typography,
   alpha,
 } from '@mui/material';
-import {
-  AssessmentRounded,
-  BarChartRounded,
-  ArticleRounded,
-  DashboardRounded,
-  PeopleAltRounded,
-  ReceiptRounded,
-  SettingsRounded,
-  TaskAltRounded,
-  TrendingUpRounded,
-  DataObjectRounded,
-  ShowChartRounded,
-} from '@mui/icons-material';
+import { AssessmentRounded, DashboardRounded, PeopleAltRounded, SettingsRounded, TaskAltRounded } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 
@@ -233,7 +221,7 @@ export const Navigation = ({ variant, open, onClose, collapsed = false }: Naviga
           borderWidth: 0,
           borderRadius: 0,
           backgroundColor: theme.palette.background.default,
-          boxShadow: '0px 8px 24px rgba(15, 23, 42, 0.08)',
+          boxShadow: theme.shadows[3],
           zIndex: theme.zIndex.drawer,
           top: 56, // Start below AppBar
           height: 'calc(100% - 56px)', // Full height minus AppBar

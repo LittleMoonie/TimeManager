@@ -46,7 +46,7 @@ export const KpiCard = ({
           : isSoft
           ? alpha(palette.main, 0.08)
           : theme.palette.background.paper,
-        boxShadow: isGradient ? '0px 20px 45px rgba(94, 53, 177, 0.25)' : theme.shadows[2],
+        boxShadow: isGradient ? theme.shadows[5] : theme.shadows[2],
       }}
     >
       <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>

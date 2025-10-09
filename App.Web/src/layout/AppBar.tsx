@@ -36,17 +36,17 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
   const handleMenuClose = () => setAnchorEl(null);
 
   return (
-    <AppBar 
-      position="fixed" 
-      elevation={0} 
-      sx={{ 
-        backgroundColor: 'background.default', // Match sidebar color
+    <AppBar
+      position="fixed"
+      elevation={0}
+      sx={{
+        backgroundColor: 'background.default',
         borderRadius: 0,
-        width: '100%', // Full width across entire screen
+        width: '100%',
         zIndex: (theme) => theme.zIndex.drawer + 1,
         '& .MuiToolbar-root': {
           borderRadius: 0,
-        }
+        },
       }}
     >
       <Toolbar
@@ -67,13 +67,13 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
                 width: 32,
                 height: 32,
                 borderRadius: 1,
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: (theme) => theme.app.gradients.brand,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Typography variant="subtitle2" fontWeight={700} color="white">
+              <Typography variant="subtitle2" fontWeight={700} color="common.white">
                 A
               </Typography>
             </Box>
@@ -85,19 +85,21 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
 
         {/* Center - Hamburger and Search */}
         <Box sx={{ display: 'flex', justifyContent: 'center', flexGrow: 1, alignItems: 'center', gap: 3 }}>
-          <IconButton
-            aria-label="Toggle navigation menu"
-            onClick={onMenuClick}
-            sx={{ 
-              border: '1px solid',
-              borderColor: 'divider',
-              borderRadius: 1,
-              p: 0.75,
-            }}
-          >
-            <MenuRounded fontSize="small" />
-          </IconButton>
-          
+          {!isDesktop && (
+            <IconButton
+              aria-label="Toggle navigation menu"
+              onClick={onMenuClick}
+              sx={{
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 1,
+                p: 0.75,
+              }}
+            >
+              <MenuRounded fontSize="small" />
+            </IconButton>
+          )}
+
           <TextField
             placeholder="Search"
             variant="outlined"
@@ -109,8 +111,8 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
               ),
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton 
-                    aria-label="Notifications" 
+                  <IconButton
+                    aria-label="Notifications"
                     size="small"
                     sx={{ mr: -1 }}
                   >
@@ -177,7 +179,7 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
             mt: 1,
             minWidth: 180,
             borderRadius: 2,
-            boxShadow: '0px 12px 32px rgba(15, 23, 42, 0.16)',
+            boxShadow: (theme) => theme.shadows[4],
           },
         }}
       >

@@ -1,4 +1,12 @@
 export { AppThemeProvider } from './ThemeProvider';
 export { useThemeController, useAppTheme } from './ThemeProvider';
-export type { ThemeControllerContextValue, DensitySetting } from './ThemeProvider';
-export { primarySwatches, type PrimaryKey as PrimaryColor } from './theme';
+export type { ThemeControllerContextValue } from './ThemeProvider';
+export {
+  themePresetList,
+  themePresets,
+  defaultThemeId,
+  type ThemeId,
+  type ThemePreset,
+  type ThemeGroup,
+  type DensitySetting,
+} from './theme';
