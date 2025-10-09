@@ -117,7 +117,7 @@ const buildComponentOverrides = (theme: Theme, density: DensitySetting): ThemeOp
       defaultProps: { elevation: 0 },
       styleOverrides: {
         root: {
-          borderRadius: theme.shape.borderRadius * 1.5,
+          borderRadius: Number(theme.shape.borderRadius) * 1.5,
           backgroundImage: 'none',
           backgroundColor: theme.palette.background.paper,
           boxShadow: theme.shadows[1],
@@ -150,7 +150,7 @@ const buildComponentOverrides = (theme: Theme, density: DensitySetting): ThemeOp
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: theme.shape.borderRadius * 1.5,
+          borderRadius: Number(theme.shape.borderRadius) * 1.5,
           fontWeight: 600,
         },
         contained: {
@@ -182,7 +182,7 @@ const buildComponentOverrides = (theme: Theme, density: DensitySetting): ThemeOp
     MuiFab: {
       styleOverrides: {
         root: {
-          borderRadius: theme.shape.borderRadius * 1.2,
+          borderRadius: Number(theme.shape.borderRadius) * 1.2,
           boxShadow: theme.shadows[3],
         },
       },
@@ -230,7 +230,7 @@ const buildComponentOverrides = (theme: Theme, density: DensitySetting): ThemeOp
         root: {
           '& .MuiOutlinedInput-root': {
             height: fieldHeight,
-            borderRadius: theme.shape.borderRadius * 1.1,
+            borderRadius: Number(theme.shape.borderRadius) * 1.1,
             backgroundColor:
               theme.palette.mode === 'light'
                 ? theme.palette.background.paper
@@ -301,7 +301,7 @@ const buildComponentOverrides = (theme: Theme, density: DensitySetting): ThemeOp
     MuiMenu: {
       styleOverrides: {
         paper: {
-          borderRadius: theme.shape.borderRadius * 1.1,
+          borderRadius: Number(theme.shape.borderRadius) * 1.1,
           paddingBlock: theme.spacing(1),
           boxShadow: theme.shadows[4],
         },
@@ -310,7 +310,7 @@ const buildComponentOverrides = (theme: Theme, density: DensitySetting): ThemeOp
     MuiPopover: {
       styleOverrides: {
         paper: {
-          borderRadius: theme.shape.borderRadius * 1.1,
+          borderRadius: Number(theme.shape.borderRadius) * 1.1,
           boxShadow: theme.shadows[4],
         },
       },
@@ -318,7 +318,7 @@ const buildComponentOverrides = (theme: Theme, density: DensitySetting): ThemeOp
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
-          borderRadius: theme.shape.borderRadius * 0.75,
+          borderRadius: Number(theme.shape.borderRadius) * 0.75,
           padding: theme.spacing(1, 1.5),
           fontSize: '0.75rem',
           backgroundColor: alpha(theme.palette.background.paper, theme.palette.mode === 'light' ? 0.92 : 0.8),
@@ -336,8 +336,8 @@ const assignAppTokens = (theme: Theme, preset: ThemePreset) => {
     density: DensitySetting;
   };
 
-  const brandGradient = `linear-gradient(135deg, ${preset.palette.primary?.light ?? preset.palette.primary?.main}, ${
-    preset.palette.secondary?.main ?? preset.palette.primary?.dark
+  const brandGradient = `linear-gradient(135deg, ${(preset.palette.primary as any)?.light ?? (preset.palette.primary as any)?.main}, ${
+    (preset.palette.secondary as any)?.main ?? (preset.palette.primary as any)?.dark
   })`;
   const softGradient = `linear-gradient(135deg, ${alpha(
     theme.palette.primary.light,
