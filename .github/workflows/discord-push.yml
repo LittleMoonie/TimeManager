@@ -5,10 +5,13 @@ on:
     branches:
       - main
       - develop
+      - 'front/*'
+      - 'back/*'
+      - 'docs/*'
+      - 'devops/*'
       - 'feat/*'
       - 'fix/*'
       - 'chore/*'
-      - 'docs/*'
       - 'refactor/*'
       - 'test/*'
       - 'perf/*'
