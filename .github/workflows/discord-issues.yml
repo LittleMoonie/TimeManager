@@ -1,0 +1,52 @@
+name: Discord Notifications - Issues
+
+on:
+  issues:
+    types: [ opened, edited, deleted, closed, reopened, assigned, unassigned, labeled, unlabeled ]
+  issue_comment:
+    types: [ created, edited, deleted ]
+
+jobs:
+  notify-discord-issues:
+    name: Notify Discord - Issues
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Notify Discord - Issue Events
+        if: github.event_name == 'issues'
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_ISSUES_URL }}
+          title: |
+            ${{ github.event.action == 'opened' && '🐛' || github.event.action == 'closed' && '✅' || github.event.action == 'reopened' && '🔄' || '📝' }} **Issue ${{ github.event.action }}**
+            Repository: **${{ github.repository }}**
+          description: |
+            **Issue #${{ github.event.issue.number }}:** ${{ github.event.issue.title }}
+            **Author:** ${{ github.actor }}
+            **Action:** ${{ github.event.action }}
+            **State:** ${{ github.event.issue.state }}
+            ${{ github.event.issue.body && format('**Description:** {0}', github.event.issue.body) || '' }}
+            ${{ github.event.action == 'assigned' && format('**Assigned to:** {0}', github.event.assignee.login) || '' }}
+            ${{ github.event.action == 'labeled' && format('**Label:** {0}', github.event.label.name) || '' }}
+            ${{ github.event.action == 'unlabeled' && format('**Label removed:** {0}', github.event.label.name) || '' }}
+            **Labels:** ${{ join(github.event.issue.labels.*.name, ', ') || 'None' }}
+          color: ${{ github.event.action == 'opened' && '15158332' || github.event.action == 'closed' && '65280' || github.event.action == 'reopened' && '16776960' || '3447003' }}
+          username: GitHub Actions
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+
+      - name: Notify Discord - Issue Comment Events
+        if: github.event_name == 'issue_comment'
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_ISSUES_URL }}
+          title: |
+            💬 **Issue Comment ${{ github.event.action }}**
+            Repository: **${{ github.repository }}**
+          description: |
+            **Commenter:** ${{ github.actor }}
+            **Issue #${{ github.event.issue.number }}:** ${{ github.event.issue.title }}
+            **Action:** ${{ github.event.action }}
+            ${{ github.event.comment.body && format('**Comment:** {0}', github.event.comment.body) || '' }}
+          color: ${{ github.event.action == 'created' && '3447003' || github.event.action == 'edited' && '16776960' || '15158332' }}
+          username: GitHub Actions
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
