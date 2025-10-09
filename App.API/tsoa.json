@@ -1,6 +1,6 @@
 {
   "entryFile": "src/index.ts",
-  "noImplicitAdditionalProperties": "throw",
+  "noImplicitAdditionalProperties": "silently-remove-extras",
   "controllerPathGlobs": ["src/controllers/**/*.ts"],
   "spec": {
     "outputDirectory": ".",
@@ -22,8 +22,7 @@
         "email": "team@gogotime.com"
       }
     },
-    "host": "localhost:4000",
-    "basePath": "/",
+    "basePath": "/api",
     "schemes": ["http", "https"]
   },
   "routes": {
