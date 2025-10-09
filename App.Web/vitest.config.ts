@@ -30,6 +30,7 @@ export default defineConfig({
       '@/hooks': path.resolve(__dirname, './src/hooks'),
       '@/lib': path.resolve(__dirname, './src/lib'),
       '@/pages': path.resolve(__dirname, './src/pages'),
+      '@/theme': path.resolve(__dirname, './src/theme'),
       '@/themes': path.resolve(__dirname, './src/themes'),
       '@/types': path.resolve(__dirname, './src/types'),
     },

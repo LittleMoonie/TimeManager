@@ -1,0 +1,50 @@
+name: Discord Notifications • Branches
+
+on:
+  create:
+  delete:
+
+jobs:
+  notify-discord:
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Branch created
+        if: github.event_name == 'create' && github.event.ref_type == 'branch'
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_BRANCHES_URL }}
+          username: 'GitHub • Branches'
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          noprefix: true
+          timestamp: true
+          title: '🌱 Branch created'
+          url: ${{ format('https://github.com/{0}/tree/{1}', github.repository, github.ref) }}
+          color: 0x57F287
+          description: |
+            Branch `${{ github.ref }}` created by **${{ github.actor }}**.
+          author: ${{ github.actor }}, https://github.com/${{ github.actor }}, https://github.com/${{ github.actor }}.png?size=64
+          fields: |
+            Repository, `${{ github.repository }}`, true
+            Branch, `${{ github.ref }}`, true
+            Default branch, `${{ github.event.master_branch || 'main' }}`, true
+          footer: Branch Notifications • GitHub Actions
+
+      - name: Branch deleted
+        if: github.event_name == 'delete' && github.event.ref_type == 'branch'
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_BRANCHES_URL }}
+          username: 'GitHub • Branches'
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          noprefix: true
+          timestamp: true
+          title: '🪓 Branch deleted'
+          color: 0xED4245
+          description: |
+            Branch `${{ github.event.ref }}` deleted by **${{ github.actor }}**.
+          author: ${{ github.actor }}, https://github.com/${{ github.actor }}, https://github.com/${{ github.actor }}.png?size=64
+          fields: |
+            Repository, `${{ github.repository }}`, true
+            Branch, `${{ github.event.ref }}`, true
+          footer: Branch Notifications • GitHub Actions
