@@ -330,15 +330,24 @@ const buildComponentOverrides = (theme: Theme, density: DensitySetting): ThemeOp
   };
 };
 
+type PaletteColor = {
+  light?: string;
+  main: string;
+  dark?: string;
+};
+
+
 const assignAppTokens = (theme: Theme, preset: ThemePreset) => {
-  const augmented = theme as Theme & {
-    app: Theme['app'];
+    const augmented = theme as Theme & {
+      app: Theme['app'];
     density: DensitySetting;
   };
 
-  const brandGradient = `linear-gradient(135deg, ${(preset.palette.primary as any)?.light ?? (preset.palette.primary as any)?.main}, ${
-    (preset.palette.secondary as any)?.main ?? (preset.palette.primary as any)?.dark
-  })`;
+    // Type guards to safely access palette properties
+    const primary = preset.palette.primary as PaletteColor;
+    const secondary = preset.palette.secondary as PaletteColor;
+    const brandGradient = `linear-gradient(135deg, ${primary.light ?? primary.main}, ${secondary.main ?? primary.dark})`;
+
   const softGradient = `linear-gradient(135deg, ${alpha(
     theme.palette.primary.light,
     theme.palette.mode === 'light' ? 0.22 : 0.38

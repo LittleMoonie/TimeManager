@@ -1,0 +1,48 @@
+name: Discord Notifications • Push
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feat/*'
+      - 'fix/*'
+      - 'chore/*'
+      - 'docs/*'
+      - 'refactor/*'
+      - 'test/*'
+      - 'perf/*'
+      - 'ci/*'
+      - 'build/*'
+
+jobs:
+  notify-discord:
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Push activity
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_PUSH_URL }}
+          username: 'GitHub • Push'
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          noprefix: true
+          timestamp: true
+          title: ${{ format('🚀 Push to {0}', github.ref_name) }}
+          url: ${{ github.event.compare }}
+          color: 0x57F287
+          author: ${{ github.actor }}, https://github.com/${{ github.actor }}, https://github.com/${{ github.actor }}.png?size=64
+          description: |
+            **${{ github.repository }}**
+
+            **${{ github.actor }}** pushed to **${{ github.ref_name }}**
+
+            Latest commit:
+            > ${{ github.event.head_commit && replace(replace(github.event.head_commit.message, '\r', ' '), '\n', ' ') || 'No commit message.' }}
+          fields: |
+            Repository, `${{ github.repository }}`, true
+            Branch, `${{ github.ref_name }}`, true
+            Author, `${{ github.actor }}`, true
+            Head SHA, `${{ github.sha }}`, true
+            Compare, [View diff](${{ github.event.compare }}), false
+          footer: Push Notifications • GitHub Actions

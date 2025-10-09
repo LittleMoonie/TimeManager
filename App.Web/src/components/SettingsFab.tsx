@@ -16,9 +16,15 @@ import { SettingsRounded } from '@mui/icons-material';
 import { alpha, useTheme } from '@mui/material/styles';
 import { useThemeController, type ThemePreset } from '@/themes';
 
-const getPresetGradient = (preset: ThemePreset, fallback: string) => {
-  const start = preset.palette.primary?.light ?? preset.palette.primary?.main ?? fallback;
-  const end = preset.palette.secondary?.main ?? preset.palette.primary?.dark ?? start;
+type PresetGradientColor = {
+  light?: string;
+  main: string;
+  dark?: string;
+};
+
+const getPresetGradient = (preset: ThemePreset) => {
+  const start = preset.palette.primary?.light as PresetGradientColor;
+  const end = preset.palette.secondary?.main as PresetGradientColor;
   return `linear-gradient(135deg, ${start}, ${end})`;
 };
 
@@ -94,7 +100,7 @@ export const SettingsFab = () => {
             <Stack direction="row" flexWrap="wrap" gap={1.5}>
               {availableThemes.map((preset) => {
                 const selected = preset.id === themeId;
-                const gradient = getPresetGradient(preset, theme.palette.primary.main);
+                const gradient = getPresetGradient(preset);
                 return (
                   <ButtonBase
                     key={preset.id}

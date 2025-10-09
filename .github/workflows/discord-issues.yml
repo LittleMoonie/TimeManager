@@ -1,52 +1,94 @@
-name: Discord Notifications - Issues
+name: Discord Notifications • Issues
 
 on:
   issues:
-    types: [ opened, edited, deleted, closed, reopened, assigned, unassigned, labeled, unlabeled ]
+    types:
+      - opened
+      - edited
+      - deleted
+      - closed
+      - reopened
+      - assigned
+      - unassigned
+      - labeled
+      - unlabeled
   issue_comment:
-    types: [ created, edited, deleted ]
+    types:
+      - created
+      - edited
+      - deleted
 
 jobs:
-  notify-discord-issues:
-    name: Notify Discord - Issues
+  notify-discord:
     runs-on: ubuntu-latest
     if: always()
     steps:
-      - name: Notify Discord - Issue Events
+      - name: Issue lifecycle events
         if: github.event_name == 'issues'
         uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK_ISSUES_URL }}
-          title: |
-            ${{ github.event.action == 'opened' && '🐛' || github.event.action == 'closed' && '✅' || github.event.action == 'reopened' && '🔄' || '📝' }} **Issue ${{ github.event.action }}**
-            Repository: **${{ github.repository }}**
-          description: |
-            **Issue #${{ github.event.issue.number }}:** ${{ github.event.issue.title }}
-            **Author:** ${{ github.actor }}
-            **Action:** ${{ github.event.action }}
-            **State:** ${{ github.event.issue.state }}
-            ${{ github.event.issue.body && format('**Description:** {0}', github.event.issue.body) || '' }}
-            ${{ github.event.action == 'assigned' && format('**Assigned to:** {0}', github.event.assignee.login) || '' }}
-            ${{ github.event.action == 'labeled' && format('**Label:** {0}', github.event.label.name) || '' }}
-            ${{ github.event.action == 'unlabeled' && format('**Label removed:** {0}', github.event.label.name) || '' }}
-            **Labels:** ${{ join(github.event.issue.labels.*.name, ', ') || 'None' }}
-          color: ${{ github.event.action == 'opened' && '15158332' || github.event.action == 'closed' && '65280' || github.event.action == 'reopened' && '16776960' || '3447003' }}
-          username: GitHub Actions
+          username: 'GitHub • Issues'
           avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          noprefix: true
+          timestamp: true
+          title: ${{ (github.event.action == 'opened' && '🐛 Issue opened')
+                 || (github.event.action == 'closed' && '✅ Issue closed')
+                 || (github.event.action == 'reopened' && '🔄 Issue reopened')
+                 || (github.event.action == 'deleted' && '🗑️ Issue deleted')
+                 || (github.event.action == 'assigned' && '👤 Issue assigned')
+                 || (github.event.action == 'unassigned' && '👤 Issue unassigned')
+                 || (github.event.action == 'labeled' && '🏷️ Label added')
+                 || (github.event.action == 'unlabeled' && '🏷️ Label removed')
+                 || '📝 Issue updated' }}
+          url: ${{ github.event.issue.html_url }}
+          color: ${{ (github.event.action == 'opened' && '0xFEE75C')
+                 || (github.event.action == 'closed' && '0x57F287')
+                 || (github.event.action == 'reopened' && '0xFEE75C')
+                 || (github.event.action == 'deleted' && '0xED4245')
+                 || (github.event.action == 'labeled' && '0x5865F2')
+                 || (github.event.action == 'unlabeled' && '0x5865F2')
+                 || (github.event.action == 'assigned' && '0x57F287')
+                 || (github.event.action == 'unassigned' && '0xED4245')
+                 || '0x2B2D31' }}
+          description: |
+            **#${{ github.event.issue.number }} — ${{ github.event.issue.title }}**
 
-      - name: Notify Discord - Issue Comment Events
+            ${{ github.event.issue.body && format('> {0}', replace(replace(github.event.issue.body, '\r', ' '), '\n', ' ')) || '' }}
+          author: ${{ github.actor }}, https://github.com/${{ github.actor }}, https://github.com/${{ github.actor }}.png?size=64
+          fields: |
+            Repository, `${{ github.repository }}`, true
+            Action, `${{ github.event.action }}`, true
+            State, `${{ github.event.issue.state }}`, true
+            Labels, `${{ join(github.event.issue.labels.*.name, ', ') || 'None' }}`, true
+            Assignee, `${{ github.event.assignee.login || '—' }}`, true
+            Created, `${{ github.event.issue.created_at }}`, true
+          footer: Issues Notifications • GitHub Actions
+
+      - name: Issue comments
         if: github.event_name == 'issue_comment'
         uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK_ISSUES_URL }}
-          title: |
-            💬 **Issue Comment ${{ github.event.action }}**
-            Repository: **${{ github.repository }}**
-          description: |
-            **Commenter:** ${{ github.actor }}
-            **Issue #${{ github.event.issue.number }}:** ${{ github.event.issue.title }}
-            **Action:** ${{ github.event.action }}
-            ${{ github.event.comment.body && format('**Comment:** {0}', github.event.comment.body) || '' }}
-          color: ${{ github.event.action == 'created' && '3447003' || github.event.action == 'edited' && '16776960' || '15158332' }}
-          username: GitHub Actions
+          username: 'GitHub • Issues'
           avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          noprefix: true
+          timestamp: true
+          title: ${{ (github.event.action == 'created' && '💬 New issue comment')
+                 || (github.event.action == 'edited' && '✏️ Comment edited')
+                 || '🗑️ Comment deleted' }}
+          url: ${{ github.event.comment.html_url }}
+          color: ${{ (github.event.action == 'created' && '0x5865F2')
+                 || (github.event.action == 'edited' && '0xFEE75C')
+                 || '0xED4245' }}
+          description: |
+            **#${{ github.event.issue.number }} — ${{ github.event.issue.title }}**
+
+            ${{ github.event.comment.body && format('> {0}', replace(replace(github.event.comment.body, '\r', ' '), '\n', ' ')) || '' }}
+          author: ${{ github.actor }}, https://github.com/${{ github.actor }}, https://github.com/${{ github.actor }}.png?size=64
+          fields: |
+            Repository, `${{ github.repository }}`, true
+            Action, `${{ github.event.action }}`, true
+            Comment ID, `${{ github.event.comment.id }}`, true
+            Permalink, [Open in GitHub](${{ github.event.comment.html_url }}), false
+          footer: Issues Notifications • GitHub Actions

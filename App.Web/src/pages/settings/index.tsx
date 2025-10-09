@@ -1,5 +1,4 @@
-import { Box, Card, CardContent, FormControlLabel, Switch, TextField, Typography } from '@mui/material';
-import Grid from '@mui/material/GridLegacy';
+import { Box, Card, CardContent, FormControlLabel, Switch, TextField, Typography, Grid } from '@mui/material';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { useThemeController } from '@/themes';
 
@@ -14,7 +13,7 @@ const SettingsPage = () => {
       />
 
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
+        <Grid size={{xs:12, md: 6}}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -29,7 +28,7 @@ const SettingsPage = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid size={{xs:12, md: 6}}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>

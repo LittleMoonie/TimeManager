@@ -52,8 +52,6 @@ const getStatusColor = (status: Person['status']) => {
       return 'warning';
     case 'Inactive':
       return 'error';
-    default:
-      return 'default';
   }
 };
 
@@ -71,7 +69,7 @@ const PeoplePage = () => {
 
       <Grid container spacing={3}>
         {mockPeople.map((person) => (
-          <Grid item xs={12} sm={6} md={4} key={person.id}>
+          <Grid size={{xs: 12, sm: 6, md: 4}} key={person.id}>
             <Card
               sx={{
                 height: '100%',
