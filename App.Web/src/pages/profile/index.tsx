@@ -25,7 +25,6 @@ const ProfilePage = () => {
           </Card>
         </Grid>
         <Grid size={{xs: 12, md: 8}}>
-
           <Card>
             <CardContent>
               <Typography variant="subtitle1" fontWeight={600} gutterBottom>

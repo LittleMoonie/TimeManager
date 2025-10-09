@@ -20,6 +20,7 @@ import {
   LogoutRounded,
   PersonRounded,
 } from '@mui/icons-material';
+import { useAuth } from '@/hooks/useAuth';
 
 type LayoutAppBarProps = {
   onMenuClick: () => void;
@@ -28,7 +29,7 @@ type LayoutAppBarProps = {
 
 export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
+  const { user } = useAuth();
   const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -59,8 +60,8 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
           justifyContent: 'space-between',
         }}
       >
-        {/* Left side - Company info */}
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        {/* Left side - Company info, Hamburger and Search */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, ml: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Box
               sx={{
@@ -78,27 +79,24 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
               </Typography>
             </Box>
             <Typography variant="h6" fontWeight={600} color="text.primary" sx={{ fontSize: '1.25rem' }}>
-              Acme Corporation
+              {/* Connected User's company name */}
+              {user?.companyName}
             </Typography>
           </Box>
-        </Box>
 
-        {/* Center - Hamburger and Search */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', flexGrow: 1, alignItems: 'center', gap: 3 }}>
-          {!isDesktop && (
-            <IconButton
-              aria-label="Toggle navigation menu"
-              onClick={onMenuClick}
-              sx={{
-                border: '1px solid',
-                borderColor: 'divider',
-                borderRadius: 1,
-                p: 0.75,
-              }}
-            >
-              <MenuRounded fontSize="small" />
-            </IconButton>
-          )}
+          <IconButton
+            aria-label="Toggle navigation menu"
+            onClick={onMenuClick}
+            sx={{
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: '4px',
+              backgroundColor: 'background.default',
+              p: 0.75,
+            }}
+          >
+            <MenuRounded fontSize="small" />
+          </IconButton>
 
           <TextField
             placeholder="Search"
@@ -138,8 +136,8 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
               },
             }}
             sx={{
-              width: { xs: '100%', md: 420, lg: 520 },
-              maxWidth: 520,
+              width: { xs: 200, md: 300, lg: 400 },
+              maxWidth: 400,
             }}
             aria-label="Search"
           />

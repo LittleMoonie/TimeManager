@@ -35,7 +35,7 @@ const SettingsPage = () => {
                 Preferences
               </Typography>
               <FormControlLabel
-                control={<Switch checked={mode === 'dark'} onChange={toggleMode} />}
+                control={<Switch checked={mode === 'lagoon-dark'} onChange={toggleMode} />}
                 label="Dark mode"
               />
             </CardContent>

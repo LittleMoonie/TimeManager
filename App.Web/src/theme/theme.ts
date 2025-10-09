@@ -1,5 +1,5 @@
 import { alpha, createTheme as muiCreateTheme, responsiveFontSizes } from '@mui/material/styles';
-import type { Theme, ThemeOptions } from '@mui/material';
+import type { PaletteColor, Theme, ThemeOptions } from '@mui/material';
 import {
   defaultThemeId,
   themePresetList,
@@ -60,9 +60,9 @@ const typography: ThemeOptions['typography'] = {
 };
 
 const computeShadows = (theme: Theme) => {
-  const soft = alpha(theme.palette.common.black, theme.palette.mode === 'light' ? 0.08 : 0.32);
-  const medium = alpha(theme.palette.common.black, theme.palette.mode === 'light' ? 0.12 : 0.45);
-  const strong = alpha(theme.palette.common.black, theme.palette.mode === 'light' ? 0.18 : 0.5);
+  const soft = alpha(theme.palette.common.black, theme.palette.mode === 'lagoon-light' ? 0.08 : 0.32);
+  const medium = alpha(theme.palette.common.black, theme.palette.mode === 'lagoon-light' ? 0.12 : 0.45);
+  const strong = alpha(theme.palette.common.black, theme.palette.mode === 'lagoon-light' ? 0.18 : 0.5);
 
   const next = [...theme.shadows];
   next[0] = 'none';
@@ -76,10 +76,10 @@ const computeShadows = (theme: Theme) => {
 };
 
 const buildComponentOverrides = (theme: Theme, density: DensitySetting): ThemeOptions['components'] => {
-  const focusRingColor = alpha(theme.palette.primary.main, theme.palette.mode === 'light' ? 0.28 : 0.42);
-  const hoverOverlay = alpha(theme.palette.primary.main, theme.palette.mode === 'light' ? 0.08 : 0.16);
+  const focusRingColor = alpha(theme.palette.primary.main, theme.palette.mode === 'lagoon-light' ? 0.28 : 0.42);
+  const hoverOverlay = alpha(theme.palette.primary.main, theme.palette.mode === 'lagoon-light' ? 0.08 : 0.16);
   const scrollbarThumb = alpha(
-    theme.palette.mode === 'light' ? theme.palette.text.secondary : theme.palette.primary.light,
+    theme.palette.mode === 'lagoon-light' ? theme.palette.text.secondary : theme.palette.primary.light,
     0.32
   );
 
@@ -129,7 +129,7 @@ const buildComponentOverrides = (theme: Theme, density: DensitySetting): ThemeOp
         root: {
           height: 56,
           boxShadow: theme.shadows[1],
-          backgroundColor: alpha(theme.palette.background.paper, theme.palette.mode === 'light' ? 0.92 : 0.86),
+          backgroundColor: alpha(theme.palette.background.paper, theme.palette.mode === 'lagoon-light' ? 0.92 : 0.86),
           backdropFilter: 'blur(12px)',
         },
       },
@@ -232,13 +232,12 @@ const buildComponentOverrides = (theme: Theme, density: DensitySetting): ThemeOp
             height: fieldHeight,
             borderRadius: Number(theme.shape.borderRadius) * 1.1,
             backgroundColor:
-              theme.palette.mode === 'light'
+              theme.palette.mode === 'lagoon-light'
                 ? theme.palette.background.paper
                 : alpha(theme.palette.background.paper, 0.9),
-            boxShadow:
-              theme.palette.mode === 'light'
-                ? theme.shadows[1]
-                : `0px 8px 18px ${alpha(theme.palette.common.black, 0.5)}`,
+            boxShadow: 'none',
+            border: '1px solid',
+            borderColor: alpha(theme.palette.grey[300], theme.palette.mode === 'lagoon-light' ? 1 : 0.5),
             '& fieldset': {
               borderColor: 'transparent',
             },
@@ -321,7 +320,7 @@ const buildComponentOverrides = (theme: Theme, density: DensitySetting): ThemeOp
           borderRadius: Number(theme.shape.borderRadius) * 0.75,
           padding: theme.spacing(1, 1.5),
           fontSize: '0.75rem',
-          backgroundColor: alpha(theme.palette.background.paper, theme.palette.mode === 'light' ? 0.92 : 0.8),
+          backgroundColor: alpha(theme.palette.background.paper, theme.palette.mode === 'lagoon-light' ? 0.92 : 0.8),
           color: theme.palette.text.primary,
           boxShadow: theme.shadows[2],
         },
@@ -330,30 +329,24 @@ const buildComponentOverrides = (theme: Theme, density: DensitySetting): ThemeOp
   };
 };
 
-type PaletteColor = {
-  light?: string;
-  main: string;
-  dark?: string;
-};
-
-
 const assignAppTokens = (theme: Theme, preset: ThemePreset) => {
-    const augmented = theme as Theme & {
-      app: Theme['app'];
-    density: DensitySetting;
-  };
+  const palette = theme.palette;
+  const presetPrimary = preset.palette.primary as PaletteColor;
+  const presetSecondary = preset.palette.secondary as PaletteColor;
+  const primaryMain = presetPrimary?.main;
+  const primaryLight = presetPrimary?.light;
+  const primaryDark = presetPrimary?.dark;
+  const secondaryMain = presetSecondary?.main;
 
-    // Type guards to safely access palette properties
-    const primary = preset.palette.primary as PaletteColor;
-    const secondary = preset.palette.secondary as PaletteColor;
-    const brandGradient = `linear-gradient(135deg, ${primary.light ?? primary.main}, ${secondary.main ?? primary.dark})`;
-
+  const brandGradient = `linear-gradient(135deg, ${primaryLight}, ${secondaryMain})`;
+  const softPrimary = palette.primary.light ?? primaryLight;
+  const softSecondary = palette.secondary.light ?? secondaryMain;
   const softGradient = `linear-gradient(135deg, ${alpha(
-    theme.palette.primary.light,
-    theme.palette.mode === 'light' ? 0.22 : 0.38
-  )}, ${alpha(theme.palette.secondary.light, theme.palette.mode === 'light' ? 0.18 : 0.32)})`;
+    softPrimary,
+    palette.mode === 'lagoon-light' ? 0.22 : 0.38
+  )}, ${alpha(softSecondary, palette.mode === 'lagoon-light' ? 0.18 : 0.32)})`;
 
-  augmented.app = {
+  theme.app = {
     id: preset.id,
     label: preset.label,
     description: preset.description,
@@ -363,14 +356,14 @@ const assignAppTokens = (theme: Theme, preset: ThemePreset) => {
       soft: softGradient,
     },
     surfaces: {
-      muted: alpha(theme.palette.primary.main, theme.palette.mode === 'light' ? 0.05 : 0.12),
-      elevated: theme.palette.background.paper,
-      translucent: alpha(theme.palette.background.paper, theme.palette.mode === 'light' ? 0.85 : 0.72),
+      muted: alpha(palette.primary.main, palette.mode === 'lagoon-light' ? 0.05 : 0.12),
+      elevated: palette.background.paper,
+      translucent: alpha(palette.background.paper, palette.mode === 'lagoon-light' ? 0.85 : 0.72),
     },
-    focusRing: `0 0 0 3px ${alpha(theme.palette.primary.main, theme.palette.mode === 'light' ? 0.3 : 0.45)}`,
+    focusRing: `0 0 0 3px ${alpha(palette.primary.main, palette.mode === 'lagoon-light' ? 0.3 : 0.45)}`,
   };
 
-  return augmented;
+  return theme;
 };
 
 export const createAppTheme = (preset: ThemePreset, density: DensitySetting) => {
@@ -384,7 +377,7 @@ export const createAppTheme = (preset: ThemePreset, density: DensitySetting) => 
   });
 
   theme.shadows = computeShadows(theme);
-  theme = muiCreateTheme(theme, {
+  theme = muiCreateTheme(theme as ThemeOptions, {
     components: buildComponentOverrides(theme, density),
   });
 

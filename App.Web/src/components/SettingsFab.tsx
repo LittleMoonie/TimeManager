@@ -52,7 +52,7 @@ export const SettingsFab = () => {
 
   const open = Boolean(anchorEl);
   const focusRing = useMemo(
-    () => `0 0 0 3px ${alpha(theme.palette.primary.main, theme.palette.mode === 'light' ? 0.28 : 0.42)}`,
+    () => `0 0 0 3px ${alpha(theme.palette.primary.main, theme.palette.mode === 'lagoon-light' ? 0.28 : 0.42)}`,
     [theme.palette.mode, theme.palette.primary.main]
   );
 
@@ -114,7 +114,7 @@ export const SettingsFab = () => {
                         `1px solid ${
                           selected
                             ? themeArg.palette.primary.main
-                            : alpha(themeArg.palette.divider, themeArg.palette.mode === 'light' ? 1 : 0.6)
+                            : alpha(themeArg.palette.divider, themeArg.palette.mode === 'lagoon-light' ? 1 : 0.6)
                         }`,
                       boxShadow: selected ? theme.shadows[3] : 'none',
                       transform: selected ? 'translateY(-2px)' : 'none',
@@ -141,7 +141,7 @@ export const SettingsFab = () => {
                         {preset.label}
                       </Typography>
                       <Typography variant="caption" sx={{ opacity: 0.8 }}>
-                        {preset.mode === 'light' ? 'Light' : 'Dark'} &bull; {preset.group.toUpperCase()}
+                        {preset.mode === 'lagoon-light' ? 'Light' : 'Dark'} &bull; {preset.group.toUpperCase()}
                       </Typography>
                     </Box>
                   </ButtonBase>

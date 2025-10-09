@@ -1,21 +1,5 @@
-import {
-  Avatar,
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  Grid,
-  Typography,
-} from '@mui/material';
-
-type Person = {
-  id: string;
-  name: string;
-  role: string;
-  team: string;
-  status: 'Active' | 'On leave' | 'Inactive';
-  initials: string;
-};
+import { Avatar, Box, Card, CardContent, Chip, Grid, Typography } from '@mui/material';
+import type { Person, PersonStatus } from '../../types';
 
 const mockPeople: Person[] = [
   {
@@ -44,7 +28,7 @@ const mockPeople: Person[] = [
   },
 ];
 
-const getStatusColor = (status: Person['status']) => {
+const getStatusColor = (status: PersonStatus) => {
   switch (status) {
     case 'Active':
       return 'success';

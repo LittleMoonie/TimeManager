@@ -184,7 +184,7 @@ const TasksPage = () => {
                 onChange={handleSearchChange}
               />
             </Grid>
-            <Grid size={{xs:12, md: 4}}>
+            <Grid size={{xs: 12, md: 4}}>
               <FormControl fullWidth>
                 <InputLabel>Status</InputLabel>
                 <Select
@@ -201,7 +201,7 @@ const TasksPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid size={{xs:12, md: 4}}>
+            <Grid size={{xs: 12, md: 4}}>
               <FormControl fullWidth>
                 <InputLabel>Priority</InputLabel>
                 <Select

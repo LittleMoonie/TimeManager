@@ -11,6 +11,7 @@ export interface User {
   status: 'ACTIVE' | 'INACTIVE';
   createdAt: string;
   updatedAt: string;
+  companyName: string;
 }
 
 export interface Team {
@@ -125,3 +126,5 @@ export interface Theme {
   mode: 'light' | 'dark';
   density: 'comfortable' | 'compact';
 }
+
+export type { Person, PersonStatus } from './people';

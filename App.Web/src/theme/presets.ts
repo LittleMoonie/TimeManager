@@ -44,7 +44,7 @@ const createLightPalette = ({
   textPrimary,
   textSecondary,
 }: PaletteSeed): PaletteOptions => ({
-  mode: 'light',
+  mode: 'light' as PaletteMode,
   primary,
   secondary,
   background: {
@@ -72,7 +72,7 @@ const createDarkPalette = ({
   textPrimary,
   textSecondary,
 }: PaletteSeed): PaletteOptions => ({
-  mode: 'dark',
+  mode: 'dark' as PaletteMode,
   primary,
   secondary,
   background: {
@@ -92,11 +92,11 @@ const createDarkPalette = ({
   error: { light: '#F87171', main: '#EF4444', dark: '#B91C1C', contrastText: '#2F0B0B' },
 });
 
-const auroraLight: ThemePreset = {
-  id: 'aurora-light',
+const auroraLight = {
+  id: 'aurora-light' as const,
   label: 'Aurora Light',
   description: 'Airy blues with lilac accents for focus and clarity.',
-  group: 'aurora',
+  group: 'aurora' as const,
   mode: 'light',
   palette: createLightPalette({
     primary: { light: '#93C5FD', main: '#3B82F6', dark: '#1D4ED8', contrastText: '#F8FAFC' },
@@ -108,11 +108,11 @@ const auroraLight: ThemePreset = {
   }),
 };
 
-const auroraDark: ThemePreset = {
-  id: 'aurora-dark',
+const auroraDark = {
+  id: 'aurora-dark' as const,
   label: 'Aurora Dark',
   description: 'Deep midnight blues with neon accents.',
-  group: 'aurora',
+  group: 'aurora' as const,
   mode: 'dark',
   palette: createDarkPalette({
     primary: { light: '#60A5FA', main: '#3B82F6', dark: '#1E3A8A', contrastText: '#0B1120' },
@@ -124,12 +124,12 @@ const auroraDark: ThemePreset = {
   }),
 };
 
-const emberLight: ThemePreset = {
-  id: 'ember-light',
+const emberLight = {
+  id: 'ember-light' as const,
   label: 'Ember Light',
   description: 'Warm sunrise oranges balanced with rose highlights.',
-  group: 'ember',
-  mode: 'light',
+  group: 'ember' as const,
+  mode: 'light' as PaletteMode,
   palette: createLightPalette({
     primary: { light: '#FECBA1', main: '#F97316', dark: '#C2410C', contrastText: '#1F1307' },
     secondary: { light: '#FDA4AF', main: '#F43F5E', dark: '#BE123C', contrastText: '#2F0B1A' },
@@ -140,12 +140,12 @@ const emberLight: ThemePreset = {
   }),
 };
 
-const emberDark: ThemePreset = {
-  id: 'ember-dark',
+const emberDark = {
+  id: 'ember-dark' as const,
   label: 'Ember Dark',
   description: 'Rich volcanic tones with glowing embers.',
-  group: 'ember',
-  mode: 'dark',
+  group: 'ember' as const,
+  mode: 'dark' as PaletteMode,
   palette: createDarkPalette({
     primary: { light: '#FDBA74', main: '#FB923C', dark: '#EA580C', contrastText: '#2B1201' },
     secondary: { light: '#F9A8D4', main: '#F472B6', dark: '#DB2777', contrastText: '#2F0B1A' },
@@ -156,12 +156,12 @@ const emberDark: ThemePreset = {
   }),
 };
 
-const lagoonLight: ThemePreset = {
-  id: 'lagoon-light',
+const lagoonLight = {
+  id: 'lagoon-light' as const,
   label: 'Lagoon Light',
   description: 'Cool teals and aquas for calm productivity.',
-  group: 'lagoon',
-  mode: 'light',
+  group: 'lagoon' as const,
+  mode: 'light' as PaletteMode,
   palette: createLightPalette({
     primary: { light: '#5EEAD4', main: '#14B8A6', dark: '#0F766E', contrastText: '#022C22' },
     secondary: { light: '#7DD3FC', main: '#0EA5E9', dark: '#0369A1', contrastText: '#031626' },
@@ -172,12 +172,12 @@ const lagoonLight: ThemePreset = {
   }),
 };
 
-const lagoonDark: ThemePreset = {
-  id: 'lagoon-dark',
+const lagoonDark = {
+  id: 'lagoon-dark' as const,
   label: 'Lagoon Dark',
   description: 'Oceanic depths with luminous cyan highlights.',
-  group: 'lagoon',
-  mode: 'dark',
+  group: 'lagoon' as const,
+  mode: 'dark' as PaletteMode,
   palette: createDarkPalette({
     primary: { light: '#2DD4BF', main: '#14B8A6', dark: '#0D9488', contrastText: '#01221E' },
     secondary: { light: '#38BDF8', main: '#0EA5E9', dark: '#0284C7', contrastText: '#011427' },
@@ -189,13 +189,13 @@ const lagoonDark: ThemePreset = {
 };
 
 export const themePresets: Record<ThemeId, ThemePreset> = {
-  [auroraLight.id]: auroraLight,
-  [auroraDark.id]: auroraDark,
-  [emberLight.id]: emberLight,
-  [emberDark.id]: emberDark,
-  [lagoonLight.id]: lagoonLight,
-  [lagoonDark.id]: lagoonDark,
+  [auroraLight.id]: auroraLight as ThemePreset,
+  [auroraDark.id]: auroraDark as ThemePreset,
+  [emberLight.id]: emberLight as ThemePreset,
+  [emberDark.id]: emberDark as ThemePreset,
+  [lagoonLight.id]: lagoonLight as ThemePreset,
+  [lagoonDark.id]: lagoonDark as ThemePreset,
 };
 
 export const themePresetList = Object.values(themePresets);
-export const defaultThemeId: ThemeId = auroraLight.id;
+export const defaultThemeId: ThemeId = auroraLight.id as ThemeId;
