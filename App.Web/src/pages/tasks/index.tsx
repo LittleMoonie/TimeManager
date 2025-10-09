@@ -15,9 +15,9 @@ import {
   MenuItem,
   Select,
   TextField,
+  Grid,
   type SelectChangeEvent,
 } from '@mui/material';
-import Grid from '@mui/material/GridLegacy';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import { Add, Delete, Edit } from '@mui/icons-material';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
@@ -176,7 +176,7 @@ const TasksPage = () => {
       <Card>
         <CardContent>
           <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} md={4}>
+            <Grid size={{xs: 12, md: 4}}>
               <TextField
                 fullWidth
                 label="Search tasks"
@@ -184,7 +184,7 @@ const TasksPage = () => {
                 onChange={handleSearchChange}
               />
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid size={{xs:12, md: 4}}>
               <FormControl fullWidth>
                 <InputLabel>Status</InputLabel>
                 <Select
@@ -201,7 +201,7 @@ const TasksPage = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid size={{xs:12, md: 4}}>
               <FormControl fullWidth>
                 <InputLabel>Priority</InputLabel>
                 <Select

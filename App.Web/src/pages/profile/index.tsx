@@ -1,5 +1,4 @@
-import { Avatar, Box, Card, CardContent, Typography } from '@mui/material';
-import Grid from '@mui/material/GridLegacy';
+import { Avatar, Box, Card, CardContent, Typography, Grid } from '@mui/material';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -12,7 +11,7 @@ const ProfilePage = () => {
       <PageHeader title="Profile" subtitle="Manage your info, security, and personal preferences." />
 
       <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
+        <Grid size={{xs: 12, md: 4}}>
           <Card>
             <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
               <Avatar sx={{ width: 96, height: 96, fontSize: '2rem' }}>{initials}</Avatar>
@@ -25,7 +24,8 @@ const ProfilePage = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={8}>
+        <Grid size={{xs: 12, md: 8}}>
+
           <Card>
             <CardContent>
               <Typography variant="subtitle1" fontWeight={600} gutterBottom>
