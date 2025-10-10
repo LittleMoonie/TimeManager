@@ -12,6 +12,8 @@ import ReportsPage from '@/pages/reports'
 // import TasksPage from '@/pages/tasks'
 import TimesheetPage from '@/pages/timesheet'
 
+import ForgotPasswordPage from '@/pages/forgot-password'
+
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth()
 
@@ -46,6 +48,14 @@ const routeConfig: RouteObject[] = [
     element: (
       <PublicRoute>
         <LoginPage />
+      </PublicRoute>
+    ),
+  },
+  {
+    path: '/forgot-password',
+    element: (
+      <PublicRoute>
+        <ForgotPasswordPage />
       </PublicRoute>
     ),
   },

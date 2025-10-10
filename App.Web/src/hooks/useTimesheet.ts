@@ -1,21 +1,12 @@
 import { useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ActionCode } from '@/lib/api'
-import { TimeService } from '@/lib/api'
+import { ActionCodesService, TimeService, TimesheetHistorySummary } from '@/lib/api'
 import { TimesheetEntry, TimesheetEntryDto } from '@/lib/api'
 
-interface TimesheetHistory {
-  id: string
-  weekStartISO: string
-  status: string
-  weekTotal: number
-  submittedAt: string
-}
-
 export const useActionCodes = () => {
-  return useQuery<ActionCode[]>({
-    queryKey: ['timesheet', 'action-codes'],
-    queryFn: () => TimeService.getActionCodes(),
+  return useQuery<ActionCode[]>({    queryKey: ['timesheet', 'action-codes'],
+    queryFn: () => ActionCodesService.listActionCodes({}),
     staleTime: Infinity,
   })
 }
@@ -107,7 +98,7 @@ export const useTimesheet = (weekStartISO: string, page: number, limit: number) 
 
 export const useTimesheetHistory = () =>
 
-  useQuery<TimesheetHistory[]> ({
+  useQuery<TimesheetHistorySummary[]> ({
 
     queryKey: ['timesheet', 'history'],
 

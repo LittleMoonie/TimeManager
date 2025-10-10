@@ -4,8 +4,18 @@ import { Request as ExpressRequest } from 'express';
 import logger from '../../Utils/Logger';
 import { LoginDto } from '../../Dto/Authentication/LoginDto';
 import { RegisterDto } from '../../Dto/Authentication/RegisterDto';
-import { AuthenticationService } from '../../Service/AuthenticationService/AuthenticationService'; // Placeholder for now
-import { ApiResponse } from '../../Dto/Users/UserDto'; // Assuming ApiResponse is generic enough
+import { AuthenticationService } from '../../Service/AuthenticationService/AuthenticationService';
+import { ApiResponse, AuthResponse, UserResponse } from '../../Dto/Users/UserDto';
+import User from '../../Entity/Users/User';
+
+interface LoginResult {
+  success: boolean;
+  token: string;
+  refreshToken?: string;
+  expiresAt?: Date;
+  user?: UserResponse;
+  msg?: string;
+}
 
 @Route('auth')
 @Tags('Authentication')
@@ -60,7 +70,7 @@ export class AuthenticationController extends Controller {
   @Response<ApiResponse>('422', 'Validation error')
   @Response<ApiResponse>('401', 'Wrong credentials')
   @Response<ApiResponse>('500', 'Internal server error')
-  public async login(@Body() requestBody: LoginDto): Promise<ApiResponse> {
+  public async login(@Body() requestBody: LoginDto, @Request() request: ExpressRequest): Promise<AuthResponse> {
     const loginDto = new LoginDto();
     Object.assign(loginDto, requestBody);
 
@@ -71,12 +81,24 @@ export class AuthenticationController extends Controller {
     }
 
     try {
-      const result = await this.authenticationService.login(requestBody);
+      const result: LoginResult = await this.authenticationService.login(requestBody);
       if (!result.success) {
         this.setStatus(401);
         return { success: false, msg: result.msg ?? 'Unauthorized' };
       }
-      return { success: true, msg: result.msg ?? 'Login successful' };
+
+      if (request.res) {
+        request.res.cookie('jwt', result.token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+          sameSite: 'Lax',
+        });
+      }
+
+      // Return AuthResponse without the token in the body
+      const { token, ...authResponse } = result;
+      return { success: true, msg: authResponse.msg ?? 'Login successful', user: authResponse.user, refreshToken: authResponse.refreshToken, expiresAt: authResponse.expiresAt };
     } catch (err) {
       logger.error('❌ Login error:', err);
       this.setStatus(500);
@@ -96,14 +118,18 @@ export class AuthenticationController extends Controller {
   @Response<ApiResponse>('500', 'Internal server error')
   public async logout(@Request() request: ExpressRequest): Promise<ApiResponse> {
     try {
-      const token = request.headers.authorization?.replace('Bearer ', '') || request.body?.token;
-      
-      if (!token) {
-        this.setStatus(401);
-        return { success: false, msg: 'No token provided' };
+      // Clear HttpOnly cookie
+      if (request.res) {
+        request.res.clearCookie('jwt', {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'Lax',
+        });
       }
 
-      const result = await this.authenticationService.logout(token);
+      const user = request.user as User;
+      const result = await this.authenticationService.logout(user.id);
+      
       if (!result.success) {
         this.setStatus(500);
         return { success: false, msg: result.msg ?? 'Logout failed' };
@@ -126,14 +152,14 @@ export class AuthenticationController extends Controller {
   @SuccessResponse('200', 'Current user retrieved successfully')
   @Response<ApiResponse>('401', 'Authentication required')
   @Response<ApiResponse>('500', 'Internal server error')
-  public async getCurrentUser(@Request() request: ExpressRequest): Promise<ApiResponse> {
+  public async getCurrentUser(@Request() request: ExpressRequest): Promise<any> {
     try {
       if (!request.user) {
         this.setStatus(401);
         return { success: false, msg: 'User not authenticated' };
       }
       const user = request.user as User;
-      return { success: true, msg: 'Current user retrieved successfully', data: user };
+      return { success: true, user: { id: user.id, email: user.email, name: user.firstName + ' ' + user.lastName, orgId: user.orgId, role: user.role.name, status: user.status.name, createdAt: user.createdAt, phone: user.phone, lastLogin: user.lastLogin } };
     } catch (err) {
       logger.error('❌ Get current user error:', err);
       this.setStatus(500);

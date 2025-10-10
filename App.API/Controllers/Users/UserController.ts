@@ -58,15 +58,17 @@ export class UserController extends Controller {
         throw new Error('User not authenticated');
       }
       const { id: userId, orgId, role } = request.user;
-      const newUser = await this.userService.createUser(requestBody, userId, role);
+      const newUser = await this.userService.createUser(requestBody, userId, role.name);
       this.setStatus(201);
       return {
         id: newUser.id,
         email: newUser.email,
-        name: newUser.name,
+        name: newUser.firstName + ' ' + newUser.lastName,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
         orgId: newUser.orgId,
-        role: newUser.role as Role  ,
-        status: newUser.status as UserStatus,
+        role: newUser.role.name,
+        status: newUser.status.name,
         createdAt: newUser.createdAt,
       };
     } catch (err: any) {
@@ -97,7 +99,7 @@ export class UserController extends Controller {
       const { id: actingUserId, orgId, role: actingUserRole } = request.user;
       
       // Allow employee to get their own profile
-      if (actingUserRole === Role.EMPLOYEE && actingUserId !== id) {
+      if (actingUserRole.name === 'employee' && actingUserId !== id) {
         this.setStatus(403);
         throw new Error('Forbidden: Employees can only view their own profile');
       }
@@ -110,10 +112,12 @@ export class UserController extends Controller {
       return {
         id: user.id,
         email: user.email,
-        name: user.name,
+        name: user.firstName + ' ' + user.lastName,
+        firstName: user.firstName,
+        lastName: user.lastName,
         orgId: user.orgId,
-        role: user.role as Role,
-        status: user.status,
+        role: user.role.name,
+        status: user.status.name,
         createdAt: user.createdAt,
       };
     } catch (err: any) {
@@ -154,14 +158,16 @@ export class UserController extends Controller {
         throw new Error('User not authenticated');
       }
       const { id: actingUserId, orgId, role: actingUserRole } = request.user;
-      const updatedUser = await this.userService.updateUser(id, requestBody, actingUserId, actingUserRole, orgId);
+      const updatedUser = await this.userService.updateUser(id, requestBody, actingUserId, actingUserRole.name, orgId);
       return {
         id: updatedUser.id,
         email: updatedUser.email,
-        name: updatedUser.name,
+        name: updatedUser.firstName + ' ' + updatedUser.lastName,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
         orgId: updatedUser.orgId,
-        role: updatedUser.role as Role,
-        status: updatedUser.status,
+        role: updatedUser.role.name,
+        status: updatedUser.status.name,
         createdAt: updatedUser.createdAt,
       };
     } catch (err: any) {
@@ -190,7 +196,7 @@ export class UserController extends Controller {
         throw new Error('User not authenticated');
       }
       const { id: actingUserId, orgId, role: actingUserRole } = request.user;
-      await this.userService.deleteUser(id, actingUserId, actingUserRole, orgId);
+      await this.userService.deleteUser(id, actingUserId, actingUserRole.name, orgId);
       return { success: true, msg: 'User deleted successfully' };
     } catch (err: any) {
       logger.error('❌ Delete user error:', err);
@@ -213,7 +219,7 @@ export class UserController extends Controller {
         throw new Error('User not authenticated');
       }
       const { id: approverId, orgId, role } = request.user;
-      if (role !== Role.MANAGER && role !== Role.ADMIN) {
+      if (role.name !== 'manager' && role.name !== 'admin') {
         this.setStatus(403);
         return { success: false, msg: 'Forbidden: Only managers and admins can grant weekend permits' };
       }
@@ -242,7 +248,7 @@ export class UserController extends Controller {
         throw new Error('User not authenticated');
       }
       const { id: approverId, orgId, role } = request.user;
-      if (role !== Role.MANAGER && role !== Role.ADMIN) {
+      if (role.name !== 'manager' && role.name !== 'admin') {
         this.setStatus(403);
         return { success: false, msg: 'Forbidden: Only managers and admins can perform retroactive edits' };
       }

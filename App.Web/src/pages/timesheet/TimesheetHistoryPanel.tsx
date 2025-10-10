@@ -14,8 +14,7 @@ import {
 import { Close } from '@mui/icons-material'
 import { formatWeekRange, getWeekStart } from './utils'
 
-
-interface TimesheetHistory {
+export interface TimesheetHistoryItem {
   id: string
   weekStartISO: string
   status: string
@@ -26,7 +25,7 @@ interface TimesheetHistory {
 interface TimesheetHistoryPanelProps {
   open: boolean
   onClose: () => void
-  history: TimesheetHistory[]
+  history: TimesheetHistoryItem[]
   onSelectWeek: (weekStartISO: string) => void
 }
 

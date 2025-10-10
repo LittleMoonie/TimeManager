@@ -24,7 +24,6 @@ export type { LoginDto } from './models/LoginDto';
 export type { Organization } from './models/Organization';
 export { Partial_TimesheetEntryDto_ } from './models/Partial_TimesheetEntryDto_';
 export type { Permission } from './models/Permission';
-export type { Record_string_any_ } from './models/Record_string_any_';
 export type { RegisterDto } from './models/RegisterDto';
 export type { Role } from './models/Role';
 export type { RolePermission } from './models/RolePermission';

@@ -8,18 +8,18 @@ import { Role } from '../../Entity/Users/Role';
 import { UserStatus } from '../../Entity/Users/UserStatus';
 import bcrypt from 'bcryptjs';
 import { Organization } from '../../Entity/Company/Company';
+import { FindOptionsWhere } from 'typeorm';
 
 export class UserService {
   private userRepository = AppDataSource.getRepository(User);
   private orgRepository = AppDataSource.getRepository(Organization);
+  private roleRepository = AppDataSource.getRepository(Role);
+  private userStatusRepository = AppDataSource.getRepository(UserStatus);
   private auditLogService = new AuditLogService();
 
-  public async createUser(createUserData: CreateUserDto, actingUserId: string, actingUserRole: Role): Promise<User> {
-    const { email, name, password, role, orgId } = createUserData;
-
-    if (actingUserRole === Role.MANAGER && role === Role.ADMIN) {
-      throw new Error('Manager cannot create Admin users');
-    }
+  public async createUser(createUserData: CreateUserDto, actingUserId: string, actingUserRole: string): Promise<User> {
+    const { email, firstName, lastName, password, role: roleName }: { role: Role } & CreateUserDto = createUserData;
+    const { orgId } = createUserData;
 
     const existingUser = await this.userRepository.findOne({ where: { email } });
     if (existingUser) {
@@ -34,26 +34,37 @@ export class UserService {
       if (!organization) {
         throw new Error('Organization not found');
       }
-    } else if (actingUserRole === Role.ADMIN) {
+    } else if (actingUserRole === Role.name && Role.name === 'ADMIN') {
       // Admin can create a new organization if orgId is not provided
-      organization = this.orgRepository.create({ name: `${name}'s Organization` });
+      organization = this.orgRepository.create({ name: `${firstName} ${lastName}'s Organization` });
       await this.orgRepository.save(organization);
     } else {
       throw new Error('Organization ID is required for non-admin users');
     }
 
+    const role = await this.roleRepository.findOneBy({ name: roleName.name });
+    if (!role) {
+      throw new Error(`Role ${roleName.name} not found`);
+    }
+
+    const activeStatus = await this.userStatusRepository.findOneBy({ name: 'active' });
+    if (!activeStatus) {
+      throw new Error('User status active not found');
+    }
+
     const newUser = this.userRepository.create({
       email,
-      name,
+      firstName,
+      lastName,
       password: hashedPassword,
       role,
       orgId: organization.id,
       organization: organization,
-      status: UserStatus.ACTIVE, // Default status
+      status: activeStatus,
     });
 
     const savedUser = await this.userRepository.save(newUser);
-    await this.auditLogService.logEvent(actingUserId, savedUser.orgId, AuditAction.CREATE, 'User', savedUser.id, { createdUserEmail: savedUser.email });
+    await this.auditLogService.logEvent(actingUserId, savedUser.orgId, AuditAction.CREATE, 'User', savedUser.id, { createdUserEmail: savedUser.email, createdUserFirstName: savedUser.firstName, createdUserLastName: savedUser.lastName });
 
     return savedUser;
   }
@@ -62,34 +73,39 @@ export class UserService {
     return this.userRepository.findOne({ where: { id: userId, orgId } });
   }
 
-  public async updateUser(userId: string, updateUserData: UpdateUserDto, actingUserId: string, actingUserRole: Role, orgId: string): Promise<User> {
+  public async updateUser(userId: string, updateUserData: UpdateUserDto, actingUserId: string, actingUserRole: string, orgId: string): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id: userId, orgId } });
     if (!user) {
       throw new Error('User not found');
-    }
-
-    if (updateUserData.role && actingUserRole === Role.MANAGER && updateUserData.role === Role.ADMIN) {
-      throw new Error('Manager cannot change user role to Admin');
     }
 
     if (updateUserData.password) {
       updateUserData.password = await bcrypt.hash(updateUserData.password, 10);
     }
 
+    if (updateUserData.role) {
+      const newRole = await this.roleRepository.findOneBy({ name: updateUserData.role.name });
+      if (!newRole) {
+        throw new Error(`Role ${updateUserData.role.name} not found`);
+      }
+      user.role = newRole;
+      delete updateUserData.role; // Remove from DTO to avoid overwriting with string
+    }
+
     Object.assign(user, updateUserData);
     const updatedUser = await this.userRepository.save(user);
-    await this.auditLogService.logEvent(actingUserId, orgId, AuditAction.UPDATE, 'User', userId, { updatedFields: Object.keys(updateUserData) });
+    await this.auditLogService.logEvent(actingUserId, orgId, AuditAction.UPDATE, 'User', userId, { updatedFields: Object.keys(updateUserData).join(', ') });
 
     return updatedUser;
   }
 
-  public async deleteUser(userId: string, actingUserId: string, actingUserRole: Role, orgId: string): Promise<void> {
+  public async deleteUser(userId: string, actingUserId: string, actingUserRole: string, orgId: string): Promise<void> {
     const user = await this.userRepository.findOne({ where: { id: userId, orgId } });
     if (!user) {
       throw new Error('User not found');
     }
 
-    if (actingUserRole === Role.MANAGER && user.role === Role.ADMIN) {
+    if (actingUserRole === Role.name && Role.name === 'MANAGER') {
       throw new Error('Manager cannot delete Admin users');
     }
 

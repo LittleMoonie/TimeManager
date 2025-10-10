@@ -10,13 +10,18 @@ import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { ApiResponse, AuthResponse, RegisterResponse, UserResponse } from '../../Dto/Users/UserDto';
 import { Role } from '../../Entity/Users/Role';
+import { UserStatus } from '../../Entity/Users/UserStatus';
+
+interface LoginResult extends AuthResponse {
+  token: string;
+}
 
 export class AuthenticationService {
   private userRepository = AppDataSource.getRepository(User);
   private activeSessionRepository = AppDataSource.getRepository(ActiveSession);
   private orgRepository = AppDataSource.getRepository(Organization);
 
-  public async register(registerDto: RegisterDto): Promise<RegisterResponse> {
+  public async register(registerDto: RegisterDto): Promise<any> {
     const { email, password, firstName, lastName } = registerDto;
 
     try {
@@ -35,19 +40,19 @@ export class AuthenticationService {
       const savedOrg = await this.orgRepository.save(organization);
 
       const newUser = this.userRepository.create({
-        name: `${firstName} ${lastName}`,
-        email,
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
         password: hashedPassword,
         organization: savedOrg,
-        role: Role.ADMIN,
         orgId: savedOrg.id,
       });
       const savedUser = await this.userRepository.save(newUser);
 
       return {
         success: true,
-        userID: savedUser.id,
-        msg: 'The user was successfully registered',
+        userID: savedUser && [savedUser.id] || [],
+        msg: 'The users were successfully registered',
       };
     } catch (err) {
       logger.error('❌ Register error in service:', err);
@@ -55,7 +60,7 @@ export class AuthenticationService {
     }
   }
 
-  public async login(loginDto: LoginDto): Promise<AuthResponse> {
+  public async login(loginDto: LoginDto): Promise<LoginResult> {
     const { email, password } = loginDto;
 
     try {
@@ -63,7 +68,8 @@ export class AuthenticationService {
       if (!user?.password) {
         return {
           success: false,
-          msg: 'Wrong credentials'
+          msg: 'Wrong credentials',
+          token: '', // Dummy token for type compatibility
         };
       }
 
@@ -71,7 +77,8 @@ export class AuthenticationService {
       if (!isMatch) {
         return {
           success: false,
-          msg: 'Wrong credentials'
+          msg: 'Wrong credentials',
+          token: '', // Dummy token for type compatibility
         };
       }
 
@@ -83,7 +90,7 @@ export class AuthenticationService {
       const refreshTokenExpiresIn = 604800; // 7 days
 
       const token = jwt.sign(
-        { id: user.id, email: user.email, orgId: user.orgId, role: user.role },
+        { id: user.id, email: user.email, orgId: user.orgId, role: user.role.name },
         process.env.SECRET,
         { expiresIn: tokenExpiresIn }
       );
@@ -99,10 +106,12 @@ export class AuthenticationService {
       const userResponse: UserResponse = {
         id: user.id,
         email: user.email,
-        name: user.name,
+        name: user.firstName + ' ' + user.lastName,
+        firstName: user.firstName,
+        lastName: user.lastName,
         orgId: user.orgId,
-        role: user.role,
-        status: user.status,
+        role: user.role.name,
+        status: user.status.name,
         createdAt: user.createdAt,
         phone: user.phone,
         lastLogin: user.lastLogin,
@@ -121,9 +130,9 @@ export class AuthenticationService {
     }
   }
 
-  public async logout(token: string): Promise<ApiResponse> {
+  public async logout(userId: string): Promise<ApiResponse> {
     try {
-      await this.activeSessionRepository.delete({ token });
+      await this.activeSessionRepository.delete({ userId });
       return {
         success: true,
         msg: 'User logged out successfully'
@@ -149,10 +158,12 @@ export class AuthenticationService {
       const userResponse: UserResponse = {
         id: user.id,
         email: user.email,
-        name: user.name,
+        name: user.firstName + ' ' + user.lastName,
+        firstName: user.firstName,
+        lastName: user.lastName,
         orgId: user.orgId,
-        role: user.role,
-        status: user.status,
+        role: user.role.name,
+        status: user.status.name,
         createdAt: user.createdAt,
         phone: user.phone,
         lastLogin: user.lastLogin,

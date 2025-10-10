@@ -4,7 +4,7 @@ import { AppDataSource, connectDB } from '../Server/Database';
 import app from '../Server';
 import User from '../Entity/Users/User';
 import { Organization } from '../Entity/Company/Company';
-import { TimesheetEntry } from '../Entity/Timesheet/TimesheetEntry';
+import { TimesheetEntry, WorkMode } from '../Entity/Timesheet/TimesheetEntry';
 import { ActionCode } from '../Entity/Timesheet/ActionCode';
   import { TimesheetHistory } from '../Entity/Timesheet/TimesheetHistory';
   import { TimesheetHistoryActionEnum } from '../Entity/Enums/TimesheetHistory/TimesheetHistoryActionEnum';
@@ -31,8 +31,9 @@ describe('TimesheetHistory Module', () => {
   let userRepository: Repository<User>;
   let organizationRepository: Repository<Organization>;
   let actionCodeRepository: Repository<ActionCode>;
-  let timesheetEntryRepository: Repository<TimesheetEntry>;
-
+      let timesheetEntryRepository: Repository<TimesheetEntry>;
+    let roleRepository: Repository<Role>;
+    let userStatusRepository: Repository<UserStatus>;
   let employeeToken: string;
   let managerToken: string;
 
@@ -43,6 +44,8 @@ describe('TimesheetHistory Module', () => {
     organizationRepository = AppDataSource.getRepository(Organization);
     actionCodeRepository = AppDataSource.getRepository(ActionCode);
     timesheetEntryRepository = AppDataSource.getRepository(TimesheetEntry);
+    roleRepository = AppDataSource.getRepository(Role);
+    userStatusRepository = AppDataSource.getRepository(UserStatus);
 
     // Clear history table before tests
     await timesheetHistoryRepository.query('TRUNCATE TABLE timesheet_history RESTART IDENTITY CASCADE;');
@@ -50,17 +53,29 @@ describe('TimesheetHistory Module', () => {
     await actionCodeRepository.query('TRUNCATE TABLE action_code RESTART IDENTITY CASCADE;');
     await userRepository.query('TRUNCATE TABLE "user" RESTART IDENTITY CASCADE;');
     await organizationRepository.query('TRUNCATE TABLE organization RESTART IDENTITY CASCADE;');
+    await roleRepository.query('TRUNCATE TABLE roles RESTART IDENTITY CASCADE;');
+    await userStatusRepository.query('TRUNCATE TABLE user_statuses RESTART IDENTITY CASCADE;');
 
     // Setup test data
     organization = organizationRepository.create({ name: 'Test Org' });
     await organizationRepository.save(organization);
 
+    const employeeRole = roleRepository.create({ name: 'employee' });
+    await roleRepository.save(employeeRole);
+    const managerRole = roleRepository.create({ name: 'manager' });
+    await roleRepository.save(managerRole);
+    const adminRole = roleRepository.create({ name: 'admin' });
+    await roleRepository.save(adminRole);
+
+    const activeStatus = userStatusRepository.create({ name: 'active' });
+    await userStatusRepository.save(activeStatus);
+
     employeeUser = userRepository.create({
       email: 'employee@test.com',
       name: 'Test Employee',
       password: 'password',
-      role: Role.EMPLOYEE,
-      status: UserStatus.ACTIVE,
+      role: employeeRole,
+      status: activeStatus,
       orgId: organization.id,
       organization: organization,
     });
@@ -70,8 +85,8 @@ describe('TimesheetHistory Module', () => {
       email: 'manager@test.com',
       name: 'Test Manager',
       password: 'password',
-      role: 'manager',
-      status: UserStatus.ACTIVE,
+      role: managerRole,
+      status: activeStatus,
       orgId: organization.id,
       organization: organization,
     });
@@ -81,8 +96,8 @@ describe('TimesheetHistory Module', () => {
       email: 'admin@test.com',
       name: 'Test Admin',
       password: 'password',
-      role: 'admin',
-      status: UserStatus.ACTIVE,
+      role: adminRole,
+      status: activeStatus,
       orgId: organization.id,
       organization: organization,
     });
@@ -106,8 +121,8 @@ describe('TimesheetHistory Module', () => {
     });
     await timesheetEntryRepository.save(timesheetEntry);
 
-    employeeToken = generateToken(employeeUser, organization.id, ['employee']);
-    managerToken = generateToken(managerUser, organization.id, ['manager']);
+    employeeToken = generateToken(employeeUser, organization.id, [employeeRole.name]);
+    managerToken = generateToken(managerUser, organization.id, [managerRole.name]);
   });
 
   afterAll(async () => {
@@ -186,7 +201,7 @@ describe('TimesheetHistory Module', () => {
       user: employeeUser,
       organization: organization,
       actionCode: actionCode,
-      workMode: 'office',
+      workMode: WorkMode.OFFICE,
       country: 'US',
     });
     await timesheetEntryRepository.save(entryToDelete);
@@ -243,7 +258,7 @@ describe('TimesheetHistory Module', () => {
       user: employeeUser,
       organization: organization,
       actionCode: actionCode,
-      workMode: 'office',
+      workMode: WorkMode.OFFICE,
       country: 'US',
     });
     await timesheetEntryRepository.save(entryToReject);
@@ -338,7 +353,7 @@ describe('TimesheetHistory Module', () => {
           endedAt: new Date(`2025-11-${10 + i}T17:00:00`),
           durationMin: 480,
           actionCodeId: actionCode.id,
-          workMode: 'office',
+          workMode: WorkMode.OFFICE,
           country: 'US',
         });
     }
@@ -416,7 +431,7 @@ describe('TimesheetHistory Module', () => {
       }));
     } catch (error) {
       // Expect a unique constraint error if hash is not null
-      expect(error.message).toContain('duplicate key value violates unique constraint');
+      expect((error as Error).message).toContain('duplicate key value violates unique constraint');
     }
 
     const count = await timesheetHistoryRepository.count({

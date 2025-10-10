@@ -8,7 +8,7 @@ export async function expressAuthentication(
   securityName: string,
   scopes: string[] = []
 ): Promise<User> {
-  const token = request.headers.authorization?.replace('Bearer ', '');
+  const token = request.cookies?.jwt;
 
   if (!token) {
     throw new Error('No token provided');

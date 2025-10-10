@@ -82,7 +82,7 @@ export const ProfileSummaryCard = () => {
             </Typography>
             {user.teams && user.teams.length > 0 ? (
               <Box display="flex" flexWrap="wrap" gap={0.5}>
-                {user.teams.map((team, index) => (
+                {user.teams.map((team: string, index: number) => (
                   <Chip key={index} label={team} size="small" variant="outlined" />
                 ))}
               </Box>

@@ -6,6 +6,7 @@ import { SegmentedControl } from '@/components/SegmentedControl'
 import { useActionCodes, useTimesheet, useTimesheetHistory } from '@/hooks/useTimesheet'
 import { useAuth } from '@/hooks/useAuth'
   import { ActionCode, TimesheetEntry } from '@/lib/api'
+import { TimesheetHistoryItem } from './TimesheetHistoryPanel'
 
 import {
   formatWeekRange,
@@ -472,7 +473,7 @@ const TimesheetPage = () => {
       <TimesheetHistoryPanel
         open={historyOpen}
         onClose={() => setHistoryOpen(false)}
-        history={historyQuery.data ?? []}
+        history={historyQuery.data as TimesheetHistoryItem[] ?? []}
         onSelectWeek={weekISO => {
           const weekDate = getWeekStart(parseISO(weekISO)) as Date
           setSelectedDate(weekDate)

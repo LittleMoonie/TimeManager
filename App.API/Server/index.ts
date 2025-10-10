@@ -24,7 +24,13 @@ if (process.env.NODE_ENV !== 'test') {
   connectDB();
 }
 
-server.use(cors());
+const corsOptions = {
+  origin: 'http://localhost:3000',
+  credentials: true,
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  allowedHeaders: 'Content-Type, Authorization',
+};
+server.use(cors(corsOptions));
 server.use(express.json());
 
 // Setup Swagger UI with dynamic loading

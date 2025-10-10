@@ -4,7 +4,6 @@
 /* eslint-disable */
 import type { ApiResponse } from '../models/ApiResponse';
 import type { CreateUserDto } from '../models/CreateUserDto';
-import type { Record_string_any_ } from '../models/Record_string_any_';
 import type { UpdateUserDto } from '../models/UpdateUserDto';
 import type { UserResponse } from '../models/UserResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
@@ -143,33 +142,6 @@ export class UsersService {
             path: {
                 'id': id,
             },
-            errors: {
-                401: `Authentication required`,
-                403: `Forbidden`,
-                404: `User not found`,
-                500: `Internal server error`,
-            },
-        });
-    }
-    /**
-     * @returns ApiResponse Retroactive edit applied successfully
-     * @throws ApiError
-     */
-    public static retroEdit({
-        id,
-        requestBody,
-    }: {
-        id: string,
-        requestBody: Record_string_any_,
-    }): CancelablePromise<ApiResponse> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/users/{id}/retro-edit',
-            path: {
-                'id': id,
-            },
-            body: requestBody,
-            mediaType: 'application/json',
             errors: {
                 401: `Authentication required`,
                 403: `Forbidden`,

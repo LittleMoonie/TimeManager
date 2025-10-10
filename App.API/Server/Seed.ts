@@ -20,30 +20,30 @@ const seedDatabase = async () => {
   // Create users
   const adminPassword = await bcrypt.hash('admin123', 10);
   const admin = userRepository.create({
-    name: 'Admin User',
+    firstName: 'Admin',
+    lastName: 'User',
     email: 'admin@gogotime.com',
     password: adminPassword,
-    role: 'admin',
     organization,
     orgId: organization.id,
   });
 
   const managerPassword = await bcrypt.hash('manager123', 10);
   const manager = userRepository.create({
-    name: 'Manager User',
+    firstName: 'Manager',
+    lastName: 'User',
     email: 'manager@gogotime.com',
     password: managerPassword,
-    role: 'manager',
     organization,
     orgId: organization.id,
   });
 
   const employeePassword = await bcrypt.hash('employee123', 10);
   const employee = userRepository.create({
-    name: 'Employee User',
+    firstName: 'Employee',
+    lastName: 'User',
     email: 'employee@gogotime.com',
     password: employeePassword,
-    role: 'employee',
     organization,
     orgId: organization.id,
   });

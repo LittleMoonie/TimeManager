@@ -5,8 +5,6 @@ import { CssBaseline } from '@mui/material'
 import { AppThemeProvider } from '@/theme/ThemeProvider'
 import { AppLayout } from '@/components/layout/AppLayout'
 import HomePage from '@/pages/index'
-import Tasks from '@/pages/tasks'
-import People from '@/pages/people'
 import Login from '@/pages/login'
 import { useAuth } from '@/hooks/useAuth'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
@@ -53,9 +51,9 @@ const AppRoutes = () => {
         }
       >
         <Route index element={<HomePage />} />
-        <Route path="tasks" element={<Tasks />} />
+        {/* <Route path="tasks" element={<Tasks />} /> */}
         <Route path="timesheet" element={<div>Timesheet Page</div>} />
-        <Route path="people" element={<People />} />
+        {/* <Route path="people" element={<People />} /> */}
         <Route path="reports" element={<div>Reports Page</div>} />
         <Route path="settings" element={<div>Settings Page</div>} />
         <Route path="profile" element={<div>Profile Page</div>} />

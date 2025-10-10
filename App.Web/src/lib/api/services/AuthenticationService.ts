@@ -5,7 +5,7 @@
 import type { ApiResponse } from '../models/ApiResponse';
 import type { LoginDto } from '../models/LoginDto';
 import type { RegisterDto } from '../models/RegisterDto';
-import type { CancelablePromise } from '../core/CancelablePromise';
+import { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class AuthenticationService {
@@ -87,6 +87,25 @@ export class AuthenticationService {
                 401: `Authentication required`,
                 500: `Internal server error`,
             },
+        });
+    }
+
+    /**
+     * Request a password reset OTP
+     * @returns ApiResponse Password reset email sent successfully
+     * @throws ApiError
+     */
+    public static forgotPassword({
+        requestBody,
+    }: {
+        requestBody: { identifier: string },
+    }): CancelablePromise<ApiResponse> {
+        return new CancelablePromise((resolve) => {
+            // Simulate API call delay
+            setTimeout(() => {
+                console.log('Forgot password request for:', requestBody.identifier);
+                resolve({ success: true, msg: 'If an account exists, we sent a code to your email.' });
+            }, 1000);
         });
     }
 }

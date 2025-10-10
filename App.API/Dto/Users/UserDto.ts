@@ -7,6 +7,8 @@ import { IsEmail, IsString, IsNotEmpty } from 'class-validator';
 export class UserResponse {
   id!: string;
   email!: string;
+  firstName!: string;
+  lastName!: string;
   name!: string;
   orgId!: string;
   role!: string;
@@ -27,7 +29,7 @@ export class AuthResponse {
 
 export class RegisterResponse {
   success!: boolean;
-  userID?: string;
+  userID?: string[];
   msg!: string;
 }
 
