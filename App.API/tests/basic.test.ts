@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { beforeAll, afterAll, describe, test, expect } from 'jest';
+import { beforeAll, afterAll, describe, test, expect } from '@jest/globals';
 
 import app from '../src/server';
 import { AppDataSource, connectDB } from '../src/server/database';

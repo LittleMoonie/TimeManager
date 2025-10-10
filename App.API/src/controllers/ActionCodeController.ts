@@ -1,5 +1,4 @@
 import { Body, Controller, Delete, Get, Path, Post, Put, Query, Request, Route, Security, Tags } from 'tsoa';
-import { ActionCodeService } from '../services/actionCodeService';
 import { ActionCode } from '../models/actionCode';
 import { Request as ExRequest } from 'express';
 import { Service } from 'typedi';
@@ -10,9 +9,6 @@ import { CreateActionCodeDto, UpdateActionCodeDto } from '../dto/ActionCodeDto';
 @Security('jwt')
 @Service()
 export class ActionCodeController extends Controller {
-  constructor(private actionCodeService: ActionCodeService) {
-    super();
-  }
 
   /**
    * Retrieve a list of action codes for the organization.
@@ -26,7 +22,7 @@ export class ActionCodeController extends Controller {
     @Query() q?: string,
   ): Promise<ActionCode[]> {
     const { organization } = request;
-    return this.actionCodeService.search({ orgId: organization!.id, q });
+    return this.listActionCodes(request, q);
   }
 
   /**
@@ -43,7 +39,7 @@ export class ActionCodeController extends Controller {
     @Body() requestBody: CreateActionCodeDto,
   ): Promise<ActionCode> {
     const { user, organization } = request;
-    return this.actionCodeService.create(requestBody.name, requestBody.code, { orgId: organization!.id, actorUserId: user!.id });
+    return this.createActionCode(request, requestBody);
   }
 
   /**
@@ -62,7 +58,7 @@ export class ActionCodeController extends Controller {
     @Body() requestBody: UpdateActionCodeDto,
   ): Promise<ActionCode | null> {
     const { user, organization } = request;
-    return this.actionCodeService.update(id, requestBody.name, requestBody.code, { orgId: organization!.id, actorUserId: user!.id });
+    return this.updateActionCode(request, id, requestBody);
   }
 
   /**
@@ -78,6 +74,6 @@ export class ActionCodeController extends Controller {
     @Path() id: string,
   ): Promise<void> {
     const { user, organization } = request;
-    await this.actionCodeService.delete(id, { orgId: organization!.id, actorUserId: user!.id });
+    await this.deleteActionCode(request, id);
   }
 }

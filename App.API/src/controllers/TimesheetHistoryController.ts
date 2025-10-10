@@ -3,6 +3,7 @@ import { TimesheetHistoryService } from '../services/TimesheetHistoryService';
 import { TimesheetHistoryDto } from '../dto/timesheetHistory/TimesheetHistoryDto';
 import { TimesheetHistoryEntityTypeEnum } from '../models/enums/timesheetHistory/TimesheetHistoryEntityTypeEnum';
 import { Request as ExRequest } from 'express';
+import User from '../models/user';
 import { Service } from 'typedi';
 import { TimesheetHistory } from '../models/timesheetHistory';
 
@@ -11,10 +12,18 @@ import { TimesheetHistory } from '../models/timesheetHistory';
 @Security('jwt')
 @Service()
 export class TimesheetHistoryController extends Controller {
-  constructor(private timesheetHistoryService: TimesheetHistoryService) {
-    super();
-  }
 
+  private getAuthUser(request: ExRequest): { userId: string; orgId: string; role: string } {
+    if (!request.user) {
+      throw new Error("User not authenticated");
+    }
+    const user = request.user as User;
+    return {
+      userId: user.id,
+      orgId: user.orgId,
+      role: user.role,
+    };
+  }
   /**
    * Retrieve a paginated list of timesheet history events.
    * Employees can only view their own history. Managers/Admins can view organization-wide history.
@@ -27,12 +36,8 @@ export class TimesheetHistoryController extends Controller {
     @Request() request: ExRequest,
     @Body() body: TimesheetHistoryDto,
   ): Promise<{ data: TimesheetHistory[]; nextCursor?: string }> {
-    const { user, organization } = request;
-    return this.timesheetHistoryService.list(body, {
-      orgId: organization!.id,
-      userId: user!.id,
-      roles: user!.roles,
-    });
+    const { userId, orgId, role } = this.getAuthUser(request);
+    return this.listHistory(request, body);
   }
 
   /**
@@ -49,11 +54,7 @@ export class TimesheetHistoryController extends Controller {
     @Path() entityType: TimesheetHistoryEntityTypeEnum,
     @Path() entityId: string,
   ): Promise<{ data: TimesheetHistory[]; nextCursor?: string }> {
-    const { user, organization } = request;
-    return this.timesheetHistoryService.forEntity(entityType, entityId, {
-      orgId: organization!.id,
-      userId: user!.id,
-      roles: user!.roles,
-    });
+    const { userId, orgId, role } = this.getAuthUser(request);
+    return this.getHistoryForEntity(request, entityType, entityId);
   }
 }

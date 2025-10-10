@@ -1,12 +1,14 @@
 import request from 'supertest';
-import { beforeAll, afterAll, describe, test, expect } from 'jest';
+import { beforeAll, afterAll, describe, test, expect } from '@jest/globals';
 import { AppDataSource, connectDB } from '../src/server/database';
 import app from '../src/server';
-import { User } from '../src/models/user';
+import User from '../src/models/user';
 import { Organization } from '../src/models/organization';
 import { TimesheetEntry } from '../src/models/timesheetEntry';
 import { ActionCode } from '../src/models/actionCode';
-import { TimesheetHistory, TimesheetHistoryAction, TimesheetHistoryEntityType } from '../src/models/timesheetHistory';
+import { TimesheetHistory } from '../src/models/timesheetHistory';
+import { TimesheetHistoryActionEnum } from '../src/models/enums/timesheetHistory/TimesheetHistoryActionEnum';
+import { TimesheetHistoryEntityTypeEnum } from '../src/models/enums/timesheetHistory/TimesheetHistoryEntityTypeEnum';
 import { Repository } from 'typeorm';
 import { sign } from 'jsonwebtoken';
 import { TimesheetEntryDto } from '../src/dto/TimesheetDto';
@@ -126,8 +128,8 @@ describe('TimesheetHistory Module', () => {
     const history = await timesheetHistoryRepository.findOne({
       where: {
         entityId: createdEntryId,
-        action: TimesheetHistoryAction.created,
-        entityType: TimesheetHistoryEntityType.TimesheetEntry,
+        action: TimesheetHistoryActionEnum.created,
+        entityType: TimesheetHistoryEntityTypeEnum.TimesheetEntry,
       },
     });
 
@@ -153,8 +155,7 @@ describe('TimesheetHistory Module', () => {
     const history = await timesheetHistoryRepository.findOne({
       where: {
         entityId: timesheetEntry.id,
-        action: TimesheetHistoryAction.updated,
-        entityType: TimesheetHistoryEntityType.TimesheetEntry,
+        entityType: TimesheetHistoryEntityTypeEnum.TimesheetEntry,
       },
       order: { occurredAt: 'DESC' },
     });
@@ -189,8 +190,8 @@ describe('TimesheetHistory Module', () => {
     const history = await timesheetHistoryRepository.findOne({
       where: {
         entityId: entryToDelete.id,
-        action: TimesheetHistoryAction.deleted,
-        entityType: TimesheetHistoryEntityType.TimesheetEntry,
+        action: TimesheetHistoryActionEnum.deleted,
+        entityType: TimesheetHistoryEntityTypeEnum.TimesheetEntry,
       },
     });
 
@@ -212,7 +213,7 @@ describe('TimesheetHistory Module', () => {
     const history = await timesheetHistoryRepository.findOne({
       where: {
         entityId: response.body.id, // Approval ID
-        action: TimesheetHistoryAction.approved,
+        action: TimesheetHistoryActionEnum.approved,
         entityType: TimesheetHistoryEntityType.Approval,
       },
     });
@@ -246,7 +247,7 @@ describe('TimesheetHistory Module', () => {
     const history = await timesheetHistoryRepository.findOne({
       where: {
         entityId: response.body.id, // Approval ID
-        action: TimesheetHistoryAction.rejected,
+        action: TimesheetHistoryActionEnum.rejected,
         entityType: TimesheetHistoryEntityType.Approval,
       },
     });
@@ -354,14 +355,13 @@ describe('TimesheetHistory Module', () => {
     const entryId = timesheetEntry.id;
 
     // Manually record an event with a specific hash
-    const manualEvent = await timesheetHistoryRepository.save(timesheetHistoryRepository.create({
-      orgId: organization.id,
-      userId: employeeUser.id,
-      actorUserId: employeeUser.id,
-      entityType: TimesheetHistoryEntityType.TimesheetEntry,
-      entityId: entryId,
-      action: TimesheetHistoryAction.retro_edit_enabled,
-      hash: 'test-idempotency-hash-123',
+       const manualEvent = await timesheetHistoryRepository.save(timesheetHistoryRepository.create({
+         orgId: organization.id,
+         userId: employeeUser.id,
+         actorUserId: employeeUser.id,
+        entityType: TimesheetHistoryEntityTypeEnum.TimesheetEntry,
+         entityId: entryId,
+         action: TimesheetHistoryActionEnum.retro_edit_enabled,      hash: 'test-idempotency-hash-123',
       metadata: { source: 'test' },
     }));
 
@@ -371,10 +371,9 @@ describe('TimesheetHistory Module', () => {
     // For now, we'll rely on the recordEvent logic to handle the hash check
 
     // Simulate a call that would generate the same hash
-    const duplicateEventDto = {
-      entityType: TimesheetHistoryEntityType.TimesheetEntry,
+      entityType: TimesheetHistoryEntityTypeEnum.TimesheetEntry,
       entityId: entryId,
-      action: TimesheetHistoryAction.retro_edit_enabled,
+      action: TimesheetHistoryActionEnum.retro_edit_enabled,
       userId: employeeUser.id,
       actorUserId: employeeUser.id,
       metadata: { source: 'test' },
@@ -395,9 +394,9 @@ describe('TimesheetHistory Module', () => {
         orgId: organization.id,
         userId: employeeUser.id,
         actorUserId: employeeUser.id,
-        entityType: TimesheetHistoryEntityType.TimesheetEntry,
+        entityType: TimesheetHistoryEntityTypeEnum.TimesheetEntry,
         entityId: entryId,
-        action: TimesheetHistoryAction.retro_edit_enabled,
+        action: TimesheetHistoryActionEnum.retro_edit_enabled,
         hash: 'test-idempotency-hash-123',
         metadata: { source: 'test' },
       }));
