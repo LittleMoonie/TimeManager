@@ -1,0 +1,122 @@
+import { MigrationInterface, QueryRunner } from "typeorm";
+
+export class InitialDatabase1760123419718 implements MigrationInterface {
+    name = 'InitialDatabase1760123419718'
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`CREATE TABLE "team" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "orgId" uuid NOT NULL, "name" character varying(255) NOT NULL, CONSTRAINT "PK_f57d8293406df4af348402e4b74" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "team_member" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "userId" uuid NOT NULL, "teamId" uuid NOT NULL, "orgId" uuid NOT NULL, "role" character varying(50) NOT NULL DEFAULT 'member', CONSTRAINT "PK_649680684d72a20d279641469c5" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE INDEX "IDX_495c200acc9df53aaf249482c2" ON "team_member" ("orgId", "userId", "teamId") `);
+        await queryRunner.query(`CREATE TYPE "public"."action_code_type_enum" AS ENUM('billable', 'non-billable')`);
+        await queryRunner.query(`CREATE TABLE "action_code" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "orgId" uuid NOT NULL, "code" character varying(255) NOT NULL, "name" character varying(255) NOT NULL, "type" "public"."action_code_type_enum" NOT NULL DEFAULT 'billable', "active" boolean NOT NULL DEFAULT true, CONSTRAINT "UQ_6447bef7c9d90b9d6a67137891a" UNIQUE ("orgId", "code"), CONSTRAINT "PK_2331c47a78c68fa2090334cccf3" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE INDEX "IDX_6447bef7c9d90b9d6a67137891" ON "action_code" ("orgId", "code") `);
+        await queryRunner.query(`CREATE TYPE "public"."approval_status_enum" AS ENUM('pending', 'approved', 'rejected')`);
+        await queryRunner.query(`CREATE TABLE "approval" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "orgId" uuid NOT NULL, "entryId" uuid NOT NULL, "approverId" uuid NOT NULL, "status" "public"."approval_status_enum" NOT NULL DEFAULT 'pending', "reason" text, CONSTRAINT "PK_97bfd1cd9dff3c1302229da6b5c" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE INDEX "IDX_cc21fb67d6fe7886e654d8c511" ON "approval" ("orgId", "approverId") `);
+        await queryRunner.query(`CREATE INDEX "IDX_d31b860a6494c3a8f1655eda0e" ON "approval" ("orgId", "entryId") `);
+        await queryRunner.query(`CREATE TYPE "public"."timesheet_entry_workmode_enum" AS ENUM('office', 'remote', 'hybrid')`);
+        await queryRunner.query(`CREATE TABLE "timesheet_entry" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "userId" uuid NOT NULL, "orgId" uuid NOT NULL, "actionCodeId" uuid NOT NULL, "workMode" "public"."timesheet_entry_workmode_enum" NOT NULL DEFAULT 'office', "country" character varying(2) NOT NULL, "startedAt" TIMESTAMP WITH TIME ZONE, "endedAt" TIMESTAMP WITH TIME ZONE, "durationMin" integer NOT NULL, "note" text, "day" date NOT NULL, CONSTRAINT "CHK_3286896eccd003a8b8159a67e6" CHECK ("durationMin" BETWEEN 0 AND 1440), CONSTRAINT "PK_d15eefb424abaf5b3e40ee84fc2" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE INDEX "IDX_352ac8df5473da43192b3f09da" ON "timesheet_entry" ("orgId", "userId", "day") `);
+        await queryRunner.query(`CREATE TYPE "public"."timesheet_history_entitytype_enum" AS ENUM('TimesheetEntry', 'TimesheetWeek', 'Approval', 'Permit')`);
+        await queryRunner.query(`CREATE TYPE "public"."timesheet_history_action_enum" AS ENUM('created', 'updated', 'deleted', 'submitted', 'approved', 'rejected', 'auto_sent', 'permit_granted', 'permit_revoked', 'retro_edit_enabled', 'retro_edit_disabled')`);
+        await queryRunner.query(`CREATE TYPE "public"."timesheet_history_status_enum" AS ENUM('DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED')`);
+        await queryRunner.query(`CREATE TABLE "timesheet_history" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "orgId" uuid NOT NULL, "userId" uuid NOT NULL, "entityType" "public"."timesheet_history_entitytype_enum" NOT NULL, "entityId" uuid NOT NULL, "action" "public"."timesheet_history_action_enum" NOT NULL, "actorUserId" uuid, "reason" text, "diff" jsonb, "metadata" jsonb, "occurredAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "weekStart" date NOT NULL, "weekEnd" date NOT NULL, "totalHours" numeric(6,2) NOT NULL DEFAULT '0', "country" character varying(2) NOT NULL, "location" character varying(32) NOT NULL, "notes" text, "status" "public"."timesheet_history_status_enum" NOT NULL DEFAULT 'DRAFT', "hash" character varying(255), CONSTRAINT "PK_c1b6dc9f3965a4f70f1b7cbe0fa" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE INDEX "IDX_8e19f9f097115ad60d46b7af9a" ON "timesheet_history" ("orgId", "userId", "weekStart") `);
+        await queryRunner.query(`CREATE TABLE "organization" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "name" character varying(255) NOT NULL, CONSTRAINT "PK_472c1f99a32def1b0abb219cd67" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "permissions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "name" character varying(100) NOT NULL, "description" text, CONSTRAINT "UQ_48ce552495d14eae9b187bb6716" UNIQUE ("name"), CONSTRAINT "PK_920331560282b8bd21bb02290df" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "role_permissions" ("roleId" uuid NOT NULL, "permissionId" uuid NOT NULL, CONSTRAINT "PK_d430a02aad006d8a70f3acd7d03" PRIMARY KEY ("roleId", "permissionId"))`);
+        await queryRunner.query(`CREATE TABLE "roles" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "name" character varying(50) NOT NULL, "description" text, CONSTRAINT "UQ_648e3f5447f725579d7d4ffdfb7" UNIQUE ("name"), CONSTRAINT "PK_c1433d71a4838793a49dcad46ab" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "user_statuses" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "name" character varying(50) NOT NULL, "description" text, CONSTRAINT "UQ_cd345b985cb413bab7ef2cbb3f0" UNIQUE ("name"), CONSTRAINT "PK_50cc8fb0f4810b2f3bfcef7a788" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "user" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "orgId" uuid NOT NULL, "email" character varying(255) NOT NULL, "name" character varying(255) NOT NULL, "password" character varying(255) NOT NULL, "roleId" uuid NOT NULL, "phone" character varying(20), "lastLogin" TIMESTAMP WITH TIME ZONE, "statusId" uuid NOT NULL, CONSTRAINT "UQ_e12875dfb3b1d92d7d7c5377e22" UNIQUE ("email"), CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE INDEX "IDX_635181ca4637440fbefe4cbd67" ON "user" ("orgId", "id") `);
+        await queryRunner.query(`CREATE TYPE "public"."leave_request_leavetype_enum" AS ENUM('PTO', 'SICK', 'UNPAID')`);
+        await queryRunner.query(`CREATE TYPE "public"."leave_request_status_enum" AS ENUM('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED')`);
+        await queryRunner.query(`CREATE TABLE "leave_request" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "orgId" uuid NOT NULL, "userId" uuid NOT NULL, "startDate" date NOT NULL, "endDate" date NOT NULL, "leaveType" "public"."leave_request_leavetype_enum" NOT NULL, "status" "public"."leave_request_status_enum" NOT NULL DEFAULT 'PENDING', "reason" text, "rejectionReason" text, CONSTRAINT "PK_6f6ed3822203a4e10a5753368db" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE INDEX "IDX_cc52bb5cb7b99ea94db7de29e1" ON "leave_request" ("orgId", "startDate", "endDate") `);
+        await queryRunner.query(`CREATE INDEX "IDX_b2160ca8f987b8a708f92e0aae" ON "leave_request" ("orgId", "userId") `);
+        await queryRunner.query(`CREATE TABLE "active_session" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "token" text NOT NULL, "refreshToken" text, "expiresAt" TIMESTAMP WITH TIME ZONE, "userId" uuid NOT NULL, "orgId" uuid NOT NULL, CONSTRAINT "PK_f14ab8ee60757c7fdd3bae02318" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE INDEX "IDX_9e94649f9ff89556e877a20892" ON "active_session" ("orgId", "userId") `);
+        await queryRunner.query(`ALTER TABLE "team" ADD CONSTRAINT "FK_249a6d8c9d191a1f08b0f60b0d5" FOREIGN KEY ("orgId") REFERENCES "organization"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "team_member" ADD CONSTRAINT "FK_d2be3e8fc9ab0f69673721c7fc3" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "team_member" ADD CONSTRAINT "FK_74da8f612921485e1005dc8e225" FOREIGN KEY ("teamId") REFERENCES "team"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "team_member" ADD CONSTRAINT "FK_d010c903d1bd5bdcfe0cfbb102b" FOREIGN KEY ("orgId") REFERENCES "organization"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "action_code" ADD CONSTRAINT "FK_a557ee357964a48c26ffd151868" FOREIGN KEY ("orgId") REFERENCES "organization"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "approval" ADD CONSTRAINT "FK_e84ab8909c7afa665d136143e52" FOREIGN KEY ("orgId") REFERENCES "organization"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "approval" ADD CONSTRAINT "FK_8b7b8984a39c096efcefee72bf0" FOREIGN KEY ("entryId") REFERENCES "timesheet_entry"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "approval" ADD CONSTRAINT "FK_90a7fa055770723414527fdb7b1" FOREIGN KEY ("approverId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "timesheet_entry" ADD CONSTRAINT "FK_16c9f12b110e489d605277e0fa7" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "timesheet_entry" ADD CONSTRAINT "FK_ef993cdeb41f121695dd56fb80d" FOREIGN KEY ("orgId") REFERENCES "organization"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "timesheet_entry" ADD CONSTRAINT "FK_dc1fde29b69f7393b4c7b10bb81" FOREIGN KEY ("actionCodeId") REFERENCES "action_code"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "timesheet_history" ADD CONSTRAINT "FK_e7051f24deb6dcbc9d7ad8762cd" FOREIGN KEY ("orgId") REFERENCES "organization"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "timesheet_history" ADD CONSTRAINT "FK_ae67d2abdfa454aea75714f93af" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "timesheet_history" ADD CONSTRAINT "FK_32359bc807c7fdde246ccd3667f" FOREIGN KEY ("actorUserId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "role_permissions" ADD CONSTRAINT "FK_b4599f8b8f548d35850afa2d12c" FOREIGN KEY ("roleId") REFERENCES "roles"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "role_permissions" ADD CONSTRAINT "FK_06792d0c62ce6b0203c03643cdd" FOREIGN KEY ("permissionId") REFERENCES "permissions"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "user" ADD CONSTRAINT "FK_c28e52f758e7bbc53828db92194" FOREIGN KEY ("roleId") REFERENCES "roles"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "user" ADD CONSTRAINT "FK_dc18daa696860586ba4667a9d31" FOREIGN KEY ("statusId") REFERENCES "user_statuses"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "user" ADD CONSTRAINT "FK_4f5adb58513c2fe57eb9c79cc16" FOREIGN KEY ("orgId") REFERENCES "organization"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "leave_request" ADD CONSTRAINT "FK_6d1d5b8b9d2b5f0a8d8c62cd862" FOREIGN KEY ("orgId") REFERENCES "organization"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "leave_request" ADD CONSTRAINT "FK_ccd082c03225c86d707142fa0dc" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "active_session" ADD CONSTRAINT "FK_02026b724417d722e48f996744c" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "active_session" ADD CONSTRAINT "FK_16a951888e70985f48a8ebf9aec" FOREIGN KEY ("orgId") REFERENCES "organization"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "active_session" DROP CONSTRAINT "FK_16a951888e70985f48a8ebf9aec"`);
+        await queryRunner.query(`ALTER TABLE "active_session" DROP CONSTRAINT "FK_02026b724417d722e48f996744c"`);
+        await queryRunner.query(`ALTER TABLE "leave_request" DROP CONSTRAINT "FK_ccd082c03225c86d707142fa0dc"`);
+        await queryRunner.query(`ALTER TABLE "leave_request" DROP CONSTRAINT "FK_6d1d5b8b9d2b5f0a8d8c62cd862"`);
+        await queryRunner.query(`ALTER TABLE "user" DROP CONSTRAINT "FK_4f5adb58513c2fe57eb9c79cc16"`);
+        await queryRunner.query(`ALTER TABLE "user" DROP CONSTRAINT "FK_dc18daa696860586ba4667a9d31"`);
+        await queryRunner.query(`ALTER TABLE "user" DROP CONSTRAINT "FK_c28e52f758e7bbc53828db92194"`);
+        await queryRunner.query(`ALTER TABLE "role_permissions" DROP CONSTRAINT "FK_06792d0c62ce6b0203c03643cdd"`);
+        await queryRunner.query(`ALTER TABLE "role_permissions" DROP CONSTRAINT "FK_b4599f8b8f548d35850afa2d12c"`);
+        await queryRunner.query(`ALTER TABLE "timesheet_history" DROP CONSTRAINT "FK_32359bc807c7fdde246ccd3667f"`);
+        await queryRunner.query(`ALTER TABLE "timesheet_history" DROP CONSTRAINT "FK_ae67d2abdfa454aea75714f93af"`);
+        await queryRunner.query(`ALTER TABLE "timesheet_history" DROP CONSTRAINT "FK_e7051f24deb6dcbc9d7ad8762cd"`);
+        await queryRunner.query(`ALTER TABLE "timesheet_entry" DROP CONSTRAINT "FK_dc1fde29b69f7393b4c7b10bb81"`);
+        await queryRunner.query(`ALTER TABLE "timesheet_entry" DROP CONSTRAINT "FK_ef993cdeb41f121695dd56fb80d"`);
+        await queryRunner.query(`ALTER TABLE "timesheet_entry" DROP CONSTRAINT "FK_16c9f12b110e489d605277e0fa7"`);
+        await queryRunner.query(`ALTER TABLE "approval" DROP CONSTRAINT "FK_90a7fa055770723414527fdb7b1"`);
+        await queryRunner.query(`ALTER TABLE "approval" DROP CONSTRAINT "FK_8b7b8984a39c096efcefee72bf0"`);
+        await queryRunner.query(`ALTER TABLE "approval" DROP CONSTRAINT "FK_e84ab8909c7afa665d136143e52"`);
+        await queryRunner.query(`ALTER TABLE "action_code" DROP CONSTRAINT "FK_a557ee357964a48c26ffd151868"`);
+        await queryRunner.query(`ALTER TABLE "team_member" DROP CONSTRAINT "FK_d010c903d1bd5bdcfe0cfbb102b"`);
+        await queryRunner.query(`ALTER TABLE "team_member" DROP CONSTRAINT "FK_74da8f612921485e1005dc8e225"`);
+        await queryRunner.query(`ALTER TABLE "team_member" DROP CONSTRAINT "FK_d2be3e8fc9ab0f69673721c7fc3"`);
+        await queryRunner.query(`ALTER TABLE "team" DROP CONSTRAINT "FK_249a6d8c9d191a1f08b0f60b0d5"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_9e94649f9ff89556e877a20892"`);
+        await queryRunner.query(`DROP TABLE "active_session"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_b2160ca8f987b8a708f92e0aae"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_cc52bb5cb7b99ea94db7de29e1"`);
+        await queryRunner.query(`DROP TABLE "leave_request"`);
+        await queryRunner.query(`DROP TYPE "public"."leave_request_status_enum"`);
+        await queryRunner.query(`DROP TYPE "public"."leave_request_leavetype_enum"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_635181ca4637440fbefe4cbd67"`);
+        await queryRunner.query(`DROP TABLE "user"`);
+        await queryRunner.query(`DROP TABLE "user_statuses"`);
+        await queryRunner.query(`DROP TABLE "roles"`);
+        await queryRunner.query(`DROP TABLE "role_permissions"`);
+        await queryRunner.query(`DROP TABLE "permissions"`);
+        await queryRunner.query(`DROP TABLE "organization"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_8e19f9f097115ad60d46b7af9a"`);
+        await queryRunner.query(`DROP TABLE "timesheet_history"`);
+        await queryRunner.query(`DROP TYPE "public"."timesheet_history_status_enum"`);
+        await queryRunner.query(`DROP TYPE "public"."timesheet_history_action_enum"`);
+        await queryRunner.query(`DROP TYPE "public"."timesheet_history_entitytype_enum"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_352ac8df5473da43192b3f09da"`);
+        await queryRunner.query(`DROP TABLE "timesheet_entry"`);
+        await queryRunner.query(`DROP TYPE "public"."timesheet_entry_workmode_enum"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_d31b860a6494c3a8f1655eda0e"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_cc21fb67d6fe7886e654d8c511"`);
+        await queryRunner.query(`DROP TABLE "approval"`);
+        await queryRunner.query(`DROP TYPE "public"."approval_status_enum"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_6447bef7c9d90b9d6a67137891"`);
+        await queryRunner.query(`DROP TABLE "action_code"`);
+        await queryRunner.query(`DROP TYPE "public"."action_code_type_enum"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_495c200acc9df53aaf249482c2"`);
+        await queryRunner.query(`DROP TABLE "team_member"`);
+        await queryRunner.query(`DROP TABLE "team"`);
+    }
+
+}

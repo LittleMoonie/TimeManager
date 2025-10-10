@@ -7,14 +7,176 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
-			"UserStatus": {
-				"enum": [
-					"ACTIVE",
-					"INACTIVE",
-					"SUSPENDED",
-					"PENDING"
+			"UserResponse": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"orgId": {
+						"type": "string"
+					},
+					"role": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"phone": {
+						"type": "string"
+					},
+					"lastLogin": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"id",
+					"email",
+					"name",
+					"orgId",
+					"role",
+					"status",
+					"createdAt"
 				],
-				"type": "string"
+				"type": "object",
+				"additionalProperties": true
+			},
+			"ApiResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"msg": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"msg"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"Role": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"deletedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"rolePermissions": {
+						"items": {
+							"$ref": "#/components/schemas/RolePermission"
+						},
+						"type": "array"
+					},
+					"users": {
+						"items": {
+							"$ref": "#/components/schemas/User"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"id",
+					"createdAt",
+					"updatedAt",
+					"name",
+					"rolePermissions",
+					"users"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"RolePermission": {
+				"properties": {
+					"roleId": {
+						"type": "string"
+					},
+					"permissionId": {
+						"type": "string"
+					},
+					"role": {
+						"$ref": "#/components/schemas/Role"
+					},
+					"permission": {
+						"$ref": "#/components/schemas/Permission"
+					}
+				},
+				"required": [
+					"roleId",
+					"permissionId",
+					"role",
+					"permission"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"Permission": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"deletedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"rolePermissions": {
+						"items": {
+							"$ref": "#/components/schemas/RolePermission"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"id",
+					"createdAt",
+					"updatedAt",
+					"name",
+					"rolePermissions"
+				],
+				"type": "object",
+				"additionalProperties": true
 			},
 			"User": {
 				"properties": {
@@ -46,19 +208,26 @@
 						"type": "string"
 					},
 					"role": {
+						"$ref": "#/components/schemas/Role"
+					},
+					"roleId": {
 						"type": "string"
+					},
+					"phone": {
+						"type": "string"
+					},
+					"lastLogin": {
+						"type": "string",
+						"format": "date-time"
 					},
 					"status": {
 						"$ref": "#/components/schemas/UserStatus"
 					},
+					"statusId": {
+						"type": "string"
+					},
 					"organization": {
 						"$ref": "#/components/schemas/Organization"
-					},
-					"teamMembership": {
-						"items": {
-							"$ref": "#/components/schemas/TeamMember"
-						},
-						"type": "array"
 					},
 					"timesheetHistory": {
 						"items": {
@@ -76,10 +245,51 @@
 					"name",
 					"password",
 					"role",
+					"roleId",
 					"status",
+					"statusId",
 					"organization",
-					"teamMembership",
 					"timesheetHistory"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"UserStatus": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"deletedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"users": {
+						"items": {
+							"$ref": "#/components/schemas/User"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"id",
+					"createdAt",
+					"updatedAt",
+					"name",
+					"users"
 				],
 				"type": "object",
 				"additionalProperties": true
@@ -312,6 +522,14 @@
 				"type": "object",
 				"additionalProperties": true
 			},
+			"WorkMode": {
+				"enum": [
+					"office",
+					"remote",
+					"hybrid"
+				],
+				"type": "string"
+			},
 			"TimesheetEntry": {
 				"properties": {
 					"id": {
@@ -398,95 +616,6 @@
 				"type": "object",
 				"additionalProperties": true
 			},
-			"TimesheetStatus": {
-				"enum": [
-					"DRAFT",
-					"SUBMITTED",
-					"APPROVED",
-					"REJECTED"
-				],
-				"type": "string"
-			},
-			"TimesheetHistory": {
-				"properties": {
-					"id": {
-						"type": "string"
-					},
-					"createdAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"updatedAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"deletedAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"orgId": {
-						"type": "string"
-					},
-					"organization": {
-						"$ref": "#/components/schemas/Organization"
-					},
-					"userId": {
-						"type": "string"
-					},
-					"user": {
-						"$ref": "#/components/schemas/User"
-					},
-					"weekStart": {
-						"type": "string"
-					},
-					"weekEnd": {
-						"type": "string"
-					},
-					"totalHours": {
-						"type": "string"
-					},
-					"country": {
-						"type": "string"
-					},
-					"location": {
-						"type": "string"
-					},
-					"notes": {
-						"type": "string"
-					},
-					"status": {
-						"$ref": "#/components/schemas/TimesheetStatus"
-					},
-					"hash": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"id",
-					"createdAt",
-					"updatedAt",
-					"orgId",
-					"organization",
-					"userId",
-					"user",
-					"weekStart",
-					"weekEnd",
-					"totalHours",
-					"country",
-					"location",
-					"status"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"WorkMode": {
-				"enum": [
-					"office",
-					"remote",
-					"hybrid"
-				],
-				"type": "string"
-			},
 			"ApprovalStatus": {
 				"enum": [
 					"pending",
@@ -548,6 +677,245 @@
 					"approverId",
 					"approver",
 					"status"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"TimesheetHistoryEntityTypeEnum": {
+				"enum": [
+					"TimesheetEntry",
+					"TimesheetWeek",
+					"Approval",
+					"Permit"
+				],
+				"type": "string"
+			},
+			"TimesheetHistoryActionEnum": {
+				"enum": [
+					"created",
+					"updated",
+					"deleted",
+					"submitted",
+					"approved",
+					"rejected",
+					"auto_sent",
+					"permit_granted",
+					"permit_revoked",
+					"retro_edit_enabled",
+					"retro_edit_disabled"
+				],
+				"type": "string"
+			},
+			"TimesheetStatus": {
+				"enum": [
+					"DRAFT",
+					"SUBMITTED",
+					"APPROVED",
+					"REJECTED"
+				],
+				"type": "string"
+			},
+			"TimesheetHistory": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"deletedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"orgId": {
+						"type": "string"
+					},
+					"organization": {
+						"$ref": "#/components/schemas/Organization"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"user": {
+						"$ref": "#/components/schemas/User"
+					},
+					"entityType": {
+						"$ref": "#/components/schemas/TimesheetHistoryEntityTypeEnum"
+					},
+					"entityId": {
+						"type": "string"
+					},
+					"action": {
+						"$ref": "#/components/schemas/TimesheetHistoryActionEnum"
+					},
+					"actorUserId": {
+						"type": "string"
+					},
+					"actorUser": {
+						"$ref": "#/components/schemas/User"
+					},
+					"reason": {
+						"type": "string"
+					},
+					"diff": {
+						"additionalProperties": true,
+						"type": "object"
+					},
+					"metadata": {
+						"additionalProperties": true,
+						"type": "object"
+					},
+					"occurredAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"weekStart": {
+						"type": "string"
+					},
+					"weekEnd": {
+						"type": "string"
+					},
+					"totalHours": {
+						"type": "string"
+					},
+					"country": {
+						"type": "string"
+					},
+					"location": {
+						"type": "string"
+					},
+					"notes": {
+						"type": "string"
+					},
+					"status": {
+						"$ref": "#/components/schemas/TimesheetStatus"
+					},
+					"hash": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"createdAt",
+					"updatedAt",
+					"orgId",
+					"organization",
+					"userId",
+					"user",
+					"entityType",
+					"entityId",
+					"action",
+					"occurredAt",
+					"weekStart",
+					"weekEnd",
+					"totalHours",
+					"country",
+					"location",
+					"status"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"CreateUserDto": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"role": {
+						"$ref": "#/components/schemas/Role"
+					},
+					"orgId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"email",
+					"name",
+					"password",
+					"role"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"UpdateUserDto": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"role": {
+						"$ref": "#/components/schemas/Role"
+					},
+					"status": {
+						"$ref": "#/components/schemas/UserStatus"
+					}
+				},
+				"type": "object",
+				"additionalProperties": true
+			},
+			"Record_string.any_": {
+				"properties": {},
+				"additionalProperties": {},
+				"type": "object",
+				"description": "Construct a type with a set of properties K of type T"
+			},
+			"IRecordOfAny": {
+				"properties": {},
+				"type": "object",
+				"additionalProperties": {}
+			},
+			"TimesheetHistoryDto": {
+				"properties": {
+					"entityType": {
+						"$ref": "#/components/schemas/TimesheetHistoryEntityTypeEnum"
+					},
+					"entityId": {
+						"type": "string"
+					},
+					"action": {
+						"$ref": "#/components/schemas/TimesheetHistoryActionEnum"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"reason": {
+						"type": "string"
+					},
+					"diff": {
+						"$ref": "#/components/schemas/IRecordOfAny"
+					},
+					"startedAt": {
+						"type": "string"
+					},
+					"endedAt": {
+						"type": "string"
+					},
+					"limit": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"entityType",
+					"entityId",
+					"action",
+					"userId"
 				],
 				"type": "object",
 				"additionalProperties": true
@@ -662,6 +1030,89 @@
 				"type": "object",
 				"additionalProperties": true
 			},
+			"CreateActionCodeDto": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"name",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"UpdateActionCodeDto": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"name",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"HealthResponse": {
+				"properties": {
+					"status": {
+						"type": "string"
+					},
+					"timestamp": {
+						"type": "string"
+					},
+					"uptime": {
+						"type": "number",
+						"format": "double"
+					},
+					"openapi": {
+						"properties": {
+							"needsRegeneration": {
+								"type": "boolean"
+							},
+							"lastGenerated": {
+								"type": "string"
+							}
+						},
+						"type": "object"
+					}
+				},
+				"required": [
+					"status",
+					"timestamp",
+					"uptime"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"GenerateResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					},
+					"generatedAt": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
 			"LeaveType": {
 				"enum": [
 					"PTO",
@@ -745,124 +1196,31 @@
 				"type": "object",
 				"additionalProperties": true
 			},
-			"RegisterResponse": {
-				"properties": {
-					"success": {
-						"type": "boolean"
-					},
-					"userID": {
-						"type": "string"
-					},
-					"msg": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"success",
-					"msg"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"ApiResponse": {
-				"properties": {
-					"success": {
-						"type": "boolean"
-					},
-					"msg": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"success",
-					"msg"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"RegisterUserRequest": {
+			"RegisterDto": {
 				"properties": {
 					"email": {
-						"type": "string"
-					},
-					"name": {
 						"type": "string"
 					},
 					"password": {
 						"type": "string"
 					},
-					"orgName": {
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
 						"type": "string"
 					}
 				},
 				"required": [
 					"email",
-					"name",
 					"password",
-					"orgName"
+					"firstName",
+					"lastName"
 				],
 				"type": "object",
 				"additionalProperties": true
 			},
-			"UserResponse": {
-				"properties": {
-					"id": {
-						"type": "string"
-					},
-					"email": {
-						"type": "string"
-					},
-					"name": {
-						"type": "string"
-					},
-					"orgId": {
-						"type": "string"
-					},
-					"role": {
-						"type": "string"
-					},
-					"status": {
-						"type": "string"
-					},
-					"createdAt": {
-						"type": "string",
-						"format": "date-time"
-					}
-				},
-				"required": [
-					"id",
-					"email",
-					"name",
-					"orgId",
-					"role",
-					"status",
-					"createdAt"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"AuthResponse": {
-				"properties": {
-					"success": {
-						"type": "boolean"
-					},
-					"token": {
-						"type": "string"
-					},
-					"user": {
-						"$ref": "#/components/schemas/UserResponse"
-					},
-					"msg": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"success"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"LoginUserRequest": {
+			"LoginDto": {
 				"properties": {
 					"email": {
 						"type": "string"
@@ -874,165 +1232,6 @@
 				"required": [
 					"email",
 					"password"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"Record_string.any_": {
-				"properties": {},
-				"additionalProperties": {},
-				"type": "object",
-				"description": "Construct a type with a set of properties K of type T"
-			},
-			"TimesheetHistoryEntityTypeEnum": {
-				"enum": [
-					"TimesheetEntry",
-					"TimesheetWeek",
-					"Approval",
-					"Permit"
-				],
-				"type": "string"
-			},
-			"TimesheetHistoryActionEnum": {
-				"enum": [
-					"created",
-					"updated",
-					"deleted",
-					"submitted",
-					"approved",
-					"rejected",
-					"auto_sent",
-					"permit_granted",
-					"permit_revoked",
-					"retro_edit_enabled",
-					"retro_edit_disabled"
-				],
-				"type": "string"
-			},
-			"IRecordOfAny": {
-				"properties": {},
-				"type": "object",
-				"additionalProperties": {}
-			},
-			"TimesheetHistoryDto": {
-				"properties": {
-					"entityType": {
-						"$ref": "#/components/schemas/TimesheetHistoryEntityTypeEnum"
-					},
-					"entityId": {
-						"type": "string"
-					},
-					"action": {
-						"$ref": "#/components/schemas/TimesheetHistoryActionEnum"
-					},
-					"userId": {
-						"type": "string"
-					},
-					"reason": {
-						"type": "string"
-					},
-					"diff": {
-						"$ref": "#/components/schemas/IRecordOfAny"
-					},
-					"startedAt": {
-						"type": "string"
-					},
-					"endedAt": {
-						"type": "string"
-					},
-					"limit": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"entityType",
-					"entityId",
-					"action",
-					"userId"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"HealthResponse": {
-				"properties": {
-					"status": {
-						"type": "string"
-					},
-					"timestamp": {
-						"type": "string"
-					},
-					"uptime": {
-						"type": "number",
-						"format": "double"
-					},
-					"openapi": {
-						"properties": {
-							"needsRegeneration": {
-								"type": "boolean"
-							},
-							"lastGenerated": {
-								"type": "string"
-							}
-						},
-						"type": "object"
-					}
-				},
-				"required": [
-					"status",
-					"timestamp",
-					"uptime"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"GenerateResponse": {
-				"properties": {
-					"success": {
-						"type": "boolean"
-					},
-					"message": {
-						"type": "string"
-					},
-					"generatedAt": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"success",
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"CreateActionCodeDto": {
-				"properties": {
-					"name": {
-						"type": "string"
-					},
-					"code": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"name",
-					"code"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"UpdateActionCodeDto": {
-				"properties": {
-					"name": {
-						"type": "string"
-					},
-					"code": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"name",
-					"code"
 				],
 				"type": "object",
 				"additionalProperties": true
@@ -1056,6 +1255,646 @@
 		}
 	},
 	"paths": {
+		"/users": {
+			"post": {
+				"operationId": "CreateUser",
+				"responses": {
+					"201": {
+						"description": "User created successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Authentication required",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create a new user (Admin/Manager only)",
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"admin",
+							"manager"
+						]
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "User creation data",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateUserDto",
+								"description": "User creation data"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/users/{id}": {
+			"get": {
+				"operationId": "GetUser",
+				"responses": {
+					"200": {
+						"description": "User retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Authentication required",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "User not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get user by ID",
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"admin",
+							"manager",
+							"employee"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"description": "The user's ID",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdateUser",
+				"responses": {
+					"200": {
+						"description": "User updated successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Authentication required",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "User not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Update user by ID (Admin/Manager only)",
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"admin",
+							"manager"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"description": "The user's ID",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "User update data",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateUserDto",
+								"description": "User update data"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteUser",
+				"responses": {
+					"200": {
+						"description": "User deleted successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Authentication required",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "User not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Delete user by ID (Admin/Manager only)",
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"admin",
+							"manager"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"description": "The user's ID",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/users/{id}/weekend-permit": {
+			"post": {
+				"operationId": "GrantWeekendPermit",
+				"responses": {
+					"200": {
+						"description": "Weekend permit granted successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Authentication required",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "User not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"manager",
+							"admin"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/users/{id}/retro-edit": {
+			"post": {
+				"operationId": "RetroEdit",
+				"responses": {
+					"200": {
+						"description": "Retroactive edit applied successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Authentication required",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "User not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"manager",
+							"admin"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Record_string.any_"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/timesheet-history/filter": {
+			"post": {
+				"operationId": "ListHistory",
+				"responses": {
+					"200": {
+						"description": "A paginated list of timesheet history events.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"nextCursor": {
+											"type": "string"
+										},
+										"data": {
+											"items": {
+												"$ref": "#/components/schemas/TimesheetHistory"
+											},
+											"type": "array"
+										}
+									},
+									"required": [
+										"data"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieve a paginated list of timesheet history events.\nEmployees can only view their own history. Managers/Admins can view organization-wide history.",
+				"tags": [
+					"Timesheet History"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "Body parameters for filtering and pagination.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/TimesheetHistoryDto",
+								"description": "Body parameters for filtering and pagination."
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/timesheet-history/entity/{entityType}/{entityId}": {
+			"post": {
+				"operationId": "GetHistoryForEntity",
+				"responses": {
+					"200": {
+						"description": "A paginated list of timesheet history events for the specified entity.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"nextCursor": {
+											"type": "string"
+										},
+										"data": {
+											"items": {
+												"$ref": "#/components/schemas/TimesheetHistory"
+											},
+											"type": "array"
+										}
+									},
+									"required": [
+										"data"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieve timesheet history events for a specific entity.\nEmployees can only view history related to their own timesheets. Managers/Admins can view organization-wide history.",
+				"tags": [
+					"Timesheet History"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The type of the entity (e.g., 'TimesheetEntry', 'TimesheetWeek').",
+						"in": "path",
+						"name": "entityType",
+						"required": true,
+						"schema": {
+							"$ref": "#/components/schemas/TimesheetHistoryEntityTypeEnum"
+						}
+					},
+					{
+						"description": "The UUID of the entity.",
+						"in": "path",
+						"name": "entityId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
 		"/api/v1/time": {
 			"get": {
 				"operationId": "GetWeekTimesheet",
@@ -1377,6 +2216,283 @@
 				"parameters": []
 			}
 		},
+		"/api/v1/action-codes": {
+			"get": {
+				"operationId": "ListActionCodes",
+				"responses": {
+					"200": {
+						"description": "A list of action codes.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/ActionCode"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieve a list of action codes for the organization.",
+				"tags": [
+					"Action Codes"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "Optional search query to filter action codes by name.",
+						"in": "query",
+						"name": "q",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"post": {
+				"operationId": "CreateActionCode",
+				"responses": {
+					"200": {
+						"description": "The newly created action code.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ActionCode"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create a new action code.\nOnly Managers/Admins can create action codes.",
+				"tags": [
+					"Action Codes"
+				],
+				"security": [
+					{
+						"jwt": [
+							"manager",
+							"admin"
+						]
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "The action code creation payload.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateActionCodeDto",
+								"description": "The action code creation payload."
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/action-codes/{id}": {
+			"put": {
+				"operationId": "UpdateActionCode",
+				"responses": {
+					"200": {
+						"description": "The updated action code.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"allOf": [
+										{
+											"$ref": "#/components/schemas/ActionCode"
+										}
+									],
+									"nullable": true
+								}
+							}
+						}
+					}
+				},
+				"description": "Update an existing action code.\nOnly Managers/Admins can update action codes.",
+				"tags": [
+					"Action Codes"
+				],
+				"security": [
+					{
+						"jwt": [
+							"manager",
+							"admin"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the action code to update.",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "The action code update payload.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateActionCodeDto",
+								"description": "The action code update payload."
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteActionCode",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Delete an action code.\nOnly Managers/Admins can delete action codes.",
+				"tags": [
+					"Action Codes"
+				],
+				"security": [
+					{
+						"jwt": [
+							"manager",
+							"admin"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the action code to delete.",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/system/health": {
+			"get": {
+				"operationId": "GetHealth",
+				"responses": {
+					"200": {
+						"description": "System is healthy",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HealthResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Enhanced health check with OpenAPI status",
+				"tags": [
+					"System"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "autoGen",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					}
+				]
+			}
+		},
+		"/system/generate-openapi": {
+			"post": {
+				"operationId": "GenerateOpenApi",
+				"responses": {
+					"200": {
+						"description": "OpenAPI generation triggered",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GenerateResponse"
+								}
+							}
+						}
+					},
+					"409": {
+						"description": "Generation already in progress"
+					},
+					"500": {
+						"description": "Generation failed"
+					}
+				},
+				"description": "Manually trigger OpenAPI spec generation",
+				"tags": [
+					"System"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "frontend",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					}
+				]
+			}
+		},
+		"/system/openapi-status": {
+			"get": {
+				"operationId": "GetOpenApiStatus",
+				"responses": {
+					"200": {
+						"description": "OpenAPI status retrieved",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"needsRegeneration": {
+											"type": "boolean"
+										},
+										"lastGeneratedAt": {
+											"type": "string"
+										},
+										"isGenerating": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"needsRegeneration",
+										"lastGeneratedAt",
+										"isGenerating"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get OpenAPI generation status",
+				"tags": [
+					"System"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
 		"/leave-requests": {
 			"get": {
 				"operationId": "GetLeaveRequests",
@@ -1559,16 +2675,16 @@
 				}
 			}
 		},
-		"/users/register": {
+		"/auth/register": {
 			"post": {
-				"operationId": "RegisterUser",
+				"operationId": "Register",
 				"responses": {
 					"200": {
 						"description": "User registered successfully",
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/RegisterResponse"
+									"$ref": "#/components/schemas/ApiResponse"
 								}
 							}
 						}
@@ -1604,9 +2720,9 @@
 						}
 					}
 				},
-				"description": "Register a new user and organization",
+				"description": "Register a new user",
 				"tags": [
-					"Users"
+					"Authentication"
 				],
 				"security": [],
 				"parameters": [],
@@ -1616,7 +2732,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/RegisterUserRequest",
+								"$ref": "#/components/schemas/RegisterDto",
 								"description": "User registration data"
 							}
 						}
@@ -1624,16 +2740,16 @@
 				}
 			}
 		},
-		"/users/login": {
+		"/auth/login": {
 			"post": {
-				"operationId": "LoginUser",
+				"operationId": "Login",
 				"responses": {
 					"200": {
 						"description": "User logged in successfully",
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/AuthResponse"
+									"$ref": "#/components/schemas/ApiResponse"
 								}
 							}
 						}
@@ -1671,7 +2787,7 @@
 				},
 				"description": "Login user and get JWT token",
 				"tags": [
-					"Users"
+					"Authentication"
 				],
 				"security": [],
 				"parameters": [],
@@ -1681,7 +2797,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/LoginUserRequest",
+								"$ref": "#/components/schemas/LoginDto",
 								"description": "User login credentials"
 							}
 						}
@@ -1689,9 +2805,9 @@
 				}
 			}
 		},
-		"/users/logout": {
+		"/auth/logout": {
 			"post": {
-				"operationId": "LogoutUser",
+				"operationId": "Logout",
 				"responses": {
 					"200": {
 						"description": "User logged out successfully",
@@ -1726,7 +2842,7 @@
 				},
 				"description": "Logout user and invalidate token",
 				"tags": [
-					"Users"
+					"Authentication"
 				],
 				"security": [
 					{
@@ -1736,7 +2852,7 @@
 				"parameters": []
 			}
 		},
-		"/users/current": {
+		"/auth/current": {
 			"get": {
 				"operationId": "GetCurrentUser",
 				"responses": {
@@ -1745,7 +2861,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/AuthResponse"
+									"$ref": "#/components/schemas/ApiResponse"
 								}
 							}
 						}
@@ -1773,7 +2889,7 @@
 				},
 				"description": "Get current user",
 				"tags": [
-					"Users"
+					"Authentication"
 				],
 				"security": [
 					{
@@ -1781,562 +2897,6 @@
 					}
 				],
 				"parameters": []
-			}
-		},
-		"/users/{id}/weekend-permit": {
-			"post": {
-				"operationId": "GrantWeekendPermit",
-				"responses": {
-					"200": {
-						"description": "Weekend permit granted successfully",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ApiResponse"
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "Authentication required",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ApiResponse"
-								}
-							}
-						}
-					},
-					"403": {
-						"description": "Forbidden",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ApiResponse"
-								}
-							}
-						}
-					},
-					"404": {
-						"description": "User not found",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ApiResponse"
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "Internal server error",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ApiResponse"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Users"
-				],
-				"security": [
-					{
-						"jwt": [
-							"manager",
-							"admin"
-						]
-					}
-				],
-				"parameters": [
-					{
-						"in": "path",
-						"name": "id",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/users/{id}/retro-edit": {
-			"post": {
-				"operationId": "RetroEdit",
-				"responses": {
-					"200": {
-						"description": "Retroactive edit applied successfully",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ApiResponse"
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "Authentication required",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ApiResponse"
-								}
-							}
-						}
-					},
-					"403": {
-						"description": "Forbidden",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ApiResponse"
-								}
-							}
-						}
-					},
-					"404": {
-						"description": "User not found",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ApiResponse"
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "Internal server error",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ApiResponse"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Users"
-				],
-				"security": [
-					{
-						"jwt": [
-							"manager",
-							"admin"
-						]
-					}
-				],
-				"parameters": [
-					{
-						"in": "path",
-						"name": "id",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/Record_string.any_"
-							}
-						}
-					}
-				}
-			}
-		},
-		"/api/v1/timesheet-history/filter": {
-			"post": {
-				"operationId": "ListHistory",
-				"responses": {
-					"200": {
-						"description": "A paginated list of timesheet history events.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"properties": {
-										"nextCursor": {
-											"type": "string"
-										},
-										"data": {
-											"items": {
-												"$ref": "#/components/schemas/TimesheetHistory"
-											},
-											"type": "array"
-										}
-									},
-									"required": [
-										"data"
-									],
-									"type": "object"
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieve a paginated list of timesheet history events.\nEmployees can only view their own history. Managers/Admins can view organization-wide history.",
-				"tags": [
-					"Timesheet History"
-				],
-				"security": [
-					{
-						"jwt": []
-					}
-				],
-				"parameters": [],
-				"requestBody": {
-					"description": "Body parameters for filtering and pagination.",
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/TimesheetHistoryDto",
-								"description": "Body parameters for filtering and pagination."
-							}
-						}
-					}
-				}
-			}
-		},
-		"/api/v1/timesheet-history/entity/{entityType}/{entityId}": {
-			"post": {
-				"operationId": "GetHistoryForEntity",
-				"responses": {
-					"200": {
-						"description": "A paginated list of timesheet history events for the specified entity.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"properties": {
-										"nextCursor": {
-											"type": "string"
-										},
-										"data": {
-											"items": {
-												"$ref": "#/components/schemas/TimesheetHistory"
-											},
-											"type": "array"
-										}
-									},
-									"required": [
-										"data"
-									],
-									"type": "object"
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieve timesheet history events for a specific entity.\nEmployees can only view history related to their own timesheets. Managers/Admins can view organization-wide history.",
-				"tags": [
-					"Timesheet History"
-				],
-				"security": [
-					{
-						"jwt": []
-					}
-				],
-				"parameters": [
-					{
-						"description": "The type of the entity (e.g., 'TimesheetEntry', 'TimesheetWeek').",
-						"in": "path",
-						"name": "entityType",
-						"required": true,
-						"schema": {
-							"$ref": "#/components/schemas/TimesheetHistoryEntityTypeEnum"
-						}
-					},
-					{
-						"description": "The UUID of the entity.",
-						"in": "path",
-						"name": "entityId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/system/health": {
-			"get": {
-				"operationId": "GetHealth",
-				"responses": {
-					"200": {
-						"description": "System is healthy",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HealthResponse"
-								}
-							}
-						}
-					}
-				},
-				"description": "Enhanced health check with OpenAPI status",
-				"tags": [
-					"System"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "query",
-						"name": "autoGen",
-						"required": false,
-						"schema": {
-							"type": "boolean"
-						}
-					}
-				]
-			}
-		},
-		"/system/generate-openapi": {
-			"post": {
-				"operationId": "GenerateOpenApi",
-				"responses": {
-					"200": {
-						"description": "OpenAPI generation triggered",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/GenerateResponse"
-								}
-							}
-						}
-					},
-					"409": {
-						"description": "Generation already in progress"
-					},
-					"500": {
-						"description": "Generation failed"
-					}
-				},
-				"description": "Manually trigger OpenAPI spec generation",
-				"tags": [
-					"System"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "query",
-						"name": "frontend",
-						"required": false,
-						"schema": {
-							"type": "boolean"
-						}
-					}
-				]
-			}
-		},
-		"/system/openapi-status": {
-			"get": {
-				"operationId": "GetOpenApiStatus",
-				"responses": {
-					"200": {
-						"description": "OpenAPI status retrieved",
-						"content": {
-							"application/json": {
-								"schema": {
-									"properties": {
-										"needsRegeneration": {
-											"type": "boolean"
-										},
-										"lastGeneratedAt": {
-											"type": "string"
-										},
-										"isGenerating": {
-											"type": "boolean"
-										}
-									},
-									"required": [
-										"needsRegeneration",
-										"lastGeneratedAt",
-										"isGenerating"
-									],
-									"type": "object"
-								}
-							}
-						}
-					}
-				},
-				"description": "Get OpenAPI generation status",
-				"tags": [
-					"System"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/api/v1/action-codes": {
-			"get": {
-				"operationId": "ListActionCodes",
-				"responses": {
-					"200": {
-						"description": "A list of action codes.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/ActionCode"
-									},
-									"type": "array"
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieve a list of action codes for the organization.",
-				"tags": [
-					"Action Codes"
-				],
-				"security": [
-					{
-						"jwt": []
-					}
-				],
-				"parameters": [
-					{
-						"description": "Optional search query to filter action codes by name.",
-						"in": "query",
-						"name": "q",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			},
-			"post": {
-				"operationId": "CreateActionCode",
-				"responses": {
-					"200": {
-						"description": "The newly created action code.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ActionCode"
-								}
-							}
-						}
-					}
-				},
-				"description": "Create a new action code.\nOnly Managers/Admins can create action codes.",
-				"tags": [
-					"Action Codes"
-				],
-				"security": [
-					{
-						"jwt": [
-							"manager",
-							"admin"
-						]
-					}
-				],
-				"parameters": [],
-				"requestBody": {
-					"description": "The action code creation payload.",
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/CreateActionCodeDto",
-								"description": "The action code creation payload."
-							}
-						}
-					}
-				}
-			}
-		},
-		"/api/v1/action-codes/{id}": {
-			"put": {
-				"operationId": "UpdateActionCode",
-				"responses": {
-					"200": {
-						"description": "The updated action code.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"allOf": [
-										{
-											"$ref": "#/components/schemas/ActionCode"
-										}
-									],
-									"nullable": true
-								}
-							}
-						}
-					}
-				},
-				"description": "Update an existing action code.\nOnly Managers/Admins can update action codes.",
-				"tags": [
-					"Action Codes"
-				],
-				"security": [
-					{
-						"jwt": [
-							"manager",
-							"admin"
-						]
-					}
-				],
-				"parameters": [
-					{
-						"description": "The UUID of the action code to update.",
-						"in": "path",
-						"name": "id",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"description": "The action code update payload.",
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/UpdateActionCodeDto",
-								"description": "The action code update payload."
-							}
-						}
-					}
-				}
-			},
-			"delete": {
-				"operationId": "DeleteActionCode",
-				"responses": {
-					"204": {
-						"description": "No content"
-					}
-				},
-				"description": "Delete an action code.\nOnly Managers/Admins can delete action codes.",
-				"tags": [
-					"Action Codes"
-				],
-				"security": [
-					{
-						"jwt": [
-							"manager",
-							"admin"
-						]
-					}
-				],
-				"parameters": [
-					{
-						"description": "The UUID of the action code to delete.",
-						"in": "path",
-						"name": "id",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
 			}
 		}
 	},

@@ -1,19 +1,19 @@
 import request from 'supertest';
 import { beforeAll, afterAll, describe, test, expect } from '@jest/globals';
-import { AppDataSource, connectDB } from '../src/Server/Database';
-import app from '../src/Server';
-import User from '../src/models/user';
-import { Organization } from '../src/models/organization';
-import { TimesheetEntry } from '../src/models/timesheetEntry';
-import { ActionCode } from '../src/models/actionCode';
-import { TimesheetHistory } from '../src/models/timesheetHistory';
-import { TimesheetHistoryActionEnum } from '../src/models/enums/timesheetHistory/TimesheetHistoryActionEnum';
-import { TimesheetHistoryEntityTypeEnum } from '../src/models/enums/timesheetHistory/TimesheetHistoryEntityTypeEnum';
-import { UserStatus } from '../src/models/enums/UserStatus';
+import { AppDataSource, connectDB } from '../Server/Database';
+import app from '../Server';
+import User from '../Entity/Users/User';
+import { Organization } from '../Entity/Company/Company';
+import { TimesheetEntry } from '../Entity/Timesheet/TimesheetEntry';
+import { ActionCode } from '../Entity/Timesheet/ActionCode';
+  import { TimesheetHistory } from '../Entity/Timesheet/TimesheetHistory';
+  import { TimesheetHistoryActionEnum } from '../Entity/Enums/TimesheetHistory/TimesheetHistoryActionEnum';
+  import { TimesheetHistoryEntityTypeEnum } from '../Entity/Enums/TimesheetHistory/TimesheetHistoryEntityTypeEnum';
+import { UserStatus } from '../Entity/Users/UserStatus';
 import { Repository } from 'typeorm';
 import { sign } from 'jsonwebtoken';
-import { TimesheetEntryDto } from '../src/dto/TimesheetDto';
-import { CreateActionCodeDto, UpdateActionCodeDto } from '../src/dto/ActionCodeDto';
+import { TimesheetEntryDto } from '../Dto/Timesheet/TimesheetDto';
+import { Role } from '../Entity/Users/Role';
 
 // Helper to generate JWT tokens
 const generateToken = (user: User, orgId: string, roles: string[]) => {
@@ -59,7 +59,7 @@ describe('TimesheetHistory Module', () => {
       email: 'employee@test.com',
       name: 'Test Employee',
       password: 'password',
-      role: 'employee',
+      role: Role.EMPLOYEE,
       status: UserStatus.ACTIVE,
       orgId: organization.id,
       organization: organization,
@@ -395,7 +395,7 @@ describe('TimesheetHistory Module', () => {
     };
 
     // Directly call the service method to test idempotency
-    const historyService = new (require('../src/services/TimesheetHistoryService').TimesheetHistoryService)();
+    const historyService = new (require('../services/TimesheetHistoryService').TimesheetHistoryService)();
     // Mock dependencies for historyService if needed, or get from container
     // This requires a more robust test setup for TypeDI services
 

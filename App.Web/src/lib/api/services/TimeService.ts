@@ -6,6 +6,7 @@ import type { Approval } from '../models/Approval';
 import type { Partial_TimesheetEntryDto_ } from '../models/Partial_TimesheetEntryDto_';
 import type { TimesheetEntry } from '../models/TimesheetEntry';
 import type { TimesheetEntryDto } from '../models/TimesheetEntryDto';
+import type { TimesheetHistorySummary } from '../models/TimesheetHistorySummary';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
@@ -130,6 +131,16 @@ export class TimeService {
             },
             body: requestBody,
             mediaType: 'application/json',
+        });
+    }
+    /**
+     * @returns TimesheetHistorySummary Ok
+     * @throws ApiError
+     */
+    public static getTimesheetHistory(): CancelablePromise<Array<TimesheetHistorySummary>> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/time/history',
         });
     }
 }

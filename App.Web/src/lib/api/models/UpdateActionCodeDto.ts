@@ -2,4 +2,4 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type RegisterResponse = Record<string, any>;
+export type UpdateActionCodeDto = Record<string, any>;

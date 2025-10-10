@@ -5,7 +5,7 @@ import { TimesheetHistoryEntityTypeEnum } from '../../Entity/Enums/TimesheetHist
 import { Request as ExRequest } from 'express';
 import User from '../../Entity/Users/User';
 import { Service } from 'typedi';
-import { TimesheetHistory } from '../Entity/TimesheetHistory';
+import { TimesheetHistory } from '../../Entity/Timesheet/TimesheetHistory';
 
 @Route('/api/v1/timesheet-history')
 @Tags('Timesheet History')

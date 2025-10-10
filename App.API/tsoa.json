@@ -1,7 +1,7 @@
 {
-  "entryFile": "src/index.ts",
+  "entryFile": "index.ts",
   "noImplicitAdditionalProperties": "throw",
-  "controllerPathGlobs": ["src/controllers/**/*.ts"],
+  "controllerPathGlobs": ["Controllers/**/*.ts"],
   "spec": {
     "outputDirectory": ".",
     "specVersion": 3,
@@ -27,11 +27,11 @@
     "schemes": ["http", "https"]
   },
   "routes": {
-    "routesDir": "src/routes/generated",
-    "authenticationModule": "./src/config/auth.ts"
+    "routesDir": "Routes/generated",
+    "authenticationModule": "./Config/Auth.ts"
   },
   "compilerOptions": {
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
       "@/*": ["*"]
     }

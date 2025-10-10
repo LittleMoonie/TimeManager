@@ -2,4 +2,4 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type UserStatus = Record<string, any>;
+export type TimesheetHistorySummary = Record<string, any>;

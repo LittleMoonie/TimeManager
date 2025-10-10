@@ -9,6 +9,12 @@ export default class ActiveSession extends BaseEntity {
   @Column({ type: 'text', nullable: false })
   token!: string;
 
+  @Column({ type: 'text', nullable: true })
+  refreshToken?: string;
+
+  @Column({ type: 'timestamp with time zone', nullable: true })
+  expiresAt?: Date;
+
   @Column({ type: 'uuid', nullable: false })
   userId!: string;
 

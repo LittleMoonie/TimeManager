@@ -1,27 +1,28 @@
 
 import { Request } from 'express';
-import { AppDataSource } from '../Server/Database';
 import User from '../Entity/Users/User';
-import { getAuthUser } from '../Utils/Auth';
+import { AuthenticationService } from '../Service/AuthenticationService/AuthenticationService';
 
 export async function expressAuthentication(
   request: Request,
   securityName: string,
   scopes: string[] = []
 ): Promise<User> {
-  const authUser = getAuthUser(request);
+  const token = request.headers.authorization?.replace('Bearer ', '');
 
-  if (!authUser) {
-    throw new Error('No token provided or authentication failed');
+  if (!token) {
+    throw new Error('No token provided');
   }
 
   try {
-    const userRepository = AppDataSource.getRepository(User);
-    const user = await userRepository.findOne({ where: { id: authUser.id } });
+    const authenticationService = new AuthenticationService();
+    const authResponse = await authenticationService.getCurrentUser(token);
 
-    if (!user) {
-      throw new Error('User not found');
+    if (!authResponse.success || !authResponse.user) {
+      throw new Error(authResponse.msg || 'Authentication failed');
     }
+
+    const user = authResponse.user as User;
 
     // Check scopes (roles)
     if (scopes.length > 0 && !scopes.includes(user.role)) {

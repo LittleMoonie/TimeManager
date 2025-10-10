@@ -4,6 +4,7 @@ import { BaseEntity } from '../BaseEntity';
 import { Organization } from './Company';
 import User from '../Users/User';
 
+@Entity()
 export class Team extends BaseEntity {
   @Column({ type: 'uuid' })
   orgId!: string;
@@ -34,7 +35,7 @@ export class TeamMember extends BaseEntity {
   @Column({ type: 'varchar', length: 50, default: 'member' })
   role!: string;
 
-  @ManyToOne(() => User, (user) => user.teamMembership, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => User, (user) => user.id, { onDelete: 'RESTRICT' }) // Assuming user.id is the back-reference
   @JoinColumn({ name: 'userId' })
   user!: User;
 

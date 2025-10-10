@@ -2,4 +2,4 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type LoginUserRequest = Record<string, any>;
+export type RegisterDto = Record<string, any>;

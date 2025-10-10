@@ -2,4 +2,4 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type UserStatus = Record<string, any>;
+export type RolePermission = Record<string, any>;

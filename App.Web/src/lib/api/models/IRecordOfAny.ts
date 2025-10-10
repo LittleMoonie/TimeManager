@@ -2,4 +2,4 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type AuthResponse = Record<string, any>;
+export type IRecordOfAny = Record<string, any>;

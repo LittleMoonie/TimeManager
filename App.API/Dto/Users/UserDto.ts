@@ -2,34 +2,7 @@
  * User Data Transfer Objects for API requests and responses
  */
 
-
 import { IsEmail, IsString, IsNotEmpty } from 'class-validator';
-
-export class RegisterUserRequest {
-  @IsEmail()
-  email!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  name!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  password!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  orgName!: string;
-}
-
-export class LoginUserRequest {
-  @IsEmail()
-  email!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  password!: string;
-}
 
 export class UserResponse {
   id!: string;
@@ -39,11 +12,15 @@ export class UserResponse {
   role!: string;
   status!: string;
   createdAt!: Date;
+  phone?: string;
+  lastLogin?: Date;
 }
 
 export class AuthResponse {
   success!: boolean;
   token?: string;
+  refreshToken?: string;
+  expiresAt?: Date;
   user?: UserResponse;
   msg?: string;
 }

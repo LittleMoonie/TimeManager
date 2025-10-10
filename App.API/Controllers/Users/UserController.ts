@@ -1,259 +1,201 @@
-import { getAuthUser } from '../../Utils/Auth';
 import logger from '../../Utils/Logger';
-import bcrypt from 'bcryptjs';
-import { Body, Controller, Post, Route, Tags, Response, SuccessResponse, Security, Request, Get, Path } from 'tsoa';
-import jwt from 'jsonwebtoken';
+import { Body, Controller, Post, Route, Tags, Response, SuccessResponse, Security, Request, Get, Path, Put, Delete } from 'tsoa';
 import { Request as ExpressRequest } from 'express';
 import { validate } from 'class-validator';
 
-import ActiveSession from '../../Entity/Users/ActiveSession';
 import User from '../../Entity/Users/User';
-import { Organization } from '../../Entity/Company/Company';
-import { AppDataSource } from '../../Server/Database';
 import {
-  RegisterUserRequest,
-  LoginUserRequest,
-  RegisterResponse,
-  AuthResponse,
   ApiResponse,
   UserResponse,
 } from '../../Dto/Users/UserDto';
 import { UserService } from '../../Service/User/UserService';
+import { AuthenticationService } from '../../Service/AuthenticationService/AuthenticationService';
+import { CreateUserDto } from '../../Dto/Users/CreateUserDto';
+import { UpdateUserDto } from '../../Dto/Users/UpdateUserDto';
+import { Role } from '../../Entity/Users/Role';
+import { UserStatus } from '../../Entity/Users/UserStatus';
 
 @Route('users')
 @Tags('Users')
 export class UserController extends Controller {
-  private getAuthUser(request: ExpressRequest): { userId: string; orgId: string; role: string } {
-    if (!request.user) {
-      throw new Error("User not authenticated");
-    }
-    const user = request.user as User;
-    return {
-      userId: user.id,
-      orgId: user.orgId,
-      role: user.role,
-    };
+  private readonly authenticationService: AuthenticationService;
+  private readonly userService: UserService;
+
+  constructor() {
+    super();
+    this.authenticationService = new AuthenticationService();
+    this.userService = new UserService();
   }
 
-  /**
-   * Register a new user and organization
-   * @param requestBody User registration data
-   * @returns Registration result
-   */
-  @Post('/register')
-  @SuccessResponse('200', 'User registered successfully')
-  @Response<ApiResponse>('422', 'Validation error')
-  @Response<ApiResponse>('400', 'Email already exists')
-  @Response<ApiResponse>('500', 'Internal server error')
-  public async registerUser(@Body() requestBody: RegisterUserRequest): Promise<RegisterResponse> {
-    const registerUserRequest = new RegisterUserRequest();
-    registerUserRequest.email = requestBody.email;
-    registerUserRequest.name = requestBody.name;
-    registerUserRequest.password = requestBody.password;
-    registerUserRequest.orgName = requestBody.orgName;
 
-    const errors = await validate(registerUserRequest);
+
+  /**
+   * Create a new user (Admin/Manager only)
+   * @param requestBody User creation data
+   * @returns Created user
+   */
+  @Post('/')
+  @Security('jwt', ['admin', 'manager'])
+  @SuccessResponse('201', 'User created successfully')
+  @Response<ApiResponse>('400', 'Bad Request')
+  @Response<ApiResponse>('401', 'Authentication required')
+  @Response<ApiResponse>('403', 'Forbidden')
+  @Response<ApiResponse>('422', 'Validation error')
+  @Response<ApiResponse>('500', 'Internal server error')
+  public async createUser(@Body() requestBody: CreateUserDto, @Request() request: ExpressRequest): Promise<UserResponse> {
+    const createUserDto = new CreateUserDto();
+    Object.assign(createUserDto, requestBody);
+
+    const errors = await validate(createUserDto);
     if (errors.length > 0) {
       this.setStatus(422);
       throw new Error(`Validation error: ${errors.map(e => e.toString()).join(', ')}`);
     }
 
-    const { email, password, name, orgName } = requestBody;
-    const userRepository = AppDataSource.getRepository(User);
-    const orgRepository = AppDataSource.getRepository(Organization);
-
     try {
-      const existingUser = await userRepository.findOne({ where: { email } });
-      if (existingUser) {
-        this.setStatus(400);
-        return {
-          success: false,
-          msg: 'Email already exists'
-        };
+      if (!request.user) {
+        this.setStatus(401);
+        throw new Error('User not authenticated');
       }
-
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      const organization = orgRepository.create({ name: orgName });
-      const savedOrg = await orgRepository.save(organization);
-
-      const newUser = userRepository.create({
-        name,
-        email,
-        password: hashedPassword,
-        organization: savedOrg,
-        role: 'admin',
-        orgId: savedOrg.id,
-      });
-      const savedUser = await userRepository.save(newUser);
-
+      const { id: userId, orgId, role } = request.user;
+      const newUser = await this.userService.createUser(requestBody, userId, role);
+      this.setStatus(201);
       return {
-        success: true,
-        userID: savedUser.id,
-        msg: 'The user was successfully registered',
+        id: newUser.id,
+        email: newUser.email,
+        name: newUser.name,
+        orgId: newUser.orgId,
+        role: newUser.role as Role  ,
+        status: newUser.status as UserStatus,
+        createdAt: newUser.createdAt,
       };
-    } catch (err) {
-      logger.error('❌ Register error:', err);
-      this.setStatus(500);
-      throw new Error('Internal server error');
+    } catch (err: any) {
+      logger.error('❌ Create user error:', err);
+      this.setStatus(err.message.includes('exists') || err.message.includes('Organization not found') ? 400 : 500);
+      throw new Error(err.message);
     }
   }
 
   /**
-   * Login user and get JWT token
-   * @param requestBody User login credentials
-   * @returns Authentication result with JWT token
+   * Get user by ID
+   * @param id The user's ID
+   * @returns User data
    */
-  @Post('/login')
-  @SuccessResponse('200', 'User logged in successfully')
-  @Response<ApiResponse>('422', 'Validation error')
-  @Response<ApiResponse>('401', 'Wrong credentials')
+  @Get('/{id}')
+  @Security('jwt', ['admin', 'manager', 'employee'])
+  @SuccessResponse('200', 'User retrieved successfully')
+  @Response<ApiResponse>('401', 'Authentication required')
+  @Response<ApiResponse>('403', 'Forbidden')
+  @Response<ApiResponse>('404', 'User not found')
   @Response<ApiResponse>('500', 'Internal server error')
-  public async loginUser(@Body() requestBody: LoginUserRequest): Promise<AuthResponse> {
-    const loginUserRequest = new LoginUserRequest();
-    loginUserRequest.email = requestBody.email;
-    loginUserRequest.password = requestBody.password;
-
-    const errors = await validate(loginUserRequest);
-    if (errors.length > 0) {
-      this.setStatus(422);
-      throw new Error(`Validation error: ${errors.map(e => e.toString()).join(', ')}`);
-    }
-
-    const { email, password } = requestBody;
-    const userRepository = AppDataSource.getRepository(User);
-    const activeSessionRepository = AppDataSource.getRepository(ActiveSession);
-
+  public async getUser(@Path() id: string, @Request() request: ExpressRequest): Promise<UserResponse> {
     try {
-      const user = await userRepository.findOne({ where: { email } });
-      if (!user?.password) {
+      if (!request.user) {
         this.setStatus(401);
-        return {
-          success: false,
-          msg: 'Wrong credentials'
-        };
+        throw new Error('User not authenticated');
+      }
+      const { id: actingUserId, orgId, role: actingUserRole } = request.user;
+      
+      // Allow employee to get their own profile
+      if (actingUserRole === Role.EMPLOYEE && actingUserId !== id) {
+        this.setStatus(403);
+        throw new Error('Forbidden: Employees can only view their own profile');
       }
 
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        this.setStatus(401);
-        return {
-          success: false,
-          msg: 'Wrong credentials'
-        };
+      const user = await this.userService.getUserById(id, orgId);
+      if (!user) {
+        this.setStatus(404);
+        throw new Error('User not found');
       }
-
-      if (!process.env.SECRET) {
-        throw new Error('SECRET not provided');
-      }
-
-      const token = jwt.sign(
-        { id: user.id, email: user.email, orgId: user.orgId, role: user.role },
-        process.env.SECRET,
-        { expiresIn: 86400 } // 1 day
-      );
-
-      await activeSessionRepository.save({ userId: user.id, token });
-
-      const userResponse: UserResponse = {
+      return {
         id: user.id,
         email: user.email,
         name: user.name,
         orgId: user.orgId,
-        role: user.role,
+        role: user.role as Role,
         status: user.status,
-        createdAt: user.createdAt
+        createdAt: user.createdAt,
       };
-
-      return {
-        success: true,
-        token,
-        user: userResponse
-      };
-    } catch (err) {
-      logger.error('❌ Login error:', err);
-      this.setStatus(500);
-      throw new Error('Internal server error');
+    } catch (err: any) {
+      logger.error('❌ Get user error:', err);
+      this.setStatus(err.message.includes('Forbidden') ? 403 : 500);
+      throw new Error(err.message);
     }
   }
 
   /**
-   * Logout user and invalidate token
-   * @param request Express request object containing headers
-   * @returns Logout result
+   * Update user by ID (Admin/Manager only)
+   * @param id The user's ID
+   * @param requestBody User update data
+   * @returns Updated user data
    */
-  @Post('/logout')
-  @Security('jwt')
-  @SuccessResponse('200', 'User logged out successfully')
+  @Put('/{id}')
+  @Security('jwt', ['admin', 'manager'])
+  @SuccessResponse('200', 'User updated successfully')
+  @Response<ApiResponse>('400', 'Bad Request')
   @Response<ApiResponse>('401', 'Authentication required')
+  @Response<ApiResponse>('403', 'Forbidden')
+  @Response<ApiResponse>('404', 'User not found')
+  @Response<ApiResponse>('422', 'Validation error')
   @Response<ApiResponse>('500', 'Internal server error')
-  public async logoutUser(@Request() request: ExpressRequest): Promise<ApiResponse> {
+  public async updateUser(@Path() id: string, @Body() requestBody: UpdateUserDto, @Request() request: ExpressRequest): Promise<UserResponse> {
+    const updateUserDto = new UpdateUserDto();
+    Object.assign(updateUserDto, requestBody);
+
+    const errors = await validate(updateUserDto);
+    if (errors.length > 0) {
+      this.setStatus(422);
+      throw new Error(`Validation error: ${errors.map(e => e.toString()).join(', ')}`);
+    }
+
     try {
-      const token = request.headers.authorization?.replace('Bearer ', '') || request.body?.token;
-      
-      if (!token) {
+      if (!request.user) {
         this.setStatus(401);
-        return {
-          success: false,
-          msg: 'No token provided'
-        };
+        throw new Error('User not authenticated');
       }
-
-      const activeSessionRepository = AppDataSource.getRepository(ActiveSession);
-      await activeSessionRepository.delete({ token });
-
+      const { id: actingUserId, orgId, role: actingUserRole } = request.user;
+      const updatedUser = await this.userService.updateUser(id, requestBody, actingUserId, actingUserRole, orgId);
       return {
-        success: true,
-        msg: 'User logged out successfully'
+        id: updatedUser.id,
+        email: updatedUser.email,
+        name: updatedUser.name,
+        orgId: updatedUser.orgId,
+        role: updatedUser.role as Role,
+        status: updatedUser.status,
+        createdAt: updatedUser.createdAt,
       };
-    } catch (err) {
-      logger.error('❌ Logout error:', err);
-      this.setStatus(500);
-      throw new Error('Internal server error');
+    } catch (err: any) {
+      logger.error('❌ Update user error:', err);
+      this.setStatus(err.message.includes('not found') ? 404 : err.message.includes('Manager cannot change') ? 403 : 500);
+      throw new Error(err.message);
     }
   }
 
   /**
-   * Get current user
-   * @param request Express request object containing headers
-   * @returns Current user
+   * Delete user by ID (Admin/Manager only)
+   * @param id The user's ID
+   * @returns Success message
    */
-  @Get('/current')
-  @Security('jwt')
-  @SuccessResponse('200', 'Current user retrieved successfully')
+  @Delete('/{id}')
+  @Security('jwt', ['admin', 'manager'])
+  @SuccessResponse('200', 'User deleted successfully')
   @Response<ApiResponse>('401', 'Authentication required')
+  @Response<ApiResponse>('403', 'Forbidden')
+  @Response<ApiResponse>('404', 'User not found')
   @Response<ApiResponse>('500', 'Internal server error')
-  public async getCurrentUser(@Request() request: ExpressRequest): Promise<AuthResponse> {
+  public async deleteUser(@Path() id: string, @Request() request: ExpressRequest): Promise<ApiResponse> {
     try {
-      const authenticatedUser = this.getAuthUser(request);
-      const userRepository = AppDataSource.getRepository(User);
-      const user = await userRepository.findOne({ where: { id: authenticatedUser.userId } });
-
-      if (!user) {
-        logger.error('❌ User not found for authenticated ID:', authenticatedUser.userId);
+      if (!request.user) {
         this.setStatus(401);
-        return {
-          success: false,
-          msg: 'User not found'
-        };
+        throw new Error('User not authenticated');
       }
-
-      return {
-        success: true,
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          createdAt: user.createdAt,
-          status: user.status,
-          role: user.role,
-          orgId: user.orgId,
-        }
-      };
-    } catch (err) {
-      logger.error('❌ Get current user error:', err);
-      this.setStatus(500);
-      throw new Error('Internal server error');
+      const { id: actingUserId, orgId, role: actingUserRole } = request.user;
+      await this.userService.deleteUser(id, actingUserId, actingUserRole, orgId);
+      return { success: true, msg: 'User deleted successfully' };
+    } catch (err: any) {
+      logger.error('❌ Delete user error:', err);
+      this.setStatus(err.message.includes('not found') ? 404 : err.message.includes('Manager cannot delete') ? 403 : 500);
+      throw new Error(err.message);
     }
   }
 
@@ -266,14 +208,17 @@ export class UserController extends Controller {
   @Response<ApiResponse>('500', 'Internal server error')
   public async grantWeekendPermit(@Path() id: string, @Request() request: ExpressRequest): Promise<ApiResponse> {
     try {
-      const { userId: approverId, orgId, role } = this.getAuthUser(request);
-      if (role !== 'manager' && role !== 'admin') {
+      if (!request.user) {
+        this.setStatus(401);
+        throw new Error('User not authenticated');
+      }
+      const { id: approverId, orgId, role } = request.user;
+      if (role !== Role.MANAGER && role !== Role.ADMIN) {
         this.setStatus(403);
         return { success: false, msg: 'Forbidden: Only managers and admins can grant weekend permits' };
       }
 
-      const userService = new UserService();
-      await userService.grantWeekendPermit(id, approverId, orgId);
+      await this.userService.grantWeekendPermit(id, approverId, orgId);
 
       return { success: true, msg: 'Weekend permit granted successfully' };
     } catch (err) {
@@ -292,14 +237,17 @@ export class UserController extends Controller {
   @Response<ApiResponse>('500', 'Internal server error')
   public async retroEdit(@Path() id: string, @Body() changes: Record<string, any>, @Request() request: ExpressRequest): Promise<ApiResponse> {
     try {
-      const { userId: approverId, orgId, role } = this.getAuthUser(request);
-      if (role !== 'manager' && role !== 'admin') {
+      if (!request.user) {
+        this.setStatus(401);
+        throw new Error('User not authenticated');
+      }
+      const { id: approverId, orgId, role } = request.user;
+      if (role !== Role.MANAGER && role !== Role.ADMIN) {
         this.setStatus(403);
         return { success: false, msg: 'Forbidden: Only managers and admins can perform retroactive edits' };
       }
 
-      const userService = new UserService();
-      await userService.retroEdit(id, approverId, orgId, changes);
+      await this.userService.retroEdit(id, approverId, orgId, changes);
 
       return { success: true, msg: 'Retroactive edit applied successfully' };
     } catch (err) {

@@ -3,91 +3,127 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { ApiResponse } from '../models/ApiResponse';
-import type { AuthResponse } from '../models/AuthResponse';
-import type { LoginUserRequest } from '../models/LoginUserRequest';
+import type { CreateUserDto } from '../models/CreateUserDto';
 import type { Record_string_any_ } from '../models/Record_string_any_';
-import type { RegisterResponse } from '../models/RegisterResponse';
-import type { RegisterUserRequest } from '../models/RegisterUserRequest';
+import type { UpdateUserDto } from '../models/UpdateUserDto';
+import type { UserResponse } from '../models/UserResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class UsersService {
     /**
-     * Register a new user and organization
-     * @returns RegisterResponse User registered successfully
+     * Create a new user (Admin/Manager only)
+     * @returns UserResponse User created successfully
      * @throws ApiError
      */
-    public static registerUser({
+    public static createUser({
         requestBody,
     }: {
         /**
-         * User registration data
+         * User creation data
          */
-        requestBody: RegisterUserRequest,
-    }): CancelablePromise<RegisterResponse> {
+        requestBody: CreateUserDto,
+    }): CancelablePromise<UserResponse> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/users/register',
+            url: '/users',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                400: `Email already exists`,
-                422: `Validation error`,
-                500: `Internal server error`,
-            },
-        });
-    }
-    /**
-     * Login user and get JWT token
-     * @returns AuthResponse User logged in successfully
-     * @throws ApiError
-     */
-    public static loginUser({
-        requestBody,
-    }: {
-        /**
-         * User login credentials
-         */
-        requestBody: LoginUserRequest,
-    }): CancelablePromise<AuthResponse> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/users/login',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                401: `Wrong credentials`,
-                422: `Validation error`,
-                500: `Internal server error`,
-            },
-        });
-    }
-    /**
-     * Logout user and invalidate token
-     * @returns ApiResponse User logged out successfully
-     * @throws ApiError
-     */
-    public static logoutUser(): CancelablePromise<ApiResponse> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/users/logout',
-            errors: {
+                400: `Bad Request`,
                 401: `Authentication required`,
+                403: `Forbidden`,
+                422: `Validation error`,
                 500: `Internal server error`,
             },
         });
     }
     /**
-     * Get current user
-     * @returns AuthResponse Current user retrieved successfully
+     * Get user by ID
+     * @returns UserResponse User retrieved successfully
      * @throws ApiError
      */
-    public static getCurrentUser(): CancelablePromise<AuthResponse> {
+    public static getUser({
+        id,
+    }: {
+        /**
+         * The user's ID
+         */
+        id: string,
+    }): CancelablePromise<UserResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/users/current',
+            url: '/users/{id}',
+            path: {
+                'id': id,
+            },
             errors: {
                 401: `Authentication required`,
+                403: `Forbidden`,
+                404: `User not found`,
+                500: `Internal server error`,
+            },
+        });
+    }
+    /**
+     * Update user by ID (Admin/Manager only)
+     * @returns UserResponse User updated successfully
+     * @throws ApiError
+     */
+    public static updateUser({
+        id,
+        requestBody,
+    }: {
+        /**
+         * The user's ID
+         */
+        id: string,
+        /**
+         * User update data
+         */
+        requestBody: UpdateUserDto,
+    }): CancelablePromise<UserResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/users/{id}',
+            path: {
+                'id': id,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Bad Request`,
+                401: `Authentication required`,
+                403: `Forbidden`,
+                404: `User not found`,
+                422: `Validation error`,
+                500: `Internal server error`,
+            },
+        });
+    }
+    /**
+     * Delete user by ID (Admin/Manager only)
+     * @returns ApiResponse User deleted successfully
+     * @throws ApiError
+     */
+    public static deleteUser({
+        id,
+    }: {
+        /**
+         * The user's ID
+         */
+        id: string,
+    }): CancelablePromise<ApiResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/users/{id}',
+            path: {
+                'id': id,
+            },
+            errors: {
+                401: `Authentication required`,
+                403: `Forbidden`,
+                404: `User not found`,
                 500: `Internal server error`,
             },
         });

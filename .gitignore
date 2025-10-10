@@ -51,6 +51,7 @@ jspm_packages/
 *.tgz
 
 # Yarn Integrity file
+.yarn/
 .yarn-integrity
 
 # parcel-bundler cache (https://parceljs.org/)
