@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { UsersService } from '@/lib/api'
-import type { LoginForm, User } from '@/types'
+import type { LoginUserRequest } from '@/lib/api'
 
 export const useAuth = () => {
   const queryClient = useQueryClient()
@@ -13,8 +13,8 @@ export const useAuth = () => {
   } = useQuery({
     queryKey: ['auth', 'user'],
     queryFn: async () => {
-      // This needs to be implemented in the backend
-      return {} as User;
+      const response = await UsersService.getCurrentUser()
+      return response.user
     },
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -39,7 +39,7 @@ export const useAuth = () => {
     },
   })
 
-  const login = (credentials: LoginForm) => {
+  const login = (credentials: LoginUserRequest) => {
     return loginMutation.mutateAsync({ requestBody: credentials })
   }
 

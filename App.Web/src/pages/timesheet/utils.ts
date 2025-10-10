@@ -1,7 +1,6 @@
 import { addDays, format, isAfter, isBefore, isSameDay, parseISO, set, startOfWeek } from 'date-fns'
-import type { CellEntry } from '@/types'
 import { enUS } from 'date-fns/locale'
-import type { ISODate } from '@/types'
+import { TimesheetEntry, TimesheetEntryDto } from '@/lib/api'
 
 const defaultLocale = typeof navigator !== 'undefined' ? navigator.language : 'en-US'
 
@@ -23,7 +22,7 @@ export const getWeekStart = (reference: Date) => startOfWeek(reference, { weekSt
 export const getWeekDates = (weekStart: Date) =>
   Array.from({ length: 7 }, (_, index) => addDays(weekStart, index))
 
-export const toISODate = (date: Date): ISODate => format(date, 'yyyy-MM-dd')
+export const toISODate = (date: Date): string => format(date, 'yyyy-MM-dd')
 
 export const formatDayLabel = (date: Date) => format(date, 'EEE dd', { locale: getDateFnsLocale() })
 
@@ -85,7 +84,7 @@ export const parseDuration = (input: string): number | null => {
   return null
 }
 
-export const isDateInWeek = (dateISO: ISODate, weekStart: Date) => {
+export const isDateInWeek = (dateISO: string, weekStart: Date) => {
   const date = parseISO(dateISO)
   const start = weekStart
   const end = addDays(weekStart, 6)
@@ -100,6 +99,15 @@ export const getWeekDeadline = (weekStart: Date) =>
 
 export const isPastDeadline = (weekStart: Date, now: Date = new Date()) =>
   now >= getWeekDeadline(weekStart)
+
+export const isPastWeek = (weekStart: Date, now: Date = new Date()) =>
+  now >= getWeekStart(now) && isBefore(weekStart, getCurrentWeekStart())
+
+export const isAttentionRequired = (timesheet: TimesheetEntryDto) =>
+  timesheet.status === 'attention-required'
+
+export const getCurrentWeekStart = () => startOfWeek(new Date(), { weekStartsOn: 6 })
+
 
 const TIME_24H_PATTERN = /^([01]?\d|2[0-3]):([0-5]\d)$/
 const TIME_12H_PATTERN = /^(0?[1-9]|1[0-2]):([0-5]\d)\s*(AM|PM)$/i
@@ -218,7 +226,7 @@ export const parseTimeToMinutes = (value: string): number | null => {
   return hours * 60 + minutes
 }
 
-type Interval = NonNullable<CellEntry['intervals']>[number]
+type Interval = NonNullable<TimesheetEntry['intervals']>[number]
 
 export type IntervalAnalysis =
   | { kind: 'empty' }

@@ -1,5 +1,5 @@
 
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, Index, JoinColumn } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
 import { TimesheetEntry } from './timesheetEntry';
 import User from './user';
@@ -11,11 +11,20 @@ export enum ApprovalStatus {
 }
 
 @Entity()
+@Index(['entryId'])
 export class Approval extends BaseEntity {
-  @ManyToOne(() => TimesheetEntry, (entry) => entry.approvals)
+  @Column({ type: 'uuid' })
+  entryId!: string;
+
+  @ManyToOne(() => TimesheetEntry, (entry) => entry.approvals, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'entryId' })
   entry!: TimesheetEntry;
 
-  @ManyToOne(() => User)
+  @Column({ type: 'uuid' })
+  approverId!: string;
+
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'approverId' })
   approver!: User;
 
   @Column({ type: 'enum', enum: ApprovalStatus, default: ApprovalStatus.PENDING })

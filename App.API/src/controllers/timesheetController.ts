@@ -3,38 +3,34 @@ import { Body, Controller, Get, Post, Put, Delete, Route, Tags, Path, Security, 
 import { Request as ExpressRequest } from 'express';
 import { TimesheetEntry } from '../models/timesheetEntry';
 import { TimesheetService } from '../services/timesheetService';
+import User from '../models/user';
+import { Approval, ApprovalStatus } from '../models/approval';
 
-interface TimesheetEntryDto {
-  actionCodeId: string;
-  workMode: 'office' | 'remote' | 'hybrid';
-  country: string;
-  startedAt?: Date;
-  endedAt?: Date;
-  durationMin: number;
-  note?: string;
-  day: Date;
-}
+import { TimesheetEntryDto, TimesheetHistorySummary } from '../dto/TimesheetDto';
 
 @Route('api/v1/time')
 @Tags('Time')
 export class TimesheetController extends Controller {
   private timesheetService = new TimesheetService();
 
-  private getAuthUser(request: ExpressRequest): { userId: string; orgId: string } {
-    // This is a placeholder for the actual auth logic.
-    // We will implement this properly later.
+  private getAuthUser(request: ExpressRequest): { userId: string; orgId: string; role: string } {
+    if (!request.user) {
+      throw new Error("User not authenticated");
+    }
+    const user = request.user as User;
     return {
-      userId: request.user.id,
-      orgId: request.user.orgId,
+      userId: user.id,
+      orgId: user.orgId,
+      role: user.role,
     };
   }
 
   @Security('jwt')
   @Get('/')
-  public async getWeekTimesheet(@Request() request: ExpressRequest, @Query() week: string): Promise<TimesheetEntry[]> {
+  public async getWeekTimesheet(@Request() request: ExpressRequest, @Query() week: string, @Query() page: number = 1, @Query() limit: number = 10): Promise<{ data: TimesheetEntry[]; total: number; page: number; lastPage: number }> {
     const { userId, orgId } = this.getAuthUser(request);
     const weekStart = new Date(week);
-    return this.timesheetService.listByWeek({ userId, orgId, weekStart });
+    return this.timesheetService.listByWeek({ userId, orgId, weekStart, page, limit });
   }
 
   @Security('jwt')
@@ -56,5 +52,32 @@ export class TimesheetController extends Controller {
   public async deleteTimeEntry(@Path() id: string, @Request() request: ExpressRequest): Promise<void> {
     const { userId, orgId } = this.getAuthUser(request);
     return this.timesheetService.delete(id, { userId, orgId });
+  }
+
+  @Security('jwt', ['manager', 'admin'])
+  @Post('/{id}/approve')
+  public async approveTimeEntry(@Path() id: string, @Request() request: ExpressRequest): Promise<Approval | null> {
+    const { userId, orgId, role } = this.getAuthUser(request);
+    if (role !== 'manager' && role !== 'admin') {
+      throw new Error("Forbidden: Only managers and admins can approve timesheet entries");
+    }
+    return this.timesheetService.approve(id, userId, orgId);
+  }
+
+  @Security('jwt', ['manager', 'admin'])
+  @Post('/{id}/reject')
+  public async rejectTimeEntry(@Path() id: string, @Body() body: { reason?: string }, @Request() request: ExpressRequest): Promise<Approval | null> {
+    const { userId, orgId, role } = this.getAuthUser(request);
+    if (role !== 'manager' && role !== 'admin') {
+      throw new Error("Forbidden: Only managers and admins can reject timesheet entries");
+    }
+    return this.timesheetService.reject(id, userId, orgId, body.reason);
+  }
+
+  @Security('jwt')
+  @Get('/history')
+  public async getTimesheetHistory(@Request() request: ExpressRequest): Promise<TimesheetHistorySummary[]> {
+    const { userId, orgId } = this.getAuthUser(request);
+    return this.timesheetService.listHistory({ userId, orgId });
   }
 }

@@ -2,7 +2,7 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
 import User from './user';
-import { Team } from './team';
+import { Team, TeamMember } from './team';
 import { ActionCode } from './actionCode';
 import { TimesheetEntry } from './timesheetEntry';
 
@@ -22,4 +22,7 @@ export class Organization extends BaseEntity {
 
   @OneToMany(() => TimesheetEntry, (entry) => entry.organization)
   timesheetEntries!: TimesheetEntry[];
+
+  @OneToMany(() => TeamMember, (teamMember) => teamMember.organization)
+  teamMembers!: TeamMember[];
 }

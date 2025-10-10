@@ -21,16 +21,23 @@ const expressAuthenticationRecasted = expressAuthentication as (req: ExRequest, 
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
+    "UserStatus": {
+        "dataType": "refEnum",
+        "enums": ["ACTIVE","INACTIVE","SUSPENDED","PENDING"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "User": {
         "dataType": "refObject",
         "properties": {
             "id": {"dataType":"string","required":true},
             "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
             "orgId": {"dataType":"string","required":true},
             "email": {"dataType":"string","required":true},
             "name": {"dataType":"string","required":true},
             "password": {"dataType":"string","required":true},
             "role": {"dataType":"string","required":true},
+            "status": {"ref":"UserStatus","required":true},
             "organization": {"ref":"Organization","required":true},
             "teamMembership": {"dataType":"array","array":{"dataType":"refObject","ref":"TeamMember"},"required":true},
         },
@@ -42,11 +49,13 @@ const models: TsoaRoute.Models = {
         "properties": {
             "id": {"dataType":"string","required":true},
             "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
             "name": {"dataType":"string","required":true},
             "users": {"dataType":"array","array":{"dataType":"refObject","ref":"User"},"required":true},
             "teams": {"dataType":"array","array":{"dataType":"refObject","ref":"Team"},"required":true},
             "actionCodes": {"dataType":"array","array":{"dataType":"refObject","ref":"ActionCode"},"required":true},
             "timesheetEntries": {"dataType":"array","array":{"dataType":"refObject","ref":"TimesheetEntry"},"required":true},
+            "teamMembers": {"dataType":"array","array":{"dataType":"refObject","ref":"TeamMember"},"required":true},
         },
         "additionalProperties": true,
     },
@@ -56,6 +65,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "id": {"dataType":"string","required":true},
             "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
             "name": {"dataType":"string","required":true},
             "organization": {"ref":"Organization","required":true},
             "members": {"dataType":"array","array":{"dataType":"refObject","ref":"TeamMember"},"required":true},
@@ -68,9 +78,11 @@ const models: TsoaRoute.Models = {
         "properties": {
             "userId": {"dataType":"string","required":true},
             "teamId": {"dataType":"string","required":true},
+            "orgId": {"dataType":"string","required":true},
             "role": {"dataType":"string","required":true},
             "user": {"ref":"User","required":true},
             "team": {"ref":"Team","required":true},
+            "organization": {"ref":"Organization","required":true},
         },
         "additionalProperties": true,
     },
@@ -85,6 +97,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "id": {"dataType":"string","required":true},
             "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
             "organization": {"ref":"Organization","required":true},
             "code": {"dataType":"string","required":true},
             "name": {"dataType":"string","required":true},
@@ -99,7 +112,10 @@ const models: TsoaRoute.Models = {
         "properties": {
             "id": {"dataType":"string","required":true},
             "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "userId": {"dataType":"string","required":true},
             "user": {"ref":"User","required":true},
+            "orgId": {"dataType":"string","required":true},
             "organization": {"ref":"Organization","required":true},
             "actionCode": {"ref":"ActionCode","required":true},
             "workMode": {"ref":"WorkMode","required":true},
@@ -129,7 +145,10 @@ const models: TsoaRoute.Models = {
         "properties": {
             "id": {"dataType":"string","required":true},
             "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "entryId": {"dataType":"string","required":true},
             "entry": {"ref":"TimesheetEntry","required":true},
+            "approverId": {"dataType":"string","required":true},
             "approver": {"ref":"User","required":true},
             "status": {"ref":"ApprovalStatus","required":true},
             "reason": {"dataType":"string"},
@@ -172,6 +191,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "id": {"dataType":"string","required":true},
             "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
             "user": {"ref":"User","required":true},
             "startDate": {"dataType":"datetime","required":true},
             "endDate": {"dataType":"datetime","required":true},
@@ -219,6 +239,9 @@ const models: TsoaRoute.Models = {
             "id": {"dataType":"string","required":true},
             "email": {"dataType":"string","required":true},
             "name": {"dataType":"string","required":true},
+            "orgId": {"dataType":"string","required":true},
+            "role": {"dataType":"string","required":true},
+            "status": {"dataType":"string","required":true},
             "createdAt": {"dataType":"datetime","required":true},
         },
         "additionalProperties": true,
@@ -242,6 +265,11 @@ const models: TsoaRoute.Models = {
             "password": {"dataType":"string","required":true},
         },
         "additionalProperties": true,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Record_string.any_": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{},"additionalProperties":{"dataType":"any"},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "HealthResponse": {
@@ -285,6 +313,8 @@ export function RegisterRoutes(app: Router) {
         const argsTimesheetController_getWeekTimesheet: Record<string, TsoaRoute.ParameterSchema> = {
                 request: {"in":"request","name":"request","required":true,"dataType":"object"},
                 week: {"in":"query","name":"week","required":true,"dataType":"string"},
+                page: {"default":1,"in":"query","name":"page","dataType":"double"},
+                limit: {"default":10,"in":"query","name":"limit","dataType":"double"},
         };
         app.get('/api/v1/time',
             authenticateMiddleware([{"jwt":[]}]),
@@ -411,6 +441,71 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsTimesheetController_approveTimeEntry: Record<string, TsoaRoute.ParameterSchema> = {
+                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.post('/api/v1/time/:id/approve',
+            authenticateMiddleware([{"jwt":["manager","admin"]}]),
+            ...(fetchMiddlewares<RequestHandler>(TimesheetController)),
+            ...(fetchMiddlewares<RequestHandler>(TimesheetController.prototype.approveTimeEntry)),
+
+            async function TimesheetController_approveTimeEntry(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsTimesheetController_approveTimeEntry, request, response });
+
+                const controller = new TimesheetController();
+
+              await templateService.apiHandler({
+                methodName: 'approveTimeEntry',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsTimesheetController_rejectTimeEntry: Record<string, TsoaRoute.ParameterSchema> = {
+                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+                body: {"in":"body","name":"body","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"reason":{"dataType":"string"}}},
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.post('/api/v1/time/:id/reject',
+            authenticateMiddleware([{"jwt":["manager","admin"]}]),
+            ...(fetchMiddlewares<RequestHandler>(TimesheetController)),
+            ...(fetchMiddlewares<RequestHandler>(TimesheetController.prototype.rejectTimeEntry)),
+
+            async function TimesheetController_rejectTimeEntry(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsTimesheetController_rejectTimeEntry, request, response });
+
+                const controller = new TimesheetController();
+
+              await templateService.apiHandler({
+                methodName: 'rejectTimeEntry',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsLeaveRequestController_getLeaveRequests: Record<string, TsoaRoute.ParameterSchema> = {
                 request: {"in":"request","name":"request","required":true,"dataType":"object"},
         };
@@ -444,6 +539,7 @@ export function RegisterRoutes(app: Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsLeaveRequestController_getLeaveRequest: Record<string, TsoaRoute.ParameterSchema> = {
                 id: {"in":"path","name":"id","required":true,"dataType":"string"},
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
         };
         app.get('/leave-requests/:id',
             authenticateMiddleware([{"jwt":[]}]),
@@ -508,6 +604,7 @@ export function RegisterRoutes(app: Router) {
         const argsLeaveRequestController_updateLeaveRequestStatus: Record<string, TsoaRoute.ParameterSchema> = {
                 id: {"in":"path","name":"id","required":true,"dataType":"string"},
                 body: {"in":"body","name":"body","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"status":{"ref":"LeaveRequestStatus","required":true}}},
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
         };
         app.put('/leave-requests/:id/status',
             authenticateMiddleware([{"jwt":[]}]),
@@ -617,6 +714,102 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'logoutUser',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: 200,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsUserController_getCurrentUser: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.get('/users/current',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(UserController)),
+            ...(fetchMiddlewares<RequestHandler>(UserController.prototype.getCurrentUser)),
+
+            async function UserController_getCurrentUser(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsUserController_getCurrentUser, request, response });
+
+                const controller = new UserController();
+
+              await templateService.apiHandler({
+                methodName: 'getCurrentUser',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: 200,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsUserController_grantWeekendPermit: Record<string, TsoaRoute.ParameterSchema> = {
+                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.post('/users/:id/weekend-permit',
+            authenticateMiddleware([{"jwt":["manager","admin"]}]),
+            ...(fetchMiddlewares<RequestHandler>(UserController)),
+            ...(fetchMiddlewares<RequestHandler>(UserController.prototype.grantWeekendPermit)),
+
+            async function UserController_grantWeekendPermit(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsUserController_grantWeekendPermit, request, response });
+
+                const controller = new UserController();
+
+              await templateService.apiHandler({
+                methodName: 'grantWeekendPermit',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: 200,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsUserController_retroEdit: Record<string, TsoaRoute.ParameterSchema> = {
+                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+                changes: {"in":"body","name":"changes","required":true,"ref":"Record_string.any_"},
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.post('/users/:id/retro-edit',
+            authenticateMiddleware([{"jwt":["manager","admin"]}]),
+            ...(fetchMiddlewares<RequestHandler>(UserController)),
+            ...(fetchMiddlewares<RequestHandler>(UserController.prototype.retroEdit)),
+
+            async function UserController_retroEdit(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsUserController_retroEdit, request, response });
+
+                const controller = new UserController();
+
+              await templateService.apiHandler({
+                methodName: 'retroEdit',
                 controller,
                 response,
                 next,

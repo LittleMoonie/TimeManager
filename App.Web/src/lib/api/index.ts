@@ -21,6 +21,7 @@ export { LeaveType } from './models/LeaveType';
 export type { LoginUserRequest } from './models/LoginUserRequest';
 export type { Organization } from './models/Organization';
 export { Partial_TimesheetEntryDto_ } from './models/Partial_TimesheetEntryDto_';
+export type { Record_string_any_ } from './models/Record_string_any_';
 export type { RegisterResponse } from './models/RegisterResponse';
 export type { RegisterUserRequest } from './models/RegisterUserRequest';
 export type { Team } from './models/Team';
@@ -29,6 +30,7 @@ export type { TimesheetEntry } from './models/TimesheetEntry';
 export type { TimesheetEntryDto } from './models/TimesheetEntryDto';
 export type { User } from './models/User';
 export type { UserResponse } from './models/UserResponse';
+export { UserStatus } from './models/UserStatus';
 export { WorkMode } from './models/WorkMode';
 
 export { LeaveRequestsService } from './services/LeaveRequestsService';

@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Alert, Box, Button, Paper, Skeleton, Stack } from '@mui/material'
+import { Alert, Box, Button, Paper, Skeleton, Stack, Pagination } from '@mui/material'
 import { History } from '@mui/icons-material'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { SegmentedControl } from '@/components/SegmentedControl'
 import { useActionCodes, useTimesheet, useTimesheetHistory } from '@/hooks/useTimesheet'
+import { useAuth } from '@/hooks/useAuth'
+  import { ActionCode, TimesheetEntry } from '@/lib/api'
 
 import {
   formatWeekRange,
@@ -17,7 +19,6 @@ import WeekGridView from './WeekGridView'
 import DayLogView from './DayLogView'
 import TimesheetHistoryPanel from './TimesheetHistoryPanel'
 import { AppBreadcrumbs } from '@/components/ui/Breadcrumbs'
-  import { ActionCode, ActionCodeId, ISODate, Timesheet } from '@/types'
 import { parseISO } from 'date-fns'
 import { addWeeks } from 'date-fns'
 import { isAfter } from 'date-fns'
@@ -26,7 +27,7 @@ import { isBefore } from 'date-fns'
 
 type ViewMode = 'week' | 'day'
 
-const formatDateList = (dates: ISODate[]) =>
+const formatDateList = (dates: string[]) =>
   dates
     .map(iso =>
       new Date(iso).toLocaleDateString(undefined, {
@@ -37,7 +38,7 @@ const formatDateList = (dates: ISODate[]) =>
     )
     .join(', ')
 
-const getBannerForTimesheet = (timesheet: Timesheet | undefined, weekStart: Date, now: Date) => {
+const getBannerForTimesheet = (timesheet: TimesheetEntry[] | undefined, weekStart: Date, now: Date) => {
   const deadline = getWeekDeadline(weekStart)
   const deadlineLabel = deadline.toLocaleTimeString(undefined, {
     hour: '2-digit',
@@ -49,31 +50,35 @@ const getBannerForTimesheet = (timesheet: Timesheet | undefined, weekStart: Date
     day: 'numeric',
   })
 
-  if (!timesheet) {
+  if (!timesheet || timesheet.length === 0) {
     return {
       severity: 'info' as const,
       message: `This week auto-sends ${deadlineDateLabel} at ${deadlineLabel}.`,
     }
   }
 
-  if (timesheet.status === 'attention-required' && timesheet.missingReasons?.length) {
+  const attentionRequiredEntries = timesheet.filter(entry => entry.status === 'attention-required')
+  if (attentionRequiredEntries.length > 0) {
+    const missingReasonsDates = attentionRequiredEntries.map(entry => entry.day)
     return {
       severity: 'warning' as const,
-      message: `Auto-send attempted Friday 6:00 PM. Action required for: ${formatDateList(timesheet.missingReasons)}.`,
+      message: `Auto-send attempted Friday 6:00 PM. Action required for: ${formatDateList(missingReasonsDates)}.`,
     }
   }
 
-  if (isPastDeadline(weekStart, now) && timesheet.status !== 'sent') {
+  const sentEntries = timesheet.filter(entry => entry.status === 'sent')
+  if (sentEntries.length > 0) {
+    const submittedAt = sentEntries[0].updatedAt // Assuming all entries for a week are submitted at the same time
+    return {
+      severity: 'success' as const,
+      message: `Week submitted on ${new Date(submittedAt ?? '').toLocaleString()}.`,
+    }
+  }
+
+  if (isPastDeadline(weekStart, now)) {
     return {
       severity: 'warning' as const,
       message: `Auto-send attempted Friday 6:00 PM. Review and supply any missing reasons.`,
-    }
-  }
-
-  if (timesheet.status === 'sent') {
-    return {
-      severity: 'success' as const,
-      message: `Week submitted on ${new Date(timesheet.submittedAt ?? '').toLocaleString()}.`,
     }
   }
 
@@ -88,7 +93,12 @@ const TimesheetPage = () => {
   const [selectedDate, setSelectedDate] = useState(() => new Date())
   const [now, setNow] = useState(() => new Date())
   const [historyOpen, setHistoryOpen] = useState(false)
-  const [codeIds, setCodeIds] = useState<ActionCodeId[]>([])
+  const [codeIds, setCodeIds] = useState<ActionCode['id'][]>([])
+  const [page, setPage] = useState(1)
+  const limit = 10
+
+  const { user } = useAuth()
+  const isManagerOrAdmin = user?.role === 'manager' || user?.role === 'admin'
 
   const weekStart = useMemo(() => getWeekStart(selectedDate), [selectedDate])
   const weekStartISO = toISODate(weekStart)
@@ -96,9 +106,16 @@ const TimesheetPage = () => {
   const actionCodesQuery = useActionCodes()
   const historyQuery = useTimesheetHistory()
   
-    const { timesheetQuery, createTimeEntry, updateTimeEntry, deleteTimeEntry, helpers } = useTimesheet(weekStartISO)
+  const timesheetHook = useTimesheet(weekStartISO, page, limit)
+  const timesheetQuery = timesheetHook?.timesheetQuery
+  const createTimeEntry = timesheetHook?.createTimeEntry
+  const updateTimeEntry = timesheetHook?.updateTimeEntry
+  const deleteTimeEntry = timesheetHook?.deleteTimeEntry
+  const approveTimeEntry = timesheetHook?.approveTimeEntry
+  const rejectTimeEntry = timesheetHook?.rejectTimeEntry
+  const helpers = timesheetHook?.helpers
 
-  const timesheet = timesheetQuery.data
+  const timesheet = timesheetQuery?.data?.data
   const currentWeekStart = getWeekStart(new Date())
 
   useEffect(() => {
@@ -114,15 +131,15 @@ const TimesheetPage = () => {
 
   useEffect(() => {
     if (!timesheet) return
-    setCodeIds((prev: ActionCodeId[]) => {
-      const existing = timesheet.entries.map((entry) => entry.actionCode.id)
+    setCodeIds((prev: ActionCode['id'][]) => {
+      const existing = timesheet.flatMap(entry => entry.actionCode.id)
       const set = new Set([...prev, ...existing])
       return Array.from(set)
     })  
   }, [timesheet])
 
   const actionCodes = useMemo(() => actionCodesQuery.data ?? [], [actionCodesQuery.data])
-  const actionCodeRows: ActionCode[] = useMemo(() => {
+  const actionCodeRows: ActionCode['id'][] = useMemo(() => {
     if (!actionCodes.length) return []
     return codeIds.map(
       codeId => actionCodes.find(code => code.id === codeId) ?? { id: codeId, name: codeId, code: codeId, type: 'billable' }
@@ -136,30 +153,44 @@ const TimesheetPage = () => {
 
   const weekDates = useMemo(() => getWeekDates(weekStart), [weekStart])
   const dailyTotals = useMemo(() => {
-    const totals: Record<ISODate, number> = {} as Record<ISODate, number>
+    const totals: Record<string, number> = {} as Record<string, number>
     if (!timesheet) return totals
 
     weekDates.forEach(date => {
-      const iso = toISODate(date) as ISODate
-      totals[iso] = timesheet.entries.reduce((total: number, entry) => {
+      const iso = toISODate(date) as string
+      let dayTotal = 0
+      timesheet.forEach(entry => {
         if (entry.day === iso) {
-          return total + entry.durationMin
+          dayTotal += entry.durationMin
         }
-        return total
-      }, 0)
+      })
+      totals[iso] = dayTotal
     })
     return totals
   }, [weekDates, timesheet])
 
   const banner = getBannerForTimesheet(timesheet, weekStart, now)
   const isPastWeek = isBefore(weekStart, currentWeekStart) as boolean
-  const isAttentionRequired = timesheet?.status === 'attention-required'
+  const isAttentionRequired = timesheet?.some(entry => entry.status === 'attention-required')
   const readOnly = isPastWeek && !isAttentionRequired
-  const weekendOverrides = timesheet?.weekendOverrides ?? []
+  const weekendOverrides = timesheet?.filter(entry => entry.workMode === 'weekend-override') ?? []
 
   const handleAddActionCode = (code: ActionCode) => {
     if (readOnly) return
-    setCodeIds((prev: ActionCodeId[]) => (prev.includes(code.id) ? prev : [...prev, code.id]))
+    setCodeIds((prev: ActionCode['id'][]) => (prev.includes(code.id) ? prev : [...prev, code.id]))
+  }
+
+  const handleRemoveActionCode = async (codeId: ActionCode['id']) => {
+    if (readOnly || !timesheet) return
+
+    setCodeIds((prev: ActionCode['id'][]) => prev.filter(id => id !== codeId))
+
+    const entriesToDelete = timesheet
+      .filter(entry => entry.actionCode.id === codeId)
+
+    for (const entry of entriesToDelete) {
+      await deleteTimeEntry.mutateAsync(entry.id)
+    }
   }
 
   const handleViewDay = (date: Date) => {
@@ -173,7 +204,7 @@ const TimesheetPage = () => {
       return
     }
     const nextWeekISO = toISODate(nextWeek)
-    const currentWeekISO = toISODate(currentWeekStart) as ISODate
+    const currentWeekISO = toISODate(currentWeekStart) as string
     const today = new Date()
     const nextSelectedDate = nextWeekISO === currentWeekISO ? today : nextWeek
     setSelectedDate(nextSelectedDate)
@@ -185,13 +216,13 @@ const TimesheetPage = () => {
     dateISO,
     entry,
   }: {
-    code: ActionCodeId
-    dateISO: ISODate
+    code: ActionCode['id']
+    dateISO: string
     entry: { minutes: number, note?: string, location: { mode: string, country: string } }
   }) => {
     if (!timesheet || readOnly) return
 
-    const existingEntry = timesheet.entries.find((e) => e.actionCode.id === code && e.day === dateISO as ISODate);
+    const existingEntry = timesheet.find((e: TimesheetEntry) => e.actionCode.id === code && e.day === dateISO as string) as TimesheetEntry;
 
     if (existingEntry) {
       await updateTimeEntry.mutateAsync({
@@ -212,7 +243,7 @@ const TimesheetPage = () => {
       });
     }
 
-    setCodeIds((prev: ActionCodeId[]) => (prev.includes(code) ? prev : [...prev, code]))
+    setCodeIds((prev: ActionCode['id'][]) => (prev.includes(code) ? prev : [...prev, code]))
   }
 
   const handleDuplicateForward = async ({
@@ -220,8 +251,8 @@ const TimesheetPage = () => {
     code,
     entry,
   }: {
-    targetDateISO: ISODate
-    code: ActionCodeId
+    targetDateISO: string
+    code: ActionCode['id']
     entry: { minutes: number, note?: string, location: { mode: string, country: string } }
   }) => {
     if (!timesheet || readOnly) return
@@ -235,10 +266,14 @@ const TimesheetPage = () => {
     });
   }
 
-  const handleClearCell = async (code: ActionCodeId, dateISO: ISODate) => {
+  const handleClearCell = async (code: ActionCode['id'], dateISO: string) => {
     if (!timesheet || readOnly) return
 
-    const entry = timesheet.entries.find((e) => e.actionCode.id === code && e.day === dateISO);
+    const entry = timesheet.find(
+      (e: TimesheetEntry) =>
+        e.actionCode.id === code && e.day === dateISO
+    );
+
     if (entry) {
       await deleteTimeEntry.mutateAsync(entry.id);
     }
@@ -256,7 +291,7 @@ const TimesheetPage = () => {
 
   useEffect(() => {
     if (!timesheet) return
-    const sheetWeek = getWeekStart(parseISO(timesheet.weekStartISO)) as Date
+    const sheetWeek = getWeekStart(parseISO(timesheet[0].day.toISOString())) as Date
     if (toISODate(sheetWeek) !== toISODate(weekStart)) {
       setSelectedDate(sheetWeek)
       setView('week')
@@ -270,7 +305,7 @@ const TimesheetPage = () => {
   const handleChangeView = (next: ViewMode) => {
     if (next === 'day') {
       const today = new Date()
-      const currentWeekISO = toISODate(currentWeekStart) as ISODate
+      const currentWeekISO = toISODate(currentWeekStart) as string
       const selectedWeekISO = toISODate(weekStart)
       if (currentWeekISO === selectedWeekISO && toISODate(selectedDate) === toISODate(weekStart)) {
         setSelectedDate(today)
@@ -278,6 +313,13 @@ const TimesheetPage = () => {
     }
     setView(next)
   }
+
+  const dailyMin = useMemo(() => {
+    return timesheet?.reduce((total, entry) => total + entry.durationMin, 0) ?? 0
+  }, [timesheet])
+  const weeklyMin = useMemo(() => {
+    return timesheet?.reduce((total, entry) => total + entry.durationMin, 0) ?? 0
+  }, [timesheet])
 
   return (
     <Box sx={{ px: { xs: 2, md: 4 }, py: 3 }}>
@@ -321,9 +363,9 @@ const TimesheetPage = () => {
             <Stack spacing={2}>
               <Alert severity={banner.severity}>{banner.message}</Alert>
 
-              {timesheet?.missingReasons && timesheet.missingReasons.length > 0 && (
+              {timesheet?.some(entry => entry.status === 'attention-required') && (
                 <Alert severity="warning">
-                  Pending reasons for: {formatDateList(timesheet.missingReasons)}. Select each day
+                  Pending reasons for: {formatDateList(timesheet.map(entry => entry.day.toISOString()))}. Select each day
                   to add a reason and save.
                 </Alert>
               )}
@@ -358,15 +400,14 @@ const TimesheetPage = () => {
                     onUpdateCell={handleUpdateCell}
                     onClearCell={handleClearCell}
                     onDuplicateForward={handleDuplicateForward}
-                    
                     dailyTotals={dailyTotals}
                     weeklyTotal={helpers.weeklyTotal}
-                    weeklyMin={timesheet?.weeklyMin ?? 2400}
-                    dailyMin={timesheet?.dailyMin ?? 480}
-                    
+                    weeklyMin={weeklyMin}
+                    dailyMin={dailyMin}
                     readOnly={readOnly}
-                    weekendOverrides={weekendOverrides}
+                    weekendOverrides={weekendOverrides.map(entry => entry.day.toISOString())}
                     currentWeekStart={currentWeekStart}
+                    onRemoveActionCode={handleRemoveActionCode}
                   />
                 )}
 
@@ -376,13 +417,53 @@ const TimesheetPage = () => {
                     timesheet={timesheet}
                     actionCodes={actionCodes}
                     onChangeDate={nextDate => setSelectedDate(nextDate)}
-                    
-                    dailyMin={timesheet?.dailyMin ?? 480}
+                    dailyMin={dailyMin}
                     weekStart={weekStart}
                     
                   />
                 )}
               </>
+            )}
+
+            {timesheetQuery.data && timesheetQuery.data.lastPage > 1 && (
+              <Pagination
+                count={timesheetQuery.data.lastPage}
+                page={page}
+                onChange={(_, value) => setPage(value)}
+                sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
+              />
+            )}
+
+            {/* Approval/Rejection UI */}
+            {isManagerOrAdmin && timesheet && timesheet.length > 0 && !readOnly && ( // Only show if there are entries and not read-only
+              <Stack direction="row" spacing={2} justifyContent="flex-end">
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={() => {
+                    // Implement approval logic here
+                    // For example, approve the first entry for now
+                    if (timesheet[0]) {
+                      approveTimeEntry.mutateAsync(timesheet[0].id);
+                    }
+                  }}
+                >
+                  Approve Week
+                </Button>
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={() => {
+                    // Implement rejection logic here
+                    // For example, reject the first entry for now
+                    if (timesheet[0]) {
+                      rejectTimeEntry.mutateAsync({ id: timesheet[0].id, reason: "Rejected by manager" });
+                    }
+                  }}
+                >
+                  Reject Week
+                </Button>
+              </Stack>
             )}
           </Stack>
         </Paper>

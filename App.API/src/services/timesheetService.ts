@@ -4,17 +4,9 @@ import { TimesheetEntry } from '../models/timesheetEntry';
 import { ActionCode } from '../models/actionCode';
 import { Between } from 'typeorm';
 import User from '../models/user';
+import { Approval, ApprovalStatus } from '../models/approval';
 
-interface TimesheetEntryDto {
-  actionCodeId: string;
-  workMode: 'office' | 'remote' | 'hybrid';
-  country: string;
-  startedAt?: Date;
-  endedAt?: Date;
-  durationMin: number;
-  note?: string;
-  day: Date;
-}
+import { TimesheetEntryDto, TimesheetHistorySummary } from '../dto/TimesheetDto';
 
 interface TimesheetContext {
   userId: string;
@@ -26,17 +18,27 @@ export class TimesheetService {
   private userRepository = AppDataSource.getRepository(User);
   private actionCodeRepository = AppDataSource.getRepository(ActionCode);
 
-  public async listByWeek({ userId, orgId, weekStart }: { userId: string; orgId: string; weekStart: Date }): Promise<TimesheetEntry[]> {
+  public async listByWeek({ userId, orgId, weekStart, page = 1, limit = 10 }: { userId: string; orgId: string; weekStart: Date; page?: number; limit?: number }): Promise<{ data: TimesheetEntry[]; total: number; page: number; lastPage: number }> {
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekStart.getDate() + 6);
 
-    return this.timesheetEntryRepository.find({
+    const [data, total] = await this.timesheetEntryRepository.findAndCount({
       where: {
         user: { id: userId },
         organization: { id: orgId },
         day: Between(weekStart, weekEnd),
       },
+      take: limit,
+      skip: (page - 1) * limit,
+      order: { day: 'ASC', startedAt: 'ASC' },
     });
+
+    return {
+      data,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
   }
 
   public async create(entryDto: TimesheetEntryDto, ctx: TimesheetContext): Promise<TimesheetEntry> {
@@ -76,5 +78,69 @@ export class TimesheetService {
     }
 
     await this.timesheetEntryRepository.remove(entry);
+  }
+
+  public async approve(id: string, approverId: string, orgId: string): Promise<Approval | null> {
+    const timesheetEntry = await this.timesheetEntryRepository.findOne({ where: { id, organization: { id: orgId } } });
+    if (!timesheetEntry) {
+      throw new Error('Timesheet entry not found or does not belong to your organization');
+    }
+
+    const approval = new Approval();
+    approval.entryId = id;
+    approval.approverId = approverId;
+    approval.status = ApprovalStatus.APPROVED;
+
+    return AppDataSource.getRepository(Approval).save(approval);
+  }
+
+  public async reject(id: string, approverId: string, orgId: string, reason?: string): Promise<Approval | null> {
+    const timesheetEntry = await this.timesheetEntryRepository.findOne({ where: { id, organization: { id: orgId } } });
+    if (!timesheetEntry) {
+      throw new Error('Timesheet entry not found or does not belong to your organization');
+    }
+
+    const approval = new Approval();
+    approval.entryId = id;
+    approval.approverId = approverId;
+    approval.status = ApprovalStatus.REJECTED;
+    approval.reason = reason;
+
+    return AppDataSource.getRepository(Approval).save(approval);
+  }
+
+  public async listHistory({ userId, orgId }: { userId: string; orgId: string }): Promise<TimesheetHistorySummary[]> {
+    // This is a simplified implementation. In a real application, you might have a dedicated
+    // TimesheetWeek entity or a more complex aggregation logic.
+    const timesheetEntries = await this.timesheetEntryRepository.find({
+      where: {
+        user: { id: userId },
+        organization: { id: orgId },
+      },
+      order: { day: 'DESC' },
+    });
+
+    const weeksMap = new Map<string, TimesheetHistorySummary>();
+
+    for (const entry of timesheetEntries) {
+      const weekStart = new Date(entry.day);
+      weekStart.setDate(weekStart.getDate() - weekStart.getDay()); // Get Sunday of the week
+      const weekStartISO = weekStart.toISOString().split('T')[0];
+
+      if (!weeksMap.has(weekStartISO)) {
+        weeksMap.set(weekStartISO, {
+          weekStartISO,
+          status: 'pending', // Default status
+          weekTotal: 0,
+          submittedAt: undefined,
+        });
+      }
+
+      const weekSummary = weeksMap.get(weekStartISO)!;
+      weekSummary.weekTotal += entry.durationMin;
+      // More complex logic would be needed to determine actual status and submittedAt
+    }
+
+    return Array.from(weeksMap.values());
   }
 }

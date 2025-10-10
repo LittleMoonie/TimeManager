@@ -35,6 +35,9 @@ export class UserResponse {
   id!: string;
   email!: string;
   name!: string;
+  orgId!: string;
+  role!: string;
+  status!: string;
   createdAt!: Date;
 }
 

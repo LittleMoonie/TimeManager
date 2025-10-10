@@ -3,6 +3,7 @@ import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
 import { Organization } from './organization';
 import { TeamMember } from './team';
+import { UserStatus } from './enums/UserStatus';
 
 @Entity()
 export default class User extends BaseEntity {
@@ -20,6 +21,10 @@ export default class User extends BaseEntity {
 
   @Column({ type: 'varchar', length: 50, nullable: false })
   role!: string;
+
+  // Enum Status
+  @Column({ type: 'enum', enum: UserStatus, nullable: false })
+  status!: UserStatus;
 
   @ManyToOne(() => Organization, (org) => org.users)
   organization!: Organization;

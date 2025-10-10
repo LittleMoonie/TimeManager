@@ -12,13 +12,21 @@ import {
   Typography,
 } from '@mui/material'
 import { Close } from '@mui/icons-material'
-import type { Timesheet } from '@/types'
 import { formatWeekRange, getWeekStart } from './utils'
+
+
+interface TimesheetHistory {
+  id: string
+  weekStartISO: string
+  status: string
+  weekTotal: number
+  submittedAt: string
+}
 
 interface TimesheetHistoryPanelProps {
   open: boolean
   onClose: () => void
-  history: Timesheet[]
+  history: TimesheetHistory[]
   onSelectWeek: (weekStartISO: string) => void
 }
 

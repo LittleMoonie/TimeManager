@@ -1,37 +1,37 @@
 
 import { Request } from 'express';
-import jwt from 'jsonwebtoken';
 import { AppDataSource } from '../server/database';
 import User from '../models/user';
+import { getAuthUser } from '../utils/auth';
 
 export async function expressAuthentication(
   request: Request,
   securityName: string,
-  ): Promise<any> {
-  if (securityName === 'jwt') {
-    const token = request.headers.authorization?.replace('Bearer ', '') || request.body?.token;
+  scopes: string[] = []
+): Promise<User> {
+  const authUser = getAuthUser(request);
 
-    if (!token) {
-      throw new Error('No token provided');
-    }
-
-    try {
-      const decoded = jwt.verify(token, process.env.SECRET || '');
-      const userRepository = AppDataSource.getRepository(User);
-      const user = await userRepository.findOne({ where: { id: (decoded as any).id } });
-
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      // Attach the user object to the request for use in controllers
-      (request as any).user = user;
-      return user;
-
-    } catch (error) {
-      throw new Error('Authentication failed ' + error);
-    }
+  if (!authUser) {
+    throw new Error('No token provided or authentication failed');
   }
 
-  throw new Error('Unknown security name');
+  try {
+    const userRepository = AppDataSource.getRepository(User);
+    const user = await userRepository.findOne({ where: { id: authUser.id } });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Check scopes (roles)
+    if (scopes.length > 0 && !scopes.includes(user.role)) {
+      throw new Error('Forbidden: Insufficient permissions');
+    }
+
+    // Attach the user object to the request for use in controllers
+    (request as any).user = user;
+    return user;
+  } catch (error: unknown) {
+    throw new Error('Authentication failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
+  }
 }

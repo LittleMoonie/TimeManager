@@ -1,48 +1,77 @@
 import { useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { timesheetApi } from '@/lib/api/timesheet'
-import type { ActionCode, ISODate, Timesheet, TimesheetEntryDto } from '@/types'
+import type { ActionCode } from '@/lib/api'
+import { TimeService } from '@/lib/api'
+import { TimesheetEntry, TimesheetEntryDto } from '@/lib/api'
 
-export const useActionCodes = () =>
-  useQuery<ActionCode[]>({
+interface TimesheetHistory {
+  id: string
+  weekStartISO: string
+  status: string
+  weekTotal: number
+  submittedAt: string
+}
+
+export const useActionCodes = () => {
+  return useQuery<ActionCode[]>({
     queryKey: ['timesheet', 'action-codes'],
-    queryFn: () => timesheetApi.getActionCodes(),
+    queryFn: () => TimeService.getActionCodes(),
     staleTime: Infinity,
   })
+}
 
-export const useTimesheet = (weekStartISO: ISODate) => {
+export const useTimesheet = (weekStartISO: string, page: number, limit: number) => {
   const queryClient = useQueryClient()
 
-  const timesheetQuery = useQuery<Timesheet>({
-    queryKey: ['timesheet', weekStartISO],
-    queryFn: () => timesheetApi.getTimesheet(weekStartISO),
+  const timesheetQuery = useQuery<{
+    data: TimesheetEntry[];
+    total: number;
+    page: number;
+    lastPage: number;
+  }>({
+    queryKey: ['timesheet', weekStartISO, page, limit],
+    queryFn: () => TimeService.getWeekTimesheet({ week: weekStartISO, page, limit }),
     staleTime: 0,
   })
 
   const createTimeEntry = useMutation({
-    mutationFn: async (entry: TimesheetEntryDto) => timesheetApi.createTimeEntry(entry),
+    mutationFn: async (entry: TimesheetEntryDto) => TimeService.createTimeEntry({ requestBody: entry }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO] })
+      queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO, page, limit] })
     },
   })
 
   const updateTimeEntry = useMutation({
     mutationFn: async ({ id, entry }: { id: string; entry: Partial<TimesheetEntryDto> }) =>
-      timesheetApi.updateTimeEntry(id, entry),
+      TimeService.updateTimeEntry({ id, requestBody: entry }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO] })
+      queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO, page, limit] })
     },
   })
 
   const deleteTimeEntry = useMutation({
-    mutationFn: async (id: string) => timesheetApi.deleteTimeEntry(id),
+    mutationFn: async (id: string) => TimeService.deleteTimeEntry(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO] })
+      queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO, page, limit] })
+    },
+  })
+
+  const approveTimeEntry = useMutation({
+    mutationFn: async (id: string) => TimeService.approveTimeEntry({ id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO, page, limit] })
+    },
+  })
+
+  const rejectTimeEntry = useMutation({
+    mutationFn: async ({ id, reason }: { id: string; reason?: string }) => TimeService.rejectTimeEntry({ id, requestBody: { reason } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO, page, limit] })
     },
   })
 
   const helpers = useMemo(() => {
-    const data = timesheetQuery.data
+    const data = timesheetQuery.data?.data
     if (!data) {
       return {
         computeDayTotal: () => 0,
@@ -51,15 +80,15 @@ export const useTimesheet = (weekStartISO: ISODate) => {
     }
 
     return {
-      computeDayTotal: (iso: ISODate) => {
-        return data.entries.reduce((total, entry) => {
+      computeDayTotal: (iso: string) => {
+        return data.reduce((total, entry) => {
           if (entry.day === iso) {
             return total + entry.durationMin
           }
           return total
         }, 0)
       },
-      weeklyTotal: data.entries.reduce((total, entry) => total + entry.durationMin, 0),
+      weeklyTotal: data.reduce((total, entry) => total + entry.durationMin, 0),
     }
   }, [timesheetQuery.data])
 
@@ -68,13 +97,15 @@ export const useTimesheet = (weekStartISO: ISODate) => {
     createTimeEntry,
     updateTimeEntry,
     deleteTimeEntry,
+    approveTimeEntry,
+    rejectTimeEntry,
     helpers,
   }
 }
 
 export const useTimesheetHistory = () =>
-  useQuery<Timesheet[]>({
+  useQuery<TimesheetHistory[]> ({
     queryKey: ['timesheet', 'history'],
-    queryFn: () => Promise.resolve([]), // This needs to be implemented
+    queryFn: () => TimeService.getTimesheetHistory(),
     staleTime: 10 * 1000,
   })

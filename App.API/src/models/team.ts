@@ -24,6 +24,9 @@ export class TeamMember {
   @PrimaryColumn('uuid')
   teamId!: string;
 
+  @Column({ type: 'uuid' })
+  orgId!: string;
+
   @Column({ type: 'varchar', length: 50, default: 'member' })
   role!: string;
 
@@ -32,4 +35,7 @@ export class TeamMember {
 
   @ManyToOne(() => Team, (team) => team.members)
   team!: Team;
+
+  @ManyToOne(() => Organization, (org) => org.teamMembers)
+  organization!: Organization;
 }

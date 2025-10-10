@@ -1,5 +1,5 @@
 
-import { Column, Entity, ManyToOne, OneToMany, Check } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, Check, Index, JoinColumn } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
 import User from './user';
 import { Organization } from './organization';
@@ -14,11 +14,20 @@ export enum WorkMode {
 
 @Entity()
 @Check(`"durationMin" <= 1440`)
+@Index(['orgId', 'userId', 'day'])
 export class TimesheetEntry extends BaseEntity {
-  @ManyToOne(() => User)
+  @Column({ type: 'uuid' })
+  userId!: string;
+
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
   user!: User;
 
-  @ManyToOne(() => Organization)
+  @Column({ type: 'uuid' })
+  orgId!: string;
+
+  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'orgId' })
   organization!: Organization;
 
   @ManyToOne(() => ActionCode)
@@ -37,6 +46,7 @@ export class TimesheetEntry extends BaseEntity {
   endedAt?: Date;
 
   @Column({ type: 'int' })
+  @Check(`"durationMin" >= 0`)
   durationMin!: number;
 
   @Column({ type: 'text', nullable: true })
@@ -44,6 +54,8 @@ export class TimesheetEntry extends BaseEntity {
 
   @Column({ type: 'date' })
   day!: Date;
+
+  // TODO: Add exclusion constraint for overlapping intervals for same userId/day when startedAt/endedAt not null
 
   @OneToMany(() => Approval, (approval) => approval.entry)
   approvals!: Approval[];

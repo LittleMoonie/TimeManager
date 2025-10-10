@@ -5,6 +5,7 @@
 import type { ApiResponse } from '../models/ApiResponse';
 import type { AuthResponse } from '../models/AuthResponse';
 import type { LoginUserRequest } from '../models/LoginUserRequest';
+import type { Record_string_any_ } from '../models/Record_string_any_';
 import type { RegisterResponse } from '../models/RegisterResponse';
 import type { RegisterUserRequest } from '../models/RegisterUserRequest';
 import type { CancelablePromise } from '../core/CancelablePromise';
@@ -72,6 +73,71 @@ export class UsersService {
             url: '/users/logout',
             errors: {
                 401: `Authentication required`,
+                500: `Internal server error`,
+            },
+        });
+    }
+    /**
+     * Get current user
+     * @returns AuthResponse Current user retrieved successfully
+     * @throws ApiError
+     */
+    public static getCurrentUser(): CancelablePromise<AuthResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/users/current',
+            errors: {
+                401: `Authentication required`,
+                500: `Internal server error`,
+            },
+        });
+    }
+    /**
+     * @returns ApiResponse Weekend permit granted successfully
+     * @throws ApiError
+     */
+    public static grantWeekendPermit({
+        id,
+    }: {
+        id: string,
+    }): CancelablePromise<ApiResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/users/{id}/weekend-permit',
+            path: {
+                'id': id,
+            },
+            errors: {
+                401: `Authentication required`,
+                403: `Forbidden`,
+                404: `User not found`,
+                500: `Internal server error`,
+            },
+        });
+    }
+    /**
+     * @returns ApiResponse Retroactive edit applied successfully
+     * @throws ApiError
+     */
+    public static retroEdit({
+        id,
+        requestBody,
+    }: {
+        id: string,
+        requestBody: Record_string_any_,
+    }): CancelablePromise<ApiResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/users/{id}/retro-edit',
+            path: {
+                'id': id,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                401: `Authentication required`,
+                403: `Forbidden`,
+                404: `User not found`,
                 500: `Internal server error`,
             },
         });

@@ -7,12 +7,25 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
+			"UserStatus": {
+				"enum": [
+					"ACTIVE",
+					"INACTIVE",
+					"SUSPENDED",
+					"PENDING"
+				],
+				"type": "string"
+			},
 			"User": {
 				"properties": {
 					"id": {
 						"type": "string"
 					},
 					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
 						"type": "string",
 						"format": "date-time"
 					},
@@ -31,6 +44,9 @@
 					"role": {
 						"type": "string"
 					},
+					"status": {
+						"$ref": "#/components/schemas/UserStatus"
+					},
 					"organization": {
 						"$ref": "#/components/schemas/Organization"
 					},
@@ -44,11 +60,13 @@
 				"required": [
 					"id",
 					"createdAt",
+					"updatedAt",
 					"orgId",
 					"email",
 					"name",
 					"password",
 					"role",
+					"status",
 					"organization",
 					"teamMembership"
 				],
@@ -61,6 +79,10 @@
 						"type": "string"
 					},
 					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
 						"type": "string",
 						"format": "date-time"
 					},
@@ -90,16 +112,24 @@
 							"$ref": "#/components/schemas/TimesheetEntry"
 						},
 						"type": "array"
+					},
+					"teamMembers": {
+						"items": {
+							"$ref": "#/components/schemas/TeamMember"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
 					"id",
 					"createdAt",
+					"updatedAt",
 					"name",
 					"users",
 					"teams",
 					"actionCodes",
-					"timesheetEntries"
+					"timesheetEntries",
+					"teamMembers"
 				],
 				"type": "object",
 				"additionalProperties": true
@@ -110,6 +140,10 @@
 						"type": "string"
 					},
 					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
 						"type": "string",
 						"format": "date-time"
 					},
@@ -129,6 +163,7 @@
 				"required": [
 					"id",
 					"createdAt",
+					"updatedAt",
 					"name",
 					"organization",
 					"members"
@@ -144,6 +179,9 @@
 					"teamId": {
 						"type": "string"
 					},
+					"orgId": {
+						"type": "string"
+					},
 					"role": {
 						"type": "string"
 					},
@@ -152,14 +190,19 @@
 					},
 					"team": {
 						"$ref": "#/components/schemas/Team"
+					},
+					"organization": {
+						"$ref": "#/components/schemas/Organization"
 					}
 				},
 				"required": [
 					"userId",
 					"teamId",
+					"orgId",
 					"role",
 					"user",
-					"team"
+					"team",
+					"organization"
 				],
 				"type": "object",
 				"additionalProperties": true
@@ -177,6 +220,10 @@
 						"type": "string"
 					},
 					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
 						"type": "string",
 						"format": "date-time"
 					},
@@ -199,6 +246,7 @@
 				"required": [
 					"id",
 					"createdAt",
+					"updatedAt",
 					"organization",
 					"code",
 					"name",
@@ -217,8 +265,18 @@
 						"type": "string",
 						"format": "date-time"
 					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"userId": {
+						"type": "string"
+					},
 					"user": {
 						"$ref": "#/components/schemas/User"
+					},
+					"orgId": {
+						"type": "string"
 					},
 					"organization": {
 						"$ref": "#/components/schemas/Organization"
@@ -261,7 +319,10 @@
 				"required": [
 					"id",
 					"createdAt",
+					"updatedAt",
+					"userId",
 					"user",
+					"orgId",
 					"organization",
 					"actionCode",
 					"workMode",
@@ -298,8 +359,18 @@
 						"type": "string",
 						"format": "date-time"
 					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"entryId": {
+						"type": "string"
+					},
 					"entry": {
 						"$ref": "#/components/schemas/TimesheetEntry"
+					},
+					"approverId": {
+						"type": "string"
 					},
 					"approver": {
 						"$ref": "#/components/schemas/User"
@@ -314,7 +385,10 @@
 				"required": [
 					"id",
 					"createdAt",
+					"updatedAt",
+					"entryId",
 					"entry",
+					"approverId",
 					"approver",
 					"status"
 				],
@@ -432,6 +506,10 @@
 						"type": "string",
 						"format": "date-time"
 					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
 					"user": {
 						"$ref": "#/components/schemas/User"
 					},
@@ -459,6 +537,7 @@
 				"required": [
 					"id",
 					"createdAt",
+					"updatedAt",
 					"user",
 					"startDate",
 					"endDate",
@@ -538,6 +617,15 @@
 					"name": {
 						"type": "string"
 					},
+					"orgId": {
+						"type": "string"
+					},
+					"role": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string"
+					},
 					"createdAt": {
 						"type": "string",
 						"format": "date-time"
@@ -547,6 +635,9 @@
 					"id",
 					"email",
 					"name",
+					"orgId",
+					"role",
+					"status",
 					"createdAt"
 				],
 				"type": "object",
@@ -588,6 +679,12 @@
 				],
 				"type": "object",
 				"additionalProperties": true
+			},
+			"Record_string.any_": {
+				"properties": {},
+				"additionalProperties": {},
+				"type": "object",
+				"description": "Construct a type with a set of properties K of type T"
 			},
 			"HealthResponse": {
 				"properties": {
@@ -668,10 +765,33 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/TimesheetEntry"
+									"properties": {
+										"lastPage": {
+											"type": "number",
+											"format": "double"
+										},
+										"page": {
+											"type": "number",
+											"format": "double"
+										},
+										"total": {
+											"type": "number",
+											"format": "double"
+										},
+										"data": {
+											"items": {
+												"$ref": "#/components/schemas/TimesheetEntry"
+											},
+											"type": "array"
+										}
 									},
-									"type": "array"
+									"required": [
+										"lastPage",
+										"page",
+										"total",
+										"data"
+									],
+									"type": "object"
 								}
 							}
 						}
@@ -692,6 +812,26 @@
 						"required": true,
 						"schema": {
 							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"default": 1,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"default": 10,
+							"format": "double",
+							"type": "number"
 						}
 					}
 				]
@@ -805,6 +945,107 @@
 						}
 					}
 				]
+			}
+		},
+		"/api/v1/time/{id}/approve": {
+			"post": {
+				"operationId": "ApproveTimeEntry",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"allOf": [
+										{
+											"$ref": "#/components/schemas/Approval"
+										}
+									],
+									"nullable": true
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Time"
+				],
+				"security": [
+					{
+						"jwt": [
+							"manager",
+							"admin"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/v1/time/{id}/reject": {
+			"post": {
+				"operationId": "RejectTimeEntry",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"allOf": [
+										{
+											"$ref": "#/components/schemas/Approval"
+										}
+									],
+									"nullable": true
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Time"
+				],
+				"security": [
+					{
+						"jwt": [
+							"manager",
+							"admin"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"reason": {
+										"type": "string"
+									}
+								},
+								"type": "object"
+							}
+						}
+					}
+				}
 			}
 		},
 		"/leave-requests": {
@@ -1164,6 +1405,219 @@
 					}
 				],
 				"parameters": []
+			}
+		},
+		"/users/current": {
+			"get": {
+				"operationId": "GetCurrentUser",
+				"responses": {
+					"200": {
+						"description": "Current user retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuthResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Authentication required",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get current user",
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/users/{id}/weekend-permit": {
+			"post": {
+				"operationId": "GrantWeekendPermit",
+				"responses": {
+					"200": {
+						"description": "Weekend permit granted successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Authentication required",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "User not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"manager",
+							"admin"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/users/{id}/retro-edit": {
+			"post": {
+				"operationId": "RetroEdit",
+				"responses": {
+					"200": {
+						"description": "Retroactive edit applied successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Authentication required",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "User not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApiResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"manager",
+							"admin"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Record_string.any_"
+							}
+						}
+					}
+				}
 			}
 		},
 		"/system/health": {

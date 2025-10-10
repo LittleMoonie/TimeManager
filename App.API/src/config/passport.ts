@@ -1,28 +1,27 @@
-import passport from 'passport';
-import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
-
-import User from '../models/user';
+import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import { AppDataSource } from '../server/database';
+import User from '../models/user';
 
-export default (pass: passport.PassportStatic) => {
-  const opts = {
-    jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('jwt'),
-    secretOrKey: process.env.SECRET,
-  };
-
-  pass.use(
-    new JwtStrategy(opts, async (jwtPayload, done) => {
-      try {
-        const userRepository = AppDataSource.getRepository(User);
-        const user = await userRepository?.findOne({ where: { id: jwtPayload.id } });
-
-        if (user) {
-          return done(null, user);
-        }
-        return done(null, false);
-      } catch (err) {
-        return done(err, false);
-      }
-    }),
-  );
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: process.env.SECRET, // Use process.env.SECRET as defined in UserController
 };
+
+export const jwtStrategy = new JwtStrategy(jwtOptions, async (payload: { id: string }, done) => {
+  try {
+    const userRepository = AppDataSource.getRepository(User);
+    const user = await userRepository.findOne({ where: { id: payload.id } });
+
+    if (user) {
+      // Attach the necessary user information to the request object
+      return done(null, user);
+    } else {
+      return done(null, false);
+    }
+  } catch (error) {
+    return done(error, false);
+  }
+});
+
+// Extend the Express Request type to include the user property
+
