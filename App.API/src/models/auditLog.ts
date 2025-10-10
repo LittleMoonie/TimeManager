@@ -1,4 +1,4 @@
-import { Column, Entity, Index, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
 import User from './user';
 import { Organization } from './organization';
@@ -12,17 +12,20 @@ export enum AuditAction {
 @Entity()
 @Index(['orgId'])
 @Index(['entity', 'entityId'])
+@Index(['orgId', 'actorUserId'])
 export class AuditLog extends BaseEntity {
   @Column({ type: 'uuid' })
   actorUserId!: string;
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'actorUserId' })
   actorUser!: User;
 
   @Column({ type: 'uuid' })
   orgId!: string;
 
-  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Organization, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'orgId' })
   organization!: Organization;
 
   @Column({ type: 'varchar', length: 255 })

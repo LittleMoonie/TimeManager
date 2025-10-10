@@ -15,10 +15,8 @@ import { jwtStrategy } from '../config/passport';
 // Instantiate express
 const server: Application = express();
 
-//@ts-expect-error - TypeScript compatibility issue with compression types
 server.use(compression());
 
-// @ts-expect-error - TypeScript compatibility issue with passport types
 server.use(passport.initialize());
 passport.use('jwt', jwtStrategy);
 

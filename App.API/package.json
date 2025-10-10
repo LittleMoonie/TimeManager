@@ -35,12 +35,13 @@
     "reflect-metadata": "^0.2.2",
     "swagger-ui-express": "^5.0.1",
     "tsoa": "^6.6.0",
+    "typedi": "^0.10.0",
     "typeorm": "^0.3.27",
+    "typeorm-typedi-extensions": "^0.4.1",
     "uuid": "^13.0.0",
     "winston": "^3.18.3"
   },
   "devDependencies": {
-    "@types/bcrypt": "^5.0.0",
     "@types/compression": "^1.7.5",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
@@ -54,7 +55,6 @@
     "@types/swagger-ui-express": "^4.1.6",
     "@typescript-eslint/eslint-plugin": "^8.3.0",
     "@typescript-eslint/parser": "^8.3.0",
-    "bcrypt": "^5.0.1",
     "class-validator": "^0.14.0",
     "concurrently": "^8.2.2",
     "dotenv": "^17.2.3",

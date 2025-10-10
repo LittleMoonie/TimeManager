@@ -5,6 +5,7 @@ import User from './user';
 import { Team, TeamMember } from './team';
 import { ActionCode } from './actionCode';
 import { TimesheetEntry } from './timesheetEntry';
+import { TimesheetHistory } from './timesheetHistory';
 
 @Entity()
 export class Organization extends BaseEntity {
@@ -25,4 +26,7 @@ export class Organization extends BaseEntity {
 
   @OneToMany(() => TeamMember, (teamMember) => teamMember.organization)
   teamMembers!: TeamMember[];
+
+  @OneToMany(() => TimesheetHistory, (timesheetHistory) => timesheetHistory.organization)
+  timesheetHistory!: TimesheetHistory[];
 }

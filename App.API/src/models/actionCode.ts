@@ -1,5 +1,5 @@
 
-import { Column, Entity, ManyToOne, Unique } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, Unique } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
 import { Organization } from './organization';
 
@@ -9,9 +9,14 @@ export enum ActionCodeType {
 }
 
 @Entity()
-@Unique(['organization', 'code'])
+@Unique(['orgId', 'code'])
+@Index(['orgId', 'code'])
 export class ActionCode extends BaseEntity {
-  @ManyToOne(() => Organization, (org) => org.actionCodes)
+  @Column({ type: 'uuid' })
+  orgId!: string;
+
+  @ManyToOne(() => Organization, (org) => org.actionCodes, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'orgId' })
   organization!: Organization;
 
   @Column({ type: 'varchar', length: 255 })

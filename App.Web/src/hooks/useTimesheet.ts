@@ -23,16 +23,18 @@ export const useActionCodes = () => {
 export const useTimesheet = (weekStartISO: string, page: number, limit: number) => {
   const queryClient = useQueryClient()
 
-  const timesheetQuery = useQuery<{
-    data: TimesheetEntry[];
-    total: number;
-    page: number;
-    lastPage: number;
-  }>({
+  const timesheetQuery = useQuery<{ lastPage: number; page: number; total: number; data: TimesheetEntry[] }>({
     queryKey: ['timesheet', weekStartISO, page, limit],
     queryFn: () => TimeService.getWeekTimesheet({ week: weekStartISO, page, limit }),
     staleTime: 0,
+    select: (data) => ({
+      lastPage: data.lastPage,
+      page: data.page,
+      total: data.total,
+      data: data.data,
+    }),
   })
+
 
   const createTimeEntry = useMutation({
     mutationFn: async (entry: TimesheetEntryDto) => TimeService.createTimeEntry({ requestBody: entry }),
@@ -50,7 +52,7 @@ export const useTimesheet = (weekStartISO: string, page: number, limit: number) 
   })
 
   const deleteTimeEntry = useMutation({
-    mutationFn: async (id: string) => TimeService.deleteTimeEntry(id),
+    mutationFn: async (id: string) => TimeService.deleteTimeEntry({ id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO, page, limit] })
     },
@@ -104,8 +106,13 @@ export const useTimesheet = (weekStartISO: string, page: number, limit: number) 
 }
 
 export const useTimesheetHistory = () =>
+
   useQuery<TimesheetHistory[]> ({
+
     queryKey: ['timesheet', 'history'],
+
     queryFn: () => TimeService.getTimesheetHistory(),
+
     staleTime: 10 * 1000,
+
   })

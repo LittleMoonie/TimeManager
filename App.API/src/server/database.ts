@@ -9,6 +9,7 @@ import { ActionCode } from '../models/actionCode';
 import { Approval } from '../models/approval';
 import { TimesheetEntry } from '../models/timesheetEntry';
 import { AuditLog } from '../models/auditLog';
+import { TimesheetHistory } from '../models/timesheetHistory';
 
 const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME, DB_SSL } = process.env;
 
@@ -27,7 +28,7 @@ export const AppDataSource = new DataSource({
   database: DB_NAME,
   synchronize: true,            // auto-creates tables in dev — disable in prod
   logging: true,
-  entities: [BaseEntity, User, ActiveSession, Organization, Team, TeamMember, ActionCode, Approval, TimesheetEntry, AuditLog],
+  entities: [BaseEntity, User, ActiveSession, Organization, Team, TeamMember, ActionCode, Approval, TimesheetEntry, AuditLog, TimesheetHistory],
   migrations: ['src/migrations/**/*{.ts,.js}'],
   ssl: DB_SSL === 'true' ? { rejectUnauthorized: false } : false, // Optional for cloud DBs
 });

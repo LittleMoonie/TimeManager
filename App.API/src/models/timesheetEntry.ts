@@ -13,24 +13,28 @@ export enum WorkMode {
 }
 
 @Entity()
-@Check(`"durationMin" <= 1440`)
+@Check(`"durationMin" BETWEEN 0 AND 1440`)
 @Index(['orgId', 'userId', 'day'])
 export class TimesheetEntry extends BaseEntity {
   @Column({ type: 'uuid' })
   userId!: string;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'userId' })
   user!: User;
 
   @Column({ type: 'uuid' })
   orgId!: string;
 
-  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Organization, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'orgId' })
   organization!: Organization;
 
-  @ManyToOne(() => ActionCode)
+  @Column({ type: 'uuid' })
+  actionCodeId!: string;
+
+  @ManyToOne(() => ActionCode, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'actionCodeId' })
   actionCode!: ActionCode;
 
   @Column({ type: 'enum', enum: WorkMode, default: WorkMode.OFFICE })
@@ -46,7 +50,6 @@ export class TimesheetEntry extends BaseEntity {
   endedAt?: Date;
 
   @Column({ type: 'int' })
-  @Check(`"durationMin" >= 0`)
   durationMin!: number;
 
   @Column({ type: 'text', nullable: true })

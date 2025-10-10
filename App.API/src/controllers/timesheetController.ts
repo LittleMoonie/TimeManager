@@ -4,14 +4,16 @@ import { Request as ExpressRequest } from 'express';
 import { TimesheetEntry } from '../models/timesheetEntry';
 import { TimesheetService } from '../services/timesheetService';
 import User from '../models/user';
-import { Approval, ApprovalStatus } from '../models/approval';
+import { Approval } from '../models/approval';
 
 import { TimesheetEntryDto, TimesheetHistorySummary } from '../dto/TimesheetDto';
 
 @Route('api/v1/time')
 @Tags('Time')
 export class TimesheetController extends Controller {
-  private timesheetService = new TimesheetService();
+  constructor(private timesheetService: TimesheetService) {
+    super();
+  }
 
   private getAuthUser(request: ExpressRequest): { userId: string; orgId: string; role: string } {
     if (!request.user) {
@@ -37,21 +39,21 @@ export class TimesheetController extends Controller {
   @Post('/')
   public async createTimeEntry(@Body() entryDto: TimesheetEntryDto, @Request() request: ExpressRequest): Promise<TimesheetEntry> {
     const { userId, orgId } = this.getAuthUser(request);
-    return this.timesheetService.create(entryDto, { userId, orgId });
+    return this.timesheetService.create(entryDto, { userId, orgId, actorUserId: userId });
   }
 
   @Security('jwt')
   @Put('/{id}')
   public async updateTimeEntry(@Path() id: string, @Body() entryDto: Partial<TimesheetEntryDto>, @Request() request: ExpressRequest): Promise<TimesheetEntry | null> {
     const { userId, orgId } = this.getAuthUser(request);
-    return this.timesheetService.update(id, entryDto, { userId, orgId });
+    return this.timesheetService.update(id, entryDto, { userId, orgId, actorUserId: userId });
   }
 
   @Security('jwt')
   @Delete('/{id}')
   public async deleteTimeEntry(@Path() id: string, @Request() request: ExpressRequest): Promise<void> {
     const { userId, orgId } = this.getAuthUser(request);
-    return this.timesheetService.delete(id, { userId, orgId });
+    return this.timesheetService.delete(id, { userId, orgId, actorUserId: userId });
   }
 
   @Security('jwt', ['manager', 'admin'])

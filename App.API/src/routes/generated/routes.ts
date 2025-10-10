@@ -14,6 +14,8 @@ import { SystemController } from './../../controllers/SystemController';
 import { expressAuthentication } from './../../config/auth';
 // @ts-ignore - no great way to install types from subpackage
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
+import { TimesheetService } from '../../services/timesheetService';
+import { TimesheetHistoryService } from '../../services/TimesheetHistoryService';   
 
 const expressAuthenticationRecasted = expressAuthentication as (req: ExRequest, securityName: string, scopes?: string[], res?: ExResponse) => Promise<any>;
 
@@ -329,7 +331,6 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = templateService.getValidatedArgs({ args: argsTimesheetController_getWeekTimesheet, request, response });
 
-                const controller = new TimesheetController();
 
               await templateService.apiHandler({
                 methodName: 'getWeekTimesheet',
@@ -361,7 +362,7 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = templateService.getValidatedArgs({ args: argsTimesheetController_createTimeEntry, request, response });
 
-                const controller = new TimesheetController();
+                const controller = new TimesheetController(new TimesheetService());
 
               await templateService.apiHandler({
                 methodName: 'createTimeEntry',
@@ -394,7 +395,7 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = templateService.getValidatedArgs({ args: argsTimesheetController_updateTimeEntry, request, response });
 
-                const controller = new TimesheetController();
+                const controller = new TimesheetController(new TimesheetService( ));
 
               await templateService.apiHandler({
                 methodName: 'updateTimeEntry',
@@ -426,11 +427,10 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = templateService.getValidatedArgs({ args: argsTimesheetController_deleteTimeEntry, request, response });
 
-                const controller = new TimesheetController();
 
               await templateService.apiHandler({
                 methodName: 'deleteTimeEntry',
-                controller,
+                controller: new TimesheetController(new TimesheetService(new TimesheetEntryRepository(), new UserRepository(), new ActionCodeRepository(), new ApprovalRepository(), new TimesheetHistoryService())),
                 response,
                 next,
                 validatedArgs,

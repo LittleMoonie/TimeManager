@@ -1,22 +1,35 @@
 
-import { AppDataSource } from '../server/database';
+import { Service } from 'typedi';
+import { InjectRepository } from 'typeorm-typedi-extensions';
+import { Between, Repository } from 'typeorm';
 import { TimesheetEntry } from '../models/timesheetEntry';
 import { ActionCode } from '../models/actionCode';
-import { Between } from 'typeorm';
 import User from '../models/user';
 import { Approval, ApprovalStatus } from '../models/approval';
-
+import { TimesheetHistoryService } from './TimesheetHistoryService';
 import { TimesheetEntryDto, TimesheetHistorySummary } from '../dto/TimesheetDto';
+import { TimesheetHistoryEntityTypeEnum } from '../models/enums/timesheetHistory/TimesheetHistoryEntityTypeEnum';
+import { TimesheetHistoryActionEnum } from '../models/enums/timesheetHistory/TimesheetHistoryActionEnum';
 
 interface TimesheetContext {
   userId: string;
   orgId: string;
+  actorUserId: string;
 }
 
+@Service()
 export class TimesheetService {
-  private timesheetEntryRepository = AppDataSource.getRepository(TimesheetEntry);
-  private userRepository = AppDataSource.getRepository(User);
-  private actionCodeRepository = AppDataSource.getRepository(ActionCode);
+  constructor(
+    @InjectRepository(TimesheetEntry)
+    private timesheetEntryRepository: Repository<TimesheetEntry>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    @InjectRepository(ActionCode)
+    private actionCodeRepository: Repository<ActionCode>,
+    @InjectRepository(Approval)
+    private approvalRepository: Repository<Approval>,
+    private timesheetHistoryService: TimesheetHistoryService,
+  ) {}
 
   public async listByWeek({ userId, orgId, weekStart, page = 1, limit = 10 }: { userId: string; orgId: string; weekStart: Date; page?: number; limit?: number }): Promise<{ data: TimesheetEntry[]; total: number; page: number; lastPage: number }> {
     const weekEnd = new Date(weekStart);
@@ -57,7 +70,18 @@ export class TimesheetService {
     newEntry.user = user;
     newEntry.organization = user.organization;
 
-    return this.timesheetEntryRepository.save(newEntry);
+    const savedEntry = await this.timesheetEntryRepository.save(newEntry);
+
+    await this.timesheetHistoryService.recordEvent({
+      entityType: TimesheetHistoryEntityTypeEnum.TimesheetEntry,
+      entityId: savedEntry.id,
+      action: TimesheetHistoryActionEnum.created,
+      userId: ctx.userId,
+      actorUserId: ctx.actorUserId,
+      metadata: { source: 'api' },
+    }, { orgId: ctx.orgId });
+
+    return savedEntry;
   }
 
   public async update(id: string, entryDto: Partial<TimesheetEntryDto>, ctx: TimesheetContext): Promise<TimesheetEntry | null> {
@@ -66,9 +90,23 @@ export class TimesheetService {
       return null;
     }
 
+    const oldEntry = { ...entry }; // Capture old state for diff
     Object.assign(entry, entryDto);
 
-    return this.timesheetEntryRepository.save(entry);
+    const savedEntry = await this.timesheetEntryRepository.save(entry);
+
+    // TODO: Implement a proper diffing mechanism
+    await this.timesheetHistoryService.recordEvent({
+      entityType: TimesheetHistoryEntityTypeEnum.TimesheetEntry,
+      entityId: savedEntry.id,
+      action: TimesheetHistoryActionEnum.updated,
+      userId: ctx.userId,
+      actorUserId: ctx.actorUserId,
+      diff: { before: oldEntry, after: savedEntry }, // Placeholder diff
+      metadata: { source: 'api' },
+    }, { orgId: ctx.orgId });
+
+    return savedEntry;
   }
 
   public async delete(id: string, ctx: TimesheetContext): Promise<void> {
@@ -78,6 +116,15 @@ export class TimesheetService {
     }
 
     await this.timesheetEntryRepository.remove(entry);
+
+    await this.timesheetHistoryService.recordEvent({
+      entityType: TimesheetHistoryEntityTypeEnum.TimesheetEntry,
+      entityId: id,
+      action: TimesheetHistoryActionEnum.deleted,
+      userId: ctx.userId,
+      actorUserId: ctx.actorUserId,
+      metadata: { source: 'api' },
+    }, { orgId: ctx.orgId });
   }
 
   public async approve(id: string, approverId: string, orgId: string): Promise<Approval | null> {
@@ -91,7 +138,18 @@ export class TimesheetService {
     approval.approverId = approverId;
     approval.status = ApprovalStatus.APPROVED;
 
-    return AppDataSource.getRepository(Approval).save(approval);
+    const savedApproval = await this.approvalRepository.save(approval);
+
+    await this.timesheetHistoryService.recordEvent({
+      entityType: TimesheetHistoryEntityTypeEnum.Approval,
+      entityId: savedApproval.id,
+      action: TimesheetHistoryActionEnum.approved,
+      userId: timesheetEntry.user.id,
+      actorUserId: approverId,
+      metadata: { source: 'api' },
+    }, { orgId: orgId });
+
+    return savedApproval;
   }
 
   public async reject(id: string, approverId: string, orgId: string, reason?: string): Promise<Approval | null> {
@@ -106,7 +164,19 @@ export class TimesheetService {
     approval.status = ApprovalStatus.REJECTED;
     approval.reason = reason;
 
-    return AppDataSource.getRepository(Approval).save(approval);
+    const savedApproval = await this.approvalRepository.save(approval);
+
+    await this.timesheetHistoryService.recordEvent({
+      entityType: TimesheetHistoryEntityTypeEnum.Approval,
+      entityId: savedApproval.id,
+      action: TimesheetHistoryActionEnum.rejected,
+      userId: timesheetEntry.user.id,
+      actorUserId: approverId,
+      reason: reason,
+      metadata: { source: 'api' },
+    }, { orgId: orgId });
+
+    return savedApproval;
   }
 
   public async listHistory({ userId, orgId }: { userId: string; orgId: string }): Promise<TimesheetHistorySummary[]> {
