@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { authService } from '@/lib/api/auth'
-import type { LoginForm } from '@/types'
+import { UsersService } from '@/lib/api'
+import type { LoginForm, User } from '@/types'
 
 export const useAuth = () => {
   const queryClient = useQueryClient()
@@ -12,14 +12,17 @@ export const useAuth = () => {
     error,
   } = useQuery({
     queryKey: ['auth', 'user'],
-    queryFn: authService.getCurrentUser,
+    queryFn: async () => {
+      // This needs to be implemented in the backend
+      return {} as User;
+    },
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
     enabled: Boolean(token),
   })
 
   const loginMutation = useMutation({
-    mutationFn: authService.login,
+    mutationFn: UsersService.loginUser,
     onSuccess: data => {
       window.localStorage.setItem('auth_token', data.token)
       queryClient.setQueryData(['auth', 'user'], data.user)
@@ -28,7 +31,7 @@ export const useAuth = () => {
   })
 
   const logoutMutation = useMutation({
-    mutationFn: authService.logout,
+    mutationFn: UsersService.logoutUser,
     onSuccess: () => {
       window.localStorage.removeItem('auth_token')
       queryClient.clear()
@@ -37,7 +40,7 @@ export const useAuth = () => {
   })
 
   const login = (credentials: LoginForm) => {
-    return loginMutation.mutateAsync(credentials)
+    return loginMutation.mutateAsync({ requestBody: credentials })
   }
 
   const logout = () => {
