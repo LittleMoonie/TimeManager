@@ -1,0 +1,168 @@
+name: API Spec and SDK Sync
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'App.API/src/**'
+      - 'App.API/tsoa.json'
+      - 'App.API/package.json'
+      - '.github/workflows/api-spec-sync.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'App.API/src/**'
+      - 'App.API/tsoa.json'
+      - 'App.API/package.json'
+
+jobs:
+  generate-api-spec:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.9.0'
+          cache: 'yarn'
+
+      - name: Setup Yarn
+        run: |
+          corepack enable
+          yarn set version 4.10.3
+
+      - name: Install API Dependencies
+        run: |
+          cd App.API
+          yarn install --frozen-lockfile
+
+      - name: Install Web Dependencies
+        run: |
+          cd App.Web
+          yarn install --frozen-lockfile
+
+      - name: Generate OpenAPI Spec and SDK
+        run: |
+          cd App.API
+          yarn api:generate-full
+
+      - name: Check for changes
+        id: verify-changed-files
+        run: |
+          if git diff --quiet HEAD -- App.API/swagger.json App.Web/src/lib/api/client.ts; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Display changed files
+        if: steps.verify-changed-files.outputs.changed == 'true'
+        run: |
+          echo "The following files have been updated:"
+          git diff --name-only HEAD -- App.API/swagger.json App.Web/src/lib/api/client.ts
+
+      - name: Validate generated files
+        run: |
+          # Check if swagger.json is valid
+          if [ ! -f App.API/swagger.json ]; then
+            echo "❌ swagger.json was not generated"
+            exit 1
+          fi
+          
+          # Check if client.ts is valid
+          if [ ! -f App.Web/src/lib/api/client.ts ]; then
+            echo "❌ client.ts was not generated"
+            exit 1
+          fi
+          
+          # Validate JSON syntax
+          cat App.API/swagger.json | jq . > /dev/null
+          
+          # Check TypeScript compilation
+          cd App.Web
+          yarn typecheck
+          
+          echo "✅ Generated files are valid"
+
+      - name: Commit and Push Changes
+        if: steps.verify-changed-files.outputs.changed == 'true' && github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add App.API/swagger.json App.Web/src/lib/api/client.ts
+          
+          git commit -m "chore(api): auto-update OpenAPI spec and TypeScript client
+
+          Generated from commit: ${{ github.sha }}
+          
+          - Updated OpenAPI specification (swagger.json)
+          - Updated TypeScript client (client.ts)
+          - Triggered by changes in: ${{ github.event.head_commit.message }}"
+          
+          git push
+
+      - name: Create PR Comment
+        if: steps.verify-changed-files.outputs.changed == 'true' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🤖 **API Spec and SDK Update**\n\nThe OpenAPI specification and TypeScript client have been automatically updated based on your API changes.\n\n**Updated files:**\n- `App.API/swagger.json`\n- `App.Web/src/lib/api/client.ts`\n\n✅ All generated files have been validated successfully.'
+            })
+
+  # Optional: Deploy updated docs to GitHub Pages or other hosting
+  deploy-docs:
+    runs-on: ubuntu-latest
+    needs: generate-api-spec
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Copy OpenAPI Spec to Docs
+        run: |
+          mkdir -p App.Docs/api
+          cp App.API/swagger.json App.Docs/api/openapi.json
+          
+          # Create a simple HTML redirect to Swagger UI
+          cat > App.Docs/api/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>GoGoTime API Documentation</title>
+            <meta http-equiv="refresh" content="0; url=http://localhost:4000/api/docs">
+          </head>
+          <body>
+            <p>Redirecting to <a href="http://localhost:4000/api/docs">API Documentation</a>...</p>
+          </body>
+          </html>
+          EOF
+
+      - name: Commit Documentation Updates
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add App.Docs/api/
+          
+          if ! git diff --quiet --cached; then
+            git commit -m "docs(api): update API documentation from ${{ github.sha }}"
+            git push
+          else
+            echo "No documentation changes to commit"
+          fi
