@@ -17,7 +17,7 @@ import WeekGridView from './WeekGridView'
 import DayLogView from './DayLogView'
 import TimesheetHistoryPanel from './TimesheetHistoryPanel'
 import { AppBreadcrumbs } from '@/components/ui/Breadcrumbs'
-  import { ActionCode, ActionCodeId, ISODate, Timesheet, DayMap } from '@/types'
+  import { ActionCode, ActionCodeId, ISODate, Timesheet } from '@/types'
 import { parseISO } from 'date-fns'
 import { addWeeks } from 'date-fns'
 import { isAfter } from 'date-fns'
@@ -118,7 +118,7 @@ const TimesheetPage = () => {
       const existing = timesheet.entries.map((entry) => entry.actionCode.id)
       const set = new Set([...prev, ...existing])
       return Array.from(set)
-    })
+    })  
   }, [timesheet])
 
   const actionCodes = useMemo(() => actionCodesQuery.data ?? [], [actionCodesQuery.data])
@@ -191,7 +191,7 @@ const TimesheetPage = () => {
   }) => {
     if (!timesheet || readOnly) return
 
-    const existingEntry = timesheet.entries.find((e: DayMap) => e.actionCode.id === code && e.day === dateISO);
+    const existingEntry = timesheet.entries.find((e) => e.actionCode.id === code && e.day === dateISO as ISODate);
 
     if (existingEntry) {
       await updateTimeEntry.mutateAsync({
@@ -238,7 +238,7 @@ const TimesheetPage = () => {
   const handleClearCell = async (code: ActionCodeId, dateISO: ISODate) => {
     if (!timesheet || readOnly) return
 
-    const entry = timesheet.entries.find((e: DayMap) => e.actionCode.id === code && e.day === dateISO);
+    const entry = timesheet.entries.find((e) => e.actionCode.id === code && e.day === dateISO);
     if (entry) {
       await deleteTimeEntry.mutateAsync(entry.id);
     }
