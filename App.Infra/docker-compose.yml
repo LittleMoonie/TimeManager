@@ -24,6 +24,21 @@ services:
     networks:
       - gogotime-network
 
+  # 🔧 Adminer for DB Management (PostgreSQL Admin Tool)
+  adminer:
+    image: adminer:latest
+    container_name: gogotime-adminer
+    restart: unless-stopped
+    ports:
+      - "8081:8080"  # Accès via http://localhost:8081
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+      ADMINER_DESIGN: flat  # Thème optionnel (flat, light, etc. ; laissez vide pour défaut)
+    depends_on:
+      - db  # Démarre après la DB
+    networks:
+      - gogotime-network
+
   # 🧠 Backend API (with Watch Mode)
   api:
     container_name: gogotime-api
@@ -117,6 +132,7 @@ services:
           target: /app/package.json
         - action: rebuild
           path: ../App.Web/yarn.lock
+
   jenkins:
     build:
       context: ./jenkins
@@ -182,8 +198,6 @@ services:
     networks:
       - gogotime-network
     restart: unless-stopped
-
-    
 
   grafana:
     image: grafana/grafana:latest
