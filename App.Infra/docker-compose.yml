@@ -30,12 +30,12 @@ services:
     container_name: gogotime-adminer
     restart: unless-stopped
     ports:
-      - "8081:8080"  # Accès via http://localhost:8081
+      - "8081:8080"
     environment:
       ADMINER_DEFAULT_SERVER: db
-      ADMINER_DESIGN: flat  # Thème optionnel (flat, light, etc. ; laissez vide pour défaut)
+      ADMINER_DESIGN: flat 
     depends_on:
-      - db  # Démarre après la DB
+      - db
     networks:
       - gogotime-network
 
@@ -111,10 +111,10 @@ services:
     command: sh -c "(yarn install --immutable || yarn install) && yarn dev"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
-      interval: 30s
-      timeout: 10s
+      interval: 60s
+      timeout: 20s
       retries: 3
-      start_period: 40s
+      start_period: 60s
     networks:
       - gogotime-network
     develop:
