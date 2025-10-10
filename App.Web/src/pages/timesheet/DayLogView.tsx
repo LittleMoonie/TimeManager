@@ -16,7 +16,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
-import { Add, ChevronLeft, ChevronRight, Delete, DeleteForever } from '@mui/icons-material';
+import { Add, ChevronLeft, ChevronRight, Clear, Delete, DeleteForever } from '@mui/icons-material';
 import { COUNTRIES } from '@/constants/countries';
 import type {
   ActionCode,
@@ -26,14 +26,18 @@ import type {
   Timesheet,
   WorkMode,
 } from '@/types';
+import type { Meridian } from './utils';
 import {
+  analyzeIntervals,
+  buildMeridianTime,
+  ensureMeridianTime,
   formatDayLabel,
+  formatIntervalsWithTotal,
   formatMinutes,
   getWeekDates,
-  parseDuration,
+  splitMeridianTime,
+  to24HourTime,
   toISODate,
-  formatIntervals,
-  analyzeIntervals,
 } from './utils';
 import { isWeekend } from 'date-fns';
 
@@ -41,7 +45,6 @@ type DayEntryRow = {
   internalId: string;
   code: ActionCodeId | '';
   minutes: number;
-  durationText: string;
   mode: WorkMode;
   country: string;
   note: string;
@@ -71,16 +74,20 @@ interface DayLogViewProps {
 }
 
 const MAX_DAY_MINUTES = 24 * 60;
+const MERIDIANS: Meridian[] = ['AM', 'PM'];
 
 const createRowFromEntry = (code: ActionCodeId, entry: CellEntry): DayEntryRow => ({
   internalId: `${code}-${entry.location.mode}-${entry.location.country}`,
   code,
   minutes: entry.minutes,
-  durationText: formatMinutes(entry.minutes),
   mode: entry.location.mode,
   country: entry.location.country,
   note: entry.note ?? '',
-  intervals: entry.intervals ?? [],
+  intervals:
+    entry.intervals?.map((interval) => ({
+      start: ensureMeridianTime(interval.start),
+      end: ensureMeridianTime(interval.end),
+    })) ?? [],
   existing: true,
   sent: entry.sent,
   deficitReason: entry.deficitReason,
@@ -90,7 +97,6 @@ const createEmptyRow = (): DayEntryRow => ({
   internalId: crypto.randomUUID(),
   code: '',
   minutes: 0,
-  durationText: '',
   mode: 'Office',
   country: 'US',
   note: '',
@@ -156,18 +162,107 @@ export const DayLogView = ({
     });
   };
 
-  const handleMinutesBlur = (rowIndex: number, rawValue: string) => {
-    const parsed = parseDuration(rawValue);
-    if (parsed === null) return;
+  const updateRowIntervals = (
+    rowIndex: number,
+    updater: (prev: DayEntryRow['intervals']) => DayEntryRow['intervals'],
+  ) => {
     setRows((prev) => {
       const next = [...prev];
+      const target = next[rowIndex];
+      if (!target) {
+        return prev;
+      }
+      const nextIntervals = updater(target.intervals);
+      const analysis = analyzeIntervals(nextIntervals);
       next[rowIndex] = {
-        ...next[rowIndex],
-        minutes: parsed,
-        durationText: formatMinutes(parsed),
+        ...target,
+        intervals: nextIntervals,
+        minutes: analysis.kind === 'ok' ? analysis.totalMinutes : 0,
       };
       return next;
     });
+  };
+
+  const handleIntervalTimeChange = (
+    rowIndex: number,
+    intervalIndex: number,
+    field: 'start' | 'end',
+    value: string,
+  ) => {
+    const trimmed = value.trim();
+    updateRowIntervals(rowIndex, (prevIntervals) => {
+      const next = [...prevIntervals];
+      const current = next[intervalIndex] ?? { start: '', end: '' };
+      if (field === 'start') {
+        const currentStart = splitMeridianTime(current.start);
+        const nextStart = trimmed ? buildMeridianTime(trimmed, currentStart.period) : '';
+        const adjustedStart = ensureMeridianTime(nextStart);
+        const startPeriod = splitMeridianTime(adjustedStart).period;
+        const currentEndSplit = splitMeridianTime(current.end);
+        let nextEnd = current.end;
+        if (startPeriod === 'PM' && currentEndSplit.period === 'AM') {
+          nextEnd = currentEndSplit.time ? buildMeridianTime(currentEndSplit.time, 'PM') : '';
+        }
+        next[intervalIndex] = {
+          start: adjustedStart,
+          end: ensureMeridianTime(nextEnd),
+        };
+      } else {
+        const startSplit = splitMeridianTime(current.start);
+        const currentEndSplit = splitMeridianTime(current.end);
+        const enforcedPeriod: Meridian =
+          startSplit.period === 'PM' ? 'PM' : currentEndSplit.period;
+        const nextEnd = trimmed ? buildMeridianTime(trimmed, enforcedPeriod) : '';
+        next[intervalIndex] = {
+          start: ensureMeridianTime(current.start),
+          end: ensureMeridianTime(nextEnd),
+        };
+      }
+      return next;
+    });
+  };
+
+  const handleIntervalPeriodChange = (
+    rowIndex: number,
+    intervalIndex: number,
+    field: 'start' | 'end',
+    period: Meridian,
+  ) => {
+    updateRowIntervals(rowIndex, (prevIntervals) => {
+      const next = [...prevIntervals];
+      const current = next[intervalIndex] ?? { start: '', end: '' };
+      if (field === 'start') {
+        const startSplit = splitMeridianTime(current.start);
+        const nextStart = startSplit.time ? buildMeridianTime(startSplit.time, period) : '';
+        const endSplit = splitMeridianTime(current.end);
+        let nextEnd = current.end;
+        if (period === 'PM' && endSplit.period === 'AM') {
+          nextEnd = endSplit.time ? buildMeridianTime(endSplit.time, 'PM') : '';
+        }
+        next[intervalIndex] = {
+          start: ensureMeridianTime(nextStart),
+          end: ensureMeridianTime(nextEnd),
+        };
+      } else {
+        const startSplit = splitMeridianTime(current.start);
+        const enforcedPeriod: Meridian = startSplit.period === 'PM' ? 'PM' : period;
+        const endSplit = splitMeridianTime(current.end);
+        const nextEnd = endSplit.time ? buildMeridianTime(endSplit.time, enforcedPeriod) : '';
+        next[intervalIndex] = {
+          start: ensureMeridianTime(current.start),
+          end: ensureMeridianTime(nextEnd),
+        };
+      }
+      return next;
+    });
+  };
+
+  const handleAddIntervalToRow = (rowIndex: number) => {
+    updateRowIntervals(rowIndex, (prevIntervals) => [...prevIntervals, { start: '', end: '' }]);
+  };
+
+  const handleRemoveIntervalFromRow = (rowIndex: number, intervalIndex: number) => {
+    updateRowIntervals(rowIndex, (prevIntervals) => prevIntervals.filter((_, idx) => idx !== intervalIndex));
   };
 
   const handleAddRow = () => {
@@ -208,6 +303,7 @@ export const DayLogView = ({
   const isWeekendDay = isWeekend(date);
   const weekendLocked = isWeekendDay && !weekendOverrideSet.has(dateISO);
   const locked = readOnly || weekendLocked;
+  const showNoHoursDayMessage = readOnly && dayTotal === 0;
 
   const summary = useMemo(
     () =>
@@ -237,27 +333,23 @@ export const DayLogView = ({
 
   const handleSave = async () => {
     if (locked) return;
+    let hasInvalidIntervals = false;
     const normalizedRows = rows.map((row) => {
       const intervalAnalysis = analyzeIntervals(row.intervals);
-      if (intervalAnalysis.kind === 'ok') {
-        const total = intervalAnalysis.totalMinutes;
-        return {
-          ...row,
-          minutes: total,
-          durationText: formatMinutes(total),
-        };
+      if (intervalAnalysis.kind === 'invalid' || intervalAnalysis.kind === 'partial') {
+        hasInvalidIntervals = true;
       }
-
-      const parsed = parseDuration(row.durationText || `${row.minutes}`);
-      if (parsed === null) {
-        return row;
-      }
+      const total = intervalAnalysis.kind === 'ok' ? intervalAnalysis.totalMinutes : 0;
       return {
         ...row,
-        minutes: parsed,
-        durationText: formatMinutes(parsed),
+        minutes: total,
       };
     });
+
+    if (hasInvalidIntervals) {
+      setDayError('Intervals must be valid HH:MM ranges with AM/PM specified.');
+      return;
+    }
 
     setRows(normalizedRows);
 
@@ -283,9 +375,25 @@ export const DayLogView = ({
     setReasonError(null);
     setDayError(null);
 
+    const rowsForSave: DayEntryRow[] = cleanRows.map((row) => ({
+      ...row,
+      intervals: row.intervals
+        .map((interval) => {
+          const startDisplay = ensureMeridianTime(interval.start);
+          const endDisplay = ensureMeridianTime(interval.end);
+          if (!startDisplay || !endDisplay) {
+            return null;
+          }
+          const start = to24HourTime(startDisplay) || startDisplay;
+          const end = to24HourTime(endDisplay) || endDisplay;
+          return { start, end };
+        })
+        .filter(Boolean) as { start: string; end: string }[],
+    }));
+
     await onSaveDay({
       dateISO,
-      rows: cleanRows,
+      rows: rowsForSave,
       deficitReason: normalizedTotal < dailyMin ? reason.trim() : undefined,
     });
   };
@@ -333,20 +441,27 @@ export const DayLogView = ({
             )}
             <Box display="flex" justifyContent="space-between" alignItems="center">
               <Typography variant="subtitle1">Entries</Typography>
-              <Button
-                variant="text"
-                startIcon={<Add />}
-                onClick={handleAddRow}
-                size="small"
-                aria-label="Add entry"
-                disabled={locked}
-              >
-                Add row
-              </Button>
+              {!showNoHoursDayMessage && (
+                <Button
+                  variant="text"
+                  startIcon={<Add />}
+                  onClick={handleAddRow}
+                  size="small"
+                  aria-label="Add entry"
+                  disabled={locked}
+                >
+                  Add row
+                </Button>
+              )}
             </Box>
 
-            <Stack spacing={2}>
-              {rows.map((row, index) => (
+            {showNoHoursDayMessage ? (
+              <Typography variant="body2" color="text.secondary">
+                No hours done.
+              </Typography>
+            ) : (
+              <Stack spacing={2}>
+                {rows.map((row, index) => (
                 <PaperRow
                   key={row.internalId}
                   row={row}
@@ -354,20 +469,24 @@ export const DayLogView = ({
                   actionCodes={actionCodes}
                   onDelete={() => handleRemoveRow(index)}
                   onFieldChange={handleRowChange}
-                  onDurationBlur={handleMinutesBlur}
+                  onAddInterval={handleAddIntervalToRow}
+                  onIntervalTimeChange={handleIntervalTimeChange}
+                  onIntervalPeriodChange={handleIntervalPeriodChange}
+                  onRemoveInterval={handleRemoveIntervalFromRow}
                   disabled={locked}
                   disabledCodes={rows
                     .filter((_, idx) => idx !== index)
                     .map((item) => item.code)
                     .filter(Boolean) as ActionCodeId[]}
-                  onRemoveFromWeek={
-                    row.code ? () => handleRemoveCodeFromWeek(row.code as ActionCodeId) : undefined
-                  }
-                  disableRemoveFromWeek={Boolean(isRemovingActionCode)}
-                  accentColor={row.code ? codeById.get(row.code as ActionCodeId)?.color : undefined}
-                />
-              ))}
-            </Stack>
+                    onRemoveFromWeek={
+                      row.code ? () => handleRemoveCodeFromWeek(row.code as ActionCodeId) : undefined
+                    }
+                    disableRemoveFromWeek={Boolean(isRemovingActionCode)}
+                    accentColor={row.code ? codeById.get(row.code as ActionCodeId)?.color : undefined}
+                  />
+                ))}
+              </Stack>
+            )}
 
             <Divider />
 
@@ -435,7 +554,7 @@ export const DayLogView = ({
           </Typography>
           {summary.length === 0 ? (
             <Typography variant="body2" color="text.secondary">
-              Nothing logged yet.
+              {showNoHoursDayMessage ? 'No hours done.' : 'Nothing logged yet.'}
             </Typography>
           ) : (
             <Stack spacing={1.5}>
@@ -467,7 +586,7 @@ export const DayLogView = ({
                     </Typography>
                     {item.intervals?.length ? (
                       <Typography variant="caption" color="text.secondary">
-                        {formatIntervals(item.intervals)}
+                        {formatIntervalsWithTotal(item.intervals, item.minutes)}
                       </Typography>
                     ) : null}
                     {item.note && (
@@ -496,7 +615,20 @@ interface PaperRowProps {
     field: Key,
     value: DayEntryRow[Key],
   ) => void;
-  onDurationBlur: (rowIndex: number, value: string) => void;
+  onAddInterval: (rowIndex: number) => void;
+  onIntervalTimeChange: (
+    rowIndex: number,
+    intervalIndex: number,
+    field: 'start' | 'end',
+    value: string,
+  ) => void;
+  onIntervalPeriodChange: (
+    rowIndex: number,
+    intervalIndex: number,
+    field: 'start' | 'end',
+    period: Meridian,
+  ) => void;
+  onRemoveInterval: (rowIndex: number, intervalIndex: number) => void;
   onRemoveFromWeek?: () => void;
   disableRemoveFromWeek?: boolean;
   accentColor?: string;
@@ -508,7 +640,10 @@ const PaperRow = ({
   actionCodes,
   onDelete,
   onFieldChange,
-  onDurationBlur,
+  onAddInterval,
+  onIntervalTimeChange,
+  onIntervalPeriodChange,
+  onRemoveInterval,
   onRemoveFromWeek,
   disableRemoveFromWeek,
   disabled,
@@ -595,19 +730,7 @@ const PaperRow = ({
             disabled={disabled}
           />
         </Grid>
-        <Grid size={{ xs: 12, md: 2 }}>
-          <TextField
-            label="Duration"
-            value={row.durationText}
-            onChange={(event) => onFieldChange(index, 'durationText', event.target.value)}
-            onBlur={(event) => onDurationBlur(index, event.target.value)}
-            helperText="Supports 1h30, 90m, 1:30"
-            required
-            inputProps={{ inputMode: 'decimal' }}
-            disabled={disabled}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 2 }}>
+        <Grid size={{ xs: 12, md: 3 }}>
           <TextField
             label="Work mode"
             value={row.mode}
@@ -621,7 +744,7 @@ const PaperRow = ({
             <MenuItem value="Homeworking">Homeworking</MenuItem>
           </TextField>
         </Grid>
-        <Grid size={{ xs: 12, md: 2 }}>
+        <Grid size={{ xs: 12, md: 3 }}>
           <Autocomplete
             options={COUNTRIES}
             getOptionLabel={(option) => `${option.code} — ${option.name}`}
@@ -666,6 +789,128 @@ const PaperRow = ({
               </span>
             </Tooltip>
           )}
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <Stack spacing={1.5}>
+            <Box display="flex" justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} gap={1}>
+              <Stack spacing={0.25}>
+                <Typography variant="subtitle2">Intervals</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {row.minutes > 0 ? `Total ${formatMinutes(row.minutes)}` : 'No time logged yet'}
+                </Typography>
+              </Stack>
+              <Button
+                size="small"
+                startIcon={<Add fontSize="small" />}
+                onClick={() => onAddInterval(index)}
+                disabled={disabled}
+              >
+                Add interval
+              </Button>
+            </Box>
+            {row.intervals.length === 0 ? (
+              <Typography variant="caption" color="text.secondary">
+                Add at least one interval with a start and end time.
+              </Typography>
+            ) : (
+              <Stack spacing={1}>
+                {row.intervals.map((interval, intervalIndex) => {
+                  const startSplit = splitMeridianTime(interval.start);
+                  const endSplit = splitMeridianTime(interval.end);
+                  const allowedEndMeridians =
+                    startSplit.period === 'PM' ? (['PM'] as Meridian[]) : MERIDIANS;
+                  const displayEndPeriod = allowedEndMeridians.includes(endSplit.period)
+                    ? endSplit.period
+                    : allowedEndMeridians[0];
+                  return (
+                    <Box
+                      key={`${row.internalId}-interval-${intervalIndex}`}
+                      display="flex"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      gap={1}
+                    >
+                      <TextField
+                        label="Start"
+                        value={startSplit.time}
+                        onChange={(event) =>
+                          onIntervalTimeChange(index, intervalIndex, 'start', event.target.value)
+                        }
+                        inputProps={{ placeholder: '09:00' }}
+                        size="small"
+                        disabled={disabled}
+                      />
+                      <TextField
+                        label="AM/PM"
+                        value={startSplit.period}
+                        onChange={(event) =>
+                          onIntervalPeriodChange(
+                            index,
+                            intervalIndex,
+                            'start',
+                            event.target.value as Meridian,
+                          )
+                        }
+                        select
+                        size="small"
+                        sx={{ width: 100 }}
+                        disabled={disabled}
+                      >
+                        {MERIDIANS.map((meridian) => (
+                          <MenuItem key={meridian} value={meridian}>
+                            {meridian}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                      <TextField
+                        label="End"
+                        value={endSplit.time}
+                        onChange={(event) =>
+                          onIntervalTimeChange(index, intervalIndex, 'end', event.target.value)
+                        }
+                        inputProps={{ placeholder: '10:15' }}
+                        size="small"
+                        disabled={disabled}
+                      />
+                      <TextField
+                        label="AM/PM"
+                        value={displayEndPeriod}
+                        onChange={(event) =>
+                          onIntervalPeriodChange(
+                            index,
+                            intervalIndex,
+                            'end',
+                            event.target.value as Meridian,
+                          )
+                        }
+                        select
+                        size="small"
+                        sx={{ width: 100 }}
+                        disabled={disabled}
+                      >
+                        {allowedEndMeridians.map((meridian) => (
+                          <MenuItem key={meridian} value={meridian}>
+                            {meridian}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                      <Tooltip title="Remove interval">
+                        <span>
+                          <IconButton
+                            size="small"
+                            onClick={() => onRemoveInterval(index, intervalIndex)}
+                            disabled={disabled}
+                          >
+                            <Clear fontSize="small" />
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                    </Box>
+                  );
+                })}
+              </Stack>
+            )}
+          </Stack>
         </Grid>
         <Grid size={{ xs: 12 }}>
           <TextField

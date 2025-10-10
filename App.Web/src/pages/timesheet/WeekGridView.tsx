@@ -6,7 +6,6 @@ import {
   Chip,
   Divider,
   IconButton,
-  InputAdornment,
   Link,
   List,
   ListItem,
@@ -57,25 +56,76 @@ import { alpha, useTheme } from '@mui/material/styles';
 import { addWeeks, isAfter, isWeekend, parseISO } from 'date-fns';
 import {
   analyzeIntervals,
-  type IntervalAnalysis,
+  buildMeridianTime,
+  ensureMeridianTime,
   formatDayLabel,
-  formatIntervals,
+  formatIntervalsWithTotal,
   formatMinutes,
   formatWeekRange,
   getWeekDates,
+  splitMeridianTime,
+  to24HourTime,
   toISODate,
 } from './utils';
+import type { IntervalAnalysis, Meridian } from './utils';
 
-type QuickIncrement = 5 | 15 | 30 | 60;
+const MERIDIANS: Meridian[] = ['AM', 'PM'];
 
-const QUICK_INCREMENTS: QuickIncrement[] = [5, 15, 30, 60];
+type EditorIntervalEndPoints = {
+  time: string;
+  period: Meridian;
+};
+
+type EditorInterval = {
+  start: EditorIntervalEndPoints;
+  end: EditorIntervalEndPoints;
+};
+
+const createEmptyEditorInterval = (): EditorInterval => ({
+  start: { time: '', period: 'AM' },
+  end: { time: '', period: 'AM' },
+});
+
+const toEditorInterval = (interval: { start: string; end: string }): EditorInterval => {
+  const startMeridian = splitMeridianTime(ensureMeridianTime(interval.start));
+  const endMeridian = splitMeridianTime(ensureMeridianTime(interval.end));
+  return {
+    start: { time: startMeridian.time, period: startMeridian.period },
+    end: { time: endMeridian.time, period: endMeridian.period },
+  };
+};
+
+const editorIntervalToDisplay = (endpoint: EditorIntervalEndPoints) => {
+  const trimmed = endpoint.time.trim();
+  return trimmed ? buildMeridianTime(trimmed, endpoint.period) : '';
+};
+
+const editorIntervalsToStrings = (intervals: EditorInterval[]) =>
+  intervals.map((interval) => ({
+    start: editorIntervalToDisplay(interval.start),
+    end: editorIntervalToDisplay(interval.end),
+  }));
+
+const mapIntervalsForApi = (intervals: EditorInterval[]) =>
+  intervals
+    .map((interval) => {
+      const startDisplay = editorIntervalToDisplay(interval.start);
+      const endDisplay = editorIntervalToDisplay(interval.end);
+      if (!startDisplay || !endDisplay) {
+        return null;
+      }
+      const start = to24HourTime(startDisplay) || startDisplay;
+      const end = to24HourTime(endDisplay) || endDisplay;
+      return { start, end };
+    })
+    .filter((interval): interval is { start: string; end: string } => Boolean(interval));
 
 interface CellEditorState {
   minutes: number;
   mode: WorkMode;
   country: string;
   note: string;
-  intervals: { start: string; end: string }[];
+  intervals: EditorInterval[];
 }
 
 const MAX_DAY_MINUTES = 24 * 60;
@@ -116,18 +166,12 @@ const defaultEditorState = (entry?: CellEntry): CellEditorState => ({
   mode: entry?.location.mode ?? 'Office',
   country: entry?.location.country ?? 'US',
   note: entry?.note ?? '',
-  intervals: entry?.intervals ?? [],
+  intervals: entry?.intervals?.map((interval) => toEditorInterval(interval)) ?? [],
 });
 
 const hasEditorContent = (state: CellEditorState) => {
-  if (state.minutes > 0) {
-    return true;
-  }
-  if (state.note.trim().length > 0) {
-    return true;
-  }
   return state.intervals.some(
-    (interval) => interval.start.trim().length > 0 || interval.end.trim().length > 0,
+    (interval) => interval.start.time.trim().length > 0 && interval.end.time.trim().length > 0,
   );
 };
 
@@ -147,8 +191,9 @@ const computeDayMinutes = (
 };
 
 const INTERVAL_INVALID_ERROR =
-  'Intervals must be valid HH:MM ranges with the end time after the start.';
+  'Intervals must be valid HH:MM AM/PM ranges with the end time after the start.';
 const INTERVAL_INCOMPLETE_ERROR = 'Complete both start and end times for each interval.';
+const TIME_REQUIRED_ERROR = 'Add at least one interval before saving.';
 
 const getCellEntry = (timesheet: Timesheet | undefined, code: ActionCodeId, dateISO: ISODate) =>
   timesheet?.entries?.[code]?.[dateISO];
@@ -213,27 +258,33 @@ export const WeekGridView = ({
   }, [readOnly, addCodeOpen]);
 
   useEffect(() => {
-    if (error === 'Add time, notes, or intervals before saving.' && hasEditorContent(editorState)) {
+    if (error === TIME_REQUIRED_ERROR && hasEditorContent(editorState)) {
       setError(null);
     }
   }, [editorState, error]);
 
   const applyIntervalsUpdate = useCallback(
     (updater: (prev: CellEditorState['intervals']) => CellEditorState['intervals']) => {
-      let analysis: IntervalAnalysis = { kind: 'empty' };
+      let analysis: IntervalAnalysis | null = null;
       setEditorState((prev) => {
         const nextIntervals = updater(prev.intervals);
-        analysis = analyzeIntervals(nextIntervals);
         const nextState: CellEditorState = { ...prev, intervals: nextIntervals };
-        if (analysis.kind === 'ok') {
-          nextState.minutes = analysis.totalMinutes;
+        const serialized = editorIntervalsToStrings(nextIntervals);
+        const nextAnalysis = analyzeIntervals(serialized);
+        analysis = nextAnalysis;
+        if (nextAnalysis.kind === 'ok') {
+          nextState.minutes = nextAnalysis.totalMinutes;
+        } else if (nextAnalysis.kind === 'empty') {
+          nextState.minutes = 0;
         }
         return nextState;
       });
 
-      if (analysis.kind === 'invalid') {
+      const finalAnalysis = analysis ?? ({ kind: 'empty' } as IntervalAnalysis);
+
+      if (finalAnalysis.kind === 'invalid') {
         setError(INTERVAL_INVALID_ERROR);
-      } else if (analysis.kind === 'partial') {
+      } else if (finalAnalysis.kind === 'partial') {
         setError(INTERVAL_INCOMPLETE_ERROR);
       } else {
         setError((prevError) =>
@@ -294,37 +345,88 @@ export const WeekGridView = ({
     setError(null);
   };
 
-  const handleIntervalChange = (index: number, field: 'start' | 'end', value: string) => {
+  const updateIntervalAt = (
+    index: number,
+    updater: (current: EditorInterval) => EditorInterval,
+  ) => {
     applyIntervalsUpdate((prevIntervals) => {
       const next = [...prevIntervals];
-      if (!next[index]) {
-        next[index] = { start: '', end: '' };
-      }
-      next[index] = {
-        ...next[index],
-        [field]: value,
-      };
+      const current = next[index] ?? createEmptyEditorInterval();
+      next[index] = updater(current);
       return next;
     });
   };
 
+  const handleIntervalTimeChange = (index: number, field: 'start' | 'end', value: string) => {
+    const trimmed = value.trim();
+    updateIntervalAt(index, (current) => {
+      if (field === 'start') {
+        return {
+          ...current,
+          start: {
+            time: trimmed,
+            period: current.start.period,
+          },
+        };
+      }
+      const enforcedPeriod = current.start.period === 'PM' ? 'PM' : current.end.period;
+      return {
+        ...current,
+        end: {
+          time: trimmed,
+          period: enforcedPeriod,
+        },
+      };
+    });
+  };
+
+  const handleIntervalPeriodChange = (
+    index: number,
+    field: 'start' | 'end',
+    period: Meridian,
+  ) => {
+    updateIntervalAt(index, (current) => {
+      if (field === 'start') {
+        const nextEnd =
+          period === 'PM' && current.end.period === 'AM'
+            ? { ...current.end, period: 'PM' as Meridian }
+            : current.end;
+        return {
+          ...current,
+          start: {
+            ...current.start,
+            period,
+          },
+          end: nextEnd,
+        };
+      }
+
+      if (current.start.period === 'PM' && period === 'AM') {
+        return {
+          ...current,
+          end: {
+            ...current.end,
+            period: 'PM' as Meridian,
+          },
+        };
+      }
+
+      return {
+        ...current,
+        end: {
+          ...current.end,
+          period,
+        },
+      };
+    });
+  };
+
   const handleAddInterval = () => {
-    applyIntervalsUpdate((prevIntervals) => [...prevIntervals, { start: '', end: '' }]);
+    applyIntervalsUpdate((prevIntervals) => [...prevIntervals, createEmptyEditorInterval()]);
   };
 
   const handleRemoveInterval = (index: number) => {
     applyIntervalsUpdate((prevIntervals) => prevIntervals.filter((_, idx) => idx !== index));
-  };
-
-  const handleQuickAdd = (increment: QuickIncrement) => {
-    setEditorState((prev) => {
-      const limit = editingKey ? entryLimit : MAX_DAY_MINUTES;
-      const nextMinutes = Math.min(limit, Math.max(0, prev.minutes + increment));
-      return {
-        ...prev,
-        minutes: nextMinutes,
-      };
-    });
   };
 
   const handleSaveCell = async () => {
@@ -339,24 +441,26 @@ export const WeekGridView = ({
     }
 
     if (!hasEditorContent(editorState)) {
-      setError('Add time, notes, or intervals before saving.');
+      setError(TIME_REQUIRED_ERROR);
       return;
     }
 
-    const intervalAnalysis = analyzeIntervals(editorState.intervals);
+    const intervalAnalysis = analyzeIntervals(editorIntervalsToStrings(editorState.intervals));
     if (intervalAnalysis.kind === 'invalid') {
       setError(INTERVAL_INVALID_ERROR);
       return;
     }
-    if (intervalAnalysis.kind === 'partial') {
-      setError(INTERVAL_INCOMPLETE_ERROR);
+    if (intervalAnalysis.kind === 'partial' || intervalAnalysis.kind === 'empty') {
+      setError(TIME_REQUIRED_ERROR);
       return;
     }
+    const mappedIntervals = mapIntervalsForApi(editorState.intervals);
+    if (!mappedIntervals.length) {
+      setError(TIME_REQUIRED_ERROR);
+      return;
+    }
+    const nextMinutes = intervalAnalysis.totalMinutes;
 
-    const nextMinutes =
-      intervalAnalysis.kind === 'ok'
-        ? intervalAnalysis.totalMinutes
-        : Math.max(0, editorState.minutes);
     if (exceedsDayLimit(editingKey.dateISO, nextMinutes, editingKey.code)) {
       setError('Day total cannot exceed 24h (1440 minutes).');
       return;
@@ -365,7 +469,7 @@ export const WeekGridView = ({
     const entry: CellEntry = {
       minutes: nextMinutes,
       note: editorState.note || undefined,
-      intervals: editorState.intervals.length ? editorState.intervals : undefined,
+      intervals: mappedIntervals,
       location: {
         mode: editorState.mode,
         country: editorState.country,
@@ -402,7 +506,18 @@ export const WeekGridView = ({
       setError('Next day is locked.');
       return;
     }
-    const copyMinutes = Math.max(0, editorState.minutes);
+    const intervalAnalysis = analyzeIntervals(editorIntervalsToStrings(editorState.intervals));
+    if (intervalAnalysis.kind !== 'ok') {
+      setError('Complete intervals before copying.');
+      return;
+    }
+    const mappedIntervals = mapIntervalsForApi(editorState.intervals);
+    if (!mappedIntervals.length) {
+      setError('Complete intervals before copying.');
+      return;
+    }
+    const copyMinutes = intervalAnalysis.totalMinutes;
+
     if (exceedsDayLimit(nextDateISO, copyMinutes, editingKey.code)) {
       setError('Copying would exceed 24h for the next day.');
       return;
@@ -411,7 +526,7 @@ export const WeekGridView = ({
     const entry: CellEntry = {
       minutes: copyMinutes,
       note: editorState.note || undefined,
-      intervals: editorState.intervals.length ? editorState.intervals : undefined,
+      intervals: mappedIntervals,
       location: {
         mode: editorState.mode,
         country: editorState.country,
@@ -439,7 +554,18 @@ export const WeekGridView = ({
       setError('No eligible days available in this week.');
       return;
     }
-    const copyMinutes = Math.max(0, editorState.minutes);
+    const intervalAnalysis = analyzeIntervals(editorIntervalsToStrings(editorState.intervals));
+    if (intervalAnalysis.kind !== 'ok') {
+      setError('Complete intervals before copying.');
+      return;
+    }
+    const mappedIntervals = mapIntervalsForApi(editorState.intervals);
+    if (!mappedIntervals.length) {
+      setError('Complete intervals before copying.');
+      return;
+    }
+    const copyMinutes = intervalAnalysis.totalMinutes;
+
     const blockedDates = eligibleDates.filter(({ iso }) =>
       exceedsDayLimit(iso, copyMinutes, editingKey.code),
     );
@@ -451,7 +577,7 @@ export const WeekGridView = ({
     const entry: CellEntry = {
       minutes: copyMinutes,
       note: editorState.note || undefined,
-      intervals: editorState.intervals.length ? editorState.intervals : undefined,
+      intervals: mappedIntervals,
       location: {
         mode: editorState.mode,
         country: editorState.country,
@@ -495,15 +621,18 @@ export const WeekGridView = ({
   }, [weeklyTotal, weeklyMin]);
 
   const [codeInput, setCodeInput] = useState('');
+  const weekHasLoggedMinutes = weeklyTotal > 0;
+  const showNoWeekHoursMessage = readOnly && !weekHasLoggedMinutes;
   const canSave = useMemo(() => {
     if (!editorState.country.trim() || !editorState.mode) {
       return false;
     }
-    if (!hasEditorContent(editorState)) {
+    const analysis = analyzeIntervals(editorIntervalsToStrings(editorState.intervals));
+    if (analysis.kind !== 'ok') {
       return false;
     }
     if (editingKey) {
-      return editorState.minutes <= entryLimit;
+      return analysis.totalMinutes <= entryLimit;
     }
     return true;
   }, [editorState, entryLimit, editingKey]);
@@ -530,20 +659,26 @@ export const WeekGridView = ({
           </IconButton>
       </Box>
 
-        <Box display="flex" gap={1}>
-          <Button
-            variant={addCodeOpen ? 'contained' : 'outlined'}
-            startIcon={<Add />}
-            onClick={() => {
-              if (readOnly) return;
-              setAddCodeOpen((prev) => !prev);
-            }}
-            aria-expanded={addCodeOpen}
-            aria-controls="add-action-code-panel"
-            disabled={readOnly}
-          >
-            Add action code
-          </Button>
+        <Box display="flex" gap={1} alignItems="center">
+          {showNoWeekHoursMessage ? (
+            <Typography variant="body2" color="text.secondary">
+              No hours done this week.
+            </Typography>
+          ) : (
+            <Button
+              variant={addCodeOpen ? 'contained' : 'outlined'}
+              startIcon={<Add />}
+              onClick={() => {
+                if (readOnly) return;
+                setAddCodeOpen((prev) => !prev);
+              }}
+              aria-expanded={addCodeOpen}
+              aria-controls="add-action-code-panel"
+              disabled={readOnly}
+            >
+              Add action code
+            </Button>
+          )}
         </Box>
       </Box>
 
@@ -690,7 +825,8 @@ export const WeekGridView = ({
           </TableHead>
 
           <TableBody>
-            {actionCodeRows.map((code) => {
+            {actionCodeRows.length > 0 ? (
+              actionCodeRows.map((code) => {
               const accentColor = code.color ?? theme.palette.primary.main;
               return (
                 <TableRow key={code.id} hover>
@@ -767,6 +903,10 @@ export const WeekGridView = ({
                   const sent = entry?.sent;
                   const weekendLocked = isWeekend(date) && !weekendOverrideSet.has(iso);
                   const locked = readOnly || weekendLocked;
+                  const intervalSummary =
+                    entry?.intervals && entry.intervals.length
+                      ? formatIntervalsWithTotal(entry.intervals, minutes)
+                      : null;
                   return (
                     <TableCell
                       key={iso}
@@ -782,19 +922,14 @@ export const WeekGridView = ({
                       }}
                     >
                       <Stack spacing={0.5} alignItems="center">
-                        <Typography variant="body2" fontWeight={500}>
-                          {minutes ? formatMinutes(minutes) : '—'}
+                        <Typography variant="body2" fontWeight={500} textAlign="center">
+                          {intervalSummary ?? 'No intervals'}
                         </Typography>
                         {entry?.location && (
                           <Typography variant="caption" color="text.secondary">
                             {entry.location.mode} · {entry.location.country}
                           </Typography>
                         )}
-                        {entry?.intervals?.length ? (
-                          <Typography variant="caption" color="text.secondary">
-                            {formatIntervals(entry.intervals)}
-                          </Typography>
-                        ) : null}
                         {entry?.note && (
                           <Tooltip title={entry.note}>
                             <NoteAdd fontSize="inherit" color="action" />
@@ -810,20 +945,7 @@ export const WeekGridView = ({
                             Read-only week
                           </Typography>
                         )}
-                        {locked ? (
-                          <Tooltip title={readOnly ? 'Previous weeks are read-only' : 'Weekend requires approval'}>
-                            <span>
-                              <Button
-                                size="small"
-                                variant="text"
-                                disabled
-                                endIcon={<Edit fontSize="inherit" />}
-                              >
-                                Edit
-                              </Button>
-                            </span>
-                          </Tooltip>
-                        ) : (
+                        {!locked ? (
                           <Button
                             size="small"
                             variant="text"
@@ -833,6 +955,21 @@ export const WeekGridView = ({
                           >
                             Edit
                           </Button>
+                        ) : (
+                          !weekendLocked && (
+                            <Tooltip title={readOnly ? 'Previous weeks are read-only' : 'Weekend requires approval'}>
+                              <span>
+                                <Button
+                                  size="small"
+                                  variant="text"
+                                  disabled
+                                  endIcon={<Edit fontSize="inherit" />}
+                                >
+                                  Edit
+                                </Button>
+                              </span>
+                            </Tooltip>
+                          )
                         )}
                       </Stack>
                     </TableCell>
@@ -845,9 +982,28 @@ export const WeekGridView = ({
                 </TableCell>
                 </TableRow>
               );
-            })}
-
-            {!actionCodeRows.length && (
+            })
+            ) : showNoWeekHoursMessage ? (
+              <TableRow>
+                <TableCell>
+                  <Typography variant="body2" color="text.secondary">
+                    Timesheet locked
+                  </Typography>
+                </TableCell>
+                {weekDates.map((date) => (
+                  <TableCell key={toISODate(date)} align="center">
+                    <Typography variant="body2" color="text.secondary">
+                      No hours done
+                    </Typography>
+                  </TableCell>
+                ))}
+                <TableCell align="center">
+                  <Typography variant="body2" color="text.secondary">
+                    No hours done this week
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            ) : (
               <TableRow>
                 <TableCell colSpan={weekDates.length + 2}>
                   <Box py={5} textAlign="center">
@@ -956,50 +1112,125 @@ export const WeekGridView = ({
               </IconButton>
             </Box>
 
-            <TextField
-              label="Duration (minutes)"
-              value={editorState.minutes}
-              type="number"
-              onChange={(event) => {
-                const rawValue = Number(event.target.value);
-                if (Number.isNaN(rawValue)) {
-                  setEditorState((prev) => ({ ...prev, minutes: 0 }));
-                  return;
-                }
-                const limit = editingKey ? entryLimit : MAX_DAY_MINUTES;
-                const clamped = Math.min(limit, Math.max(0, Math.floor(rawValue)));
-                setEditorState((prev) => ({
-                  ...prev,
-                  minutes: clamped,
-                }));
-              }}
-              InputProps={{
-                inputProps: {
-                  min: 0,
-                  step: 5,
-                  max: editingKey ? entryLimit : MAX_DAY_MINUTES,
-                },
-                endAdornment: <InputAdornment position="end">min</InputAdornment>,
-              }}
-              helperText="Use quick add chips for adjustments."
-            />
-
-            <Stack direction="row" spacing={1}>
-              {QUICK_INCREMENTS.map((inc) => (
-                <Chip
-                  key={inc}
-                  label={`+${inc}`}
-                  onClick={() => handleQuickAdd(inc)}
-                  variant="outlined"
-                  color="primary"
-                  sx={{ cursor: 'pointer' }}
-                />
-              ))}
+            <Stack spacing={1}>
+              <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Typography variant="subtitle2">Intervals</Typography>
+                <Button size="small" onClick={handleAddInterval} startIcon={<Add fontSize="small" />}>
+                  Add interval
+                </Button>
+              </Box>
+              {editorState.intervals.length === 0 ? (
+                <Typography variant="caption" color="text.secondary">
+                  Add at least one interval with a start and end time.
+                </Typography>
+              ) : (
+                <List dense disablePadding>
+                  {editorState.intervals.map((interval, index) => {
+                    const allowedEndMeridians =
+                      interval.start.period === 'PM' ? (['PM'] as Meridian[]) : MERIDIANS;
+                    const normalizedEndPeriod = allowedEndMeridians.includes(interval.end.period)
+                      ? interval.end.period
+                      : allowedEndMeridians[0];
+                    return (
+                      <ListItem
+                        key={index}
+                        secondaryAction={
+                          <IconButton
+                            edge="end"
+                            aria-label="Remove interval"
+                            onClick={() => handleRemoveInterval(index)}
+                            size="small"
+                          >
+                            <Clear fontSize="inherit" />
+                          </IconButton>
+                        }
+                        sx={{ py: 0 }}
+                      >
+                        <ListItemText
+                          primary={
+                            <Stack
+                              direction={{ xs: 'column', sm: 'row' }}
+                              spacing={1}
+                              alignItems={{ sm: 'center' }}
+                            >
+                              <TextField
+                                label="Start"
+                                value={interval.start.time}
+                                onChange={(event) =>
+                                  handleIntervalTimeChange(index, 'start', event.target.value)
+                                }
+                                inputProps={{ placeholder: '09:00' }}
+                                size="small"
+                              />
+                              <TextField
+                                label="AM/PM"
+                                value={interval.start.period}
+                                onChange={(event) =>
+                                  handleIntervalPeriodChange(
+                                    index,
+                                    'start',
+                                    event.target.value as Meridian,
+                                  )
+                                }
+                                select
+                                size="small"
+                                sx={{ width: 100 }}
+                              >
+                                {MERIDIANS.map((meridian) => (
+                                  <MenuItem key={meridian} value={meridian}>
+                                    {meridian}
+                                  </MenuItem>
+                                ))}
+                              </TextField>
+                              <TextField
+                                label="End"
+                                value={interval.end.time}
+                                onChange={(event) =>
+                                  handleIntervalTimeChange(index, 'end', event.target.value)
+                                }
+                                inputProps={{ placeholder: '10:15' }}
+                                size="small"
+                              />
+                              <TextField
+                                label="AM/PM"
+                                value={normalizedEndPeriod}
+                                onChange={(event) =>
+                                  handleIntervalPeriodChange(
+                                    index,
+                                    'end',
+                                    event.target.value as Meridian,
+                                  )
+                                }
+                                select
+                                size="small"
+                                sx={{ width: 100 }}
+                              >
+                                {allowedEndMeridians.map((meridian) => (
+                                  <MenuItem key={meridian} value={meridian}>
+                                    {meridian}
+                                  </MenuItem>
+                                ))}
+                              </TextField>
+                            </Stack>
+                          }
+                        />
+                      </ListItem>
+                    );
+                  })}
+                </List>
+              )}
             </Stack>
 
             <Divider />
 
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', sm: '220px 1fr' },
+                gap: 1.5,
+                alignItems: 'start',
+              }}
+            >
               <TextField
                 label="Work mode"
                 value={editorState.mode}
@@ -1028,11 +1259,12 @@ export const WeekGridView = ({
                     country: option?.code ?? '',
                   }))
                 }
+                fullWidth
                 renderInput={(params) => (
                   <TextField {...params} label="Country" required />
                 )}
               />
-            </Stack>
+            </Box>
 
             <TextField
               label="Note"
@@ -1048,63 +1280,6 @@ export const WeekGridView = ({
               placeholder="Why was this time spent?"
             />
 
-            <Stack spacing={1}>
-              <Box display="flex" justifyContent="space-between" alignItems="center">
-                <Typography variant="subtitle2">Intervals</Typography>
-                <Button size="small" onClick={handleAddInterval} startIcon={<Add fontSize="small" />}>
-                  Add interval
-                </Button>
-              </Box>
-              {editorState.intervals.length === 0 ? (
-                <Typography variant="caption" color="text.secondary">
-                  Optional start–end ranges can be captured here.
-                </Typography>
-              ) : (
-                <List dense disablePadding>
-                  {editorState.intervals.map((interval, index) => (
-                    <ListItem
-                      key={index}
-                      secondaryAction={
-                        <IconButton
-                          edge="end"
-                          aria-label="Remove interval"
-                          onClick={() => handleRemoveInterval(index)}
-                          size="small"
-                        >
-                          <Clear fontSize="inherit" />
-                        </IconButton>
-                      }
-                      sx={{ py: 0 }}
-                    >
-                      <ListItemText
-                        primary={
-                          <Stack direction="row" spacing={1}>
-                            <TextField
-                              label="Start"
-                              value={interval.start}
-                              onChange={(event) =>
-                                handleIntervalChange(index, 'start', event.target.value)
-                              }
-                              inputProps={{ placeholder: '09:00' }}
-                              size="small"
-                            />
-                            <TextField
-                              label="End"
-                              value={interval.end}
-                              onChange={(event) =>
-                                handleIntervalChange(index, 'end', event.target.value)
-                              }
-                              inputProps={{ placeholder: '10:15' }}
-                              size="small"
-                            />
-                          </Stack>
-                        }
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-              )}
-            </Stack>
 
             {error && (
               <Typography variant="caption" color="error">

@@ -158,7 +158,12 @@ const TimesheetPage = () => {
     if (direction > 0 && isAfter(nextWeek, currentWeekStart)) {
       return;
     }
-    setSelectedDate(nextWeek);
+    const nextWeekISO = toISODate(nextWeek);
+    const currentWeekISO = toISODate(currentWeekStart);
+    const today = new Date();
+    const nextSelectedDate =
+      nextWeekISO === currentWeekISO ? today : nextWeek;
+    setSelectedDate(nextSelectedDate);
     setView('week');
   };
 
@@ -315,6 +320,21 @@ const TimesheetPage = () => {
 
   const isLoading = timesheetQuery.isLoading || actionCodesQuery.isLoading;
 
+  const handleChangeView = (next: ViewMode) => {
+    if (next === 'day') {
+      const today = new Date();
+      const currentWeekISO = toISODate(currentWeekStart);
+      const selectedWeekISO = toISODate(weekStart);
+      if (
+        currentWeekISO === selectedWeekISO &&
+        toISODate(selectedDate) === toISODate(weekStart)
+      ) {
+        setSelectedDate(today);
+      }
+    }
+    setView(next);
+  };
+
   return (
     <Box sx={{ px: { xs: 2, md: 4 }, py: 3 }}>
       <Stack spacing={3}>
@@ -341,7 +361,7 @@ const TimesheetPage = () => {
                 <Stack direction="row" spacing={1} alignItems="center">
                   <SegmentedControl
                     value={view}
-                    onChange={(next) => setView(next)}
+                    onChange={handleChangeView}
                     options={[
                       { value: 'week', label: 'Week' },
                       { value: 'day', label: 'Day' },

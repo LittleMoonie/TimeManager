@@ -107,11 +107,118 @@ export const getWeekDeadline = (weekStart: Date) =>
 export const isPastDeadline = (weekStart: Date, now: Date = new Date()) =>
   now >= getWeekDeadline(weekStart);
 
-const TIME_PATTERN = /^([01]?\d|2[0-3]):([0-5]\d)$/;
+const TIME_24H_PATTERN = /^([01]?\d|2[0-3]):([0-5]\d)$/;
+const TIME_12H_PATTERN = /^(0?[1-9]|1[0-2]):([0-5]\d)\s*(AM|PM)$/i;
+
+export type Meridian = 'AM' | 'PM';
+
+const normalizeHour12 = (hours: number) => {
+  if (Number.isNaN(hours) || hours <= 0) return 12;
+  if (hours > 12) return ((hours - 1) % 12) + 1;
+  return hours;
+};
+
+const padTime = (hours: number, minutes: string) =>
+  `${normalizeHour12(hours).toString().padStart(2, '0')}:${minutes}`;
+
+export const splitMeridianTime = (value: string): { time: string; period: Meridian } => {
+  const trimmed = value?.trim() ?? '';
+  if (!trimmed) {
+    return { time: '', period: 'AM' };
+  }
+
+  const meridianMatch = TIME_12H_PATTERN.exec(trimmed);
+  if (meridianMatch) {
+    const [, hourStr, minuteStr, meridianRaw] = meridianMatch;
+    const hours = Number(hourStr);
+    const period = meridianRaw.toUpperCase() as Meridian;
+    return { time: padTime(hours, minuteStr), period };
+  }
+
+  const suffixMatch = /(AM|PM)$/i.exec(trimmed);
+  if (suffixMatch) {
+    const period = suffixMatch[1].toUpperCase() as Meridian;
+    const timePortion = trimmed.replace(/(AM|PM)$/i, '').trim();
+    const twentyFourWithSuffix = TIME_24H_PATTERN.exec(timePortion);
+    if (twentyFourWithSuffix) {
+      const [, hourStr, minuteStr] = twentyFourWithSuffix;
+      const hours24 = Number(hourStr);
+      return { time: padTime(hours24, minuteStr), period };
+    }
+    const meridianPortion = TIME_12H_PATTERN.exec(`${timePortion} ${period}`);
+    if (meridianPortion) {
+      const [, hourStr, minuteStr] = meridianPortion;
+      const hours = Number(hourStr);
+      return { time: padTime(hours, minuteStr), period };
+    }
+    return { time: timePortion, period };
+  }
+
+  const twentyFourMatch = TIME_24H_PATTERN.exec(trimmed);
+  if (twentyFourMatch) {
+    const [, hourStr, minuteStr] = twentyFourMatch;
+    const hours24 = Number(hourStr);
+    const period: Meridian = hours24 >= 12 ? 'PM' : 'AM';
+    return { time: padTime(hours24, minuteStr), period };
+  }
+
+  return {
+    time: trimmed.replace(/(AM|PM)$/i, '').trim(),
+    period: 'AM',
+  };
+};
+
+export const buildMeridianTime = (time: string, period: Meridian): string => {
+  const trimmed = time.trim();
+  if (!trimmed) return '';
+  const timeMatch = /^(\d{1,2}):([0-5]\d)$/.exec(trimmed);
+  if (!timeMatch) {
+    return `${trimmed} ${period}`;
+  }
+  const [, hourStr, minuteStr] = timeMatch;
+  const hours = Number(hourStr);
+  return `${padTime(hours, minuteStr)} ${period}`;
+};
+
+export const ensureMeridianTime = (value: string): string => {
+  const { time, period } = splitMeridianTime(value);
+  return time ? `${time} ${period}` : '';
+};
+
+export const formatIntervalValue = (value: string): string => {
+  const { time, period } = splitMeridianTime(value);
+  return time ? `${time} ${period}` : '';
+};
+
+export const to24HourTime = (value: string): string => {
+  const { time, period } = splitMeridianTime(value);
+  if (!time) return '';
+  const [hourPart, minutePart] = time.split(':');
+  let hours = Number(hourPart);
+  if (Number.isNaN(hours) || !minutePart) return '';
+  hours %= 12;
+  if (period === 'PM') {
+    hours += 12;
+  }
+  return `${hours.toString().padStart(2, '0')}:${minutePart}`;
+};
 
 export const parseTimeToMinutes = (value: string): number | null => {
   const trimmed = value.trim();
-  if (!TIME_PATTERN.test(trimmed)) return null;
+  const meridianMatch = TIME_12H_PATTERN.exec(trimmed);
+  if (meridianMatch) {
+    const [, hourStr, minuteStr, meridianRaw] = meridianMatch;
+    let hours = Number(hourStr);
+    const minutes = Number(minuteStr);
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+    hours %= 12;
+    if (meridianRaw.toUpperCase() === 'PM') {
+      hours += 12;
+    }
+    return hours * 60 + minutes;
+  }
+
+  if (!TIME_24H_PATTERN.test(trimmed)) return null;
   const [hours, minutes] = trimmed.split(':').map(Number);
   if (hours == null || minutes == null) return null;
   return hours * 60 + minutes;
@@ -170,6 +277,15 @@ export const formatIntervals = (intervals: Interval[] | undefined) => {
   if (!intervals?.length) return '';
   const segments = intervals
     .filter((interval) => interval.start && interval.end)
-    .map((interval) => `${interval.start}–${interval.end}`);
+    .map((interval) => `${formatIntervalValue(interval.start)}–${formatIntervalValue(interval.end)}`);
   return segments.join(', ');
+};
+
+export const formatIntervalsWithTotal = (intervals: Interval[] | undefined, totalMinutes: number) => {
+  if (!intervals?.length) return '';
+  const formatted = formatIntervals(intervals);
+  if (totalMinutes <= 0) {
+    return formatted;
+  }
+  return `${formatted} (${formatMinutes(totalMinutes)})`;
 };

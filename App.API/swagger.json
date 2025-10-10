@@ -7,6 +7,161 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
+			"UserRole": {
+				"enum": [
+					"EMPLOYEE",
+					"MANAGER",
+					"ADMIN"
+				],
+				"type": "string"
+			},
+			"User": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"username": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"timezone": {
+						"type": "string"
+					},
+					"role": {
+						"$ref": "#/components/schemas/UserRole"
+					}
+				},
+				"required": [
+					"id",
+					"createdAt",
+					"username",
+					"email",
+					"password",
+					"role"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"TimesheetStatus": {
+				"enum": [
+					"DRAFT",
+					"SUBMITTED",
+					"APPROVED",
+					"REJECTED",
+					"EXPORTED",
+					"REOPENED"
+				],
+				"type": "string"
+			},
+			"Timesheet": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"user": {
+						"$ref": "#/components/schemas/User"
+					},
+					"startDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"endDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"status": {
+						"$ref": "#/components/schemas/TimesheetStatus"
+					},
+					"rejectionReason": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"createdAt",
+					"user",
+					"startDate",
+					"endDate",
+					"status"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"LeaveType": {
+				"enum": [
+					"PTO",
+					"SICK",
+					"UNPAID"
+				],
+				"type": "string"
+			},
+			"LeaveRequestStatus": {
+				"enum": [
+					"PENDING",
+					"APPROVED",
+					"REJECTED",
+					"CANCELLED"
+				],
+				"type": "string"
+			},
+			"LeaveRequest": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"user": {
+						"$ref": "#/components/schemas/User"
+					},
+					"startDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"endDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"leaveType": {
+						"$ref": "#/components/schemas/LeaveType"
+					},
+					"status": {
+						"$ref": "#/components/schemas/LeaveRequestStatus"
+					},
+					"reason": {
+						"type": "string"
+					},
+					"rejectionReason": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"createdAt",
+					"user",
+					"startDate",
+					"endDate",
+					"leaveType",
+					"status"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
 			"RegisterResponse": {
 				"properties": {
 					"success": {
@@ -212,6 +367,363 @@
 		}
 	},
 	"paths": {
+		"/timesheets": {
+			"get": {
+				"operationId": "GetTimesheets",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Timesheet"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Timesheets"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "CreateTimesheet",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Timesheet"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Timesheets"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"endDate": {
+										"type": "string",
+										"format": "date-time"
+									},
+									"startDate": {
+										"type": "string",
+										"format": "date-time"
+									}
+								},
+								"required": [
+									"endDate",
+									"startDate"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/timesheets/{id}": {
+			"get": {
+				"operationId": "GetTimesheet",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"allOf": [
+										{
+											"$ref": "#/components/schemas/Timesheet"
+										}
+									],
+									"nullable": true
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Timesheets"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/timesheets/{id}/status": {
+			"put": {
+				"operationId": "UpdateTimesheetStatus",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"allOf": [
+										{
+											"$ref": "#/components/schemas/Timesheet"
+										}
+									],
+									"nullable": true
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Timesheets"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"status": {
+										"$ref": "#/components/schemas/TimesheetStatus"
+									}
+								},
+								"required": [
+									"status"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/leave-requests": {
+			"get": {
+				"operationId": "GetLeaveRequests",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/LeaveRequest"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Leave Requests"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "CreateLeaveRequest",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/LeaveRequest"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Leave Requests"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"reason": {
+										"type": "string"
+									},
+									"leaveType": {
+										"$ref": "#/components/schemas/LeaveType"
+									},
+									"endDate": {
+										"type": "string",
+										"format": "date-time"
+									},
+									"startDate": {
+										"type": "string",
+										"format": "date-time"
+									}
+								},
+								"required": [
+									"leaveType",
+									"endDate",
+									"startDate"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/leave-requests/{id}": {
+			"get": {
+				"operationId": "GetLeaveRequest",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"allOf": [
+										{
+											"$ref": "#/components/schemas/LeaveRequest"
+										}
+									],
+									"nullable": true
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Leave Requests"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/leave-requests/{id}/status": {
+			"put": {
+				"operationId": "UpdateLeaveRequestStatus",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"allOf": [
+										{
+											"$ref": "#/components/schemas/LeaveRequest"
+										}
+									],
+									"nullable": true
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Leave Requests"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"status": {
+										"$ref": "#/components/schemas/LeaveRequestStatus"
+									}
+								},
+								"required": [
+									"status"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
 		"/users/register": {
 			"post": {
 				"operationId": "RegisterUser",

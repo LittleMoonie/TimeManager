@@ -107,6 +107,7 @@ playwright-report/
 
 #AI
 AGENTS.md
+GEMINI.md
 
 # Monitoring
 .prometheus/
