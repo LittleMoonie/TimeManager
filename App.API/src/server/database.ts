@@ -28,7 +28,6 @@ export const AppDataSource = new DataSource({
   database: DB_NAME,
   synchronize: true,            // auto-creates tables in dev — disable in prod
   logging: true,
-  entities: [BaseEntity, User, ActiveSession, Organization, Team, TeamMember, ActionCode, Approval, TimesheetEntry, AuditLog, TimesheetHistory],
   migrations: ['src/migrations/**/*{.ts,.js}'],
   ssl: DB_SSL === 'true' ? { rejectUnauthorized: false } : false, // Optional for cloud DBs
 });

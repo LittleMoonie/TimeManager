@@ -1,6 +1,6 @@
 import { getAuthUser } from '../utils/auth';
 import logger from '../utils/logger';
-import * as bcrypt from '@node-rs/bcrypt';
+import bcrypt from 'bcryptjs';
 import { Body, Controller, Post, Route, Tags, Response, SuccessResponse, Security, Request, Get, Path } from 'tsoa';
 import jwt from 'jsonwebtoken';
 import { Request as ExpressRequest } from 'express';

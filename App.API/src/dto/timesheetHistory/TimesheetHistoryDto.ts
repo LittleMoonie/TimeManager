@@ -1,12 +1,15 @@
 import { IsEnum, IsString, IsUUID, IsJSON, IsISO8601, IsNumber } from "class-validator";
 import { IsOptional } from "class-validator";
-import { TimesheetHistoryEntityType } from "../../models/timesheetHistory";
 import { TimesheetHistoryEntityTypeEnum } from "../../models/enums/timesheetHistory/TimesheetHistoryEntityTypeEnum";
 import { TimesheetHistoryActionEnum } from "../../models/enums/timesheetHistory/TimesheetHistoryActionEnum";
 
+export interface IRecordOfAny {
+    [key: string]: any;
+  }
+
 export class TimesheetHistoryDto {
   @IsEnum(TimesheetHistoryEntityTypeEnum)
-  entityType!: TimesheetHistoryEntityType;
+  entityType!: TimesheetHistoryEntityTypeEnum;
 
   @IsUUID()
   entityId!: string;
@@ -23,7 +26,7 @@ export class TimesheetHistoryDto {
 
   @IsOptional()
   @IsJSON()
-  diff?: object;
+  diff?: IRecordOfAny;
 
   @IsOptional()
   @IsISO8601()

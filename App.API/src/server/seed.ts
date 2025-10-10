@@ -4,7 +4,7 @@ import { Organization } from '../models/organization';
 import User from '../models/user';
 import { ActionCode, ActionCodeType } from '../models/actionCode';
 
-import * as bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 const seedDatabase = async () => {
   await AppDataSource.initialize();

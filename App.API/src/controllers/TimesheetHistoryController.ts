@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Path, Query, Request, Route, Security, Tags } from 'tsoa';
+import { Body, Controller, Path, Post, Request, Route, Security, Tags } from 'tsoa';
 import { TimesheetHistoryService } from '../services/TimesheetHistoryService';
 import { TimesheetHistoryDto } from '../dto/timesheetHistory/TimesheetHistoryDto';
-import { TimesheetHistoryEntityType } from '../models/timesheetHistory';
+import { TimesheetHistoryEntityTypeEnum } from '../models/enums/timesheetHistory/TimesheetHistoryEntityTypeEnum';
 import { Request as ExRequest } from 'express';
 import { Service } from 'typedi';
+import { TimesheetHistory } from '../models/timesheetHistory';
 
 @Route('/api/v1/timesheet-history')
 @Tags('Timesheet History')
@@ -18,16 +19,20 @@ export class TimesheetHistoryController extends Controller {
    * Retrieve a paginated list of timesheet history events.
    * Employees can only view their own history. Managers/Admins can view organization-wide history.
    * @param request The express request object, containing user and organization context.
-   * @param query Query parameters for filtering and pagination.
+   * @param body Body parameters for filtering and pagination.
    * @returns A paginated list of timesheet history events.
    */
-  @Get('/')
+  @Post('/filter')
   public async listHistory(
     @Request() request: ExRequest,
-    @Query() query: TimesheetHistoryDto,
-  ) {
+    @Body() body: TimesheetHistoryDto,
+  ): Promise<{ data: TimesheetHistory[]; nextCursor?: string }> {
     const { user, organization } = request;
-    return this.timesheetHistoryService.list(query, { orgId: organization!.id, userId: user!.id, roles: user!.roles });
+    return this.timesheetHistoryService.list(body, {
+      orgId: organization!.id,
+      userId: user!.id,
+      roles: user!.roles,
+    });
   }
 
   /**
@@ -38,13 +43,17 @@ export class TimesheetHistoryController extends Controller {
    * @param entityId The UUID of the entity.
    * @returns A paginated list of timesheet history events for the specified entity.
    */
-  @Get('/entity/{entityType}/{entityId}')
+  @Post('/entity/{entityType}/{entityId}')
   public async getHistoryForEntity(
     @Request() request: ExRequest,
-    @Path() entityType: TimesheetHistoryEntityType,
+    @Path() entityType: TimesheetHistoryEntityTypeEnum,
     @Path() entityId: string,
-  ) {
+  ): Promise<{ data: TimesheetHistory[]; nextCursor?: string }> {
     const { user, organization } = request;
-    return this.timesheetHistoryService.forEntity(entityType, entityId, { orgId: organization!.id, userId: user!.id, roles: user!.roles });
+    return this.timesheetHistoryService.forEntity(entityType, entityId, {
+      orgId: organization!.id,
+      userId: user!.id,
+      roles: user!.roles,
+    });
   }
 }

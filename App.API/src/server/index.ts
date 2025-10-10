@@ -9,16 +9,15 @@ import * as path from 'path';
 
 import { RegisterRoutes } from '../routes/generated/routes';
 import { connectDB } from './database';
-import { loggingMiddleware } from '../middleware/logging';
-import { jwtStrategy } from '../config/passport';
 
 // Instantiate express
 const server: Application = express();
 
+//@ts-expect-error - TypeScript compatibility issue with compression types
 server.use(compression());
 
+// @ts-expect-error - TypeScript compatibility issue with passport types
 server.use(passport.initialize());
-passport.use('jwt', jwtStrategy);
 
 // Connect to PostgreSQL database
 if (process.env.NODE_ENV !== 'test') {
@@ -27,7 +26,6 @@ if (process.env.NODE_ENV !== 'test') {
 
 server.use(cors());
 server.use(express.json());
-server.use(loggingMiddleware);
 
 // Setup Swagger UI with dynamic loading
 //@ts-expect-error - TypeScript compatibility issue with swaggerUi types
@@ -46,7 +44,7 @@ server.get('/api/docs', (req: Request, res: Response, next: NextFunction) => {
     });
     
     setupHandler(req as any, res as any, next);
-  } catch {
+  } catch (error) {
     // If swagger.json doesn't exist, show a helpful message
     res.status(503).json({
       message: 'API documentation is being generated. Please try again in a moment.',

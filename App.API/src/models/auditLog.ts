@@ -3,6 +3,10 @@ import { BaseEntity } from './BaseEntity';
 import User from './user';
 import { Organization } from './organization';
 
+export interface IRecordOfAny {
+  [key: string]: any;
+}
+
 export enum AuditAction {
   CREATE = 'create',
   UPDATE = 'update',
@@ -38,7 +42,7 @@ export class AuditLog extends BaseEntity {
   action!: AuditAction;
 
   @Column({ type: 'jsonb', nullable: true })
-  diff?: object; // JSONB to store the changes
+  diff?: IRecordOfAny; // JSONB to store the changes
 
   // 'at' column is handled by BaseEntity's createdAt, which is TIMESTAMPTZ DEFAULT now()
 }

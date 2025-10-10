@@ -29,6 +29,10 @@
 						"type": "string",
 						"format": "date-time"
 					},
+					"deletedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
 					"orgId": {
 						"type": "string"
 					},
@@ -55,6 +59,12 @@
 							"$ref": "#/components/schemas/TeamMember"
 						},
 						"type": "array"
+					},
+					"timesheetHistory": {
+						"items": {
+							"$ref": "#/components/schemas/TimesheetHistory"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
@@ -68,7 +78,8 @@
 					"role",
 					"status",
 					"organization",
-					"teamMembership"
+					"teamMembership",
+					"timesheetHistory"
 				],
 				"type": "object",
 				"additionalProperties": true
@@ -83,6 +94,10 @@
 						"format": "date-time"
 					},
 					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"deletedAt": {
 						"type": "string",
 						"format": "date-time"
 					},
@@ -118,6 +133,12 @@
 							"$ref": "#/components/schemas/TeamMember"
 						},
 						"type": "array"
+					},
+					"timesheetHistory": {
+						"items": {
+							"$ref": "#/components/schemas/TimesheetHistory"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
@@ -129,7 +150,8 @@
 					"teams",
 					"actionCodes",
 					"timesheetEntries",
-					"teamMembers"
+					"teamMembers",
+					"timesheetHistory"
 				],
 				"type": "object",
 				"additionalProperties": true
@@ -146,6 +168,13 @@
 					"updatedAt": {
 						"type": "string",
 						"format": "date-time"
+					},
+					"deletedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"orgId": {
+						"type": "string"
 					},
 					"name": {
 						"type": "string"
@@ -164,6 +193,7 @@
 					"id",
 					"createdAt",
 					"updatedAt",
+					"orgId",
 					"name",
 					"organization",
 					"members"
@@ -173,6 +203,21 @@
 			},
 			"TeamMember": {
 				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"deletedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
 					"userId": {
 						"type": "string"
 					},
@@ -196,6 +241,9 @@
 					}
 				},
 				"required": [
+					"id",
+					"createdAt",
+					"updatedAt",
 					"userId",
 					"teamId",
 					"orgId",
@@ -227,6 +275,13 @@
 						"type": "string",
 						"format": "date-time"
 					},
+					"deletedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"orgId": {
+						"type": "string"
+					},
 					"organization": {
 						"$ref": "#/components/schemas/Organization"
 					},
@@ -247,6 +302,7 @@
 					"id",
 					"createdAt",
 					"updatedAt",
+					"orgId",
 					"organization",
 					"code",
 					"name",
@@ -269,6 +325,10 @@
 						"type": "string",
 						"format": "date-time"
 					},
+					"deletedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
 					"userId": {
 						"type": "string"
 					},
@@ -280,6 +340,9 @@
 					},
 					"organization": {
 						"$ref": "#/components/schemas/Organization"
+					},
+					"actionCodeId": {
+						"type": "string"
 					},
 					"actionCode": {
 						"$ref": "#/components/schemas/ActionCode"
@@ -324,12 +387,94 @@
 					"user",
 					"orgId",
 					"organization",
+					"actionCodeId",
 					"actionCode",
 					"workMode",
 					"country",
 					"durationMin",
 					"day",
 					"approvals"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"TimesheetStatus": {
+				"enum": [
+					"DRAFT",
+					"SUBMITTED",
+					"APPROVED",
+					"REJECTED"
+				],
+				"type": "string"
+			},
+			"TimesheetHistory": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"deletedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"orgId": {
+						"type": "string"
+					},
+					"organization": {
+						"$ref": "#/components/schemas/Organization"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"user": {
+						"$ref": "#/components/schemas/User"
+					},
+					"weekStart": {
+						"type": "string"
+					},
+					"weekEnd": {
+						"type": "string"
+					},
+					"totalHours": {
+						"type": "string"
+					},
+					"country": {
+						"type": "string"
+					},
+					"location": {
+						"type": "string"
+					},
+					"notes": {
+						"type": "string"
+					},
+					"status": {
+						"$ref": "#/components/schemas/TimesheetStatus"
+					},
+					"hash": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"createdAt",
+					"updatedAt",
+					"orgId",
+					"organization",
+					"userId",
+					"user",
+					"weekStart",
+					"weekEnd",
+					"totalHours",
+					"country",
+					"location",
+					"status"
 				],
 				"type": "object",
 				"additionalProperties": true
@@ -363,6 +508,16 @@
 						"type": "string",
 						"format": "date-time"
 					},
+					"deletedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"orgId": {
+						"type": "string"
+					},
+					"organization": {
+						"$ref": "#/components/schemas/Organization"
+					},
 					"entryId": {
 						"type": "string"
 					},
@@ -386,6 +541,8 @@
 					"id",
 					"createdAt",
 					"updatedAt",
+					"orgId",
+					"organization",
 					"entryId",
 					"entry",
 					"approverId",
@@ -480,6 +637,31 @@
 				"type": "object",
 				"description": "Make all properties in T optional"
 			},
+			"TimesheetHistorySummary": {
+				"properties": {
+					"weekStartISO": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string"
+					},
+					"weekTotal": {
+						"type": "number",
+						"format": "double"
+					},
+					"submittedAt": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"weekStartISO",
+					"status",
+					"weekTotal"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
 			"LeaveType": {
 				"enum": [
 					"PTO",
@@ -510,6 +692,19 @@
 						"type": "string",
 						"format": "date-time"
 					},
+					"deletedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"orgId": {
+						"type": "string"
+					},
+					"organization": {
+						"$ref": "#/components/schemas/Organization"
+					},
+					"userId": {
+						"type": "string"
+					},
 					"user": {
 						"$ref": "#/components/schemas/User"
 					},
@@ -538,6 +733,9 @@
 					"id",
 					"createdAt",
 					"updatedAt",
+					"orgId",
+					"organization",
+					"userId",
 					"user",
 					"startDate",
 					"endDate",
@@ -686,6 +884,76 @@
 				"type": "object",
 				"description": "Construct a type with a set of properties K of type T"
 			},
+			"TimesheetHistoryEntityTypeEnum": {
+				"enum": [
+					"TimesheetEntry",
+					"TimesheetWeek",
+					"Approval",
+					"Permit"
+				],
+				"type": "string"
+			},
+			"TimesheetHistoryActionEnum": {
+				"enum": [
+					"created",
+					"updated",
+					"deleted",
+					"submitted",
+					"approved",
+					"rejected",
+					"auto_sent",
+					"permit_granted",
+					"permit_revoked",
+					"retro_edit_enabled",
+					"retro_edit_disabled"
+				],
+				"type": "string"
+			},
+			"IRecordOfAny": {
+				"properties": {},
+				"type": "object",
+				"additionalProperties": {}
+			},
+			"TimesheetHistoryDto": {
+				"properties": {
+					"entityType": {
+						"$ref": "#/components/schemas/TimesheetHistoryEntityTypeEnum"
+					},
+					"entityId": {
+						"type": "string"
+					},
+					"action": {
+						"$ref": "#/components/schemas/TimesheetHistoryActionEnum"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"reason": {
+						"type": "string"
+					},
+					"diff": {
+						"$ref": "#/components/schemas/IRecordOfAny"
+					},
+					"startedAt": {
+						"type": "string"
+					},
+					"endedAt": {
+						"type": "string"
+					},
+					"limit": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"entityType",
+					"entityId",
+					"action",
+					"userId"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
 			"HealthResponse": {
 				"properties": {
 					"status": {
@@ -733,6 +1001,38 @@
 				"required": [
 					"success",
 					"message"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"CreateActionCodeDto": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"name",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"UpdateActionCodeDto": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"name",
+					"code"
 				],
 				"type": "object",
 				"additionalProperties": true
@@ -1046,6 +1346,35 @@
 						}
 					}
 				}
+			}
+		},
+		"/api/v1/time/history": {
+			"get": {
+				"operationId": "GetTimesheetHistory",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/TimesheetHistorySummary"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Time"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
 			}
 		},
 		"/leave-requests": {
@@ -1620,6 +1949,119 @@
 				}
 			}
 		},
+		"/api/v1/timesheet-history/filter": {
+			"post": {
+				"operationId": "ListHistory",
+				"responses": {
+					"200": {
+						"description": "A paginated list of timesheet history events.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"nextCursor": {
+											"type": "string"
+										},
+										"data": {
+											"items": {
+												"$ref": "#/components/schemas/TimesheetHistory"
+											},
+											"type": "array"
+										}
+									},
+									"required": [
+										"data"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieve a paginated list of timesheet history events.\nEmployees can only view their own history. Managers/Admins can view organization-wide history.",
+				"tags": [
+					"Timesheet History"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "Body parameters for filtering and pagination.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/TimesheetHistoryDto",
+								"description": "Body parameters for filtering and pagination."
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/timesheet-history/entity/{entityType}/{entityId}": {
+			"post": {
+				"operationId": "GetHistoryForEntity",
+				"responses": {
+					"200": {
+						"description": "A paginated list of timesheet history events for the specified entity.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"nextCursor": {
+											"type": "string"
+										},
+										"data": {
+											"items": {
+												"$ref": "#/components/schemas/TimesheetHistory"
+											},
+											"type": "array"
+										}
+									},
+									"required": [
+										"data"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieve timesheet history events for a specific entity.\nEmployees can only view history related to their own timesheets. Managers/Admins can view organization-wide history.",
+				"tags": [
+					"Timesheet History"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The type of the entity (e.g., 'TimesheetEntry', 'TimesheetWeek').",
+						"in": "path",
+						"name": "entityType",
+						"required": true,
+						"schema": {
+							"$ref": "#/components/schemas/TimesheetHistoryEntityTypeEnum"
+						}
+					},
+					{
+						"description": "The UUID of the entity.",
+						"in": "path",
+						"name": "entityId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
 		"/system/health": {
 			"get": {
 				"operationId": "GetHealth",
@@ -1727,6 +2169,174 @@
 				],
 				"security": [],
 				"parameters": []
+			}
+		},
+		"/api/v1/action-codes": {
+			"get": {
+				"operationId": "ListActionCodes",
+				"responses": {
+					"200": {
+						"description": "A list of action codes.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/ActionCode"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieve a list of action codes for the organization.",
+				"tags": [
+					"Action Codes"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "Optional search query to filter action codes by name.",
+						"in": "query",
+						"name": "q",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"post": {
+				"operationId": "CreateActionCode",
+				"responses": {
+					"200": {
+						"description": "The newly created action code.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ActionCode"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create a new action code.\nOnly Managers/Admins can create action codes.",
+				"tags": [
+					"Action Codes"
+				],
+				"security": [
+					{
+						"jwt": [
+							"manager",
+							"admin"
+						]
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "The action code creation payload.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateActionCodeDto",
+								"description": "The action code creation payload."
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/action-codes/{id}": {
+			"put": {
+				"operationId": "UpdateActionCode",
+				"responses": {
+					"200": {
+						"description": "The updated action code.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"allOf": [
+										{
+											"$ref": "#/components/schemas/ActionCode"
+										}
+									],
+									"nullable": true
+								}
+							}
+						}
+					}
+				},
+				"description": "Update an existing action code.\nOnly Managers/Admins can update action codes.",
+				"tags": [
+					"Action Codes"
+				],
+				"security": [
+					{
+						"jwt": [
+							"manager",
+							"admin"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the action code to update.",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "The action code update payload.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateActionCodeDto",
+								"description": "The action code update payload."
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteActionCode",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Delete an action code.\nOnly Managers/Admins can delete action codes.",
+				"tags": [
+					"Action Codes"
+				],
+				"security": [
+					{
+						"jwt": [
+							"manager",
+							"admin"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the action code to delete.",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		}
 	},
