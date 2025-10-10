@@ -2,6 +2,8 @@ import { Entity, Column, ManyToOne, Index, JoinColumn } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
 import { Organization } from './organization';
 import User from './user';
+import { TimesheetHistoryEntityTypeEnum } from './enums/timesheetHistory/TimesheetHistoryEntityTypeEnum';
+import { TimesheetHistoryActionEnum } from './enums/timesheetHistory/TimesheetHistoryActionEnum';
 
 export enum TimesheetStatus {
   DRAFT = 'DRAFT',
@@ -26,6 +28,34 @@ export class TimesheetHistory extends BaseEntity {
   @ManyToOne(() => User, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'userId' })
   user!: User;
+
+  @Column({ type: 'enum', enum: TimesheetHistoryEntityTypeEnum })
+  entityType!: TimesheetHistoryEntityTypeEnum;
+
+  @Column({ type: 'uuid' })
+  entityId!: string;
+
+  @Column({ type: 'enum', enum: TimesheetHistoryActionEnum })
+  action!: TimesheetHistoryActionEnum;
+
+  @Column({ type: 'uuid', nullable: true })
+  actorUserId?: string;
+
+  @ManyToOne(() => User, { onDelete: 'RESTRICT', nullable: true })
+  @JoinColumn({ name: 'actorUserId' })
+  actorUser?: User;
+
+  @Column({ type: 'text', nullable: true })
+  reason?: string;
+
+  @Column({ type: 'jsonb', nullable: true })
+  diff?: object;
+
+  @Column({ type: 'jsonb', nullable: true })
+  metadata?: object;
+
+  @Column({ type: 'timestamp with time zone', default: () => 'CURRENT_TIMESTAMP' })
+  occurredAt!: Date;
 
   @Column({ type: 'date' })
   weekStart!: string;

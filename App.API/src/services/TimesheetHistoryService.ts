@@ -7,7 +7,6 @@ import { createHash } from 'crypto';
 import User from '../models/user';
 import { Organization } from '../models/organization';
 import { TimesheetHistoryDto } from '../dto/timesheetHistory/TimesheetHistoryDto';
-import { ActionCode } from '../models/actionCode';
 import { TimesheetHistoryActionEnum } from '../models/enums/timesheetHistory/TimesheetHistoryActionEnum';
 import { TimesheetHistoryEntityTypeEnum } from '../models/enums/timesheetHistory/TimesheetHistoryEntityTypeEnum';
 

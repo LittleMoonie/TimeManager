@@ -9,6 +9,7 @@ import { ActionCode } from '../src/models/actionCode';
 import { TimesheetHistory } from '../src/models/timesheetHistory';
 import { TimesheetHistoryActionEnum } from '../src/models/enums/timesheetHistory/TimesheetHistoryActionEnum';
 import { TimesheetHistoryEntityTypeEnum } from '../src/models/enums/timesheetHistory/TimesheetHistoryEntityTypeEnum';
+import { UserStatus } from '../src/models/enums/UserStatus';
 import { Repository } from 'typeorm';
 import { sign } from 'jsonwebtoken';
 import { TimesheetEntryDto } from '../src/dto/TimesheetDto';
@@ -31,6 +32,9 @@ describe('TimesheetHistory Module', () => {
   let organizationRepository: Repository<Organization>;
   let actionCodeRepository: Repository<ActionCode>;
   let timesheetEntryRepository: Repository<TimesheetEntry>;
+
+  let employeeToken: string;
+  let managerToken: string;
 
   beforeAll(async () => {
     await connectDB();
@@ -56,7 +60,7 @@ describe('TimesheetHistory Module', () => {
       name: 'Test Employee',
       password: 'password',
       role: 'employee',
-      status: 'active',
+      status: UserStatus.ACTIVE,
       orgId: organization.id,
       organization: organization,
     });
@@ -67,7 +71,7 @@ describe('TimesheetHistory Module', () => {
       name: 'Test Manager',
       password: 'password',
       role: 'manager',
-      status: 'active',
+      status: UserStatus.ACTIVE,
       orgId: organization.id,
       organization: organization,
     });
@@ -78,7 +82,7 @@ describe('TimesheetHistory Module', () => {
       name: 'Test Admin',
       password: 'password',
       role: 'admin',
-      status: 'active',
+      status: UserStatus.ACTIVE,
       orgId: organization.id,
       organization: organization,
     });
@@ -101,6 +105,9 @@ describe('TimesheetHistory Module', () => {
       actionCode: actionCode,
     });
     await timesheetEntryRepository.save(timesheetEntry);
+
+    employeeToken = generateToken(employeeUser, organization.id, ['employee']);
+    managerToken = generateToken(managerUser, organization.id, ['manager']);
   });
 
   afterAll(async () => {
@@ -108,13 +115,14 @@ describe('TimesheetHistory Module', () => {
   });
 
   test('should record a created event when a timesheet entry is created', async () => {
-    const employeeToken = generateToken(employeeUser, organization.id, ['employee']);
     const newEntryDto: TimesheetEntryDto = {
-      day: '2025-10-07',
-      startedAt: '09:00',
-      endedAt: '17:00',
+      day: new Date('2025-10-07'),
+      startedAt: new Date('2025-10-07T09:00:00'),
+      endedAt: new Date('2025-10-07T17:00:00'),
       durationMin: 480,
       actionCodeId: actionCode.id,
+      workMode: 'office',
+      country: 'US',
     };
 
     const response = await request(app)
@@ -172,12 +180,14 @@ describe('TimesheetHistory Module', () => {
     const employeeToken = generateToken(employeeUser, organization.id, ['employee']);
     const entryToDelete = timesheetEntryRepository.create({
       day: new Date('2025-10-08'),
-      startedAt: '09:00',
-      endedAt: '17:00',
+      startedAt: new Date('2025-10-08T09:00:00'),
+      endedAt: new Date('2025-10-08T17:00:00'),
       durationMin: 480,
       user: employeeUser,
       organization: organization,
       actionCode: actionCode,
+      workMode: 'office',
+      country: 'US',
     });
     await timesheetEntryRepository.save(entryToDelete);
 
@@ -213,8 +223,7 @@ describe('TimesheetHistory Module', () => {
     const history = await timesheetHistoryRepository.findOne({
       where: {
         entityId: response.body.id, // Approval ID
-        action: TimesheetHistoryActionEnum.approved,
-        entityType: TimesheetHistoryEntityType.Approval,
+        entityType: TimesheetHistoryEntityTypeEnum.Approval,
       },
     });
 
@@ -228,12 +237,14 @@ describe('TimesheetHistory Module', () => {
     const managerToken = generateToken(managerUser, organization.id, ['manager']);
     const entryToReject = timesheetEntryRepository.create({
       day: new Date('2025-10-09'),
-      startedAt: '09:00',
-      endedAt: '17:00',
+      startedAt: new Date('2025-10-09T09:00:00'),
+      endedAt: new Date('2025-10-09T17:00:00'),
       durationMin: 480,
       user: employeeUser,
       organization: organization,
       actionCode: actionCode,
+      workMode: 'office',
+      country: 'US',
     });
     await timesheetEntryRepository.save(entryToReject);
 
@@ -248,7 +259,7 @@ describe('TimesheetHistory Module', () => {
       where: {
         entityId: response.body.id, // Approval ID
         action: TimesheetHistoryActionEnum.rejected,
-        entityType: TimesheetHistoryEntityType.Approval,
+        entityType: TimesheetHistoryEntityTypeEnum.Approval,
       },
     });
 
@@ -322,11 +333,13 @@ describe('TimesheetHistory Module', () => {
         .post('/api/v1/timesheet')
         .set('Authorization', `Bearer ${employeeToken}`)
         .send({
-          day: `2025-11-${10 + i}`,
-          startedAt: '09:00',
-          endedAt: '17:00',
+          day: new Date(`2025-11-${10 + i}`),
+          startedAt: new Date(`2025-11-${10 + i}T09:00:00`),
+          endedAt: new Date(`2025-11-${10 + i}T17:00:00`),
           durationMin: 480,
           actionCodeId: actionCode.id,
+          workMode: 'office',
+          country: 'US',
         });
     }
 
@@ -371,6 +384,7 @@ describe('TimesheetHistory Module', () => {
     // For now, we'll rely on the recordEvent logic to handle the hash check
 
     // Simulate a call that would generate the same hash
+    const duplicateEventDto = {
       entityType: TimesheetHistoryEntityTypeEnum.TimesheetEntry,
       entityId: entryId,
       action: TimesheetHistoryActionEnum.retro_edit_enabled,

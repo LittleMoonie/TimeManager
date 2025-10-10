@@ -1,15 +1,5 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import User from '../models/user';
-import ActiveSession from '../models/activeSession';
-import { BaseEntity } from '../models/BaseEntity';
-import { Organization } from '../models/organization';
-import { Team, TeamMember } from '../models/team';
-import { ActionCode } from '../models/actionCode';
-import { Approval } from '../models/approval';
-import { TimesheetEntry } from '../models/timesheetEntry';
-import { AuditLog } from '../models/auditLog';
-import { TimesheetHistory } from '../models/timesheetHistory';
 
 const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME, DB_SSL } = process.env;
 

@@ -42,9 +42,11 @@ server.get('/api/docs', (req: Request, res: Response, next: NextFunction) => {
       customCss: '.swagger-ui .topbar { display: none }',
       customSiteTitle: 'GoGoTime API Documentation'
     });
-    
-    setupHandler(req as any, res as any, next);
-  } catch (error) {
+
+    // Call setupHandler without forcing type assertions; suppress incompat warning if needed
+    // @ts-expect-error: mismatched types between express and swaggerUi types
+    setupHandler(req, res, next);
+  } catch {
     // If swagger.json doesn't exist, show a helpful message
     res.status(503).json({
       message: 'API documentation is being generated. Please try again in a moment.',

@@ -25,13 +25,12 @@ export class OpenApiService {
     }
 
     this.isGenerating = true;
-    const startTime = new Date();
 
     try {
       console.log('🔄 Generating OpenAPI specification...');
       
       // Generate OpenAPI spec and routes
-      const { stdout: specOutput, stderr: specError } = await execAsync('yarn openapi:generate');
+      const { stderr: specError } = await execAsync('yarn openapi:generate');
       
       if (specError && !specError.includes('warning')) {
         throw new Error(`OpenAPI generation failed: ${specError}`);
@@ -47,7 +46,7 @@ export class OpenApiService {
       if (includeFrontend) {
         console.log('🔄 Generating frontend TypeScript client...');
         
-        const { stdout: clientOutput, stderr: clientError } = await execAsync(
+        const { stderr: clientError } = await execAsync(
           'cd ../../../../App.Web && yarn api:client'
         );
         
@@ -119,7 +118,7 @@ export class OpenApiService {
               }
             }
           }
-        } catch (error) {
+        } catch {
           // Directory doesn't exist, skip
         }
         return false;

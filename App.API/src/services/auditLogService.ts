@@ -5,7 +5,7 @@ import { AuditLog, AuditAction } from '../models/auditLog';
 export class AuditLogService {
   private auditLogRepository = AppDataSource.getRepository(AuditLog);
 
-  public async logEvent(actorUserId: string, orgId: string, action: AuditAction, entity: string, entityId: string, details?: Record<string, any>): Promise<void> {
+  public async logEvent(actorUserId: string, orgId: string, action: AuditAction, entity: string, entityId: string, details?: Record<string, string>): Promise<void> {
     const auditLog = new AuditLog();
     auditLog.actorUserId = actorUserId;
     auditLog.orgId = orgId;
