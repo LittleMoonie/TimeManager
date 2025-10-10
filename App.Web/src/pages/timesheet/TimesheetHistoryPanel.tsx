@@ -10,16 +10,16 @@ import {
   ListItemText,
   Stack,
   Typography,
-} from '@mui/material';
-import { Close } from '@mui/icons-material';
-import type { Timesheet } from '@/types';
-import { formatWeekRange, getWeekStart } from './utils';
+} from '@mui/material'
+import { Close } from '@mui/icons-material'
+import type { Timesheet } from '@/types'
+import { formatWeekRange, getWeekStart } from './utils'
 
 interface TimesheetHistoryPanelProps {
-  open: boolean;
-  onClose: () => void;
-  history: Timesheet[];
-  onSelectWeek: (weekStartISO: string) => void;
+  open: boolean
+  onClose: () => void
+  history: Timesheet[]
+  onSelectWeek: (weekStartISO: string) => void
 }
 
 const statusColorMap: Record<string, 'default' | 'success' | 'warning' | 'error' | 'info'> = {
@@ -28,7 +28,7 @@ const statusColorMap: Record<string, 'default' | 'success' | 'warning' | 'error'
   'attention-required': 'warning',
   approved: 'success',
   rejected: 'error',
-};
+}
 
 export const TimesheetHistoryPanel = ({
   open,
@@ -52,16 +52,16 @@ export const TimesheetHistoryPanel = ({
           </Typography>
         ) : (
           <List>
-            {history.map((item) => {
-              const weekStart = getWeekStart(new Date(item.weekStartISO));
-              const rangeLabel = formatWeekRange(weekStart);
-              const statusColor = statusColorMap[item.status] ?? 'default';
+            {history.map(item => {
+              const weekStart = getWeekStart(new Date(item.weekStartISO))
+              const rangeLabel = formatWeekRange(weekStart)
+              const statusColor = statusColorMap[item.status] ?? 'default'
               return (
                 <ListItem key={item.id} disablePadding>
                   <ListItemButton
                     onClick={() => {
-                      onSelectWeek(item.weekStartISO);
-                      onClose();
+                      onSelectWeek(item.weekStartISO)
+                      onClose()
                     }}
                   >
                     <ListItemText
@@ -80,7 +80,8 @@ export const TimesheetHistoryPanel = ({
                           </Typography>
                           {item.submittedAt && (
                             <Typography variant="caption" color="text.secondary">
-                              Submitted {new Date(item.submittedAt).toLocaleString(undefined, {
+                              Submitted{' '}
+                              {new Date(item.submittedAt).toLocaleString(undefined, {
                                 dateStyle: 'medium',
                                 timeStyle: 'short',
                               })}
@@ -91,13 +92,13 @@ export const TimesheetHistoryPanel = ({
                     />
                   </ListItemButton>
                 </ListItem>
-              );
+              )
             })}
           </List>
         )}
       </Box>
     </Drawer>
-  );
-};
+  )
+}
 
-export default TimesheetHistoryPanel;
+export default TimesheetHistoryPanel

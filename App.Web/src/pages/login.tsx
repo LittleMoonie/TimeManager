@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from 'react'
 import {
   Alert,
   Box,
@@ -8,32 +8,33 @@ import {
   Container,
   TextField,
   Typography,
-} from '@mui/material';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { useAuth } from '@/hooks/useAuth';
+} from '@mui/material'
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { useAuth } from '@/hooks/useAuth'
 
 const LoginPage = () => {
   const [credentials, setCredentials] = useState({
     email: '',
     password: '',
-  });
-  const { login, isLoggingIn, loginError } = useAuth();
+  })
+  const { login, isLoggingIn, loginError } = useAuth()
 
-  const handleChange = (field: 'email' | 'password') => (event: React.ChangeEvent<HTMLInputElement>) => {
-    setCredentials((prev) => ({ ...prev, [field]: event.target.value }));
-  };
+  const handleChange =
+    (field: 'email' | 'password') => (event: React.ChangeEvent<HTMLInputElement>) => {
+      setCredentials(prev => ({ ...prev, [field]: event.target.value }))
+    }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    event.preventDefault()
     try {
-      await login(credentials);
+      await login(credentials)
     } catch {
       // Errors surfaced via loginError state
     }
-  };
+  }
 
   if (isLoggingIn) {
-    return <LoadingSpinner message="Signing you in..." />;
+    return <LoadingSpinner message="Signing you in..." />
   }
 
   return (
@@ -61,7 +62,13 @@ const LoginPage = () => {
               </Alert>
             )}
 
-            <Box component="form" onSubmit={handleSubmit} display="flex" flexDirection="column" gap={2}>
+            <Box
+              component="form"
+              onSubmit={handleSubmit}
+              display="flex"
+              flexDirection="column"
+              gap={2}
+            >
               <TextField
                 label="Email address"
                 type="email"
@@ -79,7 +86,11 @@ const LoginPage = () => {
                 required
                 fullWidth
               />
-              <Button type="submit" variant="contained" disabled={!credentials.email || !credentials.password}>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={!credentials.email || !credentials.password}
+              >
                 Sign In
               </Button>
             </Box>
@@ -89,7 +100,8 @@ const LoginPage = () => {
                 mt: 3,
                 p: 2,
                 borderRadius: 2,
-                backgroundColor: (theme) => (theme.palette.mode === 'light' ? 'grey.100' : 'grey.900'),
+                backgroundColor: theme =>
+                  theme.palette.mode === 'light' ? 'grey.100' : 'grey.900',
               }}
             >
               <Typography variant="caption" color="text.secondary">
@@ -105,7 +117,7 @@ const LoginPage = () => {
         </Card>
       </Box>
     </Container>
-  );
-};
+  )
+}
 
-export default LoginPage;
+export default LoginPage

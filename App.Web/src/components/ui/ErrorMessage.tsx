@@ -1,15 +1,15 @@
-import { Alert, AlertTitle, Box } from '@mui/material';
+import { Alert, AlertTitle, Box } from '@mui/material'
 
 interface ErrorMessageProps {
-  title?: string;
-  message: string;
-  severity?: 'error' | 'warning' | 'info' | 'success';
+  title?: string
+  message: string
+  severity?: 'error' | 'warning' | 'info' | 'success'
 }
 
-export const ErrorMessage = ({ 
-  title = 'Error', 
-  message, 
-  severity = 'error' 
+export const ErrorMessage = ({
+  title = 'Error',
+  message,
+  severity = 'error',
 }: ErrorMessageProps) => {
   return (
     <Box py={2}>
@@ -18,6 +18,5 @@ export const ErrorMessage = ({
         {message}
       </Alert>
     </Box>
-  );
-};
-
+  )
+}

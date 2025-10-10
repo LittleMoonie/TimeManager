@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react';
-import { Box, Tabs, Tab, Grid, Stack } from '@mui/material';
-import { PageHeader } from '@/components/ui/PageHeader';
-import { AppBreadcrumbs } from '@/components/ui/Breadcrumbs';
-import { ProfileSummaryCard } from './ProfileTab';
-import { AdvancedSettingsTab } from './AdvancedSettingsTab';
-import { ChangePasswordTab } from './ChangePasswordTab';
-import { AboutMeSection } from './AboutMeSection';
-import { RecognizedDevice, ActiveSession } from '@/types';
+import { useEffect, useState } from 'react'
+import { Box, Tabs, Tab, Grid, Stack } from '@mui/material'
+import { PageHeader } from '@/components/ui/PageHeader'
+import { AppBreadcrumbs } from '@/components/ui/Breadcrumbs'
+import { ProfileSummaryCard } from './ProfileTab'
+import { AdvancedSettingsTab } from './AdvancedSettingsTab'
+import { ChangePasswordTab } from './ChangePasswordTab'
+import { AboutMeSection } from './AboutMeSection'
+import { RecognizedDevice, ActiveSession } from '@/types'
 
-type TabValue = 'profile' | 'advanced' | 'password';
+type TabValue = 'profile' | 'advanced' | 'password'
 
 // Mock data - in real app, this would come from API
 const mockRecognizedDevices: RecognizedDevice[] = [
@@ -33,7 +33,7 @@ const mockRecognizedDevices: RecognizedDevice[] = [
     lastActive: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
     deviceType: 'mobile',
   },
-];
+]
 
 const mockActiveSessions: ActiveSession[] = [
   {
@@ -50,58 +50,56 @@ const mockActiveSessions: ActiveSession[] = [
     current: false,
     deviceType: 'tablet',
   },
-];
+]
 
 const ProfilePage = () => {
-  const [activeTab, setActiveTab] = useState<TabValue>('profile');
-  const [recognizedDevices, setRecognizedDevices] = useState(mockRecognizedDevices);
-  const [activeSessions, setActiveSessions] = useState(mockActiveSessions);
+  const [activeTab, setActiveTab] = useState<TabValue>('profile')
+  const [recognizedDevices, setRecognizedDevices] = useState(mockRecognizedDevices)
+  const [activeSessions, setActiveSessions] = useState(mockActiveSessions)
   const [securitySettings, setSecuritySettings] = useState({
     loginNotificationsEnabled: true,
     loginApprovalsRequired: false,
-  });
-  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  })
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: TabValue) => {
-    setActiveTab(newValue);
-  };
+    setActiveTab(newValue)
+  }
 
   const handleRemoveDevice = (deviceId: string) => {
-    setRecognizedDevices(devices => devices.filter(device => device.id !== deviceId));
-  };
+    setRecognizedDevices(devices => devices.filter(device => device.id !== deviceId))
+  }
 
   const handleLogoutSession = (sessionId: string) => {
-    setActiveSessions(sessions => sessions.filter(session => session.id !== sessionId));
-  };
+    setActiveSessions(sessions => sessions.filter(session => session.id !== sessionId))
+  }
 
   const handleLogoutAllOthers = () => {
-    setActiveSessions(sessions => sessions.filter(session => session.current));
-  };
+    setActiveSessions(sessions => sessions.filter(session => session.current))
+  }
 
-  const handleSecurityToggle = (
-    setting: keyof typeof securitySettings,
-  ) => {
+  const handleSecurityToggle = (setting: keyof typeof securitySettings) => {
     setSecuritySettings(prev => {
-      const next = { ...prev, [setting]: !prev[setting] };
-      return next;
-    });
+      const next = { ...prev, [setting]: !prev[setting] }
+      return next
+    })
 
     setFeedbackMessage(
       setting === 'loginNotificationsEnabled'
         ? 'Login notifications preference saved.'
-        : 'Login approvals preference saved.',
-    );
-  };
+        : 'Login approvals preference saved.'
+    )
+  }
 
   useEffect(() => {
-    if (!feedbackMessage) return;
+    if (!feedbackMessage) return
 
     const timeout = setTimeout(() => {
-      setFeedbackMessage(null);
-    }, 2600);
+      setFeedbackMessage(null)
+    }, 2600)
 
-    return () => clearTimeout(timeout);
-  }, [feedbackMessage]);
+    return () => clearTimeout(timeout)
+  }, [feedbackMessage])
 
   return (
     <Box sx={{ px: { xs: 2, md: 4 }, py: 3 }}>
@@ -155,7 +153,7 @@ const ProfilePage = () => {
         </Grid>
       </Stack>
     </Box>
-  );
-};
+  )
+}
 
-export default ProfilePage;
+export default ProfilePage

@@ -1,18 +1,18 @@
-import { alpha } from '@mui/material/styles';
-import type { PaletteMode, PaletteOptions } from '@mui/material';
+import { alpha } from '@mui/material/styles'
+import type { PaletteMode, PaletteOptions } from '@mui/material'
 
-export type ThemeGroup = 'aurora' | 'ember' | 'lagoon';
-export type ThemeTone = 'light' | 'dark';
-export type ThemeId = `${ThemeGroup}-${ThemeTone}`;
+export type ThemeGroup = 'aurora' | 'ember' | 'lagoon'
+export type ThemeTone = 'light' | 'dark'
+export type ThemeId = `${ThemeGroup}-${ThemeTone}`
 
 export type ThemePreset = {
-  id: ThemeId;
-  label: string;
-  description: string;
-  group: ThemeGroup;
-  mode: PaletteMode;
-  palette: PaletteOptions;
-};
+  id: ThemeId
+  label: string
+  description: string
+  group: ThemeGroup
+  mode: PaletteMode
+  palette: PaletteOptions
+}
 
 const greyScale = {
   50: '#F9FAFB',
@@ -25,16 +25,16 @@ const greyScale = {
   700: '#334155',
   800: '#1E293B',
   900: '#0F172A',
-};
+}
 
 type PaletteSeed = {
-  primary: NonNullable<PaletteOptions['primary']>;
-  secondary: NonNullable<PaletteOptions['secondary']>;
-  backgroundDefault: string;
-  backgroundPaper: string;
-  textPrimary: string;
-  textSecondary: string;
-};
+  primary: NonNullable<PaletteOptions['primary']>
+  secondary: NonNullable<PaletteOptions['secondary']>
+  backgroundDefault: string
+  backgroundPaper: string
+  textPrimary: string
+  textSecondary: string
+}
 
 const createLightPalette = ({
   primary,
@@ -62,7 +62,7 @@ const createLightPalette = ({
   success: { light: '#BBF7D0', main: '#16A34A', dark: '#166534', contrastText: '#052E16' },
   warning: { light: '#FDE68A', main: '#D97706', dark: '#92400E', contrastText: '#1B1305' },
   error: { light: '#FCA5A5', main: '#DC2626', dark: '#991B1B', contrastText: '#FEF2F2' },
-});
+})
 
 const createDarkPalette = ({
   primary,
@@ -90,7 +90,7 @@ const createDarkPalette = ({
   success: { light: '#34D399', main: '#10B981', dark: '#059669', contrastText: '#042F1A' },
   warning: { light: '#FBBF24', main: '#D97706', dark: '#B45309', contrastText: '#1E1203' },
   error: { light: '#F87171', main: '#EF4444', dark: '#B91C1C', contrastText: '#2F0B0B' },
-});
+})
 
 const auroraLight = {
   id: 'aurora-light' as const,
@@ -106,7 +106,7 @@ const auroraLight = {
     textPrimary: '#0F172A',
     textSecondary: '#475569',
   }),
-};
+}
 
 const auroraDark = {
   id: 'aurora-dark' as const,
@@ -122,7 +122,7 @@ const auroraDark = {
     textPrimary: '#E2E8F0',
     textSecondary: '#94A3B8',
   }),
-};
+}
 
 const emberLight = {
   id: 'ember-light' as const,
@@ -138,7 +138,7 @@ const emberLight = {
     textPrimary: '#1F2933',
     textSecondary: '#4B5563',
   }),
-};
+}
 
 const emberDark = {
   id: 'ember-dark' as const,
@@ -154,7 +154,7 @@ const emberDark = {
     textPrimary: '#FDEDE4',
     textSecondary: '#F2B8A6',
   }),
-};
+}
 
 const lagoonLight = {
   id: 'lagoon-light' as const,
@@ -170,7 +170,7 @@ const lagoonLight = {
     textPrimary: '#102A26',
     textSecondary: '#3F5551',
   }),
-};
+}
 
 const lagoonDark = {
   id: 'lagoon-dark' as const,
@@ -186,7 +186,7 @@ const lagoonDark = {
     textPrimary: '#D1FAF5',
     textSecondary: '#7DDCD3',
   }),
-};
+}
 
 export const themePresets: Record<ThemeId, ThemePreset> = {
   [auroraLight.id]: auroraLight as ThemePreset,
@@ -195,7 +195,7 @@ export const themePresets: Record<ThemeId, ThemePreset> = {
   [emberDark.id]: emberDark as ThemePreset,
   [lagoonLight.id]: lagoonLight as ThemePreset,
   [lagoonDark.id]: lagoonDark as ThemePreset,
-};
+}
 
-export const themePresetList = Object.values(themePresets);
-export const defaultThemeId: ThemeId = auroraLight.id as ThemeId;
+export const themePresetList = Object.values(themePresets)
+export const defaultThemeId: ThemeId = auroraLight.id as ThemeId

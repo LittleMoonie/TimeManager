@@ -7,14 +7,6 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
-			"UserRole": {
-				"enum": [
-					"EMPLOYEE",
-					"MANAGER",
-					"ADMIN"
-				],
-				"type": "string"
-			},
 			"User": {
 				"properties": {
 					"id": {
@@ -24,45 +16,199 @@
 						"type": "string",
 						"format": "date-time"
 					},
-					"username": {
+					"orgId": {
 						"type": "string"
 					},
 					"email": {
 						"type": "string"
 					},
+					"name": {
+						"type": "string"
+					},
 					"password": {
 						"type": "string"
 					},
-					"timezone": {
+					"role": {
 						"type": "string"
 					},
-					"role": {
-						"$ref": "#/components/schemas/UserRole"
+					"organization": {
+						"$ref": "#/components/schemas/Organization"
+					},
+					"teamMembership": {
+						"items": {
+							"$ref": "#/components/schemas/TeamMember"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
 					"id",
 					"createdAt",
-					"username",
+					"orgId",
 					"email",
+					"name",
 					"password",
-					"role"
+					"role",
+					"organization",
+					"teamMembership"
 				],
 				"type": "object",
 				"additionalProperties": true
 			},
-			"TimesheetStatus": {
+			"Organization": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"name": {
+						"type": "string"
+					},
+					"users": {
+						"items": {
+							"$ref": "#/components/schemas/User"
+						},
+						"type": "array"
+					},
+					"teams": {
+						"items": {
+							"$ref": "#/components/schemas/Team"
+						},
+						"type": "array"
+					},
+					"actionCodes": {
+						"items": {
+							"$ref": "#/components/schemas/ActionCode"
+						},
+						"type": "array"
+					},
+					"timesheetEntries": {
+						"items": {
+							"$ref": "#/components/schemas/TimesheetEntry"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"id",
+					"createdAt",
+					"name",
+					"users",
+					"teams",
+					"actionCodes",
+					"timesheetEntries"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"Team": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"name": {
+						"type": "string"
+					},
+					"organization": {
+						"$ref": "#/components/schemas/Organization"
+					},
+					"members": {
+						"items": {
+							"$ref": "#/components/schemas/TeamMember"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"id",
+					"createdAt",
+					"name",
+					"organization",
+					"members"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"TeamMember": {
+				"properties": {
+					"userId": {
+						"type": "string"
+					},
+					"teamId": {
+						"type": "string"
+					},
+					"role": {
+						"type": "string"
+					},
+					"user": {
+						"$ref": "#/components/schemas/User"
+					},
+					"team": {
+						"$ref": "#/components/schemas/Team"
+					}
+				},
+				"required": [
+					"userId",
+					"teamId",
+					"role",
+					"user",
+					"team"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"ActionCodeType": {
 				"enum": [
-					"DRAFT",
-					"SUBMITTED",
-					"APPROVED",
-					"REJECTED",
-					"EXPORTED",
-					"REOPENED"
+					"billable",
+					"non-billable"
 				],
 				"type": "string"
 			},
-			"Timesheet": {
+			"ActionCode": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"organization": {
+						"$ref": "#/components/schemas/Organization"
+					},
+					"code": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"type": {
+						"$ref": "#/components/schemas/ActionCodeType"
+					},
+					"active": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"id",
+					"createdAt",
+					"organization",
+					"code",
+					"name",
+					"type",
+					"active"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"TimesheetEntry": {
 				"properties": {
 					"id": {
 						"type": "string"
@@ -74,31 +220,191 @@
 					"user": {
 						"$ref": "#/components/schemas/User"
 					},
-					"startDate": {
-						"type": "string",
-						"format": "date-time"
+					"organization": {
+						"$ref": "#/components/schemas/Organization"
 					},
-					"endDate": {
-						"type": "string",
-						"format": "date-time"
+					"actionCode": {
+						"$ref": "#/components/schemas/ActionCode"
 					},
-					"status": {
-						"$ref": "#/components/schemas/TimesheetStatus"
+					"workMode": {
+						"$ref": "#/components/schemas/WorkMode"
 					},
-					"rejectionReason": {
+					"country": {
 						"type": "string"
+					},
+					"startedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"endedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"durationMin": {
+						"type": "number",
+						"format": "double"
+					},
+					"note": {
+						"type": "string"
+					},
+					"day": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"approvals": {
+						"items": {
+							"$ref": "#/components/schemas/Approval"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
 					"id",
 					"createdAt",
 					"user",
-					"startDate",
-					"endDate",
+					"organization",
+					"actionCode",
+					"workMode",
+					"country",
+					"durationMin",
+					"day",
+					"approvals"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"WorkMode": {
+				"enum": [
+					"office",
+					"remote",
+					"hybrid"
+				],
+				"type": "string"
+			},
+			"ApprovalStatus": {
+				"enum": [
+					"pending",
+					"approved",
+					"rejected"
+				],
+				"type": "string"
+			},
+			"Approval": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"entry": {
+						"$ref": "#/components/schemas/TimesheetEntry"
+					},
+					"approver": {
+						"$ref": "#/components/schemas/User"
+					},
+					"status": {
+						"$ref": "#/components/schemas/ApprovalStatus"
+					},
+					"reason": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"createdAt",
+					"entry",
+					"approver",
 					"status"
 				],
 				"type": "object",
 				"additionalProperties": true
+			},
+			"TimesheetEntryDto": {
+				"properties": {
+					"actionCodeId": {
+						"type": "string"
+					},
+					"workMode": {
+						"type": "string",
+						"enum": [
+							"office",
+							"remote",
+							"hybrid"
+						]
+					},
+					"country": {
+						"type": "string"
+					},
+					"startedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"endedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"durationMin": {
+						"type": "number",
+						"format": "double"
+					},
+					"note": {
+						"type": "string"
+					},
+					"day": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"actionCodeId",
+					"workMode",
+					"country",
+					"durationMin",
+					"day"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"Partial_TimesheetEntryDto_": {
+				"properties": {
+					"actionCodeId": {
+						"type": "string"
+					},
+					"workMode": {
+						"type": "string",
+						"enum": [
+							"office",
+							"remote",
+							"hybrid"
+						]
+					},
+					"country": {
+						"type": "string"
+					},
+					"startedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"endedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"durationMin": {
+						"type": "number",
+						"format": "double"
+					},
+					"note": {
+						"type": "string"
+					},
+					"day": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"type": "object",
+				"description": "Make all properties in T optional"
 			},
 			"LeaveType": {
 				"enum": [
@@ -165,16 +471,13 @@
 			"RegisterResponse": {
 				"properties": {
 					"success": {
-						"type": "boolean",
-						"description": "Whether the registration was successful"
+						"type": "boolean"
 					},
 					"userID": {
-						"type": "string",
-						"description": "ID of the newly created user"
+						"type": "string"
 					},
 					"msg": {
-						"type": "string",
-						"description": "Response message"
+						"type": "string"
 					}
 				},
 				"required": [
@@ -187,12 +490,10 @@
 			"ApiResponse": {
 				"properties": {
 					"success": {
-						"type": "boolean",
-						"description": "Whether the operation was successful"
+						"type": "boolean"
 					},
 					"msg": {
-						"type": "string",
-						"description": "Response message"
+						"type": "string"
 					}
 				},
 				"required": [
@@ -203,24 +504,25 @@
 				"additionalProperties": true
 			},
 			"RegisterUserRequest": {
-				"description": "User Data Transfer Objects for API requests and responses",
 				"properties": {
 					"email": {
-						"type": "string",
-						"description": "User's email address"
+						"type": "string"
 					},
-					"username": {
-						"type": "string",
-						"description": "User's username (4-15 alphanumeric characters)"
+					"name": {
+						"type": "string"
 					},
 					"password": {
-						"type": "string",
-						"description": "User's password"
+						"type": "string"
+					},
+					"orgName": {
+						"type": "string"
 					}
 				},
 				"required": [
 					"email",
-					"password"
+					"name",
+					"password",
+					"orgName"
 				],
 				"type": "object",
 				"additionalProperties": true
@@ -228,27 +530,23 @@
 			"UserResponse": {
 				"properties": {
 					"id": {
-						"type": "string",
-						"description": "User's unique identifier"
-					},
-					"username": {
-						"type": "string",
-						"description": "User's username"
+						"type": "string"
 					},
 					"email": {
-						"type": "string",
-						"description": "User's email address"
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
 					},
 					"createdAt": {
 						"type": "string",
-						"format": "date-time",
-						"description": "Account creation date"
+						"format": "date-time"
 					}
 				},
 				"required": [
 					"id",
-					"username",
 					"email",
+					"name",
 					"createdAt"
 				],
 				"type": "object",
@@ -257,20 +555,16 @@
 			"AuthResponse": {
 				"properties": {
 					"success": {
-						"type": "boolean",
-						"description": "Whether the operation was successful"
+						"type": "boolean"
 					},
 					"token": {
-						"type": "string",
-						"description": "JWT token for authentication"
+						"type": "string"
 					},
 					"user": {
-						"$ref": "#/components/schemas/UserResponse",
-						"description": "User information"
+						"$ref": "#/components/schemas/UserResponse"
 					},
 					"msg": {
-						"type": "string",
-						"description": "Response message"
+						"type": "string"
 					}
 				},
 				"required": [
@@ -282,12 +576,10 @@
 			"LoginUserRequest": {
 				"properties": {
 					"email": {
-						"type": "string",
-						"description": "User's email address"
+						"type": "string"
 					},
 					"password": {
-						"type": "string",
-						"description": "User's password"
+						"type": "string"
 					}
 				},
 				"required": [
@@ -367,9 +659,9 @@
 		}
 	},
 	"paths": {
-		"/timesheets": {
+		"/api/v1/time": {
 			"get": {
-				"operationId": "GetTimesheets",
+				"operationId": "GetWeekTimesheet",
 				"responses": {
 					"200": {
 						"description": "Ok",
@@ -377,7 +669,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/Timesheet"
+										"$ref": "#/components/schemas/TimesheetEntry"
 									},
 									"type": "array"
 								}
@@ -386,31 +678,40 @@
 					}
 				},
 				"tags": [
-					"Timesheets"
+					"Time"
 				],
 				"security": [
 					{
 						"jwt": []
 					}
 				],
-				"parameters": []
+				"parameters": [
+					{
+						"in": "query",
+						"name": "week",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			},
 			"post": {
-				"operationId": "CreateTimesheet",
+				"operationId": "CreateTimeEntry",
 				"responses": {
 					"200": {
 						"description": "Ok",
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/Timesheet"
+									"$ref": "#/components/schemas/TimesheetEntry"
 								}
 							}
 						}
 					}
 				},
 				"tags": [
-					"Timesheets"
+					"Time"
 				],
 				"security": [
 					{
@@ -423,30 +724,16 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"properties": {
-									"endDate": {
-										"type": "string",
-										"format": "date-time"
-									},
-									"startDate": {
-										"type": "string",
-										"format": "date-time"
-									}
-								},
-								"required": [
-									"endDate",
-									"startDate"
-								],
-								"type": "object"
+								"$ref": "#/components/schemas/TimesheetEntryDto"
 							}
 						}
 					}
 				}
 			}
 		},
-		"/timesheets/{id}": {
-			"get": {
-				"operationId": "GetTimesheet",
+		"/api/v1/time/{id}": {
+			"put": {
+				"operationId": "UpdateTimeEntry",
 				"responses": {
 					"200": {
 						"description": "Ok",
@@ -455,7 +742,7 @@
 								"schema": {
 									"allOf": [
 										{
-											"$ref": "#/components/schemas/Timesheet"
+											"$ref": "#/components/schemas/TimesheetEntry"
 										}
 									],
 									"nullable": true
@@ -465,7 +752,43 @@
 					}
 				},
 				"tags": [
-					"Timesheets"
+					"Time"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Partial_TimesheetEntryDto_"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteTimeEntry",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"Time"
 				],
 				"security": [
 					{
@@ -482,64 +805,6 @@
 						}
 					}
 				]
-			}
-		},
-		"/timesheets/{id}/status": {
-			"put": {
-				"operationId": "UpdateTimesheetStatus",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"allOf": [
-										{
-											"$ref": "#/components/schemas/Timesheet"
-										}
-									],
-									"nullable": true
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Timesheets"
-				],
-				"security": [
-					{
-						"jwt": []
-					}
-				],
-				"parameters": [
-					{
-						"in": "path",
-						"name": "id",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"properties": {
-									"status": {
-										"$ref": "#/components/schemas/TimesheetStatus"
-									}
-								},
-								"required": [
-									"status"
-								],
-								"type": "object"
-							}
-						}
-					}
-				}
 			}
 		},
 		"/leave-requests": {
@@ -769,7 +1034,7 @@
 						}
 					}
 				},
-				"description": "Register a new user",
+				"description": "Register a new user and organization",
 				"tags": [
 					"Users"
 				],

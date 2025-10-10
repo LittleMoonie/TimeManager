@@ -1,6 +1,6 @@
-export { AppThemeProvider } from './ThemeProvider';
-export { useThemeController, useAppTheme } from './ThemeProvider';
-export type { ThemeControllerContextValue } from './ThemeProvider';
+export { AppThemeProvider } from './ThemeProvider'
+export { useThemeController, useAppTheme } from './ThemeProvider'
+export type { ThemeControllerContextValue } from './ThemeProvider'
 export {
   themePresetList,
   themePresets,
@@ -9,4 +9,4 @@ export {
   type ThemePreset,
   type ThemeGroup,
   type DensitySetting,
-} from './theme';
+} from './theme'

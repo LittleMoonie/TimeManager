@@ -3,6 +3,12 @@ import { DataSource } from 'typeorm';
 import User from '../models/user';
 import ActiveSession from '../models/activeSession';
 import { BaseEntity } from '../models/BaseEntity';
+import { Organization } from '../models/organization';
+import { Team, TeamMember } from '../models/team';
+import { ActionCode } from '../models/actionCode';
+import { Approval } from '../models/approval';
+import { TimesheetEntry } from '../models/timesheetEntry';
+import { AuditLog } from '../models/auditLog';
 
 const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME, DB_SSL } = process.env;
 
@@ -21,7 +27,7 @@ export const AppDataSource = new DataSource({
   database: DB_NAME,
   synchronize: true,            // auto-creates tables in dev — disable in prod
   logging: true,
-  entities: [BaseEntity, User, ActiveSession],
+  entities: [BaseEntity, User, ActiveSession, Organization, Team, TeamMember, ActionCode, Approval, TimesheetEntry, AuditLog],
   migrations: ['src/migrations/**/*{.ts,.js}'],
   ssl: DB_SSL === 'true' ? { rejectUnauthorized: false } : false, // Optional for cloud DBs
 });

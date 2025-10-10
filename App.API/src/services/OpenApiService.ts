@@ -48,7 +48,7 @@ export class OpenApiService {
         console.log('🔄 Generating frontend TypeScript client...');
         
         const { stdout: clientOutput, stderr: clientError } = await execAsync(
-          'cd ../App.Web && yarn api:client'
+          'cd ../../../../App.Web && yarn api:client'
         );
         
         if (clientError && !clientError.includes('warning')) {

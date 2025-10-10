@@ -53,7 +53,7 @@ export const COUNTRIES = [
   { code: 'CG', name: 'Congo (Rep.)' },
   { code: 'CK', name: 'Cook Islands' },
   { code: 'CR', name: 'Costa Rica' },
-  { code: 'CI', name: 'Cote d\'Ivoire' },
+  { code: 'CI', name: "Cote d'Ivoire" },
   { code: 'HR', name: 'Croatia' },
   { code: 'CU', name: 'Cuba' },
   { code: 'CW', name: 'Curacao' },
@@ -248,4 +248,4 @@ export const COUNTRIES = [
   { code: 'YE', name: 'Yemen' },
   { code: 'ZM', name: 'Zambia' },
   { code: 'ZW', name: 'Zimbabwe' },
-];
+]

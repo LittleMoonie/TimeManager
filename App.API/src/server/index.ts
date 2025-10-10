@@ -14,12 +14,10 @@ import { connectDB } from './database';
 // Instantiate express
 const server: Application = express();
 
-//@ts-expect-error - TypeScript compatibility issue with compression types
 server.use(compression());
 
 // Passport Config
 initPassport(passport);
-// @ts-expect-error - TypeScript compatibility issue with passport types
 server.use(passport.initialize());
 
 // Connect to PostgreSQL database

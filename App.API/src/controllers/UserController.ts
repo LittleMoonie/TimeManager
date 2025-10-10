@@ -1,38 +1,28 @@
+
 import * as bcrypt from '@node-rs/bcrypt';
 import { Body, Controller, Post, Route, Tags, Response, SuccessResponse, Security, Request } from 'tsoa';
 import jwt from 'jsonwebtoken';
-import Joi from 'joi';
 import { Request as ExpressRequest } from 'express';
+import { validate } from 'class-validator';
 
 import ActiveSession from '../models/activeSession';
 import User from '../models/user';
+import { Organization } from '../models/organization';
 import { AppDataSource } from '../server/database';
 import {
   RegisterUserRequest,
   LoginUserRequest,
   RegisterResponse,
   AuthResponse,
-  ApiResponse
+  ApiResponse,
+  UserResponse,
 } from '../dto/UserDto';
-
-// Joi schema for validation
-const userSchema = Joi.object({
-  email: Joi.string().email().required(),
-  username: Joi.string().alphanum().min(4).max(15).optional(),
-  password: Joi.string().required(),
-});
-
-const loginSchema = Joi.object({
-  email: Joi.string().email().required(),
-  password: Joi.string().required(),
-});
 
 @Route('users')
 @Tags('Users')
 export class UserController extends Controller {
-  
   /**
-   * Register a new user
+   * Register a new user and organization
    * @param requestBody User registration data
    * @returns Registration result
    */
@@ -42,14 +32,21 @@ export class UserController extends Controller {
   @Response<ApiResponse>('400', 'Email already exists')
   @Response<ApiResponse>('500', 'Internal server error')
   public async registerUser(@Body() requestBody: RegisterUserRequest): Promise<RegisterResponse> {
-    const { error } = userSchema.validate(requestBody);
-    if (error) {
+    const registerUserRequest = new RegisterUserRequest();
+    registerUserRequest.email = requestBody.email;
+    registerUserRequest.name = requestBody.name;
+    registerUserRequest.password = requestBody.password;
+    registerUserRequest.orgName = requestBody.orgName;
+
+    const errors = await validate(registerUserRequest);
+    if (errors.length > 0) {
       this.setStatus(422);
-      throw new Error(`Validation error: ${error.details[0].message}`);
+      throw new Error(`Validation error: ${errors.map(e => e.toString()).join(', ')}`);
     }
 
-    const { username, email, password } = requestBody;
+    const { email, password, name, orgName } = requestBody;
     const userRepository = AppDataSource.getRepository(User);
+    const orgRepository = AppDataSource.getRepository(Organization);
 
     try {
       const existingUser = await userRepository.findOne({ where: { email } });
@@ -63,10 +60,16 @@ export class UserController extends Controller {
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
+      const organization = orgRepository.create({ name: orgName });
+      const savedOrg = await orgRepository.save(organization);
+
       const newUser = userRepository.create({
-        username: username || email.split('@')[0], // Use email prefix if no username provided
+        name,
         email,
         password: hashedPassword,
+        organization: savedOrg,
+        role: 'admin',
+        orgId: savedOrg.id,
       });
       const savedUser = await userRepository.save(newUser);
 
@@ -93,10 +96,14 @@ export class UserController extends Controller {
   @Response<ApiResponse>('401', 'Wrong credentials')
   @Response<ApiResponse>('500', 'Internal server error')
   public async loginUser(@Body() requestBody: LoginUserRequest): Promise<AuthResponse> {
-    const { error } = loginSchema.validate(requestBody);
-    if (error) {
+    const loginUserRequest = new LoginUserRequest();
+    loginUserRequest.email = requestBody.email;
+    loginUserRequest.password = requestBody.password;
+
+    const errors = await validate(loginUserRequest);
+    if (errors.length > 0) {
       this.setStatus(422);
-      throw new Error(`Validation error: ${error.details[0].message}`);
+      throw new Error(`Validation error: ${errors.map(e => e.toString()).join(', ')}`);
     }
 
     const { email, password } = requestBody;
@@ -127,18 +134,17 @@ export class UserController extends Controller {
       }
 
       const token = jwt.sign(
-        { id: user.id, username: user.username, email: user.email },
+        { id: user.id, email: user.email, orgId: user.orgId, role: user.role },
         process.env.SECRET,
         { expiresIn: 86400 } // 1 day
       );
 
       await activeSessionRepository.save({ userId: user.id, token });
 
-      // Hide password in response
-      const userResponse = {
+      const userResponse: UserResponse = {
         id: user.id,
-        username: user.username,
         email: user.email,
+        name: user.name,
         createdAt: user.createdAt
       };
 

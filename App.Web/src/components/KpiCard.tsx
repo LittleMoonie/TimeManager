@@ -1,22 +1,22 @@
-import { Card, CardContent, Chip, Stack, Typography, alpha, Box, Avatar } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { Card, CardContent, Chip, Stack, Typography, alpha, Box, Avatar } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 
-export type KpiVariant = 'gradient' | 'soft' | 'outlined';
+export type KpiVariant = 'gradient' | 'soft' | 'outlined'
 
 export type KpiCardProps = {
-  title: string;
-  value: string;
-  subtitle?: string;
+  title: string
+  value: string
+  subtitle?: string
   delta?: {
-    value: string;
-    trend: 'up' | 'down';
-  };
-  icon?: React.ReactNode;
-  action?: React.ReactNode;
-  footer?: React.ReactNode;
-  variant?: KpiVariant;
-  color?: 'primary' | 'secondary' | 'info';
-};
+    value: string
+    trend: 'up' | 'down'
+  }
+  icon?: React.ReactNode
+  action?: React.ReactNode
+  footer?: React.ReactNode
+  variant?: KpiVariant
+  color?: 'primary' | 'secondary' | 'info'
+}
 
 export const KpiCard = ({
   title,
@@ -29,11 +29,11 @@ export const KpiCard = ({
   variant = 'gradient',
   color = 'primary',
 }: KpiCardProps) => {
-  const theme = useTheme();
-  const palette = theme.palette[color];
-  const gradientBackground = `linear-gradient(135deg, ${alpha(palette.light ?? palette.main, 0.95)} 0%, ${palette.dark ?? palette.main} 100%)`;
-  const isGradient = variant === 'gradient';
-  const isSoft = variant === 'soft';
+  const theme = useTheme()
+  const palette = theme.palette[color]
+  const gradientBackground = `linear-gradient(135deg, ${alpha(palette.light ?? palette.main, 0.95)} 0%, ${palette.dark ?? palette.main} 100%)`
+  const isGradient = variant === 'gradient'
+  const isSoft = variant === 'soft'
 
   return (
     <Card
@@ -44,8 +44,8 @@ export const KpiCard = ({
         background: isGradient
           ? gradientBackground
           : isSoft
-          ? alpha(palette.main, 0.08)
-          : theme.palette.background.paper,
+            ? alpha(palette.main, 0.08)
+            : theme.palette.background.paper,
         boxShadow: isGradient ? theme.shadows[5] : theme.shadows[2],
       }}
     >
@@ -80,7 +80,12 @@ export const KpiCard = ({
                 size="small"
                 sx={{
                   bgcolor: isGradient
-                    ? alpha(delta.trend === 'up' ? theme.palette.success.main : theme.palette.error.main, 0.2)
+                    ? alpha(
+                        delta.trend === 'up'
+                          ? theme.palette.success.main
+                          : theme.palette.error.main,
+                        0.2
+                      )
                     : undefined,
                   color: isGradient ? palette.contrastText : undefined,
                 }}
@@ -93,7 +98,9 @@ export const KpiCard = ({
                   width: 40,
                   height: 40,
                   borderRadius: 2,
-                  bgcolor: isGradient ? alpha(palette.contrastText, 0.2) : alpha(palette.main, 0.16),
+                  bgcolor: isGradient
+                    ? alpha(palette.contrastText, 0.2)
+                    : alpha(palette.main, 0.16),
                   color: isGradient ? palette.contrastText : palette.main,
                 }}
               >
@@ -107,7 +114,7 @@ export const KpiCard = ({
         {footer && <Box>{footer}</Box>}
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-export default KpiCard;
+export default KpiCard

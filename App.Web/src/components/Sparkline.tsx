@@ -1,24 +1,24 @@
-import { useId } from 'react';
-import { alpha, useTheme } from '@mui/material/styles';
-import { Box } from '@mui/material';
-import { Area, AreaChart, ResponsiveContainer, Tooltip, type TooltipProps } from 'recharts';
+import { useId } from 'react'
+import { alpha, useTheme } from '@mui/material/styles'
+import { Box } from '@mui/material'
+import { Area, AreaChart, ResponsiveContainer, Tooltip, type TooltipProps } from 'recharts'
 
 export type SparklineDatum = {
-  label: string;
-  value: number;
-};
+  label: string
+  value: number
+}
 
 type SparklineProps = {
-  data: SparklineDatum[];
-  color?: string;
-  height?: number;
-  ariaLabel?: string;
-};
+  data: SparklineDatum[]
+  color?: string
+  height?: number
+  ariaLabel?: string
+}
 
 const SparklineTooltip = ({ active, payload }: TooltipProps<number, string>) => {
-  const theme = useTheme();
-  if (!active || !payload?.length) return null;
-  const item = payload[0];
+  const theme = useTheme()
+  if (!active || !payload?.length) return null
+  const item = payload[0]
   return (
     <Box
       component="span"
@@ -33,13 +33,13 @@ const SparklineTooltip = ({ active, payload }: TooltipProps<number, string>) => 
     >
       {item.value}
     </Box>
-  );
-};
+  )
+}
 
 export const Sparkline = ({ data, color, height = 48, ariaLabel }: SparklineProps) => {
-  const theme = useTheme();
-  const stroke = color ?? theme.palette.primary.main;
-  const gradientId = useId();
+  const theme = useTheme()
+  const stroke = color ?? theme.palette.primary.main
+  const gradientId = useId()
 
   return (
     <Box sx={{ width: '100%', height }} aria-label={ariaLabel} role="img">
@@ -65,7 +65,7 @@ export const Sparkline = ({ data, color, height = 48, ariaLabel }: SparklineProp
         </AreaChart>
       </ResponsiveContainer>
     </Box>
-  );
-};
+  )
+}
 
-export default Sparkline;
+export default Sparkline

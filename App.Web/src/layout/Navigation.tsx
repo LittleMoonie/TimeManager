@@ -8,35 +8,41 @@ import {
   ListItemText,
   Typography,
   alpha,
-} from '@mui/material';
-import { AssessmentRounded, DashboardRounded, PeopleAltRounded, TaskAltRounded, PersonRounded } from '@mui/icons-material';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useTheme } from '@mui/material/styles';
+} from '@mui/material'
+import {
+  AssessmentRounded,
+  DashboardRounded,
+  PeopleAltRounded,
+  TaskAltRounded,
+  PersonRounded,
+} from '@mui/icons-material'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useTheme } from '@mui/material/styles'
 
-const DRAWER_WIDTH = 260;
+const DRAWER_WIDTH = 260
 
-type NavigationVariant = 'permanent' | 'temporary';
+type NavigationVariant = 'permanent' | 'temporary'
 
 type NavigationProps = {
-  variant: NavigationVariant;
-  open: boolean;
-  onClose?: () => void;
-  collapsed?: boolean;
-};
+  variant: NavigationVariant
+  open: boolean
+  onClose?: () => void
+  collapsed?: boolean
+}
 
 type NavItem = {
-  id: string;
-  label: string;
-  icon: React.ReactNode;
-  path?: string;
-  ariaLabel?: string;
-};
+  id: string
+  label: string
+  icon: React.ReactNode
+  path?: string
+  ariaLabel?: string
+}
 
 type NavGroup = {
-  id: string;
-  title?: string;
-  items: NavItem[];
-};
+  id: string
+  title?: string
+  items: NavItem[]
+}
 
 const PRIMARY_ITEMS: NavItem[] = [
   {
@@ -46,7 +52,7 @@ const PRIMARY_ITEMS: NavItem[] = [
     icon: <DashboardRounded fontSize="small" />,
     ariaLabel: 'Dashboard',
   },
-];
+]
 
 const PAGE_GROUPS: NavGroup[] = [
   {
@@ -54,14 +60,33 @@ const PAGE_GROUPS: NavGroup[] = [
     title: 'Application',
     items: [
       { id: 'tasks', label: 'Tasks', path: '/tasks', icon: <TaskAltRounded fontSize="small" /> },
-      { id: 'timesheet', label: 'Timesheet', path: '/timesheet', icon: <AssessmentRounded fontSize="small" /> },
-      { id: 'people', label: 'People', path: '/people', icon: <PeopleAltRounded fontSize="small" /> },
-      { id: 'reports', label: 'Reports', path: '/reports', icon: <AssessmentRounded fontSize="small" /> },
-      { id: 'profile', label: 'Profile', path: '/profile', icon: <PersonRounded fontSize="small" /> },
+      {
+        id: 'timesheet',
+        label: 'Timesheet',
+        path: '/timesheet',
+        icon: <AssessmentRounded fontSize="small" />,
+      },
+      {
+        id: 'people',
+        label: 'People',
+        path: '/people',
+        icon: <PeopleAltRounded fontSize="small" />,
+      },
+      {
+        id: 'reports',
+        label: 'Reports',
+        path: '/reports',
+        icon: <AssessmentRounded fontSize="small" />,
+      },
+      {
+        id: 'profile',
+        label: 'Profile',
+        path: '/profile',
+        icon: <PersonRounded fontSize="small" />,
+      },
     ],
   },
-];
-
+]
 
 const NavListItem = ({
   item,
@@ -69,12 +94,12 @@ const NavListItem = ({
   onClick,
   collapsed = false,
 }: {
-  item: NavItem;
-  active: boolean;
-  onClick: (path?: string) => void;
-  collapsed?: boolean;
+  item: NavItem
+  active: boolean
+  onClick: (path?: string) => void
+  collapsed?: boolean
 }) => {
-  const theme = useTheme();
+  const theme = useTheme()
   return (
     <ListItem disablePadding sx={{ position: 'relative' }}>
       <ListItemButton
@@ -116,14 +141,14 @@ const NavListItem = ({
         )}
       </ListItemButton>
     </ListItem>
-  );
-};
+  )
+}
 
 const NavSectionTitle = ({ title }: { title: string }) => (
   <Typography
     variant="caption"
     sx={{
-      color: (theme) => alpha(theme.palette.text.secondary, 0.8),
+      color: theme => alpha(theme.palette.text.secondary, 0.8),
       textTransform: 'uppercase',
       letterSpacing: '0.08em',
       px: 3,
@@ -133,14 +158,20 @@ const NavSectionTitle = ({ title }: { title: string }) => (
   >
     {title}
   </Typography>
-);
+)
 
-const NavigationContent = ({ onNavigate, collapsed = false }: { onNavigate: (path?: string) => void; collapsed?: boolean }) => {
-  const location = useLocation();
+const NavigationContent = ({
+  onNavigate,
+  collapsed = false,
+}: {
+  onNavigate: (path?: string) => void
+  collapsed?: boolean
+}) => {
+  const location = useLocation()
 
   const handleNavigate = (path?: string) => {
-    onNavigate(path);
-  };
+    onNavigate(path)
+  }
 
   return (
     <Box
@@ -153,10 +184,9 @@ const NavigationContent = ({ onNavigate, collapsed = false }: { onNavigate: (pat
         gap: 2,
       }}
     >
-
       <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: 0.5 }}>
         <List disablePadding>
-          {PRIMARY_ITEMS.map((item) => (
+          {PRIMARY_ITEMS.map(item => (
             <NavListItem
               key={item.id}
               item={item}
@@ -167,11 +197,11 @@ const NavigationContent = ({ onNavigate, collapsed = false }: { onNavigate: (pat
           ))}
         </List>
 
-        {PAGE_GROUPS.map((group) => (
+        {PAGE_GROUPS.map(group => (
           <Box key={group.id}>
             {!collapsed && group.title && <NavSectionTitle title={group.title} />}
             <List disablePadding>
-              {group.items.map((item) => (
+              {group.items.map(item => (
                 <NavListItem
                   key={item.id}
                   item={item}
@@ -185,23 +215,23 @@ const NavigationContent = ({ onNavigate, collapsed = false }: { onNavigate: (pat
         ))}
       </Box>
     </Box>
-  );
-};
+  )
+}
 
 export const Navigation = ({ variant, open, onClose, collapsed = false }: NavigationProps) => {
-  const navigate = useNavigate();
-  const isPermanent = variant === 'permanent';
-  const theme = useTheme();
-  const drawerWidth = collapsed ? 80 : DRAWER_WIDTH;
+  const navigate = useNavigate()
+  const isPermanent = variant === 'permanent'
+  const theme = useTheme()
+  const drawerWidth = collapsed ? 80 : DRAWER_WIDTH
 
   const handleNavigate = (path?: string) => {
     if (path) {
-      navigate(path);
+      navigate(path)
     }
     if (!isPermanent && onClose) {
-      onClose();
+      onClose()
     }
-  };
+  }
 
   return (
     <Drawer
@@ -235,8 +265,8 @@ export const Navigation = ({ variant, open, onClose, collapsed = false }: Naviga
     >
       <NavigationContent onNavigate={handleNavigate} collapsed={collapsed} />
     </Drawer>
-  );
-};
+  )
+}
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const drawerWidth = DRAWER_WIDTH;
+export const drawerWidth = DRAWER_WIDTH

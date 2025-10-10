@@ -1,11 +1,32 @@
-import { Box, Card, CardContent, Divider, List, ListItem, ListItemText, Typography } from '@mui/material';
-import { PageHeader } from '@/components/ui/PageHeader';
+import {
+  Box,
+  Card,
+  CardContent,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+} from '@mui/material'
+import { PageHeader } from '@/components/ui/PageHeader'
 
 const reportSummaries = [
-  { id: 'r1', title: 'Weekly performance summary', description: 'Snapshot of team productivity and velocity.' },
-  { id: 'r2', title: 'Time tracking compliance', description: 'Highlights missing timesheets and overtime alerts.' },
-  { id: 'r3', title: 'Project health', description: 'Shows progress, blockers, and upcoming milestones.' },
-];
+  {
+    id: 'r1',
+    title: 'Weekly performance summary',
+    description: 'Snapshot of team productivity and velocity.',
+  },
+  {
+    id: 'r2',
+    title: 'Time tracking compliance',
+    description: 'Highlights missing timesheets and overtime alerts.',
+  },
+  {
+    id: 'r3',
+    title: 'Project health',
+    description: 'Shows progress, blockers, and upcoming milestones.',
+  },
+]
 
 const ReportsPage = () => (
   <Box display="flex" flexDirection="column" gap={3}>
@@ -45,6 +66,6 @@ const ReportsPage = () => (
       </CardContent>
     </Card>
   </Box>
-);
+)
 
-export default ReportsPage;
+export default ReportsPage

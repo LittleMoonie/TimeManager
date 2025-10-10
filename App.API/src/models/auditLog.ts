@@ -1,15 +1,22 @@
 
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
 import User from './user';
+import { Organization } from './organization';
+
+export enum AuditLogAction {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+}
 
 @Entity()
 export class AuditLog extends BaseEntity {
   @ManyToOne(() => User)
-  user!: User;
+  actorUser!: User;
 
-  @Column({ type: 'varchar', length: 255 })
-  action!: string;
+  @ManyToOne(() => Organization)
+  organization!: Organization;
 
   @Column({ type: 'varchar', length: 255 })
   entity!: string;
@@ -17,6 +24,12 @@ export class AuditLog extends BaseEntity {
   @Column({ type: 'uuid' })
   entityId!: string;
 
-  @Column({ type: 'jsonb', nullable: true })
-  details?: any;
+  @Column({ type: 'enum', enum: AuditLogAction })
+  action!: AuditLogAction;
+
+  @Column({ type: 'jsonb' })
+  diff!: any;
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  at!: Date;
 }

@@ -1,37 +1,35 @@
-import { Request } from 'express';
-import ActiveSession from '../models/activeSession';
-import { AppDataSource } from '../server/database';
 
-/**
- * Authentication function for tsoa
- * Validates JWT tokens stored in active sessions
- */
+import { Request } from 'express';
+import jwt from 'jsonwebtoken';
+import { AppDataSource } from '../server/database';
+import User from '../models/user';
+
 export async function expressAuthentication(
   request: Request,
   securityName: string,
-  scopes?: string[]
-): Promise<any> {
+  ): Promise<any> {
   if (securityName === 'jwt') {
     const token = request.headers.authorization?.replace('Bearer ', '') || request.body?.token;
-    
+
     if (!token) {
       throw new Error('No token provided');
     }
 
     try {
-      const activeSessionRepository = AppDataSource.getRepository(ActiveSession);
-      const session = await activeSessionRepository.findOne({ 
-        where: { token },
-        relations: ['user']
-      });
+      const decoded = jwt.verify(token, process.env.SECRET || '');
+      const userRepository = AppDataSource.getRepository(User);
+      const user = await userRepository.findOne({ where: { id: (decoded as any).id } });
 
-      if (!session) {
-        throw new Error('Invalid token');
+      if (!user) {
+        throw new Error('User not found');
       }
 
-      return session.user;
+      // Attach the user object to the request for use in controllers
+      (request as any).user = user;
+      return user;
+
     } catch (error) {
-      throw new Error('Authentication failed');
+      throw new Error('Authentication failed ' + error);
     }
   }
 
