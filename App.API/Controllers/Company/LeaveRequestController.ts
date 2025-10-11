@@ -1,52 +1,118 @@
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Route,
+  Tags,
+  Path,
+  Security,
+  Request,
+} from "tsoa";
+import { Request as ExpressRequest } from "express";
+import { LeaveRequestService } from "../../Services/Company/LeaveRequestService";
+import {
+  CreateLeaveRequestDto,
+  LeaveRequestResponseDto,
+  UpdateLeaveRequestDto,
+} from "../../Dtos/Company/LeaveRequestDto";
+import { AuthenticationError } from "../../Errors/HttpErrors";
+import { UserService } from "../../Services/User/UserService";
+import { Service } from "typedi";
 
-import { Body, Controller, Get, Post, Put, Route, Tags, Path, Security, Request } from 'tsoa';
-import { Request as ExpressRequest } from 'express';
-import { LeaveRequest, LeaveRequestStatus, LeaveType } from '../../Entity/Company/LeaveRequest';
-import { LeaveRequestService } from '../../Service/Company/LeaveRequestService';
-import User from '../../Entity/Users/User';
-
-@Route('leave-requests')
-@Tags('Leave Requests')
+@Route("leave-requests")
+@Tags("Leave Requests")
+@Security("jwt")
+@Service()
 export class LeaveRequestController extends Controller {
-  private leaveRequestService = new LeaveRequestService();
+  constructor(
+    private leaveRequestService: LeaveRequestService,
+    private userService: UserService,
+  ) {
+    super();
+  }
 
-  private getAuthUser(request: ExpressRequest): { userId: string; orgId: string } {
+  @Post("/")
+  public async createLeaveRequest(
+    @Body() createLeaveRequestDto: CreateLeaveRequestDto,
+    @Request() request: ExpressRequest,
+  ): Promise<LeaveRequestResponseDto> {
     if (!request.user) {
-      throw new Error("User not authenticated");
+      throw new AuthenticationError("User not authenticated");
     }
-    const user = request.user as User;
-    return {
-      userId: user.id,
-      orgId: user.orgId,
-    };
+    const { id: userId, companyId } = request.user;
+    const actingUser = await this.userService.getUserById(companyId, userId);
+
+    const leaveRequest = await this.leaveRequestService.createLeaveRequest(
+      actingUser,
+      companyId,
+      createLeaveRequestDto,
+    );
+    return leaveRequest;
   }
 
-  @Security('jwt')
-  @Get('/')
-  public async getLeaveRequests(@Request() request: ExpressRequest): Promise<LeaveRequest[]> {
-    const { userId } = this.getAuthUser(request);
-    return this.leaveRequestService.getUserLeaveRequests(userId);
+  @Get("/{id}")
+  public async getLeaveRequest(
+    @Path() id: string,
+    @Request() request: ExpressRequest,
+  ): Promise<LeaveRequestResponseDto> {
+    if (!request.user) {
+      throw new AuthenticationError("User not authenticated");
+    }
+    const { companyId } = request.user;
+    return this.leaveRequestService.getLeaveRequestById(companyId, id);
   }
 
-  @Security('jwt')
-  @Get('/{id}')
-  public async getLeaveRequest(@Path() id: string, @Request() request: ExpressRequest): Promise<LeaveRequest | null> {
-    const { orgId } = this.getAuthUser(request);
-    return this.leaveRequestService.getLeaveRequestById(id, orgId);
+  @Get("/")
+  public async getAllLeaveRequests(
+    @Request() request: ExpressRequest,
+  ): Promise<LeaveRequestResponseDto[]> {
+    if (!request.user) {
+      throw new AuthenticationError("User not authenticated");
+    }
+    const { companyId } = request.user;
+    return this.leaveRequestService.getAllLeaveRequests(companyId);
   }
 
-  @Security('jwt')
-  @Post('/')
-  public async createLeaveRequest(@Body() body: { startDate: Date; endDate: Date; leaveType: LeaveType; reason?: string }, @Request() request: ExpressRequest): Promise<LeaveRequest> {
-    const { userId } = this.getAuthUser(request);
-    return this.leaveRequestService.createLeaveRequest(userId, body.startDate, body.endDate, body.leaveType, body.reason);
+  @Put("/{id}")
+  public async updateLeaveRequest(
+    @Path() id: string,
+    @Body() updateLeaveRequestDto: UpdateLeaveRequestDto,
+    @Request() request: ExpressRequest,
+  ): Promise<LeaveRequestResponseDto> {
+    if (!request.user) {
+      throw new AuthenticationError("User not authenticated");
+    }
+    const { id: userId, companyId } = request.user;
+    const actingUser = await this.userService.getUserById(companyId, userId);
+
+    const updatedLeaveRequest =
+      await this.leaveRequestService.updateLeaveRequest(
+        actingUser,
+        companyId,
+        id,
+        updateLeaveRequestDto,
+      );
+    return updatedLeaveRequest;
   }
 
-  @Security('jwt')
-  @Put('/{id}/status')
-  public async updateLeaveRequestStatus(@Path() id: string, @Body() body: { status: LeaveRequestStatus }, @Request() request: ExpressRequest): Promise<LeaveRequest | null> {
-    const { orgId } = this.getAuthUser(request);
-    // In a real app, only managers/admins should be able to approve/reject
-    return this.leaveRequestService.updateLeaveRequestStatus(id, orgId, body.status);
+  @Delete("/{id}")
+  public async deleteLeaveRequest(
+    @Path() id: string,
+    @Request() request: ExpressRequest,
+  ): Promise<void> {
+    if (!request.user) {
+      throw new AuthenticationError("User not authenticated");
+    }
+    const { id: userId, companyId } = request.user;
+    const actingUser = await this.userService.getUserById(companyId, userId);
+
+    await this.leaveRequestService.deleteLeaveRequest(
+      actingUser,
+      companyId,
+      id,
+    );
   }
 }

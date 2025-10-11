@@ -1,30 +1,35 @@
-import { Body, Controller, Post, Route, Tags, Response, SuccessResponse, Security, Request, Get } from 'tsoa';
-import { validate } from 'class-validator';
-import { Request as ExpressRequest } from 'express';
-import logger from '../../Utils/Logger';
-import { LoginDto } from '../../Dto/Authentication/LoginDto';
-import { RegisterDto } from '../../Dto/Authentication/RegisterDto';
-import { AuthenticationService } from '../../Service/AuthenticationService/AuthenticationService';
-import { ApiResponse, AuthResponse, UserResponse } from '../../Dto/Users/UserDto';
-import User from '../../Entity/Users/User';
+import {
+  Body,
+  Controller,
+  Post,
+  Route,
+  Tags,
+  Response,
+  SuccessResponse,
+  Security,
+  Request,
+  Get,
+} from "tsoa";
+import { validate } from "class-validator";
+import { Request as ExpressRequest } from "express";
+import { LoginDto } from "../../Dtos/Authentication/LoginDto";
+import { RegisterDto } from "../../Dtos/Authentication/RegisterDto";
+import { AuthenticationService } from "../../Services/AuthenticationService/AuthenticationService";
+import { AuthResponse, UserResponseDto } from "../../Dtos/Users/UserDto";
+import User from "../../Entities/Users/User";
+import { Service } from "typedi";
+import {
+  ForbiddenError,
+  NotFoundError,
+  UnprocessableEntityError,
+} from "../../Errors/HttpErrors";
 
-interface LoginResult {
-  success: boolean;
-  token: string;
-  refreshToken?: string;
-  expiresAt?: Date;
-  user?: UserResponse;
-  msg?: string;
-}
-
-@Route('auth')
-@Tags('Authentication')
+@Route("auth")
+@Tags("Authentication")
+@Service()
 export class AuthenticationController extends Controller {
-  private readonly authenticationService: AuthenticationService;
-
-  constructor() {
+  constructor(private authenticationService: AuthenticationService) {
     super();
-    this.authenticationService = new AuthenticationService();
   }
 
   /**
@@ -32,32 +37,35 @@ export class AuthenticationController extends Controller {
    * @param requestBody User registration data
    * @returns Registration result
    */
-  @Post('register')
-  @SuccessResponse('200', 'User registered successfully')
-  @Response<ApiResponse>('422', 'Validation error')
-  @Response<ApiResponse>('400', 'Email already exists')
-  @Response<ApiResponse>('500', 'Internal server error')
-  public async register(@Body() requestBody: RegisterDto): Promise<ApiResponse> {
-    const registerDto = new RegisterDto();
-    Object.assign(registerDto, requestBody);
-
-    const errors = await validate(registerDto);
+  @Post("register")
+  @SuccessResponse("201", "User registered successfully")
+  @Response<AuthResponse>("422", "Validation error")
+  @Response<AuthResponse>("400", "Email already exists")
+  @Response<AuthResponse>("500", "Internal server error")
+  public async register(
+    @Body() requestBody: RegisterDto,
+  ): Promise<UserResponseDto> {
+    const errors = await validate(requestBody);
     if (errors.length > 0) {
-      this.setStatus(422);
-      throw new Error(`Validation error: ${errors.map(e => e.toString()).join(', ')}`);
+      throw new UnprocessableEntityError(
+        `Validation error: ${errors.map((e) => e.toString()).join(", ")}`,
+      );
     }
 
-    try {
-      const result = await this.authenticationService.register(requestBody);
-      if (!result.success) {
-        this.setStatus(400);
-      }
-      return result;
-    } catch (err) {
-      logger.error('❌ Register error:', err);
-      this.setStatus(500);
-      throw new Error('Internal server error');
-    }
+    const user = await this.authenticationService.register(requestBody);
+    this.setStatus(201);
+    return {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      companyId: user.companyId,
+      roleId: user.roleId,
+      statusId: user.statusId,
+      createdAt: user.createdAt,
+      phone: user.phoneNumber,
+      lastLogin: user.lastLogin,
+    };
   }
 
   /**
@@ -65,45 +73,69 @@ export class AuthenticationController extends Controller {
    * @param requestBody User login credentials
    * @returns Authentication result with JWT token
    */
-  @Post('login')
-  @SuccessResponse('200', 'User logged in successfully')
-  @Response<ApiResponse>('422', 'Validation error')
-  @Response<ApiResponse>('401', 'Wrong credentials')
-  @Response<ApiResponse>('500', 'Internal server error')
-  public async login(@Body() requestBody: LoginDto, @Request() request: ExpressRequest): Promise<AuthResponse> {
-    const loginDto = new LoginDto();
-    Object.assign(loginDto, requestBody);
-
-    const errors = await validate(loginDto);
+  @Post("login")
+  @SuccessResponse("200", "User logged in successfully")
+  @Response<AuthResponse>("422", "Validation error")
+  @Response<AuthResponse>("401", "Wrong credentials")
+  @Response<AuthResponse>("500", "Internal server error")
+  public async login(
+    @Body() requestBody: LoginDto,
+    @Request() request: ExpressRequest,
+  ): Promise<AuthResponse> {
+    const errors = await validate(requestBody);
     if (errors.length > 0) {
-      this.setStatus(422);
-      throw new Error(`Validation error: ${errors.map(e => e.toString()).join(', ')}`);
+      throw new UnprocessableEntityError(
+        `Validation error: ${errors.map((e) => e.toString()).join(", ")}`,
+      );
     }
 
-    try {
-      const result: LoginResult = await this.authenticationService.login(requestBody);
-      if (!result.success) {
-        this.setStatus(401);
-        return { success: false, msg: result.msg ?? 'Unauthorized' };
-      }
+    const authResponse = await this.authenticationService.login(
+      requestBody,
+      request.ip,
+      request.headers["user-agent"],
+    );
 
-      if (request.res) {
-        request.res.cookie('jwt', result.token, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-          sameSite: 'Lax',
-        });
-      }
-
-      // Return AuthResponse without the token in the body
-      const { token, ...authResponse } = result;
-      return { success: true, msg: authResponse.msg ?? 'Login successful', user: authResponse.user, refreshToken: authResponse.refreshToken, expiresAt: authResponse.expiresAt };
-    } catch (err) {
-      logger.error('❌ Login error:', err);
-      this.setStatus(500);
-      throw new Error('Internal server error');
+    if (request.res) {
+      request.res.cookie("jwt", authResponse.token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+        sameSite: "lax",
+      });
     }
+
+    return {
+      token: authResponse.token,
+      user: {
+        id: authResponse.user.id,
+        email: authResponse.user.email,
+        firstName: authResponse.user.firstName,
+        lastName: authResponse.user.lastName,
+        companyId: authResponse.user.companyId,
+        roleId: authResponse.user.roleId,
+        statusId: authResponse.user.statusId,
+        createdAt: authResponse.user.createdAt,
+        phone: authResponse.user.phone,
+        lastLogin: authResponse.user.lastLogin,
+        company: authResponse.user.company
+          ? {
+              id: authResponse.user.company.id,
+              name: authResponse.user.company.name,
+              timezone: authResponse.user.company.timezone,
+            }
+          : undefined,
+        status: authResponse.user.status
+          ? {
+              id: authResponse.user.status.id,
+              code: authResponse.user.status.code,
+              name: authResponse.user.status.name,
+              description: authResponse.user.status.description,
+              canLogin: authResponse.user.status.canLogin,
+              isTerminal: authResponse.user.status.isTerminal,
+            }
+          : undefined,
+      },
+    };
   }
 
   /**
@@ -111,59 +143,93 @@ export class AuthenticationController extends Controller {
    * @param request Express request object containing headers
    * @returns Logout result
    */
-  @Post('logout')
-  @Security('jwt')
-  @SuccessResponse('200', 'User logged out successfully')
-  @Response<ApiResponse>('401', 'Authentication required')
-  @Response<ApiResponse>('500', 'Internal server error')
-  public async logout(@Request() request: ExpressRequest): Promise<ApiResponse> {
-    try {
-      // Clear HttpOnly cookie
-      if (request.res) {
-        request.res.clearCookie('jwt', {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'Lax',
-        });
-      }
+  @Post("logout")
+  @Security("jwt")
+  @SuccessResponse("200", "User logged out successfully")
+  @Response<AuthResponse>("401", "Authentication required")
+  @Response<AuthResponse>("500", "Internal server error")
+  public async logout(
+    @Request() request: ExpressRequest,
+  ): Promise<AuthResponse> {
+    const token =
+      request.cookies?.jwt || request.headers?.authorization?.split(" ")[1];
 
-      const user = request.user as User;
-      const result = await this.authenticationService.logout(user.id);
-      
-      if (!result.success) {
-        this.setStatus(500);
-        return { success: false, msg: result.msg ?? 'Logout failed' };
-      }
-      return { success: true, msg: result.msg ?? 'Logout successful' };
-    } catch (err) {
-      logger.error('❌ Logout error:', err);
-      this.setStatus(500);
-      throw new Error('Internal server error');
+    if (!token) {
+      throw new NotFoundError("No token provided");
     }
-  }
 
+    await this.authenticationService.logout(request.user);
+
+    // Clear HttpOnly cookie
+    if (request.res) {
+      request.res.clearCookie("jwt", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      });
+    }
+
+    return {
+      token: "",
+      user: {
+        id: "",
+        email: "",
+        firstName: "",
+        lastName: "",
+        companyId: "",
+        roleId: "",
+        statusId: "",
+        createdAt: new Date(),
+        phone: "",
+        lastLogin: new Date(),
+      },
+    };
+  }
   /**
    * Get current user
    * @param request Express request object containing headers
    * @returns Current user
    */
-  @Get('current')
-  @Security('jwt')
-  @SuccessResponse('200', 'Current user retrieved successfully')
-  @Response<ApiResponse>('401', 'Authentication required')
-  @Response<ApiResponse>('500', 'Internal server error')
-  public async getCurrentUser(@Request() request: ExpressRequest): Promise<any> {
-    try {
-      if (!request.user) {
-        this.setStatus(401);
-        return { success: false, msg: 'User not authenticated' };
-      }
-      const user = request.user as User;
-      return { success: true, user: { id: user.id, email: user.email, name: user.firstName + ' ' + user.lastName, orgId: user.orgId, role: user.role.name, status: user.status.name, createdAt: user.createdAt, phone: user.phone, lastLogin: user.lastLogin } };
-    } catch (err) {
-      logger.error('❌ Get current user error:', err);
-      this.setStatus(500);
-      throw new Error('Internal server error');
+  @Get("current")
+  @Security("jwt")
+  @SuccessResponse("200", "Current user retrieved successfully")
+  @Response<AuthResponse>("401", "Authentication required")
+  @Response<AuthResponse>("500", "Internal server error")
+  public async getCurrentUser(
+    @Request() request: ExpressRequest,
+  ): Promise<UserResponseDto> {
+    if (!request.user) {
+      throw new ForbiddenError("User not authenticated");
     }
+    const user = request.user as User;
+    return {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      companyId: user.companyId,
+      roleId: user.roleId,
+      statusId: user.statusId,
+      createdAt: user.createdAt,
+      phone: user.phoneNumber,
+      lastLogin: user.lastLogin,
+      company: user.company
+        ? {
+            id: user.company.id,
+            name: user.company.name,
+            timezone: user.company.timezone,
+          }
+        : undefined,
+      status: user.status
+        ? {
+            id: user.status.id,
+            code: user.status.code,
+            name: user.status.name,
+            description: user.status.description,
+            canLogin: user.status.canLogin,
+            isTerminal: user.status.isTerminal,
+          }
+        : undefined,
+    };
   }
 }

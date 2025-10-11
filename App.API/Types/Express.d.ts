@@ -1,13 +1,13 @@
-import { User } from '../Entity/Users/User';
-import { Organization } from '../Entity/Company/Company';
+import { User } from "../Entities/Users/User";
+import { Company } from "../Entities/Companies/Company";
 
-declare module 'express' {
+declare module "express" {
   interface Request {
     requestId?: string;
     userId?: string;
-    orgId?: string;
+    companyId?: string;
     user?: User | undefined;
-    organization?: Organization | undefined;
+    company?: Company | undefined;
     roles?: string[] | undefined;
   }
 }

@@ -1,80 +1,121 @@
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Route,
+  Tags,
+  Path,
+  Security,
+  Request,
+} from "tsoa";
+import { Request as ExpressRequest } from "express";
+import { Timesheet } from "../../Entities/Timesheets/Timesheet";
+import {
+  CreateTimesheetDto,
+  CreateTimesheetEntryDto,
+} from "../../Dtos/Timesheet/TimesheetDto";
+import { TimesheetService } from "../../Services/Timesheet/TimesheetService";
+import { AuthenticationError } from "../../Errors/HttpErrors";
+import { Service } from "typedi";
 
-import { Body, Controller, Get, Post, Put, Delete, Route, Tags, Path, Security, Request, Query } from 'tsoa';
-import { Request as ExpressRequest } from 'express';
-import { TimesheetEntry } from '../../Entity/Timesheets/TimesheetEntry';
-import User from '../../Entity/Users/User';
-import { Approval } from '../../Entity/Company/Approval';
-
-import { TimesheetEntryDto, TimesheetHistorySummary } from '../../Dto/Timesheet/TimesheetDto';
-
-@Route('api/v1/time')
-@Tags('Time')
+@Route("timesheets")
+@Tags("Timesheets")
+@Security("jwt")
+@Service()
 export class TimesheetController extends Controller {
-  private getAuthUser(request: ExpressRequest): { userId: string; orgId: string; role: string } {
+  constructor(private timesheetService: TimesheetService) {
+    super();
+  }
+
+  @Post("/")
+  public async createTimesheet(
+    @Body() createTimesheetDto: CreateTimesheetDto,
+    @Request() request: ExpressRequest,
+  ): Promise<Timesheet> {
     if (!request.user) {
-      throw new Error("User not authenticated");
+      throw new AuthenticationError("User not authenticated");
     }
-    const user = request.user as User;
-    return {
-      userId: user.id,
-      orgId: user.orgId,
-      role: user.role,
-    };
+    const { id: userId, companyId } = request.user;
+    return this.timesheetService.createTimesheet(
+      companyId,
+      userId,
+      createTimesheetDto,
+    );
   }
 
-  @Security('jwt')
-  @Get('/')
-  public async getWeekTimesheet(@Request() request: ExpressRequest, @Query() week: string, @Query() page: number = 1, @Query() limit: number = 10): Promise<{ data: TimesheetEntry[]; total: number; page: number; lastPage: number }> {
-    const { userId, orgId } = this.getAuthUser(request);
-    const weekStart = new Date(week);
-    return this.getWeekTimesheet(request, week, page, limit);
-  }
-
-  @Security('jwt')
-  @Post('/')
-  public async createTimeEntry(@Body() entryDto: TimesheetEntryDto, @Request() request: ExpressRequest): Promise<TimesheetEntry> {
-    const { userId, orgId } = this.getAuthUser(request);
-    return this.createTimeEntry(entryDto, request);
-  }
-
-  @Security('jwt')
-  @Put('/{id}')
-  public async updateTimeEntry(@Path() id: string, @Body() entryDto: Partial<TimesheetEntryDto>, @Request() request: ExpressRequest): Promise<TimesheetEntry | null> {
-    const { userId, orgId } = this.getAuthUser(request);
-    return this.updateTimeEntry(id, entryDto, request);
-  }
-
-  @Security('jwt')
-  @Delete('/{id}')
-  public async deleteTimeEntry(@Path() id: string, @Request() request: ExpressRequest): Promise<void> {
-    const { userId, orgId } = this.getAuthUser(request);
-    return this.deleteTimeEntry(id, request);
-  }
-
-  @Security('jwt', ['manager', 'admin'])
-  @Post('/{id}/approve')
-  public async approveTimeEntry(@Path() id: string, @Request() request: ExpressRequest): Promise<Approval | null> {
-    const { userId, orgId, role } = this.getAuthUser(request);
-    if (role !== 'manager' && role !== 'admin') {
-      throw new Error("Forbidden: Only managers and admins can approve timesheet entries");
+  @Get("/{id}")
+  public async getTimesheet(
+    @Path() id: string,
+    @Request() request: ExpressRequest,
+  ): Promise<Timesheet> {
+    if (!request.user) {
+      throw new AuthenticationError("User not authenticated");
     }
-    return this.approveTimeEntry(id, request);
+    const { companyId } = request.user;
+    return this.timesheetService.getTimesheet(companyId, id);
   }
 
-  @Security('jwt', ['manager', 'admin'])
-  @Post('/{id}/reject')
-  public async rejectTimeEntry(@Path() id: string, @Body() body: { reason?: string }, @Request() request: ExpressRequest): Promise<Approval | null> {
-    const { userId, orgId, role } = this.getAuthUser(request);
-    if (role !== 'manager' && role !== 'admin') {
-      throw new Error("Forbidden: Only managers and admins can reject timesheet entries");
+  @Post("/{id}/entries")
+  public async addTimesheetEntry(
+    @Path() id: string,
+    @Body() createTimesheetEntryDto: CreateTimesheetEntryDto,
+    @Request() request: ExpressRequest,
+  ): Promise<Timesheet> {
+    if (!request.user) {
+      throw new AuthenticationError("User not authenticated");
     }
-    return this.rejectTimeEntry(id, body, request);
+    const { id: userId, companyId } = request.user;
+    return this.timesheetService.addTimesheetEntry(
+      companyId,
+      userId,
+      id,
+      createTimesheetEntryDto,
+    );
   }
 
-  @Security('jwt')
-  @Get('/history')
-  public async getTimesheetHistory(@Request() request: ExpressRequest): Promise<TimesheetHistorySummary[]> {
-    const { userId, orgId } = this.getAuthUser(request);
-    return this.getTimesheetHistory(request);
+  @Put("/{id}/submit")
+  public async submitTimesheet(
+    @Path() id: string,
+    @Request() request: ExpressRequest,
+  ): Promise<Timesheet> {
+    if (!request.user) {
+      throw new AuthenticationError("User not authenticated");
+    }
+    const { id: userId, companyId } = request.user;
+    return this.timesheetService.submitTimesheet(companyId, userId, id);
+  }
+
+  @Put("/{id}/approve")
+  @Security("jwt", ["manager", "admin"])
+  public async approveTimesheet(
+    @Path() id: string,
+    @Request() request: ExpressRequest,
+  ): Promise<Timesheet> {
+    if (!request.user) {
+      throw new AuthenticationError("User not authenticated");
+    }
+    const { id: approverId, companyId } = request.user;
+    return this.timesheetService.approveTimesheet(companyId, approverId, id);
+  }
+
+  @Put("/{id}/reject")
+  @Security("jwt", ["manager", "admin"])
+  public async rejectTimesheet(
+    @Path() id: string,
+    @Body() body: { reason: string },
+    @Request() request: ExpressRequest,
+  ): Promise<Timesheet> {
+    if (!request.user) {
+      throw new AuthenticationError("User not authenticated");
+    }
+    const { id: approverId, companyId } = request.user;
+    return this.timesheetService.rejectTimesheet(
+      companyId,
+      approverId,
+      id,
+      body.reason,
+    );
   }
 }

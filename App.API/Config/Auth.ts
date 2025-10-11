@@ -1,38 +1,40 @@
-
-import { Request } from 'express';
-import User from '../Entity/Users/User';
-import { AuthenticationService } from '../Service/AuthenticationService/AuthenticationService';
+import { Request } from "express";
+import User from "../Entities/Users/User";
+import { AuthenticationService } from "../Services/AuthenticationService/AuthenticationService";
+import { Container } from "typedi";
+import { AuthenticationError } from "../Errors/HttpErrors";
 
 export async function expressAuthentication(
   request: Request,
   securityName: string,
-  scopes: string[] = []
+  scopes: string[] = [],
 ): Promise<User> {
-  const token = request.cookies?.jwt;
+  const token =
+    request.cookies?.jwt || request.headers?.authorization?.split(" ")[1];
 
   if (!token) {
-    throw new Error('No token provided');
+    throw new AuthenticationError("No token provided");
   }
 
   try {
-    const authenticationService = new AuthenticationService();
-    const authResponse = await authenticationService.getCurrentUser(token);
-
-    if (!authResponse.success || !authResponse.user) {
-      throw new Error(authResponse.msg || 'Authentication failed');
-    }
-
-    const user = authResponse.user as User;
+    const authenticationService = Container.get(AuthenticationService);
+    const user = await authenticationService.getCurrentUser(token);
 
     // Check scopes (roles)
-    if (scopes.length > 0 && !scopes.includes(user.role)) {
-      throw new Error('Forbidden: Insufficient permissions');
+    if (scopes.length > 0 && !scopes.includes(user.role.name)) {
+      throw new AuthenticationError("Forbidden: Insufficient permissions");
     }
 
     // Attach the user object to the request for use in controllers
-    (request as any).user = user;
+    (request as Request & { user: User }).user = user;
     return user;
   } catch (error: unknown) {
-    throw new Error('Authentication failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    if (error instanceof AuthenticationError) {
+      throw error;
+    }
+    throw new AuthenticationError(
+      "Authentication failed: " +
+        (error instanceof Error ? error.message : "Unknown error"),
+    );
   }
 }

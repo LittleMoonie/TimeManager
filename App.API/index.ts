@@ -3,8 +3,7 @@ import 'reflect-metadata';
 import http from 'http';
 
 import server from './Server/index';
-import { OpenApiService } from './Service/OpenApiService';
-import './Entity/Timesheets/TimesheetHistory'; // Explicitly import TimesheetHistory for tsoa
+import { OpenApiService } from './Services/OpenApiService';
 
 const { PORT } = process.env;
 

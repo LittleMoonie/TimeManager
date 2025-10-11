@@ -1,14 +1,16 @@
-import 'reflect-metadata';
-import compression from 'compression';
-import cors from 'cors';
-import express, { Application, NextFunction, Request, Response } from 'express';
-import passport from 'passport';
-import swaggerUi from 'swagger-ui-express';
-import * as fs from 'fs';
-import * as path from 'path';
+import "reflect-metadata";
+import compression from "compression";
+import cors from "cors";
+import express, { Application, NextFunction, Request, Response } from "express";
+import passport from "passport";
+import swaggerUi from "swagger-ui-express";
+import * as fs from "fs";
+import * as path from "path";
 
-import { RegisterRoutes } from '../Routes/generated/routes';
-import { connectDB } from './Database';
+import { RegisterRoutes } from "../Routes/generated/routes";
+import { connectDB } from "./Database";
+import { errorHandler } from "../Middlewares/ErrorHandler";
+import logger from "../Utils/Logger";
 
 // Instantiate express
 const server: Application = express();
@@ -20,33 +22,33 @@ server.use(compression());
 server.use(passport.initialize());
 
 // Connect to PostgreSQL database
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== "test") {
   connectDB();
 }
 
 const corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: "http://localhost:3000",
   credentials: true,
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  allowedHeaders: 'Content-Type, Authorization',
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  allowedHeaders: "Content-Type, Authorization",
 };
 server.use(cors(corsOptions));
 server.use(express.json());
 
 // Setup Swagger UI with dynamic loading
 //@ts-expect-error - TypeScript compatibility issue with swaggerUi types
-server.use('/api/docs', ...swaggerUi.serve);
-server.get('/api/docs', (req: Request, res: Response, next: NextFunction) => {
+server.use("/api/docs", ...swaggerUi.serve);
+server.get("/api/docs", (req: Request, res: Response, next: NextFunction) => {
   try {
     // Try to load the latest OpenAPI specification
     const swaggerDocument = JSON.parse(
-      fs.readFileSync(path.join(__dirname, '../../swagger.json'), 'utf8')
+      fs.readFileSync(path.join(__dirname, "../../swagger.json"), "utf8"),
     );
-    
+
     const setupHandler = swaggerUi.setup(swaggerDocument, {
       explorer: true,
-      customCss: '.swagger-ui .topbar { display: none }',
-      customSiteTitle: 'GoGoTime API Documentation'
+      customCss: ".swagger-ui .topbar { display: none }",
+      customSiteTitle: "GoGoTime API Documentation",
     });
 
     // Call setupHandler without forcing type assertions; suppress incompat warning if needed
@@ -55,9 +57,11 @@ server.get('/api/docs', (req: Request, res: Response, next: NextFunction) => {
   } catch {
     // If swagger.json doesn't exist, show a helpful message
     res.status(503).json({
-      message: 'API documentation is being generated. Please try again in a moment.',
-      suggestion: 'Visit /api/system/generate-openapi to trigger manual generation',
-      error: 'swagger.json not found'
+      message:
+        "API documentation is being generated. Please try again in a moment.",
+      suggestion:
+        "Visit /api/system/generate-openapi to trigger manual generation",
+      error: "swagger.json not found",
     });
   }
 });
@@ -65,6 +69,8 @@ server.get('/api/docs', (req: Request, res: Response, next: NextFunction) => {
 // Mount all API routes under /api prefix
 const apiApp = express();
 RegisterRoutes(apiApp);
-server.use('/api', apiApp);
+server.use("/api", apiApp);
+
+server.use(errorHandler(logger));
 
 export default server;
