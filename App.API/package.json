@@ -40,7 +40,6 @@
     "reflect-metadata": "^0.2.2",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-
     "typedi": "^0.10.0",
     "typeorm": "^0.3.27",
     "typeorm-typedi-extensions": "^0.4.1",
