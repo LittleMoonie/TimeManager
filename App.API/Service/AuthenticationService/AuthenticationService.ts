@@ -1,6 +1,6 @@
 import { AppDataSource } from '../../Server/Database';
 import User from '../../Entity/Users/User';
-import ActiveSession from '../../Entity/Users/ActiveSession';
+import ActiveSession from '../../Entity/Users/ActiveSessions';
 import { Organization } from '../../Entity/Company/Company';
 import { RegisterDto } from '../../Dto/Authentication/RegisterDto';
 import { LoginDto } from '../../Dto/Authentication/LoginDto';

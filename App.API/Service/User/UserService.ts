@@ -1,7 +1,7 @@
 import { AppDataSource } from '../../Server/Database';
 import User from '../../Entity/Users/User';
 import { AuditLogService } from '../Logs/AuditLogService';
-import { AuditAction } from '../../Entity/Logs/AuditLog';
+import { AuditAction } from '../../Entity/Logs/Actions/AuditLog';
 import { CreateUserDto } from '../../Dto/Users/CreateUserDto';
 import { UpdateUserDto } from '../../Dto/Users/UpdateUserDto';
 import { Role } from '../../Entity/Users/Role';

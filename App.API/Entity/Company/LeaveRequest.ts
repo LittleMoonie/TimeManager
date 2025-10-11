@@ -1,8 +1,7 @@
-
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../BaseEntity';
 import User from '../Users/User';
-import { Organization } from './Company';
+import { Company } from './Company';
 
 export enum LeaveRequestStatus {
   PENDING = 'PENDING',
@@ -17,46 +16,30 @@ export enum LeaveType {
   UNPAID = 'UNPAID',
 }
 
-@Entity()
-@Index(['orgId', 'userId'])
-@Index(['orgId', 'startDate', 'endDate'])
+@Entity('leave_requests')
+@Index(['companyId', 'userId'])
+@Index(['companyId', 'startDate', 'endDate'])
 export class LeaveRequest extends BaseEntity {
-  @Column({ type: 'uuid' })
-  orgId!: string;
+  @Column({ type: 'uuid' }) companyId!: string;
 
-  @ManyToOne(() => Organization, { onDelete: 'RESTRICT' })
-  @JoinColumn({ name: 'orgId' })
-  organization!: Organization;
+  @ManyToOne(() => Company, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'companyId' })
+  company!: Company;
 
-  @Column({ type: 'uuid' })
-  userId!: string;
+  @Column({ type: 'uuid' }) userId!: string;
 
   @ManyToOne(() => User, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'userId' })
   user!: User;
 
-  @Column({ type: 'date' })
-  startDate!: Date;
+  @Column({ type: 'date' }) startDate!: Date;
+  @Column({ type: 'date' }) endDate!: Date;
 
-  @Column({ type: 'date' })
-  endDate!: Date;
+  @Column({ type: 'varchar', length: 20 }) leaveType!: LeaveType;
 
-  @Column({
-    type: 'enum',
-    enum: LeaveType,
-  })
-  leaveType!: LeaveType;
-
-  @Column({
-    type: 'enum',
-    enum: LeaveRequestStatus,
-    default: LeaveRequestStatus.PENDING,
-  })
+  @Column({ type: 'varchar', length: 20, default: LeaveRequestStatus.PENDING })
   status!: LeaveRequestStatus;
 
-  @Column({ type: 'text', nullable: true })
-  reason?: string;
-
-  @Column({ type: 'text', nullable: true })
-  rejectionReason?: string;
+  @Column({ type: 'text', nullable: true }) reason?: string;
+  @Column({ type: 'text', nullable: true }) rejectionReason?: string;
 }

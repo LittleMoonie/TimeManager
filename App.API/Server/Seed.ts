@@ -1,70 +1,27 @@
-
+import 'reflect-metadata';
 import { AppDataSource } from './Database';
-import { Organization } from '../Entity/Company/Company';
-import User from '../Entity/Users/User';
-import { ActionCode, ActionCodeType } from '../Entity/Timesheet/ActionCode';
-
-import bcrypt from 'bcryptjs';
+import { seedUserStatuses } from '../Seeds/01-seed-user-statuses';
+import { seedCompany } from '../Seeds/02-seed-company';
+import { seedRolesAndPermissions } from '../Seeds/03-seed-roles-permissions';
+import { seedUsers } from '../Seeds/04-seed-users';
 
 const seedDatabase = async () => {
   await AppDataSource.initialize();
+  try {
+    console.log('🌱 Seeding…');
 
-  const orgRepository = AppDataSource.getRepository(Organization);
-  const userRepository = AppDataSource.getRepository(User);
-  const actionCodeRepository = AppDataSource.getRepository(ActionCode);
+    const { statuses }      = await seedUserStatuses(AppDataSource);
+    const { company }       = await seedCompany(AppDataSource);
+    const { roles }         = await seedRolesAndPermissions(AppDataSource, company);
+    await seedUsers(AppDataSource, company, roles, statuses);
 
-  // Create organization
-  const organization = orgRepository.create({ name: 'GoGoTime' });
-  await orgRepository.save(organization);
-
-  // Create users
-  const adminPassword = await bcrypt.hash('admin123', 10);
-  const admin = userRepository.create({
-    firstName: 'Admin',
-    lastName: 'User',
-    email: 'admin@gogotime.com',
-    password: adminPassword,
-    organization,
-    orgId: organization.id,
-  });
-
-  const managerPassword = await bcrypt.hash('manager123', 10);
-  const manager = userRepository.create({
-    firstName: 'Manager',
-    lastName: 'User',
-    email: 'manager@gogotime.com',
-    password: managerPassword,
-    organization,
-    orgId: organization.id,
-  });
-
-  const employeePassword = await bcrypt.hash('employee123', 10);
-  const employee = userRepository.create({
-    firstName: 'Employee',
-    lastName: 'User',
-    email: 'employee@gogotime.com',
-    password: employeePassword,
-    organization,
-    orgId: organization.id,
-  });
-
-  await userRepository.save([admin, manager, employee]);
-
-  // Create action codes
-  const actionCodes = [
-    { organization, code: 'DEV-101', name: 'Feature Development', type: ActionCodeType.BILLABLE },
-    { organization, code: 'DEV-102', name: 'Bug Fixing', type: ActionCodeType.BILLABLE },
-    { organization, code: 'MEETING', name: 'Internal Meeting', type: ActionCodeType.NON_BILLABLE },
-    { organization, code: 'TRAINING', name: 'Training', type: ActionCodeType.NON_BILLABLE },
-    { organization, code: 'PTO', name: 'Paid Time Off', type: ActionCodeType.NON_BILLABLE },
-  ];
-
-  const actionCodeEntities = actionCodeRepository.create(actionCodes);
-  await actionCodeRepository.save(actionCodeEntities);
-
-  console.log('Database seeded successfully');
-
-  await AppDataSource.destroy();
+    console.log('✅ Seeding complete');
+  } finally {
+    await AppDataSource.destroy();
+  }
 };
 
-seedDatabase().catch(error => console.error('Error seeding database:', error));
+seedDatabase().catch(err => {
+  console.error('❌ Error seeding database:', err);
+  process.exit(1);
+});

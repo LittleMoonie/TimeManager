@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 
-import ActiveSession from '../Entity/Users/ActiveSession';
+import ActiveSession from '../Entity/Users/ActiveSessions';
 import { AppDataSource } from '../Server/Database';
 
 export const checkToken = (req: Request, res: Response, next: NextFunction) => {

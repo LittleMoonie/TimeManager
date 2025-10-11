@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { InjectRepository } from 'typeorm-typedi-extensions';
 import { Repository } from 'typeorm';
-import { TimesheetHistory } from '../../Entity/Timesheet/TimesheetHistory';
+import { TimesheetHistory } from '../../Entity/Timesheets/TimesheetHistory';
 import { RecordHistoryDto } from '../../Dto/Timesheet/RecordHistoryDto';
 import { createHash } from 'crypto';
 import User from '../../Entity/Users/User';

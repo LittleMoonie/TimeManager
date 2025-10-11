@@ -1,59 +1,51 @@
-
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../BaseEntity';
-import { Organization } from '../Company/Company';
-// import { TeamMember } from '../Company/Team'; // Removed import
-// import { UserStatus } from '../Enums/UserStatus'; // Old enum import
-import { TimesheetHistory } from '../Timesheet/TimesheetHistory';
+import { Company } from '../Company/Company';
 import { Role } from './Role';
-import { UserStatus } from './UserStatus'; // New entity import
+import { UserStatus } from './UserStatus';
+import ActiveSession from './ActiveSessions';
 
-@Entity()
-@Index(['orgId', 'id'])
+@Entity('users')
+@Index(['companyId', 'id'])
+@Index(['companyId', 'email'], { unique: true })
+@Index(['companyId', 'roleId'])
+@Index(['companyId', 'statusId'])
 export default class User extends BaseEntity {
-  @Column({ type: 'uuid' })
-  orgId!: string;
+  @Column({ type: 'uuid' }) companyId!: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
-  email!: string;
+  @ManyToOne(() => Company, (company) => company.users, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'companyId' })
+  company!: Company;
+  
+  @Column({ type: 'citext', nullable: false }) email!: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
-  firstName!: string;
+  @Column({ type: 'varchar', length: 255, nullable: false }) firstName!: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
-  lastName!: string;
+  @Column({ type: 'varchar', length: 255, nullable: false }) lastName!: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
-  password!: string;
+  @Column({ type: 'varchar', length: 255, nullable: false }) passwordHash!: string;
+
+  @Column({ type: 'boolean', default: false }) mustChangePasswordAtNextLogin!: boolean;
+
+  @Column({ type: 'uuid', nullable: false }) roleId!: string;
 
   @ManyToOne(() => Role, (role) => role.users, { onDelete: 'RESTRICT' })
-  @JoinColumn({ name: 'roleId' })
+  @JoinColumn([
+    { name: 'roleId', referencedColumnName: 'id' },
+    { name: 'companyId', referencedColumnName: 'companyId' },
+  ])
   role!: Role;
 
-  @Column({ type: 'uuid', nullable: false })
-  roleId!: string;
+  @Column({ type: 'varchar', length: 32, nullable: true }) phoneNumber?: string; // Will need a check for E.164 format
 
-  @Column({ type: 'varchar', length: 20, nullable: true })
-  phone?: string;
+  @Column({ type: 'timestamp with time zone', nullable: true }) lastLogin?: Date;
 
-  @Column({ type: 'timestamp with time zone', nullable: true })
-  lastLogin?: Date;
+  @OneToMany(() => ActiveSession, (s) => s.user)
+  activeSessions!: ActiveSession[];
 
-  @ManyToOne(() => UserStatus, (userStatus) => userStatus.users, { onDelete: 'RESTRICT' })
+  @Column({ type: 'uuid', nullable: false }) statusId!: string;
+  
+  @ManyToOne(() => UserStatus, (s) => s.users, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'statusId' })
   status!: UserStatus;
-
-  @Column({ type: 'uuid', nullable: false })
-  statusId!: string;
-
-  @ManyToOne(() => Organization, (org) => org.users, { onDelete: 'RESTRICT' })
-  @JoinColumn({ name: 'orgId' })
-  organization!: Organization;
-
-  // @OneToMany(() => TeamMember, (teamMember) => teamMember.user)
-  // teamMembership!: TeamMember[];
-
-  @OneToMany(() => TimesheetHistory, (timesheetHistory) => timesheetHistory.user)
-  timesheetHistory!: TimesheetHistory[];
 }
-

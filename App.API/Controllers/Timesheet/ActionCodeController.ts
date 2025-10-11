@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Path, Post, Put, Query, Request, Route, Security, Tags } from 'tsoa';
-import { ActionCode } from '../../Entity/Timesheet/ActionCode';
+import { ActionCode } from '../../Entity/Timesheets/ActionCode';
 import { Request as ExRequest } from 'express';
 import { Service } from 'typedi';
 import { CreateActionCodeDto, UpdateActionCodeDto } from '../../Dto/Timesheet/ActionCodeDto';

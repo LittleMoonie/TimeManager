@@ -1,6 +1,6 @@
 
 import { AppDataSource } from '../../Server/Database';
-import { AuditLog, AuditAction } from '../../Entity/Logs/AuditLog';
+import { AuditLog, AuditAction } from '../../Entity/Logs/Actions/AuditLog';
 
 export class AuditLogService {
   private auditLogRepository = AppDataSource.getRepository(AuditLog);

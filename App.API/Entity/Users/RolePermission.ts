@@ -1,20 +1,32 @@
-import { Entity, ManyToOne, PrimaryColumn, JoinColumn } from 'typeorm';
+import { Entity, ManyToOne, PrimaryColumn, JoinColumn, Index, Column } from 'typeorm';
 import { Role } from './Role';
 import { Permission } from './Permission';
+import { Company } from '../Company/Company';
+import { BaseEntity } from '../BaseEntity';
 
 @Entity('role_permissions')
-export class RolePermission {
-  @PrimaryColumn({ type: 'uuid' })
-  roleId!: string;
+@Index(['companyId', 'roleId', 'permissionId'], { unique: true })
+export class RolePermission extends BaseEntity {
+  @Column({ type: 'uuid' }) companyId!: string;
 
-  @PrimaryColumn({ type: 'uuid' })
-  permissionId!: string;
+  @ManyToOne(() => Company, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'companyId' }) company!: Company;
 
-  @ManyToOne(() => Role, (role) => role.rolePermissions, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'roleId' })
+  @Column({ type: 'uuid' }) roleId!: string;
+
+  @ManyToOne(() => Role, { onDelete: 'RESTRICT' })
+  @JoinColumn([
+    { name: 'roleId', referencedColumnName: 'id' },
+    { name: 'companyId', referencedColumnName: 'companyId' },
+  ])
   role!: Role;
 
-  @ManyToOne(() => Permission, (permission) => permission.rolePermissions, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'permissionId' })
+  @Column({ type: 'uuid' }) permissionId!: string;
+  
+  @ManyToOne(() => Permission, { onDelete: 'RESTRICT' })
+  @JoinColumn([
+    { name: 'permissionId', referencedColumnName: 'id' },
+    { name: 'companyId', referencedColumnName: 'companyId' },
+  ])
   permission!: Permission;
 }

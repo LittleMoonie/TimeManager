@@ -2,7 +2,7 @@ import { LeaveRequest, LeaveRequestStatus, LeaveType } from '../../Entity/Compan
 import User from '../../Entity/Users/User';
 import { AppDataSource } from '../../Server/Database';
 import { AuditLogService } from '../Logs/AuditLogService';
-import { AuditAction } from '../../Entity/Logs/AuditLog';
+import { AuditAction } from '../../Entity/Logs/Actions/AuditLog';
 
 export class LeaveRequestService {
   private leaveRequestRepository = AppDataSource.getRepository(LeaveRequest);

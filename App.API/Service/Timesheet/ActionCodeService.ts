@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { InjectRepository } from 'typeorm-typedi-extensions';
 import { FindOperator, Like, Repository } from 'typeorm';
-import { ActionCode } from '../../Entity/Timesheet/ActionCode';
+import { ActionCode } from '../../Entity/Timesheets/ActionCode';
 import { TimesheetHistoryService } from './TimesheetHistoryService';
 import { Organization } from '../../Entity/Company/Company';
 import { TimesheetHistoryEntityTypeEnum } from '../../Entity/Enums/TimesheetHistory/TimesheetHistoryEntityTypeEnum';

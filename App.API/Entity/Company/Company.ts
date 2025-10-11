@@ -1,32 +1,24 @@
-
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { BaseEntity } from '../BaseEntity';
 import User from '../Users/User';
 import { Team, TeamMember } from './Team';
-import { ActionCode } from '../Timesheet/ActionCode';
-import { TimesheetEntry } from '../Timesheet/TimesheetEntry';
-import { TimesheetHistory } from '../Timesheet/TimesheetHistory';
+import { ActionCode } from '../Timesheets/ActionCode';
+import { TimesheetEntry } from '../Timesheets/TimesheetEntry';
+import { TimesheetHistory } from '../Timesheets/TimesheetHistory';
 
-@Entity()
-export class Organization extends BaseEntity {
+@Entity('companies')
+@Index(['id'])
+@Index(['name'], { unique: true })
+export class Company extends BaseEntity {
   @Column({ type: 'varchar', length: 255 })
   name!: string;
 
-  @OneToMany(() => User, (user) => user.organization)
-  users!: User[];
+  @Column({ type: 'varchar', length: 255, nullable: true }) timezone?: string;
 
-  @OneToMany(() => Team, (team) => team.organization)
-  teams!: Team[];
-
-  @OneToMany(() => ActionCode, (actionCode) => actionCode.organization)
-  actionCodes!: ActionCode[];
-
-  @OneToMany(() => TimesheetEntry, (entry) => entry.organization)
-  timesheetEntries!: TimesheetEntry[];
-
-  @OneToMany(() => TeamMember, (teamMember) => teamMember.organization)
-  teamMembers!: TeamMember[];
-
-  @OneToMany(() => TimesheetHistory, (timesheetHistory) => timesheetHistory.organization)
-  timesheetHistory!: TimesheetHistory[];
+  @OneToMany(() => User, (user) => user.company) users!: User[];
+  @OneToMany(() => Team, (team) => team.company) teams!: Team[];
+  @OneToMany(() => ActionCode, (a) => a.company) actionCodes!: ActionCode[];
+  @OneToMany(() => TimesheetEntry, (e) => e.company) timesheetEntries!: TimesheetEntry[];
+  @OneToMany(() => TeamMember, (tm) => tm.company) teamMembers!: TeamMember[];
+  @OneToMany(() => TimesheetHistory, (th) => th.company) timesheetHistory!: TimesheetHistory[];
 }

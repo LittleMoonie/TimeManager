@@ -4,7 +4,7 @@ import http from 'http';
 
 import server from './Server/index';
 import { OpenApiService } from './Service/OpenApiService';
-import './Entity/Timesheet/TimesheetHistory'; // Explicitly import TimesheetHistory for tsoa
+import './Entity/Timesheets/TimesheetHistory'; // Explicitly import TimesheetHistory for tsoa
 
 const { PORT } = process.env;
 

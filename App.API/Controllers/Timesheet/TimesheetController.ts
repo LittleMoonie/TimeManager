@@ -1,7 +1,7 @@
 
 import { Body, Controller, Get, Post, Put, Delete, Route, Tags, Path, Security, Request, Query } from 'tsoa';
 import { Request as ExpressRequest } from 'express';
-import { TimesheetEntry } from '../../Entity/Timesheet/TimesheetEntry';
+import { TimesheetEntry } from '../../Entity/Timesheets/TimesheetEntry';
 import User from '../../Entity/Users/User';
 import { Approval } from '../../Entity/Company/Approval';
 

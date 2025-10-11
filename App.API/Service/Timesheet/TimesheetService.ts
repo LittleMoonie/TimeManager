@@ -2,8 +2,8 @@
 import { Service } from 'typedi';
 import { InjectRepository } from 'typeorm-typedi-extensions';
 import { Between, Repository } from 'typeorm';
-import { TimesheetEntry } from '../../Entity/Timesheet/TimesheetEntry';
-import { ActionCode } from '../../Entity/Timesheet/ActionCode';
+import { TimesheetEntry } from '../../Entity/Timesheets/TimesheetEntry';
+import { ActionCode } from '../../Entity/Timesheets/ActionCode';
 import User from '../../Entity/Users/User';
 import { Approval, ApprovalStatus } from '../../Entity/Company/Approval';
 import { TimesheetHistoryService } from './TimesheetHistoryService';
