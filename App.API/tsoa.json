@@ -2,7 +2,6 @@
   "entryFile": "Server/index.ts",
   "noImplicitAdditionalProperties": "silently-remove-extras",
   "controllerPathGlobs": ["Controllers/**/*.ts"],
-  "iocModule": "Server/IoC.ts",
   "spec": {
     "outputDirectory": "dist",
     "specVersion": 3,
@@ -20,6 +19,8 @@
   "routes": {
     "routesDir": "Routes/Generated",
     "routePrefix": "/api",
-    "middleware": "express"
+    "middleware": "express",
+    "iocModule": "./Server/IoC.ts",
+    "authenticationModule": "./Server/Auth.ts"
   }
 }

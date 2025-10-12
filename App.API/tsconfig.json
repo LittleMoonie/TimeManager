@@ -17,10 +17,11 @@
     "declaration": false,
     "types": ["node"],
     "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
       "@Controllers/*": ["./Controllers/*"],
-      "@Routes/*": ["./Routes/Generated/*"],
+      "@Routes/*": ["./Routes/*"],
       "@Services/*": ["./Services/*"]
     }
   },

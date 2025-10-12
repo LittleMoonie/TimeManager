@@ -30,7 +30,6 @@ import {
 @Route("auth")
 @Tags("Authentication")
 @Service()
-// @Service()
 export class AuthenticationController extends Controller {
   constructor(private authenticationService: AuthenticationService) {
     super();

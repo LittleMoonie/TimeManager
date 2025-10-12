@@ -10,7 +10,7 @@ import * as path from "path";
 import { connectDB } from "./Database";
 import { errorHandler } from "../Middlewares/ErrorHandler";
 import logger from "../Utils/Logger";
-import { RegisterRoutes } from "../Routes/generated/routes"; // Import the generated routes
+import { RegisterRoutes } from "../Routes/Generated/routes"; // Import the generated routes
 
 // Instantiate express
 const server: Application = express();
