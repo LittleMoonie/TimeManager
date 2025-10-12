@@ -71,6 +71,7 @@ const apiApp = express();
 server.use("/api", apiApp);
 
 RegisterRoutes(apiApp); // Register tsoa-generated routes with apiApp
+console.log("✅ Routes registered");
 
 server.use(errorHandler(logger));
 

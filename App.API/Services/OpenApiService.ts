@@ -1,4 +1,3 @@
-import { generateSpec, generateRoutes } from "tsoa";
 import { exec } from "child_process";
 import * as fs from "fs/promises";
 import * as path from "path";
@@ -30,35 +29,25 @@ export class OpenApiService {
     isGenerating = true;
 
     try {
-      const specOptions = {
-        // Your tsoa spec options here
-      };
-      const routeOptions = {
-        // Your tsoa route options here
-      };
+      const command = includeFrontend ? "yarn api:sync" : "yarn api:generate";
 
-      await generateSpec(specOptions);
-      await generateRoutes(routeOptions);
-
-      if (includeFrontend) {
-        await new Promise((resolve, reject) => {
-          exec("yarn api:client", (err, stdout, stderr) => {
-            if (err) {
-              return reject(
-                new InternalServerError(
-                  `Frontend client generation failed: ${stderr}`,
-                ),
-              );
-            }
-            resolve(stdout);
-          });
+      await new Promise((resolve, reject) => {
+        exec(command, (err, stdout, stderr) => {
+          if (err) {
+            return reject(
+              new InternalServerError(
+                `API generation failed: ${stderr}`,
+              ),
+            );
+          }
+          resolve(stdout);
         });
-      }
+      });
 
       lastGeneratedAt = new Date();
       return { success: true, message: "Generated successfully", generatedAt: lastGeneratedAt };
     } catch (error: any) {
-      throw new InternalServerError(`OpenAPI generation failed: ${error.message}`);
+      throw new InternalServerError(`API generation failed: ${error.message}`);
     } finally {
       isGenerating = false;
     }
