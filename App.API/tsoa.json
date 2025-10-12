@@ -1,9 +1,9 @@
 {
-  "entryFile": "Server/index.ts",
+  "entryFile": "./index.ts",
+  "controllerPathGlobs": ["Controllers/**/*.ts", "Dtos/**/*.ts"],
   "noImplicitAdditionalProperties": "silently-remove-extras",
-  "controllerPathGlobs": ["Controllers/**/*.ts"],
   "spec": {
-    "outputDirectory": "dist",
+    "outputDirectory": "./dist",
     "specVersion": 3,
     "basePath": "/api",
     "specFileBaseName": "swagger",
@@ -11,13 +11,12 @@
       "jwt": {
         "type": "apiKey",
         "name": "Authorization",
-        "in": "header",
-        "description": "JWT token for authorization. Use 'Bearer {token}'."
+        "in": "header"
       }
     }
   },
   "routes": {
-    "routesDir": "Routes/Generated",
+    "routesDir": "./Routes/Generated",
     "routePrefix": "/api",
     "middleware": "express",
     "iocModule": "./Server/IoC.ts",

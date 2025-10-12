@@ -66,7 +66,10 @@ export class OpenApiService {
         message: "Generated successfully",
         generatedAt: lastGeneratedAt,
       };
-    } catch (error: any) {
+    } catch (
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      error: any
+    ) {
       throw new InternalServerError(`API generation failed: ${error.message}`);
     } finally {
       isGenerating = false;

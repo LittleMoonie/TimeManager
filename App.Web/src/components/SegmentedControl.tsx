@@ -1,5 +1,5 @@
 import { Tabs, Tab, Box } from '@mui/material'
-import type { SxProps, Theme } from '@mui/material/styles'
+import { SxProps, Theme } from '@mui/material/styles'
 
 export type SegmentedOption<T extends string> = {
   label: string

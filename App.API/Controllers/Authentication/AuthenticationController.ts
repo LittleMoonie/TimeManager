@@ -1,13 +1,28 @@
 // App.API/Controllers/Authentication/AuthenticationController.ts
 import { Request as ExpressRequest } from "express";
-import { LoginDto, RegisterDto } from "@/Dtos/Authentication/AuthenticationDto"; // unified file
-import { AuthenticationService } from "@/Services/AuthenticationService/AuthenticationService";
-import { UserResponseDto } from "@/Dtos/Users/UserResponseDto";
+import {
+  LoginDto,
+  RegisterDto,
+} from "../../Dtos/Authentication/AuthenticationDto"; // unified file
+import { AuthenticationService } from "../../Services/AuthenticationService/AuthenticationService";
+import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
 import { Service } from "typedi";
-import { ForbiddenError, NotFoundError, UnprocessableEntityError } from "@/Errors/HttpErrors";
+import {
+  ForbiddenError,
+  NotFoundError,
+  UnprocessableEntityError,
+} from "../../Errors/HttpErrors";
 import { validate } from "class-validator";
 import {
-  Body, Controller, Post, Route, Tags, SuccessResponse, Response, Get, Security, Request,
+  Body,
+  Controller,
+  Post,
+  Route,
+  Tags,
+  SuccessResponse,
+  Get,
+  Security,
+  Request,
 } from "tsoa";
 
 @Route("auth")
@@ -27,11 +42,13 @@ export class AuthenticationController extends Controller {
    */
   @Post("/register")
   @SuccessResponse("201", "User registered successfully")
-  public async register(@Body() requestBody: RegisterDto): Promise<UserResponseDto> {
+  public async register(
+    @Body() requestBody: RegisterDto,
+  ): Promise<UserResponseDto> {
     const errors = await validate(requestBody);
     if (errors.length > 0) {
       throw new UnprocessableEntityError(
-        `Validation error: ${errors.map(e => e.toString()).join(", ")}`,
+        `Validation error: ${errors.map((e) => e.toString()).join(", ")}`,
       );
     }
 
@@ -68,7 +85,7 @@ export class AuthenticationController extends Controller {
     const errors = await validate(requestBody);
     if (errors.length > 0) {
       throw new UnprocessableEntityError(
-        `Validation error: ${errors.map(e => e.toString()).join(", ")}`,
+        `Validation error: ${errors.map((e) => e.toString()).join(", ")}`,
       );
     }
 
@@ -108,9 +125,7 @@ export class AuthenticationController extends Controller {
   @Post("/logout")
   @Security("jwt")
   @SuccessResponse("204", "User logged out successfully")
-  public async logout(
-    @Request() request: ExpressRequest,
-  ): Promise<void> {
+  public async logout(@Request() request: ExpressRequest): Promise<void> {
     const refreshToken =
       request.cookies?.refreshToken ||
       (request.headers["x-refresh-token"] as string | undefined);
@@ -145,7 +160,9 @@ export class AuthenticationController extends Controller {
    */
   @Get("/current")
   @Security("jwt")
-  public async getCurrentUser(@Request() request: ExpressRequest): Promise<UserResponseDto> {
+  public async getCurrentUser(
+    @Request() request: ExpressRequest,
+  ): Promise<UserResponseDto> {
     if (!request.user) {
       throw new ForbiddenError("User not authenticated");
     }

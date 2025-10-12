@@ -2,8 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { ApiRequestOptions } from './ApiRequestOptions';
-import type { ApiResult } from './ApiResult';
+import { ApiRequestOptions } from './ApiRequestOptions';
+import { ApiResult } from './ApiResult';
 
 export class ApiError extends Error {
     public readonly url: string;

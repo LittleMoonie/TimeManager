@@ -1,14 +1,27 @@
 import {
-  Body, Controller, Get, Post, Put, Delete, Route, Tags, Path, Security, Request,
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Route,
+  Tags,
+  Path,
+  Security,
+  Request,
 } from "tsoa";
 import { Request as ExpressRequest } from "express";
 import { Service } from "typedi";
 
-import { LeaveRequestService } from "@/Services/Companies/LeaveRequestService";
-import { CreateLeaveRequestDto, UpdateLeaveRequestDto } from "@/Dtos/Companies/CompanyDto";
-import { LeaveRequest } from "@/Entities/Companies/LeaveRequest";
-import { UserService } from "@/Services/User/UserService";
-import { UserResponseDto } from "@/Dtos/Users/UserResponseDto";
+import { LeaveRequestService } from "../../Services/Companies/LeaveRequestService";
+import {
+  CreateLeaveRequestDto,
+  UpdateLeaveRequestDto,
+} from "../../Dtos/Companies/CompanyDto";
+import { LeaveRequest } from "../../Entities/Companies/LeaveRequest";
+import { UserService } from "../../Services/User/UserService";
+import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
 
 /**
  * @summary Controller for managing leave requests.
@@ -63,7 +76,10 @@ export class LeaveRequestController extends Controller {
   ): Promise<LeaveRequest> {
     const { id: userId } = request.user as UserResponseDto;
     const actingUser = await this.userService.getUserById(userId);
-    return this.leaveRequestService.getLeaveRequestById(actingUser.companyId, id);
+    return this.leaveRequestService.getLeaveRequestById(
+      actingUser.companyId,
+      id,
+    );
   }
 
   /**

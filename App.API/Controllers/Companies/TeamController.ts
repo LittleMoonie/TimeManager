@@ -1,14 +1,24 @@
 import {
-  Body, Controller, Get, Post, Put, Delete, Route, Tags, Path, Security, Request,
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Route,
+  Tags,
+  Path,
+  Security,
+  Request,
 } from "tsoa";
 import { Request as ExpressRequest } from "express";
 import { Service } from "typedi";
 
-import { TeamService } from "@/Services/Companies/TeamService";
-import { CreateTeamDto, UpdateTeamDto } from "@/Dtos/Companies/CompanyDto";
-import { Team } from "@/Entities/Companies/Team";
-import { UserService } from "@/Services/User/UserService";
-import { UserResponseDto } from "@/Dtos/Users/UserResponseDto";
+import { TeamService } from "../../Services/Companies/TeamService";
+import { CreateTeamDto, UpdateTeamDto } from "../../Dtos/Companies/CompanyDto";
+import { Team } from "../../Entities/Companies/Team";
+import { UserService } from "../../Services/User/UserService";
+import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
 
 /**
  * @summary Controller for managing teams.
@@ -78,7 +88,7 @@ export class TeamController extends Controller {
   ): Promise<Team[]> {
     const { id: userId } = request.user as UserResponseDto;
     const actingUser = await this.userService.getUserById(userId);
-    return this.teamService.listTeams(actingUser.companyId, actingUser);
+    return this.teamService.listTeams(actingUser.companyId);
   }
 
   /**

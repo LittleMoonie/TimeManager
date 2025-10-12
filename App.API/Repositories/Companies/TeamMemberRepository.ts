@@ -1,6 +1,6 @@
 import { Service } from "typedi";
-import { TeamMember } from "@/Entities/Companies/Team";
-import { BaseRepository } from "@/Repositories/BaseRepository";
+import { TeamMember } from "../../Entities/Companies/Team";
+import { BaseRepository } from "../../Repositories/BaseRepository";
 
 /**
  * @description Repository for managing TeamMember entities. Extends BaseRepository to provide standard CRUD operations
@@ -22,7 +22,10 @@ export class TeamMemberRepository extends BaseRepository<TeamMember> {
    * @param teamId The unique identifier of the team.
    * @returns A Promise that resolves to an array of TeamMember entities, including their associated user and team relations.
    */
-  async findAllForTeam(companyId: string, teamId: string): Promise<TeamMember[]> {
+  async findAllForTeam(
+    companyId: string,
+    teamId: string,
+  ): Promise<TeamMember[]> {
     return this.repository.find({
       where: { companyId, teamId },
       relations: ["user", "team"],

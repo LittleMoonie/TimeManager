@@ -11,9 +11,9 @@ import {
 import { Request as ExpressRequest } from "express";
 import { Service } from "typedi";
 
-import { ActiveSessionService } from "@Services/Users/ActiveSessionService";
-import { ActiveSessionResponseDto } from "@/Dtos/Users/UserDto";
-import User from "@/Entities/Users/User";
+import { ActiveSessionService } from "../../Services/Users/ActiveSessionService";
+import { ActiveSessionResponseDto } from "../../Dtos/Users/UserDto";
+import User from "../../Entities/Users/User";
 
 /**
  * @summary Controller for managing active refresh-token sessions.
@@ -55,6 +55,9 @@ export class ActiveSessionsController extends Controller {
     @Request() request: ExpressRequest,
   ): Promise<void> {
     const me = request.user as User;
-    await this.activeSessionService.revokeActiveSession(me.companyId, tokenHash);
+    await this.activeSessionService.revokeActiveSession(
+      me.companyId,
+      tokenHash,
+    );
   }
 }

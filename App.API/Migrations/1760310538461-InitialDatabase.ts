@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class InitialDatabase1760219508993 implements MigrationInterface {
-  name = "InitialDatabase1760219508993";
+export class InitialDatabase1760310538461 implements MigrationInterface {
+  name = "InitialDatabase1760310538461";
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -98,7 +98,7 @@ export class InitialDatabase1760219508993 implements MigrationInterface {
       `CREATE INDEX "IDX_428eacd8106a365cb6d504fc1f" ON "active_sessions" ("companyId", "userId") `,
     );
     await queryRunner.query(
-      `CREATE TABLE "users" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "version" integer NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "createdByUserId" uuid, "updatedByUserId" uuid, "companyId" uuid NOT NULL, "email" citext NOT NULL, "firstName" character varying(255) NOT NULL, "lastName" character varying(255) NOT NULL, "passwordHash" character varying(255) NOT NULL, "mustChangePasswordAtNextLogin" boolean NOT NULL DEFAULT false, "roleId" uuid NOT NULL, "phoneNumber" character varying(32), "lastLogin" TIMESTAMP WITH TIME ZONE, "statusId" uuid NOT NULL, CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "users" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "version" integer NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "createdByUserId" uuid, "updatedByUserId" uuid, "companyId" uuid NOT NULL, "email" citext NOT NULL, "firstName" character varying(255) NOT NULL, "lastName" character varying(255) NOT NULL, "passwordHash" character varying(255) NOT NULL, "mustChangePasswordAtNextLogin" boolean NOT NULL DEFAULT false, "roleId" uuid NOT NULL, "phoneNumber" character varying(32), "lastLogin" TIMESTAMP WITH TIME ZONE, "isAnonymized" boolean NOT NULL DEFAULT false, "statusId" uuid NOT NULL, CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_bfef67e9afa18541460e965129" ON "users" ("companyId", "statusId") `,
@@ -131,15 +131,6 @@ export class InitialDatabase1760219508993 implements MigrationInterface {
       `CREATE INDEX "IDX_694ca8851e4e80bdd0a50020c7" ON "leave_requests" ("companyId", "userId") `,
     );
     await queryRunner.query(
-      `CREATE TABLE "webhook_outbox" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "version" integer NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "createdByUserId" uuid, "updatedByUserId" uuid, "companyId" uuid NOT NULL, "eventType" character varying(64) NOT NULL, "payload" jsonb NOT NULL, "status" character varying(16) NOT NULL DEFAULT 'PENDING', "attempt" integer NOT NULL DEFAULT '0', "nextAttemptAt" TIMESTAMP WITH TIME ZONE, "lastError" text, CONSTRAINT "PK_f4a40df90155b6146edea062e4b" PRIMARY KEY ("id"))`,
-    );
-    await queryRunner.query(
-      `CREATE INDEX "IDX_3a34232c2b64dc298cf17c49d5" ON "webhook_outbox" ("companyId", "status") `,
-    );
-    await queryRunner.query(
-      `CREATE INDEX "IDX_b8b6bdf231541606d3b59f3bcb" ON "webhook_outbox" ("companyId", "eventType") `,
-    );
-    await queryRunner.query(
       `CREATE TABLE "webhook_logs" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "version" integer NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "createdByUserId" uuid, "updatedByUserId" uuid, "companyId" uuid NOT NULL, "type" character varying(16) NOT NULL, "event" text NOT NULL, "payload" jsonb, "response" jsonb, "statusCode" integer, "url" text, "error" text, CONSTRAINT "PK_c41f6cdf59cdfe3704807650896" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
@@ -147,12 +138,6 @@ export class InitialDatabase1760219508993 implements MigrationInterface {
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_c7a67fa4e2e06c363bf26b9b09" ON "webhook_logs" ("companyId", "type") `,
-    );
-    await queryRunner.query(
-      `CREATE TABLE "webhook_deliveries" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "version" integer NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "createdByUserId" uuid, "updatedByUserId" uuid, "outboxId" uuid NOT NULL, "url" text NOT NULL, "method" text NOT NULL, "statusCode" integer NOT NULL, "requestHeaders" jsonb, "responseHeaders" jsonb, "responseBody" text, "durationMs" integer, CONSTRAINT "PK_535dd409947fb6d8fc6dfc0112a" PRIMARY KEY ("id"))`,
-    );
-    await queryRunner.query(
-      `CREATE INDEX "IDX_83f1da2c400ac70f676657ee01" ON "webhook_deliveries" ("outboxId") `,
     );
     await queryRunner.query(
       `CREATE TYPE "public"."user_activity_logs_activitytype_enum" AS ENUM('CREATE_USER', 'UPDATE_USER', 'DELETE_USER', 'CHANGE_USER_STATUS', 'CREATE_ROLE', 'UPDATE_ROLE', 'DELETE_ROLE', 'ADD_PERMISSION_TO_ROLE', 'REMOVE_PERMISSION_FROM_ROLE', 'CREATE_PERMISSION', 'UPDATE_PERMISSION', 'DELETE_PERMISSION')`,
@@ -174,6 +159,21 @@ export class InitialDatabase1760219508993 implements MigrationInterface {
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_f891ebd989b503abac3f670c35" ON "system_logs" ("companyId", "level") `,
+    );
+    await queryRunner.query(
+      `CREATE TABLE "webhook_outbox" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "version" integer NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "createdByUserId" uuid, "updatedByUserId" uuid, "companyId" uuid NOT NULL, "eventType" character varying(64) NOT NULL, "payload" jsonb NOT NULL, "status" character varying(16) NOT NULL DEFAULT 'PENDING', "attempt" integer NOT NULL DEFAULT '0', "nextAttemptAt" TIMESTAMP WITH TIME ZONE, "lastError" text, CONSTRAINT "PK_f4a40df90155b6146edea062e4b" PRIMARY KEY ("id"))`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_3a34232c2b64dc298cf17c49d5" ON "webhook_outbox" ("companyId", "status") `,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_b8b6bdf231541606d3b59f3bcb" ON "webhook_outbox" ("companyId", "eventType") `,
+    );
+    await queryRunner.query(
+      `CREATE TABLE "webhook_deliveries" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "version" integer NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "createdByUserId" uuid, "updatedByUserId" uuid, "outboxId" uuid NOT NULL, "url" text NOT NULL, "method" text NOT NULL, "statusCode" integer NOT NULL, "requestHeaders" jsonb, "responseHeaders" jsonb, "responseBody" text, "durationMs" integer, CONSTRAINT "PK_535dd409947fb6d8fc6dfc0112a" PRIMARY KEY ("id"))`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_83f1da2c400ac70f676657ee01" ON "webhook_deliveries" ("outboxId") `,
     );
     await queryRunner.query(
       `CREATE TABLE "security_events" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "version" integer NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "createdByUserId" uuid, "updatedByUserId" uuid, "companyId" uuid NOT NULL, "eventType" character varying(48) NOT NULL, "actorUserId" uuid, "subjectType" character varying(48) NOT NULL, "subjectId" uuid NOT NULL, "details" jsonb, "ip" inet, "userAgent" text, CONSTRAINT "PK_6fc100d6700780737348df0d3ae" PRIMARY KEY ("id"))`,
@@ -353,13 +353,7 @@ export class InitialDatabase1760219508993 implements MigrationInterface {
       `ALTER TABLE "leave_requests" ADD CONSTRAINT "FK_0cd010879e155a6611f00dc456e" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`,
     );
     await queryRunner.query(
-      `ALTER TABLE "webhook_outbox" ADD CONSTRAINT "FK_e8f08024c92c93711ac323647de" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`,
-    );
-    await queryRunner.query(
       `ALTER TABLE "webhook_logs" ADD CONSTRAINT "FK_d4d957bccdf2479c89ff8e0efa0" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "webhook_deliveries" ADD CONSTRAINT "FK_83f1da2c400ac70f676657ee01d" FOREIGN KEY ("outboxId") REFERENCES "webhook_outbox"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
     );
     await queryRunner.query(
       `ALTER TABLE "user_activity_logs" ADD CONSTRAINT "FK_6392c5d14e7a70a7f41a282b0d3" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`,
@@ -369,6 +363,12 @@ export class InitialDatabase1760219508993 implements MigrationInterface {
     );
     await queryRunner.query(
       `ALTER TABLE "system_logs" ADD CONSTRAINT "FK_645cf4a374c39d514de3408c4cd" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "webhook_outbox" ADD CONSTRAINT "FK_e8f08024c92c93711ac323647de" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "webhook_deliveries" ADD CONSTRAINT "FK_83f1da2c400ac70f676657ee01d" FOREIGN KEY ("outboxId") REFERENCES "webhook_outbox"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
     );
     await queryRunner.query(
       `ALTER TABLE "security_events" ADD CONSTRAINT "FK_e0c789ed7790c076ae5e6c4607c" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`,
@@ -458,6 +458,12 @@ export class InitialDatabase1760219508993 implements MigrationInterface {
       `ALTER TABLE "security_events" DROP CONSTRAINT "FK_e0c789ed7790c076ae5e6c4607c"`,
     );
     await queryRunner.query(
+      `ALTER TABLE "webhook_deliveries" DROP CONSTRAINT "FK_83f1da2c400ac70f676657ee01d"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "webhook_outbox" DROP CONSTRAINT "FK_e8f08024c92c93711ac323647de"`,
+    );
+    await queryRunner.query(
       `ALTER TABLE "system_logs" DROP CONSTRAINT "FK_645cf4a374c39d514de3408c4cd"`,
     );
     await queryRunner.query(
@@ -467,13 +473,7 @@ export class InitialDatabase1760219508993 implements MigrationInterface {
       `ALTER TABLE "user_activity_logs" DROP CONSTRAINT "FK_6392c5d14e7a70a7f41a282b0d3"`,
     );
     await queryRunner.query(
-      `ALTER TABLE "webhook_deliveries" DROP CONSTRAINT "FK_83f1da2c400ac70f676657ee01d"`,
-    );
-    await queryRunner.query(
       `ALTER TABLE "webhook_logs" DROP CONSTRAINT "FK_d4d957bccdf2479c89ff8e0efa0"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "webhook_outbox" DROP CONSTRAINT "FK_e8f08024c92c93711ac323647de"`,
     );
     await queryRunner.query(
       `ALTER TABLE "leave_requests" DROP CONSTRAINT "FK_0cd010879e155a6611f00dc456e"`,
@@ -633,6 +633,17 @@ export class InitialDatabase1760219508993 implements MigrationInterface {
     );
     await queryRunner.query(`DROP TABLE "security_events"`);
     await queryRunner.query(
+      `DROP INDEX "public"."IDX_83f1da2c400ac70f676657ee01"`,
+    );
+    await queryRunner.query(`DROP TABLE "webhook_deliveries"`);
+    await queryRunner.query(
+      `DROP INDEX "public"."IDX_b8b6bdf231541606d3b59f3bcb"`,
+    );
+    await queryRunner.query(
+      `DROP INDEX "public"."IDX_3a34232c2b64dc298cf17c49d5"`,
+    );
+    await queryRunner.query(`DROP TABLE "webhook_outbox"`);
+    await queryRunner.query(
       `DROP INDEX "public"."IDX_f891ebd989b503abac3f670c35"`,
     );
     await queryRunner.query(`DROP TABLE "system_logs"`);
@@ -650,23 +661,12 @@ export class InitialDatabase1760219508993 implements MigrationInterface {
       `DROP TYPE "public"."user_activity_logs_activitytype_enum"`,
     );
     await queryRunner.query(
-      `DROP INDEX "public"."IDX_83f1da2c400ac70f676657ee01"`,
-    );
-    await queryRunner.query(`DROP TABLE "webhook_deliveries"`);
-    await queryRunner.query(
       `DROP INDEX "public"."IDX_c7a67fa4e2e06c363bf26b9b09"`,
     );
     await queryRunner.query(
       `DROP INDEX "public"."IDX_4eb5860e3d2a3e90cc7241a76f"`,
     );
     await queryRunner.query(`DROP TABLE "webhook_logs"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_b8b6bdf231541606d3b59f3bcb"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_3a34232c2b64dc298cf17c49d5"`,
-    );
-    await queryRunner.query(`DROP TABLE "webhook_outbox"`);
     await queryRunner.query(
       `DROP INDEX "public"."IDX_694ca8851e4e80bdd0a50020c7"`,
     );

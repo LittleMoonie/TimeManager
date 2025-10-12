@@ -1,20 +1,20 @@
 import { Service } from "typedi";
 import { validate } from "class-validator";
 
-import { RoleRepository } from "@/Repositories/Roles/RoleRepository";
-import { RolePermissionRepository } from "@/Repositories/Roles/RolePermissionRepository";
+import { RoleRepository } from "../../Repositories/Roles/RoleRepository";
+import { RolePermissionRepository } from "../../Repositories/Roles/RolePermissionRepository";
 
-import { Role } from "@/Entities/Roles/Role";
-import { RolePermission } from "@/Entities/Roles/RolePermission";
-import User from "@/Entities/Users/User";
+import { Role } from "../../Entities/Roles/Role";
+import { RolePermission } from "../../Entities/Roles/RolePermission";
+import User from "../../Entities/Users/User";
 
 import {
   ForbiddenError,
   NotFoundError,
   UnprocessableEntityError,
-} from "@/Errors/HttpErrors";
+} from "../../Errors/HttpErrors";
 
-import { CreateRoleDto, UpdateRoleDto } from "@/Dtos/Roles/RoleDto";
+import { CreateRoleDto, UpdateRoleDto } from "../../Dtos/Roles/RoleDto";
 
 /**
  * @description Service layer for managing Role entities and their associated permissions. This service provides business logic
@@ -29,7 +29,7 @@ export class RoleService {
    */
   constructor(
     private readonly roleRepository: RoleRepository,
-    private readonly rolePermissionRepository: RolePermissionRepository
+    private readonly rolePermissionRepository: RolePermissionRepository,
   ) {}
 
   /**
@@ -42,7 +42,7 @@ export class RoleService {
     const errors = await validate(dto as object);
     if (errors.length > 0) {
       throw new UnprocessableEntityError(
-        `Validation error: ${errors.map(e => e.toString()).join(", ")}`
+        `Validation error: ${errors.map((e) => e.toString()).join(", ")}`,
       );
     }
   }
@@ -59,7 +59,7 @@ export class RoleService {
     const allowed =
       !!role &&
       Array.isArray(role.rolePermissions) &&
-      role.rolePermissions.some(rp => rp.permission?.name === permission);
+      role.rolePermissions.some((rp) => rp.permission?.name === permission);
 
     if (!allowed) {
       throw new ForbiddenError(`Missing permission: ${permission}`);
@@ -73,7 +73,10 @@ export class RoleService {
    * @throws {ForbiddenError} If the user is not an admin and does not belong to the target company.
    */
   private ensureSameCompanyOrAdmin(currentUser: User, targetCompanyId: string) {
-    if (currentUser.role?.name !== "admin" && currentUser.companyId !== targetCompanyId) {
+    if (
+      currentUser.role?.name !== "admin" &&
+      currentUser.companyId !== targetCompanyId
+    ) {
       throw new ForbiddenError("Operation is restricted to your company.");
     }
   }
@@ -87,7 +90,11 @@ export class RoleService {
    * @throws {NotFoundError} If the role is not found.
    * @throws {ForbiddenError} If the current user does not have access to the role's company.
    */
-  async getRoleById(companyId: string, roleId: string, currentUser: User): Promise<Role> {
+  async getRoleById(
+    companyId: string,
+    roleId: string,
+    currentUser: User,
+  ): Promise<Role> {
     const role = await this.roleRepository.findByIdInCompany(roleId, companyId);
     if (!role) throw new NotFoundError("Role not found");
     this.ensureSameCompanyOrAdmin(currentUser, role.companyId);
@@ -119,14 +126,19 @@ export class RoleService {
   async createRole(
     companyId: string,
     currentUser: User,
-    dto: CreateRoleDto
+    dto: CreateRoleDto,
   ): Promise<Role> {
     await this.ensurePermission(currentUser, "create_role");
     await this.ensureValidation(dto);
 
-    const existing = await this.roleRepository.findByNameInCompany(dto.name, companyId);
+    const existing = await this.roleRepository.findByNameInCompany(
+      dto.name,
+      companyId,
+    );
     if (existing) {
-      throw new UnprocessableEntityError("A role with this name already exists in the company.");
+      throw new UnprocessableEntityError(
+        "A role with this name already exists in the company.",
+      );
     }
 
     return this.roleRepository.create({
@@ -152,7 +164,7 @@ export class RoleService {
     companyId: string,
     roleId: string,
     currentUser: User,
-    dto: UpdateRoleDto
+    dto: UpdateRoleDto,
   ): Promise<Role> {
     await this.ensurePermission(currentUser, "update_role");
     await this.ensureValidation(dto);
@@ -160,9 +172,14 @@ export class RoleService {
     const role = await this.getRoleById(companyId, roleId, currentUser);
 
     if (dto.name && dto.name !== role.name) {
-      const nameTaken = await this.roleRepository.findByNameInCompany(dto.name, companyId);
+      const nameTaken = await this.roleRepository.findByNameInCompany(
+        dto.name,
+        companyId,
+      );
       if (nameTaken) {
-        throw new UnprocessableEntityError("A role with this name already exists in the company.");
+        throw new UnprocessableEntityError(
+          "A role with this name already exists in the company.",
+        );
       }
     }
 
@@ -182,7 +199,11 @@ export class RoleService {
    * @throws {ForbiddenError} If the current user does not have 'delete_role' permission or access to the role's company.
    * @throws {NotFoundError} If the role to delete is not found.
    */
-  async deleteRole(companyId: string, roleId: string, currentUser: User): Promise<void> {
+  async deleteRole(
+    companyId: string,
+    roleId: string,
+    currentUser: User,
+  ): Promise<void> {
     await this.ensurePermission(currentUser, "delete_role");
 
     const role = await this.getRoleById(companyId, roleId, currentUser);
@@ -206,17 +227,18 @@ export class RoleService {
     companyId: string,
     roleId: string,
     permissionId: string,
-    currentUser: User
+    currentUser: User,
   ): Promise<RolePermission> {
     await this.ensurePermission(currentUser, "assign_role_permission");
 
     const role = await this.getRoleById(companyId, roleId, currentUser);
 
-    const existing = await this.rolePermissionRepository.findByRoleAndPermission(
-      companyId,
-      role.id,
-      permissionId
-    );
+    const existing =
+      await this.rolePermissionRepository.findByRoleAndPermission(
+        companyId,
+        role.id,
+        permissionId,
+      );
     if (existing) return existing;
 
     return this.rolePermissionRepository.create({
@@ -241,7 +263,7 @@ export class RoleService {
     companyId: string,
     roleId: string,
     permissionId: string,
-    currentUser: User
+    currentUser: User,
   ): Promise<void> {
     await this.ensurePermission(currentUser, "remove_role_permission");
 
@@ -250,7 +272,7 @@ export class RoleService {
     const link = await this.rolePermissionRepository.findByRoleAndPermission(
       companyId,
       role.id,
-      permissionId
+      permissionId,
     );
     if (!link) return;
     await this.rolePermissionRepository.removeById(companyId, link.id);
@@ -268,7 +290,7 @@ export class RoleService {
   async listRolePermissions(
     companyId: string,
     roleId: string,
-    currentUser: User
+    currentUser: User,
   ): Promise<RolePermission[]> {
     const role = await this.getRoleById(companyId, roleId, currentUser);
     return this.rolePermissionRepository.findAllByRole(companyId, role.id);

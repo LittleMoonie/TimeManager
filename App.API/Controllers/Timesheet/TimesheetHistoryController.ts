@@ -2,9 +2,9 @@ import { Body, Controller, Post, Request, Route, Security, Tags } from "tsoa";
 import { Request as ExRequest } from "express";
 import { Service } from "typedi";
 
-import { TimesheetHistory } from "@/Entities/Timesheets/TimesheetHistory";
-import { TimesheetHistoryRepository } from "@/Repositories/Timesheets/TimesheetHistoryRepository";
-import User from "@/Entities/Users/User";
+import { TimesheetHistory } from "../../Entities/Timesheets/TimesheetHistory";
+import { TimesheetHistoryRepository } from "../../Repositories/Timesheets/TimesheetHistoryRepository";
+import User from "../../Entities/Users/User";
 
 /**
  * @summary Controller for retrieving timesheet history events.
@@ -31,10 +31,22 @@ export class TimesheetHistoryController extends Controller {
   @Post("/filter")
   public async listHistory(
     @Request() request: ExRequest,
-    @Body() body: { targetType: "ActionCode" | "Timesheet" | "TimesheetEntry" | "TimesheetApproval"; targetId: string; },
+    @Body()
+    body: {
+      targetType:
+        | "ActionCode"
+        | "Timesheet"
+        | "TimesheetEntry"
+        | "TimesheetApproval";
+      targetId: string;
+    },
   ): Promise<TimesheetHistory[]> {
     const me = request.user as User;
     // Assuming repository exposes a finder like this; if not, replace with a QueryBuilder in the repo.
-    return this.historyRepo.findAllForTarget(me.companyId, body.targetType, body.targetId);
+    return this.historyRepo.findAllForTarget(
+      me.companyId,
+      body.targetType,
+      body.targetId,
+    );
   }
 }

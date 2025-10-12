@@ -47,7 +47,10 @@ export class TimesheetRepository extends BaseRepository<Timesheet> {
    * @param userId The unique identifier of the user.
    * @returns A Promise that resolves to an array of Timesheet entities.
    */
-  async findAllForUser(companyId: string, userId: string): Promise<Timesheet[]> {
+  async findAllForUser(
+    companyId: string,
+    userId: string,
+  ): Promise<Timesheet[]> {
     return this.repository.find({
       where: { companyId, userId },
       relations: ["entries", "entries.actionCode"],

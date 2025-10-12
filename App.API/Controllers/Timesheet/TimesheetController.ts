@@ -13,10 +13,13 @@ import {
 import { Request as ExpressRequest } from "express";
 import { Service } from "typedi";
 
-import { TimesheetService } from "@/Services/Timesheet/TimesheetService";
-import { Timesheet } from "@/Entities/Timesheets/Timesheet";
-import { CreateTimesheetDto, CreateTimesheetEntryDto } from "@/Dtos/Timesheet/TimesheetDto";
-import User from "@/Entities/Users/User";
+import { TimesheetService } from "../../Services/Timesheet/TimesheetService";
+import { Timesheet } from "../../Entities/Timesheets/Timesheet";
+import {
+  CreateTimesheetDto,
+  CreateTimesheetEntryDto,
+} from "../../Dtos/Timesheet/TimesheetDto";
+import User from "../../Entities/Users/User";
 
 /**
  * @summary Controller for managing timesheet operations.
@@ -55,9 +58,7 @@ export class TimesheetController extends Controller {
    * @throws {NotFoundError} If the timesheet is not found.
    */
   @Get("/{id}")
-  public async getTimesheet(
-    @Path() id: string,
-  ): Promise<Timesheet> {
+  public async getTimesheet(@Path() id: string): Promise<Timesheet> {
     // Service is not company-scoped for this read in current impl.
     return this.timesheetService.getTimesheet(id);
   }
@@ -77,7 +78,12 @@ export class TimesheetController extends Controller {
     @Request() request: ExpressRequest,
   ): Promise<Timesheet> {
     const me = request.user as User;
-    return this.timesheetService.addTimesheetEntry(me.companyId, me.id, id, dto);
+    return this.timesheetService.addTimesheetEntry(
+      me.companyId,
+      me.id,
+      id,
+      dto,
+    );
   }
 
   /**
@@ -132,6 +138,11 @@ export class TimesheetController extends Controller {
     @Request() request: ExpressRequest,
   ): Promise<Timesheet> {
     const me = request.user as User;
-    return this.timesheetService.rejectTimesheet(me.companyId, me.id, id, body.reason);
+    return this.timesheetService.rejectTimesheet(
+      me.companyId,
+      me.id,
+      id,
+      body.reason,
+    );
   }
 }

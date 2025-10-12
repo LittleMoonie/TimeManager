@@ -1,7 +1,7 @@
 import { Service } from "typedi";
-import { LeaveRequest } from "@/Entities/Companies/LeaveRequest";
-import { BaseRepository } from "@/Repositories/BaseRepository";
-import { NotFoundError } from "@/Errors/HttpErrors";
+import { LeaveRequest } from "../../Entities/Companies/LeaveRequest";
+import { BaseRepository } from "../../Repositories/BaseRepository";
+import { NotFoundError } from "../../Errors/HttpErrors";
 
 /**
  * @description Repository for managing LeaveRequest entities. Extends BaseRepository to provide standard CRUD operations
@@ -24,7 +24,10 @@ export class LeaveRequestRepository extends BaseRepository<LeaveRequest> {
    * @returns A Promise that resolves to the LeaveRequest entity.
    * @throws {NotFoundError} If the leave request is not found or does not belong to the specified company.
    */
-  async getLeaveRequestById(companyId: string, leaveRequestId: string): Promise<LeaveRequest> {
+  async getLeaveRequestById(
+    companyId: string,
+    leaveRequestId: string,
+  ): Promise<LeaveRequest> {
     const leaveRequest = await this.findById(leaveRequestId);
     if (!leaveRequest || leaveRequest.companyId !== companyId) {
       throw new NotFoundError("Leave request not found");
@@ -39,6 +42,6 @@ export class LeaveRequestRepository extends BaseRepository<LeaveRequest> {
    */
   async getAllLeaveRequests(companyId: string): Promise<LeaveRequest[]> {
     const all = await this.findAll();
-    return all.filter(lr => lr.companyId === companyId);
+    return all.filter((lr) => lr.companyId === companyId);
   }
 }

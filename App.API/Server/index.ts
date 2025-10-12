@@ -6,7 +6,7 @@ import passport from "passport";
 import swaggerUi from "swagger-ui-express";
 import * as fs from "fs";
 import * as path from "path";
-import { connectDB } from "./Database";
+import { connectDB } from "../Server/Database";
 import { errorHandler } from "../Middlewares/ErrorHandler";
 import logger from "../Utils/Logger";
 import { RegisterRoutes } from "../Routes/Generated/routes"; // Import the generated routes

@@ -1,10 +1,13 @@
 import { Service } from "typedi";
 import { validate } from "class-validator";
 
-import { CompanyRepository } from "@/Repositories/Companies/CompanyRepository";
-import { Company } from "@/Entities/Companies/Company";
-import { CreateCompanyDto, UpdateCompanyDto } from "@/Dtos/Companies/CompanyDto";
-import { UnprocessableEntityError, NotFoundError } from "@/Errors/HttpErrors";
+import { CompanyRepository } from "../../Repositories/Companies/CompanyRepository";
+import { Company } from "../../Entities/Companies/Company";
+import {
+  CreateCompanyDto,
+  UpdateCompanyDto,
+} from "../../Dtos/Companies/CompanyDto";
+import { UnprocessableEntityError } from "../../Errors/HttpErrors";
 
 /**
  * @description Service layer for managing Company entities. This service provides business logic
@@ -28,7 +31,7 @@ export class CompanyService {
     const errors = await validate(dto as object);
     if (errors.length > 0) {
       throw new UnprocessableEntityError(
-        `Validation error: ${errors.map(e => e.toString()).join(", ")}`
+        `Validation error: ${errors.map((e) => e.toString()).join(", ")}`,
       );
     }
   }
@@ -45,7 +48,7 @@ export class CompanyService {
 
   /**
    * @description Gets all companies.
-   * @returns A Promise that resolves to an array of Company entities.
+   * @returns {Promise<Company[]>} A Promise that resolves to an array of Company entities.
    */
   async getAllCompanies(): Promise<Company[]> {
     return this.companyRepository.findAll();
@@ -70,7 +73,10 @@ export class CompanyService {
    * @throws {UnprocessableEntityError} If validation fails.
    * @throws {NotFoundError} If the company to update is not found.
    */
-  async updateCompany(companyId: string, dto: UpdateCompanyDto): Promise<Company> {
+  async updateCompany(
+    companyId: string,
+    dto: UpdateCompanyDto,
+  ): Promise<Company> {
     await this.ensureValidation(dto);
     const existing = await this.companyRepository.getCompanyById(companyId);
     existing.name = dto.name ?? existing.name;

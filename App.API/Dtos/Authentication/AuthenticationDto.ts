@@ -1,4 +1,4 @@
-import { UserResponseDto } from "../Users/UserResponseDto";
+import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
 import {
   IsEmail,
   IsString,

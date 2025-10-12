@@ -1,13 +1,28 @@
 import {
-  Body, Controller, Get, Post, Put, Delete, Route, Tags, Path, Security, Request, Query,
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Route,
+  Tags,
+  Path,
+  Security,
+  Request,
+  Query,
+  SuccessResponse,
 } from "tsoa";
 import { Request as ExpressRequest } from "express";
 import { Service } from "typedi";
 
-import { ActionCodeService } from "@/Services/Timesheet/ActionCodeService";
-import { CreateActionCodeDto, UpdateActionCodeDto } from "@/Dtos/Timesheet/TimesheetDto";
-import { ActionCode } from "@/Entities/Timesheets/ActionCode";
-import User from "@/Entities/Users/User";
+import { ActionCodeService } from "../../Services/Timesheet/ActionCodeService";
+import {
+  CreateActionCodeDto,
+  UpdateActionCodeDto,
+} from "../../Dtos/Timesheet/TimesheetDto";
+import { ActionCode } from "../../Entities/Timesheets/ActionCode";
+import User from "../../Entities/Users/User";
 
 /**
  * @summary Controller for managing action codes.
@@ -69,7 +84,11 @@ export class ActionCodeController extends Controller {
     @Request() request: ExpressRequest,
   ): Promise<ActionCode> {
     const me = request.user as User;
-    const created = await this.actionCodeService.create(me.companyId, me.id, dto);
+    const created = await this.actionCodeService.create(
+      me.companyId,
+      me.id,
+      dto,
+    );
     this.setStatus(201);
     return created;
   }

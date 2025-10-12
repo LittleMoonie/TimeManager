@@ -14,10 +14,13 @@ import {
 import { Request as ExpressRequest } from "express";
 import { Service } from "typedi";
 
-import { TimesheetEntryService } from "@/Services/Timesheet/TimesheetEntryService";
-import { CreateTimesheetEntryDto, UpdateTimesheetEntryDto } from "@/Dtos/Timesheet/TimesheetDto";
-import { TimesheetEntry } from "@/Entities/Timesheets/TimesheetEntry";
-import User from "@/Entities/Users/User";
+import { TimesheetEntryService } from "../../Services/Timesheet/TimesheetEntryService";
+import {
+  CreateTimesheetEntryDto,
+  UpdateTimesheetEntryDto,
+} from "../../Dtos/Timesheet/TimesheetDto";
+import { TimesheetEntry } from "../../Entities/Timesheets/TimesheetEntry";
+import User from "../../Entities/Users/User";
 
 /**
  * @summary Controller for managing timesheet entries.
@@ -46,7 +49,11 @@ export class TimesheetEntryController extends Controller {
     @Request() request: ExpressRequest,
   ): Promise<TimesheetEntry> {
     const me = request.user as User;
-    return this.timesheetEntryService.createTimesheetEntry(me.companyId, me.id, dto);
+    return this.timesheetEntryService.createTimesheetEntry(
+      me.companyId,
+      me.id,
+      dto,
+    );
   }
 
   /**
@@ -56,9 +63,7 @@ export class TimesheetEntryController extends Controller {
    * @throws {NotFoundError} If the timesheet entry is not found.
    */
   @Get("/{id}")
-  public async getTimesheetEntry(
-    @Path() id: string,
-  ): Promise<TimesheetEntry> {
+  public async getTimesheetEntry(@Path() id: string): Promise<TimesheetEntry> {
     return this.timesheetEntryService.getTimesheetEntryById(id);
   }
 
@@ -85,9 +90,7 @@ export class TimesheetEntryController extends Controller {
    * @throws {NotFoundError} If the timesheet entry to delete is not found.
    */
   @Delete("/{id}")
-  public async deleteTimesheetEntry(
-    @Path() id: string,
-  ): Promise<void> {
+  public async deleteTimesheetEntry(@Path() id: string): Promise<void> {
     await this.timesheetEntryService.deleteTimesheetEntry(id);
   }
 }

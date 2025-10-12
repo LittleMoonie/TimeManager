@@ -15,10 +15,13 @@ import {
 import { Request as ExpressRequest } from "express";
 import { Service } from "typedi";
 
-import { PermissionService } from "@/Services/RoleService/PermissionService";
-import { CreatePermissionDto, UpdatePermissionDto } from "@/Dtos/Roles/RoleDto";
-import { Permission } from "@/Entities/Roles/Permission";
-import User from "@/Entities/Users/User";
+import { PermissionService } from "../../Services/RoleService/PermissionService";
+import {
+  CreatePermissionDto,
+  UpdatePermissionDto,
+} from "../../Dtos/Roles/RoleDto";
+import { Permission } from "../../Entities/Roles/Permission";
+import User from "../../Entities/Users/User";
 
 /**
  * @summary Controller for managing permissions within a company.
@@ -107,12 +110,7 @@ export class PermissionController extends Controller {
     @Request() request: ExpressRequest,
   ): Promise<Permission> {
     const me = request.user as User;
-    return this.permissionService.updatePermission(
-      me.companyId,
-      me,
-      id,
-      body,
-    );
+    return this.permissionService.updatePermission(me.companyId, me, id, body);
   }
 
   /**

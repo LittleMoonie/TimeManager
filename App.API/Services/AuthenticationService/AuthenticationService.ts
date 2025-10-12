@@ -4,16 +4,20 @@ import { sign } from "jsonwebtoken";
 import * as argon2 from "argon2";
 import * as crypto from "crypto";
 
-import { LoginDto, RegisterDto, AuthResponseDto } from "@/Dtos/Authentication/AuthenticationDto";
-import { UserResponseDto } from "@/Dtos/Users/UserResponseDto";
+import {
+  LoginDto,
+  RegisterDto,
+  AuthResponseDto,
+} from "../../Dtos/Authentication/AuthenticationDto";
+import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
 
-import User from "@/Entities/Users/User";
+import User from "../../Entities/Users/User";
 
-import { AuthenticationError, NotFoundError } from "@/Errors/HttpErrors";
-import { UserStatusService } from "@/Services/Users/UserStatusService";
-import { ActiveSessionService } from "@/Services/Users/ActiveSessionService";
-import { AuthenticationRepository } from "@/Repositories/Authentication/AuthenticationRepository";
-import { UserStatus } from "@Entities/Users/UserStatus";
+import { AuthenticationError, NotFoundError } from "../../Errors/HttpErrors";
+import { UserStatusService } from "../../Services/Users/UserStatusService";
+import { ActiveSessionService } from "../../Services/Users/ActiveSessionService";
+import { AuthenticationRepository } from "../../Repositories/Authentication/AuthenticationRepository";
+import { UserStatus } from "../../Entities/Users/UserStatus";
 
 /**
  * @description Service layer for handling user authentication processes, including registration, login, logout,
@@ -42,15 +46,17 @@ export class AuthenticationService {
    * @throws {NotFoundError} If the default user status (ACTIVE) is not found.
    */
   public async register(registerDto: RegisterDto): Promise<User> {
-    const existingUser = await this.authRepo.findUserByEmailWithAuthRelations(registerDto.email);
+    const existingUser = await this.authRepo.findUserByEmailWithAuthRelations(
+      registerDto.email,
+    );
     if (existingUser) {
       throw new AuthenticationError("Email already exists");
     }
 
-
     const hashedPassword = await argon2.hash(registerDto.password);
 
-    const defaultUserStatus = await this.userStatusService.getUserStatusByCode("ACTIVE");
+    const defaultUserStatus =
+      await this.userStatusService.getUserStatusByCode("ACTIVE");
     if (!defaultUserStatus) {
       throw new NotFoundError("Default user status not found");
     }
@@ -83,14 +89,18 @@ export class AuthenticationService {
     ipAddress?: string,
     userAgent?: string,
   ): Promise<AuthResponseDto> {
-    const user = await this.authRepo.findUserByEmailWithAuthRelations(loginDto.email);
+    const user = await this.authRepo.findUserByEmailWithAuthRelations(
+      loginDto.email,
+    );
 
     if (!user || !(await argon2.verify(user.passwordHash, loginDto.password))) {
       throw new AuthenticationError("Wrong credentials");
     }
 
     if (!user.status || !user.status.canLogin) {
-      throw new AuthenticationError("User account is not active or cannot log in");
+      throw new AuthenticationError(
+        "User account is not active or cannot log in",
+      );
     }
 
     const jwtSecret = process.env.JWT_SECRET;
@@ -102,12 +112,16 @@ export class AuthenticationService {
     const token = sign(
       { id: user.id, companyId: user.companyId, role: user.role?.name },
       jwtSecret,
-      { expiresIn: "1d" }
+      { expiresIn: "1d" },
     );
 
     // Refresh token: return raw token to caller; store only hash
-    const { rawToken: refreshTokenRaw, tokenHash, deviceId, expiresAt } =
-      await this.generateRefreshTokenMaterial();
+    const {
+      rawToken: _refreshTokenRaw,
+      tokenHash,
+      deviceId,
+      expiresAt,
+    } = await this.generateRefreshTokenMaterial();
 
     await this.activeSessionService.createActiveSession(
       user.companyId,
@@ -115,7 +129,7 @@ export class AuthenticationService {
       tokenHash,
       ipAddress,
       userAgent,
-      deviceId
+      deviceId,
     );
 
     // Optionally persist a lightweight row for analytics/consistency (not required by ActiveSessionService).
@@ -175,7 +189,7 @@ export class AuthenticationService {
 
     return {
       token,
-      refreshToken: refreshTokenRaw,
+      refreshToken: _refreshTokenRaw,
       user: userResponse,
     };
   }
@@ -200,11 +214,20 @@ export class AuthenticationService {
    * @returns A Promise that resolves to the User entity associated with the refresh token.
    * @throws {NotFoundError} If the active session or the user is not found.
    */
-  public async getCurrentUser(companyId: string, refreshToken: string): Promise<User> {
+  public async getCurrentUser(
+    companyId: string,
+    refreshToken: string,
+  ): Promise<User> {
     const tokenHash = this.hashToken(refreshToken);
-    const active = await this.activeSessionService.getActiveSessionByTokenInCompany(companyId, tokenHash);
+    const active =
+      await this.activeSessionService.getActiveSessionByTokenInCompany(
+        companyId,
+        tokenHash,
+      );
 
-    const user = await this.authRepo.findUserByIdWithBasicRelations(active.userId);
+    const user = await this.authRepo.findUserByIdWithBasicRelations(
+      active.userId,
+    );
     if (!user) {
       throw new NotFoundError("User not found");
     }

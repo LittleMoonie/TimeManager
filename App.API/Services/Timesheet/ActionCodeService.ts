@@ -3,8 +3,14 @@ import { validate } from "class-validator";
 import { ActionCodeRepository } from "../../Repositories/Timesheets/ActionCodeRepository";
 import { TimesheetHistoryRepository } from "../../Repositories/Timesheets/TimesheetHistoryRepository";
 import { ActionCode } from "../../Entities/Timesheets/ActionCode";
-import { NotFoundError, UnprocessableEntityError } from "../../Errors/HttpErrors";
-import { CreateActionCodeDto, UpdateActionCodeDto } from "../../Dtos/Timesheet/TimesheetDto";
+import {
+  NotFoundError,
+  UnprocessableEntityError,
+} from "../../Errors/HttpErrors";
+import {
+  CreateActionCodeDto,
+  UpdateActionCodeDto,
+} from "../../Dtos/Timesheet/TimesheetDto";
 
 /**
  * @description Service layer for managing ActionCode entities. This service provides business logic
@@ -31,7 +37,9 @@ export class ActionCodeService {
   private async ensureValidation(dto: unknown): Promise<void> {
     const errors = await validate(dto as object);
     if (errors.length > 0) {
-      throw new UnprocessableEntityError(`Validation error: ${errors.map(e => e.toString()).join(", ")}`);
+      throw new UnprocessableEntityError(
+        `Validation error: ${errors.map((e) => e.toString()).join(", ")}`,
+      );
     }
   }
 
@@ -49,16 +57,30 @@ export class ActionCodeService {
    * @param payload.metadata Optional: Additional metadata related to the action.
    * @returns A Promise that resolves when the event is recorded.
    */
-  private async recordEvent(companyId: string, payload: {
-    userId: string;
-    targetType: "ActionCode" | "Timesheet" | "TimesheetEntry" | "TimesheetApproval";
-    targetId: string;
-    action: "created" | "updated" | "deleted" | "submitted" | "approved" | "rejected";
-    actorUserId?: string;
-    reason?: string;
-    diff?: Record<string, string>;
-    metadata?: Record<string, string>;
-  }) {
+  private async recordEvent(
+    companyId: string,
+    payload: {
+      userId: string;
+      targetType:
+        | "ActionCode"
+        | "Timesheet"
+        | "TimesheetEntry"
+        | "TimesheetApproval";
+      targetId: string;
+      action:
+        | "created"
+        | "updated"
+        | "deleted"
+        | "submitted"
+        | "approved"
+        | "rejected";
+      actorUserId?: string;
+      reason?: string;
+      diff?: Record<string, string>;
+      metadata?: Record<string, string>;
+    },
+  ) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await this.historyRepository.create({ companyId, ...payload } as any);
   }
 
@@ -79,7 +101,10 @@ export class ActionCodeService {
    * @returns A Promise that resolves to the ActionCode entity.
    * @throws {NotFoundError} If the action code is not found or does not belong to the specified company.
    */
-  public async getActionCodeById(companyId: string, id: string): Promise<ActionCode> {
+  public async getActionCodeById(
+    companyId: string,
+    id: string,
+  ): Promise<ActionCode> {
     const actionCode = await this.actionCodeRepository.findById(id);
     if (!actionCode || actionCode.companyId !== companyId) {
       throw new NotFoundError("Action code not found");
@@ -95,10 +120,17 @@ export class ActionCodeService {
    * @returns A Promise that resolves to the newly created ActionCode entity.
    * @throws {UnprocessableEntityError} If validation of the DTO fails.
    */
-  public async create(companyId: string, actorUserId: string, dto: CreateActionCodeDto): Promise<ActionCode> {
+  public async create(
+    companyId: string,
+    actorUserId: string,
+    dto: CreateActionCodeDto,
+  ): Promise<ActionCode> {
     await this.ensureValidation(dto);
 
-    const created = await this.actionCodeRepository.create({ companyId, ...dto });
+    const created = await this.actionCodeRepository.create({
+      companyId,
+      ...dto,
+    });
     await this.recordEvent(companyId, {
       userId: actorUserId,
       targetType: "ActionCode",
@@ -118,7 +150,12 @@ export class ActionCodeService {
    * @throws {UnprocessableEntityError} If validation of the DTO fails.
    * @throws {NotFoundError} If the action code is not found or does not belong to the specified company.
    */
-  public async update(companyId: string, actorUserId: string, id: string, dto: UpdateActionCodeDto): Promise<ActionCode> {
+  public async update(
+    companyId: string,
+    actorUserId: string,
+    id: string,
+    dto: UpdateActionCodeDto,
+  ): Promise<ActionCode> {
     await this.ensureValidation(dto);
 
     const existing = await this.actionCodeRepository.findById(id);
@@ -126,7 +163,10 @@ export class ActionCodeService {
       throw new NotFoundError("Action code not found");
     }
 
-    const before = { name: existing.name, code: existing.code } as Record<string, string>;
+    const before = { name: existing.name, code: existing.code } as Record<
+      string,
+      string
+    >;
     const updated = await this.actionCodeRepository.update(id, dto);
     if (!updated) throw new NotFoundError("Failed to update Action code");
 
@@ -135,7 +175,8 @@ export class ActionCodeService {
       targetType: "ActionCode",
       targetId: updated.id,
       action: "updated",
-      diff: { ...before, ...dto as any },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      diff: { ...before, ...(dto as any) },
     });
 
     return updated;
@@ -149,7 +190,11 @@ export class ActionCodeService {
    * @returns A Promise that resolves when the deletion is complete.
    * @throws {NotFoundError} If the action code is not found or does not belong to the specified company.
    */
-  public async delete(companyId: string, actorUserId: string, id: string): Promise<void> {
+  public async delete(
+    companyId: string,
+    actorUserId: string,
+    id: string,
+  ): Promise<void> {
     const existing = await this.actionCodeRepository.findById(id);
     if (!existing || existing.companyId !== companyId) {
       throw new NotFoundError("Action code not found");

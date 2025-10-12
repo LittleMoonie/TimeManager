@@ -2,15 +2,15 @@ import {
   UnprocessableEntityError,
   NotFoundError,
   ForbiddenError,
-} from "@/Errors/HttpErrors";
+} from "../../Errors/HttpErrors";
 import { validate } from "class-validator";
 import * as argon2 from "argon2";
 import { Service } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { Repository } from "typeorm";
 
-import { UserRepository } from "@/Repositories/Users/UserRepository";
-import { ActiveSessionRepository } from "@/Repositories/Users/ActiveSessionRepository";
+import { UserRepository } from "../../Repositories/Users/UserRepository";
+import { ActiveSessionRepository } from "../../Repositories/Users/ActiveSessionRepository";
 
 import {
   CreateUserDto,
@@ -20,17 +20,17 @@ import {
   ListUsersQueryDto,
   RevokeSessionDto,
   ActiveSessionResponseDto,
-} from "@/Dtos/Users/UserDto";
+} from "../../Dtos/Users/UserDto";
 
-import { UserResponseDto } from "@/Dtos/Users/UserResponseDto";
+import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
 
-import User from "@/Entities/Users/User";
-import { UserStatus } from "@/Entities/Users/UserStatus";
-import { Role } from "@Entities/Roles/Role";
+import User from "../../Entities/Users/User";
+import { UserStatus } from "../../Entities/Users/UserStatus";
+import { Role } from "../../Entities/Roles/Role";
 
-import { RoleService } from "@/Services/RoleService/RoleService";
-import { RolePermissionService } from "@/Services/RoleService/RolePermissionService";
-import { UserStatusResponseDto } from "@/Dtos/Users/UserStatusDto";
+import { RoleService } from "../../Services/RoleService/RoleService";
+import { RolePermissionService } from "../../Services/RoleService/RolePermissionService";
+import { UserStatusResponseDto } from "../../Dtos/Users/UserStatusDto";
 
 /**
  * @description Service layer for managing User entities. This service provides business logic
@@ -75,7 +75,10 @@ export class UserService {
    * @throws {ForbiddenError} If the user does not have the required permission.
    */
   private async ensurePermission(user: User, permission: string) {
-    const allowed = await this.rolePermissionService.checkPermission(user, permission);
+    const allowed = await this.rolePermissionService.checkPermission(
+      user,
+      permission,
+    );
     if (!allowed) throw new ForbiddenError(`Missing permission: ${permission}`);
   }
 
@@ -89,7 +92,7 @@ export class UserService {
     const errors = await validate(dto as object);
     if (errors.length > 0) {
       throw new UnprocessableEntityError(
-        `Validation error: ${errors.map(e => e.toString()).join(", ")}`
+        `Validation error: ${errors.map((e) => e.toString()).join(", ")}`,
       );
     }
   }
@@ -107,7 +110,11 @@ export class UserService {
       lastName: user.lastName,
       companyId: user.companyId,
       company: user.company
-        ? { id: user.company.id, name: user.company.name, timezone: user.company.timezone ?? undefined }
+        ? {
+            id: user.company.id,
+            name: user.company.name,
+            timezone: user.company.timezone ?? undefined,
+          }
         : undefined,
       roleId: user.roleId,
       role: user.role
@@ -120,14 +127,14 @@ export class UserService {
         : undefined,
       statusId: user.statusId,
       status: user.status
-        ? {
+        ? ({
             id: user.status.id,
             code: user.status.code,
             name: user.status.name,
             description: user.status.description ?? undefined,
             canLogin: user.status.canLogin,
             isTerminal: user.status.isTerminal,
-          } as UserStatusResponseDto
+          } as UserStatusResponseDto)
         : undefined,
       createdAt: user.createdAt,
       phoneNumber: user.phoneNumber ?? undefined,
@@ -152,26 +159,35 @@ export class UserService {
   async createUser(
     companyId: string,
     currentUser: User,
-    dto: CreateUserDto
+    dto: CreateUserDto,
   ): Promise<UserResponseDto> {
     await this.ensurePermission(currentUser, "create_user");
     await this.ensureValidation(dto);
 
     // Unique email per company
-    const existing = await this.userRepository.findByEmailInCompany(dto.email, companyId);
+    const existing = await this.userRepository.findByEmailInCompany(
+      dto.email,
+      companyId,
+    );
     if (existing) {
-      throw new UnprocessableEntityError("A user with this email already exists in the company.");
+      throw new UnprocessableEntityError(
+        "A user with this email already exists in the company.",
+      );
     }
 
     const passwordHash = await argon2.hash(dto.password);
 
     // Validate role in company
-    const role = await this.roleRepository.findOne({ where: { id: dto.roleId, companyId } });
+    const role = await this.roleRepository.findOne({
+      where: { id: dto.roleId, companyId },
+    });
     if (!role) {
       throw new UnprocessableEntityError("Invalid roleId for this company.");
     }
 
-    const activeStatus = await this.userStatusRepository.findOne({ where: { code: "ACTIVE" } });
+    const activeStatus = await this.userStatusRepository.findOne({
+      where: { code: "ACTIVE" },
+    });
     if (!activeStatus) {
       throw new NotFoundError("Active user status not found.");
     }
@@ -187,7 +203,10 @@ export class UserService {
       statusId: activeStatus.id,
     } as User);
 
-    const created = await this.userRepository.findByIdInCompany(user.id, companyId);
+    const created = await this.userRepository.findByIdInCompany(
+      user.id,
+      companyId,
+    );
     if (!created) throw new NotFoundError("User not found after creation.");
 
     return this.toResponse(created);
@@ -206,7 +225,7 @@ export class UserService {
   async getUser(
     companyId: string,
     userId: string,
-    currentUser: User
+    currentUser: User,
   ): Promise<UserResponseDto> {
     // View permission or self
     if (currentUser.id !== userId) {
@@ -229,19 +248,24 @@ export class UserService {
   async listUsers(
     companyId: string,
     currentUser: User,
-    query: ListUsersQueryDto
-  ): Promise<{ data: UserResponseDto[]; total: number; page: number; limit: number; }> {
+    query: ListUsersQueryDto,
+  ): Promise<{
+    data: UserResponseDto[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     await this.ensurePermission(currentUser, "list_users");
 
     const page = query.page ?? 1;
     const limit = query.limit ?? 25;
 
     // Basic pagination using repository helper; filtering can be extended
-    const { data, total } = await this.userRepository.findPaginated(page, limit);
-    const scoped = data.filter(u => u.companyId === companyId);
+    const { data } = await this.userRepository.findPaginated(page, limit);
+    const scoped = data.filter((u) => u.companyId === companyId);
 
     return {
-      data: scoped.map(u => this.toResponse(u)),
+      data: scoped.map((u) => this.toResponse(u)),
       total: scoped.length, // If you need precise total per company, implement a scoped findAndCount
       page,
       limit,
@@ -265,7 +289,7 @@ export class UserService {
     companyId: string,
     userId: string,
     currentUser: User,
-    dto: UpdateUserDto
+    dto: UpdateUserDto,
   ): Promise<UserResponseDto> {
     // Self can update limited fields; others require permission
     const updatingSelf = currentUser.id === userId;
@@ -275,12 +299,18 @@ export class UserService {
 
     await this.ensureValidation(dto);
 
-    const user = await this.userRepository.findByIdInCompany(userId, companyId, true);
+    const user = await this.userRepository.findByIdInCompany(
+      userId,
+      companyId,
+      true,
+    );
     if (!user) throw new NotFoundError("User not found");
 
     // If role/status/company updates are attempted by self, forbid
     if (updatingSelf && (dto.roleId || dto.statusId || dto.companyId)) {
-      throw new ForbiddenError("You cannot change your own role, status or company.");
+      throw new ForbiddenError(
+        "You cannot change your own role, status or company.",
+      );
     }
 
     // Company change (admin action)
@@ -299,13 +329,18 @@ export class UserService {
     }
 
     if (dto.roleId) {
-      const role = await this.roleRepository.findOne({ where: { id: dto.roleId, companyId: user.companyId } });
-      if (!role) throw new UnprocessableEntityError("Invalid roleId for this company.");
+      const role = await this.roleRepository.findOne({
+        where: { id: dto.roleId, companyId: user.companyId },
+      });
+      if (!role)
+        throw new UnprocessableEntityError("Invalid roleId for this company.");
       user.roleId = dto.roleId;
     }
 
     if (dto.statusId) {
-      const status = await this.userStatusRepository.findOne({ where: { id: dto.statusId } });
+      const status = await this.userStatusRepository.findOne({
+        where: { id: dto.statusId },
+      });
       if (!status) throw new UnprocessableEntityError("Invalid statusId.");
       user.statusId = dto.statusId;
     }
@@ -314,7 +349,11 @@ export class UserService {
 
     await this.userRepository.save(user);
 
-    const reloaded = await this.userRepository.findByIdInCompany(user.id, user.companyId, true);
+    const reloaded = await this.userRepository.findByIdInCompany(
+      user.id,
+      user.companyId,
+      true,
+    );
     if (!reloaded) throw new NotFoundError("User not found after update");
 
     return this.toResponse(reloaded);
@@ -328,7 +367,10 @@ export class UserService {
    * @throws {UnprocessableEntityError} If validation fails.
    * @throws {NotFoundError} If the current user is not found.
    */
-  async updateMe(currentUser: User, dto: UpdateMeDto): Promise<UserResponseDto> {
+  async updateMe(
+    currentUser: User,
+    dto: UpdateMeDto,
+  ): Promise<UserResponseDto> {
     await this.ensureValidation(dto);
     const user = await this.userRepository.findById(currentUser.id);
     if (!user) throw new NotFoundError("User not found");
@@ -340,7 +382,10 @@ export class UserService {
 
     await this.userRepository.save(user);
 
-    const reloaded = await this.userRepository.findByIdInCompany(user.id, user.companyId);
+    const reloaded = await this.userRepository.findByIdInCompany(
+      user.id,
+      user.companyId,
+    );
     if (!reloaded) throw new NotFoundError("User not found after update");
 
     return this.toResponse(reloaded);
@@ -355,7 +400,10 @@ export class UserService {
    * @throws {NotFoundError} If the current user is not found.
    * @throws {ForbiddenError} If the current password provided is incorrect.
    */
-  async changePassword(currentUser: User, dto: ChangePasswordDto): Promise<void> {
+  async changePassword(
+    currentUser: User,
+    dto: ChangePasswordDto,
+  ): Promise<void> {
     await this.ensureValidation(dto);
 
     const user = await this.userRepository.findById(currentUser.id);
@@ -379,9 +427,17 @@ export class UserService {
    * @throws {ForbiddenError} If the current user does not have 'delete_user' permission.
    * @throws {NotFoundError} If the user is not found.
    */
-  async hardDeleteUser(companyId: string, userId: string, currentUser: User): Promise<void> {
+  async hardDeleteUser(
+    companyId: string,
+    userId: string,
+    currentUser: User,
+  ): Promise<void> {
     await this.ensurePermission(currentUser, "delete_user");
-    const target = await this.userRepository.findByIdInCompany(userId, companyId, true);
+    const target = await this.userRepository.findByIdInCompany(
+      userId,
+      companyId,
+      true,
+    );
     if (!target) throw new NotFoundError("User not found");
     await this.userRepository.hardDelete(userId);
   }
@@ -395,9 +451,16 @@ export class UserService {
    * @throws {ForbiddenError} If the current user does not have 'delete_user' permission.
    * @throws {NotFoundError} If the user is not found.
    */
-  async softDeleteUser(companyId: string, userId: string, currentUser: User): Promise<void> {
+  async softDeleteUser(
+    companyId: string,
+    userId: string,
+    currentUser: User,
+  ): Promise<void> {
     await this.ensurePermission(currentUser, "delete_user");
-    const target = await this.userRepository.findByIdInCompany(userId, companyId);
+    const target = await this.userRepository.findByIdInCompany(
+      userId,
+      companyId,
+    );
     if (!target) throw new NotFoundError("User not found");
     await this.userRepository.softDelete(userId);
   }
@@ -411,9 +474,17 @@ export class UserService {
    * @throws {ForbiddenError} If the current user does not have 'restore_user' permission.
    * @throws {NotFoundError} If the user is not found.
    */
-  async restoreUser(companyId: string, userId: string, currentUser: User): Promise<void> {
+  async restoreUser(
+    companyId: string,
+    userId: string,
+    currentUser: User,
+  ): Promise<void> {
     await this.ensurePermission(currentUser, "restore_user");
-    const target = await this.userRepository.findByIdInCompany(userId, companyId, true);
+    const target = await this.userRepository.findByIdInCompany(
+      userId,
+      companyId,
+      true,
+    );
     if (!target) throw new NotFoundError("User not found");
     await this.userRepository.restore(userId);
   }
@@ -427,14 +498,20 @@ export class UserService {
    * @throws {ForbiddenError} If the current user does not have 'revoke_session' permission.
    * @throws {NotFoundError} If the session is not found or does not belong to the specified company.
    */
-  async revokeSessionById(companyId: string, currentUser: User, dto: RevokeSessionDto): Promise<void> {
+  async revokeSessionById(
+    companyId: string,
+    currentUser: User,
+    dto: RevokeSessionDto,
+  ): Promise<void> {
     await this.ensurePermission(currentUser, "revoke_session");
 
     const session = await this.activeSessionRepository.findById(dto.sessionId);
     if (!session || session.companyId !== companyId) {
       throw new NotFoundError("Session not found");
     }
-    await this.activeSessionRepository.update(session.id, { revokedAt: new Date() });
+    await this.activeSessionRepository.update(session.id, {
+      revokedAt: new Date(),
+    });
   }
 
   /**
@@ -449,14 +526,17 @@ export class UserService {
   async listUserSessions(
     companyId: string,
     currentUser: User,
-    userId?: string
+    userId?: string,
   ): Promise<ActiveSessionResponseDto[]> {
     const targetUserId = userId ?? currentUser.id;
     if (targetUserId !== currentUser.id) {
       await this.ensurePermission(currentUser, "view_user_sessions");
     }
-    const sessions = await this.activeSessionRepository.findAllForUser(companyId, targetUserId);
-    return sessions.map(s => ({
+    const sessions = await this.activeSessionRepository.findAllForUser(
+      companyId,
+      targetUserId,
+    );
+    return sessions.map((s) => ({
       id: s.id,
       userId: s.userId,
       companyId: s.companyId,
@@ -470,4 +550,3 @@ export class UserService {
     }));
   }
 }
-

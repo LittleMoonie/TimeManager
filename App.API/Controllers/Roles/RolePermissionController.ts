@@ -12,12 +12,12 @@ import {
 import { Request as ExpressRequest } from "express";
 import { Service } from "typedi";
 
-import { RolePermissionService } from "@/Services/RoleService/RolePermissionService";
+import { RolePermissionService } from "../../Services/RoleService/RolePermissionService";
 import {
   CreateRolePermissionDto,
   RolePermissionResponseDto,
-} from "@/Dtos/Roles/RoleDto";
-import User from "@/Entities/Users/User";
+} from "../../Dtos/Roles/RoleDto";
+import User from "../../Entities/Users/User";
 
 /**
  * @summary Controller for managing role-permission links within a company.
@@ -47,7 +47,11 @@ export class RolePermissionController extends Controller {
     @Request() request: ExpressRequest,
   ): Promise<RolePermissionResponseDto> {
     const me = request.user as User;
-    return this.rolePermissionService.createRolePermission(me, me.companyId, dto);
+    return this.rolePermissionService.createRolePermission(
+      me,
+      me.companyId,
+      dto,
+    );
   }
 
   /**

@@ -2,7 +2,10 @@ import { Service } from "typedi";
 import { TimesheetEntryRepository } from "../../Repositories/Timesheets/TimesheetEntryRepository";
 import { TimesheetEntry } from "../../Entities/Timesheets/TimesheetEntry";
 import { NotFoundError } from "../../Errors/HttpErrors";
-import { CreateTimesheetEntryDto, UpdateTimesheetEntryDto } from "../../Dtos/Timesheet/TimesheetDto";
+import {
+  CreateTimesheetEntryDto,
+  UpdateTimesheetEntryDto,
+} from "../../Dtos/Timesheet/TimesheetDto";
 import { validate } from "class-validator";
 import { UnprocessableEntityError } from "../../Errors/HttpErrors";
 
@@ -16,7 +19,9 @@ export class TimesheetEntryService {
    * @description Initializes the TimesheetEntryService with the TimesheetEntryRepository.
    * @param timesheetEntryRepository The repository for TimesheetEntry entities, injected by TypeDI.
    */
-  constructor(private readonly timesheetEntryRepository: TimesheetEntryRepository) {}
+  constructor(
+    private readonly timesheetEntryRepository: TimesheetEntryRepository,
+  ) {}
 
   /**
    * @description Ensures that a given DTO (Data Transfer Object) is valid by performing class-validator validation.
@@ -28,7 +33,7 @@ export class TimesheetEntryService {
     const errors = await validate(dto as object);
     if (errors.length > 0) {
       throw new UnprocessableEntityError(
-        `Validation error: ${errors.map(e => e.toString()).join(", ")}`
+        `Validation error: ${errors.map((e) => e.toString()).join(", ")}`,
       );
     }
   }
@@ -47,7 +52,7 @@ export class TimesheetEntryService {
   ): Promise<TimesheetEntry> {
     await this.ensureValidation(dto);
     return this.timesheetEntryRepository.create({ companyId, userId, ...dto });
-    }
+  }
 
   /**
    * @description Retrieves a timesheet entry by its unique identifier.
@@ -66,7 +71,9 @@ export class TimesheetEntryService {
    * @param timesheetId The unique identifier of the timesheet.
    * @returns A Promise that resolves to an array of TimesheetEntry entities.
    */
-  public async getAllTimesheetEntriesForTimesheet(timesheetId: string): Promise<TimesheetEntry[]> {
+  public async getAllTimesheetEntriesForTimesheet(
+    timesheetId: string,
+  ): Promise<TimesheetEntry[]> {
     return this.timesheetEntryRepository.findAllForTimesheet(timesheetId);
   }
 
@@ -77,7 +84,10 @@ export class TimesheetEntryService {
    * @returns A Promise that resolves to the updated TimesheetEntry entity.
    * @throws {NotFoundError} If the timesheet entry to update is not found.
    */
-  public async updateTimesheetEntry(id: string, dto: UpdateTimesheetEntryDto): Promise<TimesheetEntry> {
+  public async updateTimesheetEntry(
+    id: string,
+    dto: UpdateTimesheetEntryDto,
+  ): Promise<TimesheetEntry> {
     await this.ensureValidation(dto);
     await this.getTimesheetEntryById(id);
     const updated = await this.timesheetEntryRepository.update(id, dto);

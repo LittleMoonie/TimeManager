@@ -1,9 +1,9 @@
 import { Service } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { Repository } from "typeorm";
-import ActiveSession from "@/Entities/Users/ActiveSessions";
-import { NotFoundError } from "@/Errors/HttpErrors";
-import { UserRepository } from "@/Repositories/Users/UserRepository";
+import ActiveSession from "../../Entities/Users/ActiveSessions";
+import { NotFoundError } from "../../Errors/HttpErrors";
+import { UserRepository } from "../../Repositories/Users/UserRepository";
 
 /**
  * @description Service layer for handling user data anonymization. This service provides functionality
@@ -31,7 +31,10 @@ export class AnonymizationService {
    * @returns A Promise that resolves when the anonymization process is complete.
    * @throws {NotFoundError} If the user is not found or does not belong to the specified company.
    */
-  public async anonymizeUserData(userId: string, companyId: string): Promise<void> {
+  public async anonymizeUserData(
+    userId: string,
+    companyId: string,
+  ): Promise<void> {
     const user = await this.userRepository.findById(userId);
     if (!user || user.companyId !== companyId) {
       throw new NotFoundError("User not found");

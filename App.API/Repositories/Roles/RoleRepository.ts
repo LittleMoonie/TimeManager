@@ -2,8 +2,8 @@ import { Service } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { Repository } from "typeorm";
 
-import { BaseRepository } from "@/Repositories/BaseRepository";
-import { Role } from "@/Entities/Roles/Role";
+import { BaseRepository } from "../../Repositories/BaseRepository";
+import { Role } from "../../Entities/Roles/Role";
 
 /**
  * @description Repository for managing Role entities. Extends BaseRepository to provide standard CRUD operations
@@ -17,7 +17,7 @@ export class RoleRepository extends BaseRepository<Role> {
    */
   constructor(
     @InjectRepository(Role)
-    repo: Repository<Role>
+    repo: Repository<Role>,
   ) {
     super(Role, repo);
   }
@@ -56,7 +56,10 @@ export class RoleRepository extends BaseRepository<Role> {
    * @param companyId The unique identifier of the company.
    * @returns A Promise that resolves to the Role entity or null if not found.
    */
-  async findByNameInCompany(name: string, companyId: string): Promise<Role | null> {
+  async findByNameInCompany(
+    name: string,
+    companyId: string,
+  ): Promise<Role | null> {
     return this.repository.findOne({
       where: { name, companyId },
       relations: ["rolePermissions", "rolePermissions.permission"],

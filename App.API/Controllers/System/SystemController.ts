@@ -111,7 +111,7 @@ export class SystemController extends Controller {
    */
   @Get("/openapi-status")
   @SuccessResponse("200", "OpenAPI status retrieved")
-  public async getOpenApiStatus() {
+  public async getOpenApiStatus(): Promise<object> {
     const { isGenerating, lastGeneratedAt } = OpenApiService.getStatus();
     const needsRegeneration = await OpenApiService.needsRegeneration();
 

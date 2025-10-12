@@ -17,7 +17,7 @@ export class UserStatusRepository extends BaseRepository<UserStatus> {
    */
   constructor(
     @InjectRepository(UserStatus)
-    repo: Repository<UserStatus>
+    repo: Repository<UserStatus>,
   ) {
     super(UserStatus, repo);
   }

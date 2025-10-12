@@ -15,13 +15,10 @@ import {
 import { Request as ExpressRequest } from "express";
 import { Service } from "typedi";
 
-import { UserService } from "@/Services/User/UserService";
-import {
-  CreateUserDto,
-  UpdateUserDto,
-} from "@/Dtos/Users/UserDto";
-import { UserResponseDto } from "@/Dtos/Users/UserResponseDto";
-import User from "@/Entities/Users/User";
+import { UserService } from "../../Services/User/UserService";
+import { CreateUserDto, UpdateUserDto } from "../../Dtos/Users/UserDto";
+import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
+import User from "../../Entities/Users/User";
 
 type UsersPage = {
   data: UserResponseDto[];
@@ -133,4 +130,3 @@ export class UserController extends Controller {
     await this.userService.softDeleteUser(me.companyId, id, me);
   }
 }
-

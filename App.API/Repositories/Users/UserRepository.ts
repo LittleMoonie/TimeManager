@@ -1,8 +1,8 @@
 import { Service } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
-import { Repository, ILike } from "typeorm";
+import { Repository } from "typeorm";
 import User from "../../Entities/Users/User";
-import { BaseRepository } from "../BaseRepository";
+import { BaseRepository } from "../../Repositories/BaseRepository";
 
 /**
  * @description Repository for managing User entities. Extends BaseRepository to provide standard CRUD operations
@@ -14,9 +14,7 @@ export class UserRepository extends BaseRepository<User> {
    * @description Initializes the UserRepository with a TypeORM Repository instance for User.
    * @param repo The TypeORM Repository<User> injected by TypeDI.
    */
-  constructor(
-    @InjectRepository(User) repo: Repository<User>
-  ) {
+  constructor(@InjectRepository(User) repo: Repository<User>) {
     super(User, repo);
   }
 
@@ -27,7 +25,10 @@ export class UserRepository extends BaseRepository<User> {
    * @param companyId The unique identifier of the company.
    * @returns A Promise that resolves to the User entity or null if not found.
    */
-  async findByEmailInCompany(email: string, companyId: string): Promise<User | null> {
+  async findByEmailInCompany(
+    email: string,
+    companyId: string,
+  ): Promise<User | null> {
     return this.repository.findOne({
       where: { email, companyId },
       relations: ["role", "status"],
@@ -54,7 +55,11 @@ export class UserRepository extends BaseRepository<User> {
    * @param withDeleted Optional: Whether to include soft-deleted records in the search. Defaults to false.
    * @returns A Promise that resolves to the User entity or null if not found.
    */
-  async findByIdInCompany(userId: string, companyId: string, withDeleted = false): Promise<User | null> {
+  async findByIdInCompany(
+    userId: string,
+    companyId: string,
+    withDeleted = false,
+  ): Promise<User | null> {
     return this.repository.findOne({
       where: { id: userId, companyId },
       withDeleted,
@@ -86,8 +91,9 @@ export class UserRepository extends BaseRepository<User> {
     companyId: string,
     page: number,
     limit: number,
-    opts?: { roleId?: string; statusId?: string; q?: string }
+    opts?: { roleId?: string; statusId?: string; q?: string },
   ): Promise<{ data: User[]; total: number }> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = { companyId };
 
     if (opts?.roleId) where.roleId = opts.roleId;
@@ -95,18 +101,21 @@ export class UserRepository extends BaseRepository<User> {
 
     // Basic "q" search across first/last/email if provided
     // Uses ILike for Postgres case-insensitive search
-    const qb = this.repository.createQueryBuilder("user")
+    const qb = this.repository
+      .createQueryBuilder("user")
       .leftJoinAndSelect("user.role", "role")
       .leftJoinAndSelect("user.status", "status")
       .where("user.companyId = :companyId", { companyId });
 
-    if (opts?.roleId) qb.andWhere("user.roleId = :roleId", { roleId: opts.roleId });
-    if (opts?.statusId) qb.andWhere("user.statusId = :statusId", { statusId: opts.statusId });
+    if (opts?.roleId)
+      qb.andWhere("user.roleId = :roleId", { roleId: opts.roleId });
+    if (opts?.statusId)
+      qb.andWhere("user.statusId = :statusId", { statusId: opts.statusId });
 
     if (opts?.q) {
       qb.andWhere(
         "(user.email ILIKE :q OR user.firstName ILIKE :q OR user.lastName ILIKE :q)",
-        { q: `%${opts.q}%` }
+        { q: `%${opts.q}%` },
       );
     }
 

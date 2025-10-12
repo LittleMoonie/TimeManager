@@ -12,12 +12,12 @@ import {
 } from "tsoa";
 import { Service } from "typedi";
 
-import { UserStatusService } from "@/Services/Users/UserStatusService";
+import { UserStatusService } from "../../Services/Users/UserStatusService";
 import {
   CreateUserStatusDto,
   UserStatusResponseDto,
   UpdateUserStatusDto,
-} from "@/Dtos/Users/UserStatusDto";
+} from "../../Dtos/Users/UserStatusDto";
 
 /**
  * @summary Controller for managing user statuses (global catalog).

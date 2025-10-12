@@ -1,11 +1,10 @@
-import type { Request } from "express";
+import { Request } from "express";
 import jwt from "jsonwebtoken";
 import {
   AuthenticationError,
   ForbiddenError,
   InternalServerError,
 } from "../Errors/HttpErrors";
-import User from "../Entities/Users/User";
 
 // Define the shape of the JWT payload
 type JwtPayload = {
@@ -66,7 +65,9 @@ export async function expressAuthentication(
 
     request.user = user;
     return user;
-  } catch (error) {
-    throw new AuthenticationError("Invalid or expired token");
+  } catch (_error: unknown) {
+    throw new AuthenticationError(
+      "Invalid or expired token " + (_error as Error).message,
+    );
   }
 }

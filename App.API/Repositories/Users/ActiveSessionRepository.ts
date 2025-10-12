@@ -2,8 +2,8 @@ import { Service } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { Repository, FindOneOptions } from "typeorm";
 
-import ActiveSession from "@/Entities/Users/ActiveSessions";
-import { BaseRepository } from "../BaseRepository";
+import ActiveSession from "../../Entities/Users/ActiveSessions";
+import { BaseRepository } from "../../Repositories/BaseRepository";
 
 /**
  * @description Repository for managing ActiveSession entities. Extends BaseRepository to provide standard CRUD operations
@@ -17,7 +17,7 @@ export class ActiveSessionRepository extends BaseRepository<ActiveSession> {
    */
   constructor(
     @InjectRepository(ActiveSession)
-    repo: Repository<ActiveSession>
+    repo: Repository<ActiveSession>,
   ) {
     super(ActiveSession, repo);
   }
@@ -30,7 +30,7 @@ export class ActiveSessionRepository extends BaseRepository<ActiveSession> {
    */
   async findByTokenHashInCompany(
     companyId: string,
-    tokenHash: string
+    tokenHash: string,
   ): Promise<ActiveSession | null> {
     const options: FindOneOptions<ActiveSession> = {
       where: { companyId, tokenHash },
@@ -56,7 +56,7 @@ export class ActiveSessionRepository extends BaseRepository<ActiveSession> {
    */
   async findAllForUser(
     companyId: string,
-    userId: string
+    userId: string,
   ): Promise<ActiveSession[]> {
     return this.repository.find({
       where: { companyId, userId },

@@ -1,12 +1,15 @@
 import { Service } from "typedi";
 import { validate } from "class-validator";
 
-import { CompanySettingsRepository } from "@/Repositories/Companies/CompanySettingsRepository";
-import { UpdateCompanySettingsDto } from "@/Dtos/Companies/CompanyDto";
-import { CompanySettings } from "@/Entities/Companies/CompanySettings";
-import { ForbiddenError, UnprocessableEntityError, NotFoundError } from "@/Errors/HttpErrors";
-import User from "@/Entities/Users/User";
-import { RolePermissionService } from "@/Services/RoleService/RolePermissionService";
+import { CompanySettingsRepository } from "../../Repositories/Companies/CompanySettingsRepository";
+import { UpdateCompanySettingsDto } from "../../Dtos/Companies/CompanyDto";
+import { CompanySettings } from "../../Entities/Companies/CompanySettings";
+import {
+  ForbiddenError,
+  UnprocessableEntityError,
+} from "../../Errors/HttpErrors";
+import User from "../../Entities/Users/User";
+import { RolePermissionService } from "../../Services/RoleService/RolePermissionService";
 
 /**
  * @description Service layer for managing CompanySettings entities. This service provides business logic
@@ -34,7 +37,7 @@ export class CompanySettingsService {
     const errors = await validate(dto as object);
     if (errors.length > 0) {
       throw new UnprocessableEntityError(
-        `Validation error: ${errors.map(e => e.toString()).join(", ")}`
+        `Validation error: ${errors.map((e) => e.toString()).join(", ")}`,
       );
     }
   }
@@ -55,7 +58,16 @@ export class CompanySettingsService {
    * @param settings The CompanySettings object to create.
    * @returns A Promise that resolves to the newly created CompanySettings entity.
    */
-  async createCompanySettings(companyId: string, settings: CompanySettings): Promise<CompanySettings> {
+  /**
+   * @description Creates new company settings for a specific company.
+   * @param companyId The unique identifier of the company.
+   * @param settings The CompanySettings object to create.
+   * @returns A Promise that resolves to the newly created CompanySettings entity.
+   */
+  async createCompanySettings(
+    companyId: string,
+    settings: CompanySettings,
+  ): Promise<CompanySettings> {
     return this.companySettingsRepository.create({ ...settings, companyId });
   }
 
@@ -72,14 +84,26 @@ export class CompanySettingsService {
     actingUser: User,
     dto: UpdateCompanySettingsDto,
   ): Promise<CompanySettings> {
-    if (!(await this.rolePermissionService.checkPermission(actingUser, "update_company_settings"))) {
-      throw new ForbiddenError("User does not have permission to update company settings.");
+    if (
+      !(await this.rolePermissionService.checkPermission(
+        actingUser,
+        "update_company_settings",
+      ))
+    ) {
+      throw new ForbiddenError(
+        "User does not have permission to update company settings.",
+      );
     }
 
     await this.ensureValidation(dto);
-    await this.companySettingsRepository.getCompanySettings(actingUser.companyId);
+    await this.companySettingsRepository.getCompanySettings(
+      actingUser.companyId,
+    );
 
-    const updated = await this.companySettingsRepository.update(actingUser.companyId, dto);
+    const updated = await this.companySettingsRepository.update(
+      actingUser.companyId,
+      dto,
+    );
     return updated!;
   }
 
@@ -90,7 +114,8 @@ export class CompanySettingsService {
    * @throws {NotFoundError} If company settings are not found for the given company ID.
    */
   async deleteCompanySettings(companyId: string): Promise<void> {
-    const settings = await this.companySettingsRepository.getCompanySettings(companyId);
+    const settings =
+      await this.companySettingsRepository.getCompanySettings(companyId);
     await this.companySettingsRepository.delete(settings.id);
   }
 }

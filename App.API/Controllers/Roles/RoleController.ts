@@ -15,10 +15,10 @@ import {
 import { Request as ExpressRequest } from "express";
 import { Service } from "typedi";
 
-import { RoleService } from "@/Services/RoleService/RoleService";
-import { CreateRoleDto, UpdateRoleDto } from "@/Dtos/Roles/RoleDto";
-import { Role } from "@/Entities/Roles/Role";
-import User from "@/Entities/Users/User";
+import { RoleService } from "../../Services/RoleService/RoleService";
+import { CreateRoleDto, UpdateRoleDto } from "../../Dtos/Roles/RoleDto";
+import { Role } from "../../Entities/Roles/Role";
+import User from "../../Entities/Users/User";
 
 /**
  * @summary Controller for managing roles within a company.
@@ -80,9 +80,7 @@ export class RoleController extends Controller {
    */
   @Get("/")
   @Security("jwt", ["admin"])
-  public async listRoles(
-    @Request() request: ExpressRequest,
-  ): Promise<Role[]> {
+  public async listRoles(@Request() request: ExpressRequest): Promise<Role[]> {
     const me = request.user as User;
     return this.roleService.listRoles(me.companyId, me);
   }
@@ -145,7 +143,12 @@ export class RoleController extends Controller {
     @Request() request: ExpressRequest,
   ): Promise<void> {
     const me = request.user as User;
-    await this.roleService.assignPermissionToRole(me.companyId, roleId, permissionId, me);
+    await this.roleService.assignPermissionToRole(
+      me.companyId,
+      roleId,
+      permissionId,
+      me,
+    );
     this.setStatus(201);
   }
 
@@ -167,6 +170,11 @@ export class RoleController extends Controller {
     @Request() request: ExpressRequest,
   ): Promise<void> {
     const me = request.user as User;
-    await this.roleService.removePermissionFromRole(me.companyId, roleId, permissionId, me);
+    await this.roleService.removePermissionFromRole(
+      me.companyId,
+      roleId,
+      permissionId,
+      me,
+    );
   }
 }

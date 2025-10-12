@@ -1,17 +1,21 @@
 import { Service } from "typedi";
 import { validate } from "class-validator";
 
-import { TeamRepository } from "@/Repositories/Companies/TeamRepository";
-import { TeamMemberRepository } from "@/Repositories/Companies/TeamMemberRepository";
-import { Team, TeamMember } from "@/Entities/Companies/Team";
-import { ForbiddenError, NotFoundError, UnprocessableEntityError } from "@/Errors/HttpErrors";
-import User from "@/Entities/Users/User";
+import { TeamRepository } from "../../Repositories/Companies/TeamRepository";
+import { TeamMemberRepository } from "../../Repositories/Companies/TeamMemberRepository";
+import { Team, TeamMember } from "../../Entities/Companies/Team";
+import {
+  ForbiddenError,
+  NotFoundError,
+  UnprocessableEntityError,
+} from "../../Errors/HttpErrors";
+import User from "../../Entities/Users/User";
 import {
   AddTeamMemberDto,
   CreateTeamDto,
   UpdateTeamDto,
-} from "@/Dtos/Companies/CompanyDto";
-import { RolePermissionService } from "@/Services/RoleService/RolePermissionService";
+} from "../../Dtos/Companies/CompanyDto";
+import { RolePermissionService } from "../../Services/RoleService/RolePermissionService";
 
 /**
  * @description Service layer for managing Team and TeamMember entities. This service provides business logic
@@ -41,7 +45,7 @@ export class TeamService {
     const errors = await validate(dto as object);
     if (errors.length > 0) {
       throw new UnprocessableEntityError(
-        `Validation error: ${errors.map(e => e.toString()).join(", ")}`
+        `Validation error: ${errors.map((e) => e.toString()).join(", ")}`,
       );
     }
   }
@@ -68,7 +72,10 @@ export class TeamService {
    * @returns A Promise that resolves to the Team entity.
    * @throws {NotFoundError} If the team is not found or does not belong to the specified company.
    */
-  private async getTeamScoped(companyId: string, teamId: string): Promise<Team> {
+  private async getTeamScoped(
+    companyId: string,
+    teamId: string,
+  ): Promise<Team> {
     const team = await this.teamRepository.findById(teamId);
     if (!team || team.companyId !== companyId) {
       throw new NotFoundError("Team not found");
@@ -82,10 +89,10 @@ export class TeamService {
    * @description Lists all teams for a given company.
    * @param companyId The unique identifier of the company.
    * @param _actingUser The user performing the action (used for permission checks, but not directly in this method).
-   * @returns A Promise that resolves to an array of Team entities.
+   * @returns {Promise<Team[]>} A Promise that resolves to an array of Team entities.
    */
-  async listTeams(companyId: string, _actingUser: User): Promise<Team[]> {
-    return this.teamRepository.findAll(companyId);
+  async listTeams(companyId: string): Promise<Team[]> {
+    return this.teamRepository.findAllInCompany(companyId);
   }
 
   /**
@@ -103,8 +110,15 @@ export class TeamService {
     actingUser: User,
     dto: CreateTeamDto,
   ): Promise<Team> {
-    if (!(await this.rolePermissionService.checkPermission(actingUser, "create_team"))) {
-      throw new ForbiddenError("User does not have permission to create teams.");
+    if (
+      !(await this.rolePermissionService.checkPermission(
+        actingUser,
+        "create_team",
+      ))
+    ) {
+      throw new ForbiddenError(
+        "User does not have permission to create teams.",
+      );
     }
     await this.ensureValidation(dto);
 
@@ -129,8 +143,15 @@ export class TeamService {
     teamId: string,
     dto: UpdateTeamDto,
   ): Promise<Team> {
-    if (!(await this.rolePermissionService.checkPermission(actingUser, "update_team"))) {
-      throw new ForbiddenError("User does not have permission to update teams.");
+    if (
+      !(await this.rolePermissionService.checkPermission(
+        actingUser,
+        "update_team",
+      ))
+    ) {
+      throw new ForbiddenError(
+        "User does not have permission to update teams.",
+      );
     }
     await this.ensureValidation(dto);
     await this.getTeamScoped(companyId, teamId);
@@ -153,8 +174,15 @@ export class TeamService {
     actingUser: User,
     teamId: string,
   ): Promise<void> {
-    if (!(await this.rolePermissionService.checkPermission(actingUser, "delete_team"))) {
-      throw new ForbiddenError("User does not have permission to delete teams.");
+    if (
+      !(await this.rolePermissionService.checkPermission(
+        actingUser,
+        "delete_team",
+      ))
+    ) {
+      throw new ForbiddenError(
+        "User does not have permission to delete teams.",
+      );
     }
     await this.getTeamScoped(companyId, teamId);
     await this.teamRepository.softDelete(teamId);
@@ -167,14 +195,10 @@ export class TeamService {
    * @param companyId The unique identifier of the company.
    * @param teamId The unique identifier of the team.
    * @param _actingUser The user performing the action (used for permission checks, but not directly in this method).
-   * @returns A Promise that resolves to an array of TeamMember entities.
+   * @returns {Promise<TeamMember[]>} A Promise that resolves to an array of TeamMember entities.
    * @throws {NotFoundError} If the team is not found or does not belong to the specified company.
    */
-  async listMembers(
-    companyId: string,
-    teamId: string,
-    _actingUser: User,
-  ): Promise<TeamMember[]> {
+  async listMembers(companyId: string, teamId: string): Promise<TeamMember[]> {
     await this.getTeamScoped(companyId, teamId);
     return this.teamMemberRepository.findAllForTeam(companyId, teamId);
   }
@@ -197,8 +221,15 @@ export class TeamService {
     actingUser: User,
     dto: AddTeamMemberDto,
   ): Promise<TeamMember> {
-    if (!(await this.rolePermissionService.checkPermission(actingUser, "manage_team_members"))) {
-      throw new ForbiddenError("User does not have permission to manage team members.");
+    if (
+      !(await this.rolePermissionService.checkPermission(
+        actingUser,
+        "manage_team_members",
+      ))
+    ) {
+      throw new ForbiddenError(
+        "User does not have permission to manage team members.",
+      );
     }
     await this.ensureValidation(dto);
     await this.getTeamScoped(companyId, teamId);
@@ -211,7 +242,9 @@ export class TeamService {
     );
     if (existing) {
       if (dto.role && dto.role !== existing.role) {
-        return (await this.teamMemberRepository.update(existing.id, { role: dto.role }))!;
+        return (await this.teamMemberRepository.update(existing.id, {
+          role: dto.role,
+        }))!;
       }
       return existing;
     }
@@ -241,8 +274,15 @@ export class TeamService {
     actingUser: User,
     userId: string,
   ): Promise<void> {
-    if (!(await this.rolePermissionService.checkPermission(actingUser, "manage_team_members"))) {
-      throw new ForbiddenError("User does not have permission to manage team members.");
+    if (
+      !(await this.rolePermissionService.checkPermission(
+        actingUser,
+        "manage_team_members",
+      ))
+    ) {
+      throw new ForbiddenError(
+        "User does not have permission to manage team members.",
+      );
     }
     await this.getTeamScoped(companyId, teamId);
 

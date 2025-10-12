@@ -1,7 +1,7 @@
 import { Service } from "typedi";
-import ActiveSession from "@/Entities/Users/ActiveSessions";
-import { NotFoundError } from "@/Errors/HttpErrors";
-import { ActiveSessionRepository } from "@/Repositories/Users/ActiveSessionRepository";
+import ActiveSession from "../../Entities/Users/ActiveSessions";
+import { NotFoundError } from "../../Errors/HttpErrors";
+import { ActiveSessionRepository } from "../../Repositories/Users/ActiveSessionRepository";
 
 /**
  * @description Service layer for managing the lifecycle of ActiveSession entities. This includes
@@ -15,7 +15,7 @@ export class ActiveSessionService {
    * @param activeSessionRepository The repository for ActiveSession entities, injected by TypeDI.
    */
   constructor(
-    private readonly activeSessionRepository: ActiveSessionRepository
+    private readonly activeSessionRepository: ActiveSessionRepository,
   ) {}
 
   /**
@@ -58,10 +58,13 @@ export class ActiveSessionService {
    */
   async getActiveSessionByTokenInCompany(
     companyId: string,
-    tokenHash: string
+    tokenHash: string,
   ): Promise<ActiveSession> {
     const activeSession =
-      await this.activeSessionRepository.findByTokenHashInCompany(companyId, tokenHash);
+      await this.activeSessionRepository.findByTokenHashInCompany(
+        companyId,
+        tokenHash,
+      );
 
     if (!activeSession) {
       throw new NotFoundError("Active session not found");
@@ -79,9 +82,12 @@ export class ActiveSessionService {
    */
   async revokeActiveSession(
     companyId: string,
-    tokenHash: string
+    tokenHash: string,
   ): Promise<void> {
-    const activeSession = await this.getActiveSessionByTokenInCompany(companyId, tokenHash);
+    const activeSession = await this.getActiveSessionByTokenInCompany(
+      companyId,
+      tokenHash,
+    );
     await this.activeSessionRepository.update(activeSession.id, {
       revokedAt: new Date(),
     });
@@ -94,11 +100,11 @@ export class ActiveSessionService {
    * @returns A Promise that resolves when the `lastSeenAt` timestamp has been updated.
    * @throws {NotFoundError} If the active session is not found.
    */
-  async updateLastSeen(
-    companyId: string,
-    tokenHash: string
-  ): Promise<void> {
-    const activeSession = await this.getActiveSessionByTokenInCompany(companyId, tokenHash);
+  async updateLastSeen(companyId: string, tokenHash: string): Promise<void> {
+    const activeSession = await this.getActiveSessionByTokenInCompany(
+      companyId,
+      tokenHash,
+    );
     await this.activeSessionRepository.update(activeSession.id, {
       lastSeenAt: new Date(),
     });

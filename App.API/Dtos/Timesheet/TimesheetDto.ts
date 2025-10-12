@@ -324,11 +324,23 @@ export class TimesheetApprovalResponseDto {
 
 /* ------------------------------- Record History ------------------------------- */
 
-const TARGET_TYPES = ["Timesheet", "TimesheetEntry", "TimesheetApproval", "ActionCode"] as const;
-type TargetType = typeof TARGET_TYPES[number];
+const TARGET_TYPES = [
+  "Timesheet",
+  "TimesheetEntry",
+  "TimesheetApproval",
+  "ActionCode",
+] as const;
+type TargetType = (typeof TARGET_TYPES)[number];
 
-const ACTIONS = ["created", "updated", "submitted", "approved", "rejected", "deleted"] as const;
-type ActionType = typeof ACTIONS[number];
+const ACTIONS = [
+  "created",
+  "updated",
+  "submitted",
+  "approved",
+  "rejected",
+  "deleted",
+] as const;
+type ActionType = (typeof ACTIONS)[number];
 
 /**
  * @description Data transfer object for recording history events related to timesheet entities.

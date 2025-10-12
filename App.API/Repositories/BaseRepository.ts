@@ -57,7 +57,7 @@ export class BaseRepository<T extends BaseEntity> {
     try {
       await this.repository.update(
         { id } as FindOptionsWhere<T>,
-        data as QueryDeepPartialEntity<T>
+        data as QueryDeepPartialEntity<T>,
       );
       return this.findById(id);
     } catch (error) {
@@ -105,7 +105,9 @@ export class BaseRepository<T extends BaseEntity> {
     try {
       await this.repository.softDelete({ id } as FindOptionsWhere<T>);
     } catch (error) {
-      throw new InternalServerError(`Failed to soft delete entity ${id}: ${error}`);
+      throw new InternalServerError(
+        `Failed to soft delete entity ${id}: ${error}`,
+      );
     }
   }
 
@@ -166,10 +168,14 @@ export class BaseRepository<T extends BaseEntity> {
    * @param limit The maximum number of records to return per page. Defaults to `10`.
    * @returns A Promise that resolves to an object containing the paginated data (`data`) and the total count of entities (`total`).
    */
-  async findPaginated(page = 1, limit = 10): Promise<{ data: T[]; total: number }> {
+  async findPaginated(
+    page = 1,
+    limit = 10,
+  ): Promise<{ data: T[]; total: number }> {
     const [data, total] = await this.repository.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       order: { createdAt: "DESC" } as any,
     });
     return { data, total };

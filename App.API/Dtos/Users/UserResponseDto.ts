@@ -1,6 +1,6 @@
-import { RoleResponse } from "../Roles/RoleDto";
-import { CompanyResponseDto } from "../Companies/CompanyDto";
-import { UserStatusResponseDto } from "./UserStatusDto";
+import { RoleResponse } from "../../Dtos/Roles/RoleDto";
+import { CompanyResponseDto } from "../../Dtos/Companies/CompanyDto";
+import { UserStatusResponseDto } from "../../Dtos/Users/UserStatusDto";
 
 /**
  * @description Data transfer object for a user response. This DTO should be used when returning user information to clients, never return the entity directly.

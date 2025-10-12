@@ -1,4 +1,13 @@
-import { Controller, Delete, Path, Request, Route, Security, Tags, SuccessResponse } from "tsoa";
+import {
+  Controller,
+  Delete,
+  Path,
+  Request,
+  Route,
+  Security,
+  Tags,
+  SuccessResponse,
+} from "tsoa";
 import { AnonymizationService } from "../../Services/Users/AnonymizationService";
 import { Service } from "typedi";
 import { Request as ExpressRequest } from "express";

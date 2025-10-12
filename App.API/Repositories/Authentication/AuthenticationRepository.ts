@@ -2,8 +2,8 @@ import { Service } from "typedi";
 import { Repository } from "typeorm";
 import { InjectRepository } from "typeorm-typedi-extensions";
 
-import User from "@/Entities/Users/User";
-import ActiveSession from "@/Entities/Users/ActiveSessions";
+import User from "../../Entities/Users/User";
+import ActiveSession from "../../Entities/Users/ActiveSessions";
 
 /**
  * @description Repository for handling authentication-related database operations.
@@ -21,7 +21,7 @@ export class AuthenticationRepository {
     private readonly userRepo: Repository<User>,
 
     @InjectRepository(ActiveSession)
-    private readonly activeSessionRepo: Repository<ActiveSession>
+    private readonly activeSessionRepo: Repository<ActiveSession>,
   ) {}
 
   /**
@@ -68,7 +68,9 @@ export class AuthenticationRepository {
    * @param data A partial ActiveSession object containing the data to be saved.
    * @returns A Promise that resolves to the newly created ActiveSession entity.
    */
-  async createAndSaveActiveSessionPartial(data: Partial<ActiveSession>): Promise<ActiveSession> {
+  async createAndSaveActiveSessionPartial(
+    data: Partial<ActiveSession>,
+  ): Promise<ActiveSession> {
     const entity = this.activeSessionRepo.create(data);
     return this.activeSessionRepo.save(entity);
   }

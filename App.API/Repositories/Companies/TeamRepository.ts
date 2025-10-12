@@ -1,5 +1,5 @@
 import { Team } from "../../Entities/Companies/Team";
-import { BaseRepository } from "../BaseRepository";
+import { BaseRepository } from "../../Repositories/BaseRepository";
 import { Service } from "typedi";
 
 /**
@@ -21,7 +21,7 @@ export class TeamRepository extends BaseRepository<Team> {
    * @param companyId The unique identifier of the company.
    * @returns A Promise that resolves to an array of Team entities within the specified company.
    */
-  async findAll(companyId: string): Promise<Team[]> {
+  async findAllInCompany(companyId: string): Promise<Team[]> {
     return this.repository.find({ where: { companyId } });
   }
 }

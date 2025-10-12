@@ -1,13 +1,22 @@
 import {
-  Body, Controller, Post, Route, Tags, SuccessResponse, Security, Request, Get, Put, Delete,
+  Body,
+  Controller,
+  Route,
+  Tags,
+  SuccessResponse,
+  Security,
+  Request,
+  Get,
+  Put,
+  Delete,
 } from "tsoa";
 import { Request as ExpressRequest } from "express";
 import { Service } from "typedi";
 
-import { CompanySettingsService } from "@/Services/Companies/CompanySettingsService";
-import { UpdateCompanySettingsDto } from "@/Dtos/Companies/CompanyDto";
-import { CompanySettings } from "@/Entities/Companies/CompanySettings";
-import User from "@/Entities/Users/User";
+import { CompanySettingsService } from "../../Services/Companies/CompanySettingsService";
+import { UpdateCompanySettingsDto } from "../../Dtos/Companies/CompanyDto";
+import { CompanySettings } from "../../Entities/Companies/CompanySettings";
+import User from "../../Entities/Users/User";
 
 /**
  * @summary Controller for managing company settings.
@@ -53,7 +62,10 @@ export class CompanySettingsController extends Controller {
     @Request() request: ExpressRequest,
   ): Promise<CompanySettings> {
     const me = request.user as User;
-    return this.companySettingsService.updateCompanySettings(me, updateCompanySettingsDto);
+    return this.companySettingsService.updateCompanySettings(
+      me,
+      updateCompanySettingsDto,
+    );
   }
 
   /**

@@ -1,7 +1,7 @@
 import { Service } from "typedi";
-import { CompanySettings } from "@/Entities/Companies/CompanySettings";
-import { BaseRepository } from "@/Repositories/BaseRepository";
-import { NotFoundError } from "@/Errors/HttpErrors";
+import { CompanySettings } from "../../Entities/Companies/CompanySettings";
+import { BaseRepository } from "../../Repositories/BaseRepository";
+import { NotFoundError } from "../../Errors/HttpErrors";
 
 /**
  * @description Repository for managing CompanySettings entities. Extends BaseRepository to provide standard CRUD operations

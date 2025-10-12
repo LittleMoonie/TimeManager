@@ -1,7 +1,7 @@
 import { Service } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { ILike, Repository } from "typeorm";
-import { BaseRepository } from "../BaseRepository";
+import { BaseRepository } from "../../Repositories/BaseRepository";
 import { ActionCode } from "../../Entities/Timesheets/ActionCode";
 
 /**
@@ -24,7 +24,10 @@ export class ActionCodeRepository extends BaseRepository<ActionCode> {
    * @param code The unique code of the action code to find.
    * @returns A Promise that resolves to the ActionCode entity or null if not found.
    */
-  async findByCode(companyId: string, code: string): Promise<ActionCode | null> {
+  async findByCode(
+    companyId: string,
+    code: string,
+  ): Promise<ActionCode | null> {
     return this.repository.findOne({ where: { companyId, code } });
   }
 
@@ -52,6 +55,7 @@ export class ActionCodeRepository extends BaseRepository<ActionCode> {
         { companyId, name: ILike(term) },
         { companyId, code: ILike(term) },
       ],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       order: { createdAt: "DESC" } as any,
     });
   }
