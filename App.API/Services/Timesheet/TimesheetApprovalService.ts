@@ -122,4 +122,13 @@ export class TimesheetApprovalService {
   public async listApprovalsForApprover(companyId: string, approverId: string) {
     return this.timesheetApprovalRepository.findAllForApprover(companyId, approverId);
   }
+
+  /**
+   * @description Lists all timesheet approvals for a specific company.
+   * @param companyId The unique identifier of the company.
+   * @returns A Promise that resolves to an array of TimesheetApproval entities.
+   */
+  public async getAllTimesheetApprovals(companyId: string): Promise<TimesheetApproval[]> {
+    return this.timesheetApprovalRepository.findAllInCompany(companyId);
+  }
 }

@@ -44,6 +44,14 @@ export class CompanyService {
   }
 
   /**
+   * @description Gets all companies.
+   * @returns A Promise that resolves to an array of Company entities.
+   */
+  async getAllCompanies(): Promise<Company[]> {
+    return this.companyRepository.findAll();
+  }
+
+  /**
    * @description Creates a new company.
    * @param dto The CreateCompanyDto containing the data for the new company.
    * @returns A Promise that resolves to the newly created Company entity.
@@ -68,5 +76,27 @@ export class CompanyService {
     existing.name = dto.name ?? existing.name;
     existing.timezone = dto.timezone ?? existing.timezone;
     return this.companyRepository.save(existing);
+  }
+
+  /**
+   * @description Soft deletes a company by its ID.
+   * @param companyId The unique identifier of the company to soft delete.
+   * @returns A Promise that resolves when the soft deletion is complete.
+   * @throws {NotFoundError} If the company is not found.
+   */
+  async softDeleteCompany(companyId: string): Promise<void> {
+    const company = await this.companyRepository.getCompanyById(companyId);
+    await this.companyRepository.softDelete(company.id);
+  }
+
+  /**
+   * @description Permanently deletes a company by its ID. This operation is irreversible.
+   * @param companyId The unique identifier of the company to hard delete.
+   * @returns A Promise that resolves when the hard deletion is complete.
+   * @throws {NotFoundError} If the company is not found.
+   */
+  async hardDeleteCompany(companyId: string): Promise<void> {
+    const company = await this.companyRepository.getCompanyById(companyId);
+    await this.companyRepository.delete(company.id);
   }
 }

@@ -11,7 +11,7 @@ import { UserService } from "@/Services/User/UserService";
 import { UserResponseDto } from "@/Dtos/Users/UserResponseDto";
 
 /**
- * @summary Manage teams
+ * @summary Controller for managing teams.
  * @tags Teams
  * @security jwt
  */
@@ -27,7 +27,14 @@ export class TeamController extends Controller {
     super();
   }
 
-  /** Create */
+  /**
+   * @summary Creates a new team.
+   * @param createTeamDto The data for creating the team.
+   * @param request The Express request object, containing user information.
+   * @returns The newly created team.
+   * @throws {ForbiddenError} If the acting user does not have permission to create teams.
+   * @throws {UnprocessableEntityError} If validation of the DTO fails.
+   */
   @Post("/")
   @Security("jwt", ["admin", "manager"])
   public async createTeam(
@@ -43,7 +50,13 @@ export class TeamController extends Controller {
     );
   }
 
-  /** Get one */
+  /**
+   * @summary Retrieves a single team by its ID.
+   * @param id The ID of the team to retrieve.
+   * @param request The Express request object, containing user information.
+   * @returns The team details.
+   * @throws {NotFoundError} If the team is not found or does not belong to the specified company.
+   */
   @Get("/{id}")
   public async getTeam(
     @Path() id: string,
@@ -54,7 +67,11 @@ export class TeamController extends Controller {
     return this.teamService.getTeamById(actingUser.companyId, id);
   }
 
-  /** List */
+  /**
+   * @summary Retrieves all teams for the authenticated user's company.
+   * @param request The Express request object, containing user information.
+   * @returns An array of teams.
+   */
   @Get("/")
   public async getAllTeams(
     @Request() request: ExpressRequest,
@@ -64,7 +81,16 @@ export class TeamController extends Controller {
     return this.teamService.listTeams(actingUser.companyId, actingUser);
   }
 
-  /** Update */
+  /**
+   * @summary Updates an existing team.
+   * @param id The ID of the team to update.
+   * @param updateTeamDto The data for updating the team.
+   * @param request The Express request object, containing user information.
+   * @returns The updated team details.
+   * @throws {ForbiddenError} If the acting user does not have permission to update teams.
+   * @throws {UnprocessableEntityError} If validation of the DTO fails.
+   * @throws {NotFoundError} If the team is not found or does not belong to the specified company.
+   */
   @Put("/{id}")
   @Security("jwt", ["admin", "manager"])
   public async updateTeam(
@@ -82,7 +108,14 @@ export class TeamController extends Controller {
     );
   }
 
-  /** Delete */
+  /**
+   * @summary Deletes a team by its ID.
+   * @param id The ID of the team to delete.
+   * @param request The Express request object, containing user information.
+   * @returns A Promise that resolves upon successful deletion.
+   * @throws {ForbiddenError} If the acting user does not have permission to delete teams.
+   * @throws {NotFoundError} If the team is not found or does not belong to the specified company.
+   */
   @Delete("/{id}")
   @Security("jwt", ["admin", "manager"])
   public async deleteTeam(

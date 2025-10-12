@@ -16,7 +16,7 @@ import { ActiveSessionResponseDto } from "@/Dtos/Users/UserDto";
 import User from "@/Entities/Users/User";
 
 /**
- * @summary Manage your active refresh-token sessions.
+ * @summary Controller for managing active refresh-token sessions.
  * @tags Active Sessions
  * @security jwt
  */
@@ -30,7 +30,9 @@ export class ActiveSessionsController extends Controller {
   }
 
   /**
-   * @summary List all of my active sessions (company-scoped).
+   * @summary Retrieves all active sessions for the authenticated user within their company.
+   * @param request The Express request object, containing user information.
+   * @returns An array of active session details.
    */
   @Get("/")
   public async getAllUserSessions(
@@ -41,7 +43,11 @@ export class ActiveSessionsController extends Controller {
   }
 
   /**
-   * @summary Revoke a specific session (by token hash) within my company.
+   * @summary Revokes a specific active session by its token hash within the authenticated user's company.
+   * @param tokenHash The hash of the refresh token to revoke.
+   * @param request The Express request object, containing user information.
+   * @returns A Promise that resolves upon successful revocation.
+   * @throws {NotFoundError} If the session is not found.
    */
   @Delete("/{tokenHash}")
   public async revokeActiveSession(

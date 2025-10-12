@@ -21,7 +21,7 @@ import { Permission } from "@/Entities/Roles/Permission";
 import User from "@/Entities/Users/User";
 
 /**
- * @summary Manage permissions (company-scoped)
+ * @summary Controller for managing permissions within a company.
  * @tags Permissions
  * @security jwt
  */
@@ -33,7 +33,14 @@ export class PermissionController extends Controller {
     super();
   }
 
-  /** Create a permission */
+  /**
+   * @summary Creates a new permission.
+   * @param body The data for creating the permission.
+   * @param request The Express request object, containing user information.
+   * @returns The newly created permission.
+   * @throws {ForbiddenError} If the current user does not have 'create_permission' permission.
+   * @throws {UnprocessableEntityError} If validation of the DTO fails.
+   */
   @Post("/")
   @Security("jwt", ["admin"])
   @SuccessResponse("201", "Permission created successfully")
@@ -51,7 +58,13 @@ export class PermissionController extends Controller {
     return perm;
   }
 
-  /** Get a permission by id */
+  /**
+   * @summary Retrieves a permission by its ID.
+   * @param id The ID of the permission to retrieve.
+   * @param request The Express request object, containing user information.
+   * @returns The permission details.
+   * @throws {NotFoundError} If the permission is not found or does not belong to the specified company.
+   */
   @Get("/{id}")
   @Security("jwt", ["admin"])
   public async getPermission(
@@ -62,7 +75,11 @@ export class PermissionController extends Controller {
     return this.permissionService.getPermissionById(me.companyId, id);
   }
 
-  /** List all permissions in my company */
+  /**
+   * @summary Retrieves all permissions in the authenticated user's company.
+   * @param request The Express request object, containing user information.
+   * @returns An array of permissions.
+   */
   @Get("/")
   @Security("jwt", ["admin"])
   public async getAllPermissions(
@@ -72,7 +89,16 @@ export class PermissionController extends Controller {
     return this.permissionService.getAllPermissions(me.companyId);
   }
 
-  /** Update a permission */
+  /**
+   * @summary Updates an existing permission.
+   * @param id The ID of the permission to update.
+   * @param body The data for updating the permission.
+   * @param request The Express request object, containing user information.
+   * @returns The updated permission details.
+   * @throws {ForbiddenError} If the current user does not have 'update_permission' permission.
+   * @throws {UnprocessableEntityError} If validation of the DTO fails.
+   * @throws {NotFoundError} If the permission is not found or not found after update.
+   */
   @Put("/{id}")
   @Security("jwt", ["admin"])
   public async updatePermission(
@@ -89,7 +115,14 @@ export class PermissionController extends Controller {
     );
   }
 
-  /** Delete a permission */
+  /**
+   * @summary Deletes a permission by its ID.
+   * @param id The ID of the permission to delete.
+   * @param request The Express request object, containing user information.
+   * @returns A Promise that resolves upon successful deletion.
+   * @throws {ForbiddenError} If the current user does not have 'delete_permission' permission.
+   * @throws {NotFoundError} If the permission is not found.
+   */
   @Delete("/{id}")
   @Security("jwt", ["admin"])
   @SuccessResponse("200", "Permission deleted successfully")

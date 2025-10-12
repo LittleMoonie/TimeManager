@@ -31,6 +31,21 @@ export class RolePermissionService {
   }
 
   /**
+   * @description Retrieves a role-permission association by its unique identifier within a specific company.
+   * @param companyId The unique identifier of the company.
+   * @param id The unique identifier of the role-permission association.
+   * @returns A Promise that resolves to the RolePermission entity.
+   * @throws {NotFoundError} If the role-permission association is not found or does not belong to the specified company.
+   */
+  public async getRolePermissionById(companyId: string, id: string): Promise<RolePermission> {
+    const link = await this.rolePermissionRepository.findById(id);
+    if (!link || link.companyId !== companyId) {
+      throw new NotFoundError("RolePermission not found");
+    }
+    return link;
+  }
+
+  /**
    * @description Creates a new role-permission association. Requires 'create_role_permission' permission.
    * If the association already exists, it returns the existing one (idempotent).
    * @param currentUser The user performing the action.

@@ -1,54 +1,75 @@
 import {
-  Body, Controller, Post, Route, Tags, SuccessResponse, Security, Request, Get, Path, Put,
+  Body, Controller, Post, Route, Tags, SuccessResponse, Security, Request, Get, Put, Delete,
 } from "tsoa";
 import { Request as ExpressRequest } from "express";
 import { Service } from "typedi";
 
-import { CompanyService } from "@/Services/Companies/CompanyService";
-import { CreateCompanyDto, UpdateCompanyDto } from "@/Dtos/Companies/CompanyDto";
-import { Company } from "@/Entities/Companies/Company";
+import { CompanySettingsService } from "@/Services/Companies/CompanySettingsService";
+import { UpdateCompanySettingsDto } from "@/Dtos/Companies/CompanyDto";
+import { CompanySettings } from "@/Entities/Companies/CompanySettings";
+import User from "@/Entities/Users/User";
 
 /**
- * @summary Controller for managing company entities.
- * @tags Companies
+ * @summary Controller for managing company settings.
+ * @tags Company Settings
  * @security jwt
  */
-@Route("companies")
-@Tags("Companies")
+@Route("company-settings")
+@Tags("Company Settings")
 @Security("jwt")
 @Service()
-export class CompanyController extends Controller {
-  constructor(private companyService: CompanyService) {
+export class CompanySettingsController extends Controller {
+  constructor(private companySettingsService: CompanySettingsService) {
     super();
   }
 
-  /** Create a new company */
-  @Post("/")
-  @Security("jwt", ["admin"])
-  @SuccessResponse("201", "Company created successfully")
-  public async createCompany(
-    @Body() createCompanyDto: CreateCompanyDto,
-    @Request() _request: ExpressRequest,
-  ): Promise<Company> {
-    const company = await this.companyService.createCompany(createCompanyDto);
-    this.setStatus(201);
-    return company;
+  /**
+   * @summary Retrieves the company settings for the authenticated user's company.
+   * @param request The Express request object, containing user information.
+   * @returns The company settings.
+   * @throws {NotFoundError} If company settings are not found.
+   */
+  @Get("/")
+  public async getCompanySettings(
+    @Request() request: ExpressRequest,
+  ): Promise<CompanySettings> {
+    const me = request.user as User;
+    return this.companySettingsService.getCompanySettings(me.companyId);
   }
 
-  /** Get a company by id */
-  @Get("/{id}")
-  public async getCompany(@Path() id: string): Promise<Company> {
-    return this.companyService.getCompanyById(id);
+  /**
+   * @summary Updates the company settings for the authenticated user's company.
+   * @param updateCompanySettingsDto The data for updating the company settings.
+   * @param request The Express request object, containing user information.
+   * @returns The updated company settings.
+   * @throws {ForbiddenError} If the user does not have permission to update company settings.
+   * @throws {UnprocessableEntityError} If validation fails.
+   * @throws {NotFoundError} If company settings are not found.
+   */
+  @Put("/")
+  @Security("jwt", ["admin", "manager"])
+  public async updateCompanySettings(
+    @Body() updateCompanySettingsDto: UpdateCompanySettingsDto,
+    @Request() request: ExpressRequest,
+  ): Promise<CompanySettings> {
+    const me = request.user as User;
+    return this.companySettingsService.updateCompanySettings(me, updateCompanySettingsDto);
   }
 
-  /** Update a company */
-  @Put("/{id}")
+  /**
+   * @summary Deletes the company settings for the authenticated user's company.
+   * @param request The Express request object, containing user information.
+   * @returns A Promise that resolves when the deletion is complete.
+   * @throws {NotFoundError} If company settings are not found.
+   */
+  @Delete("/")
   @Security("jwt", ["admin"])
-  public async updateCompany(
-    @Path() id: string,
-    @Body() updateCompanyDto: UpdateCompanyDto,
-    @Request() _request: ExpressRequest,
-  ): Promise<Company> {
-    return this.companyService.updateCompany(id, updateCompanyDto);
+  @SuccessResponse("204", "Company settings deleted successfully")
+  public async deleteCompanySettings(
+    @Request() request: ExpressRequest,
+  ): Promise<void> {
+    const me = request.user as User;
+    await this.companySettingsService.deleteCompanySettings(me.companyId);
+    this.setStatus(204);
   }
 }

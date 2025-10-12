@@ -22,7 +22,13 @@ export class CompanyController extends Controller {
     super();
   }
 
-  /** Create a new company */
+  /**
+   * @summary Creates a new company.
+   * @param createCompanyDto The data for creating the company.
+   * @param _request The Express request object (unused, but required by TSOA).
+   * @returns The newly created company.
+   * @throws {UnprocessableEntityError} If validation fails.
+   */
   @Post("/")
   @Security("jwt", ["admin"])
   @SuccessResponse("201", "Company created successfully")
@@ -35,13 +41,26 @@ export class CompanyController extends Controller {
     return company;
   }
 
-  /** Get a company by id */
+  /**
+   * @summary Retrieves a company by its ID.
+   * @param id The ID of the company to retrieve.
+   * @returns The company details.
+   * @throws {NotFoundError} If the company is not found.
+   */
   @Get("/{id}")
   public async getCompany(@Path() id: string): Promise<Company> {
     return this.companyService.getCompanyById(id);
   }
 
-  /** Update a company */
+  /**
+   * @summary Updates an existing company.
+   * @param id The ID of the company to update.
+   * @param updateCompanyDto The data for updating the company.
+   * @param _request The Express request object (unused, but required by TSOA).
+   * @returns The updated company details.
+   * @throws {UnprocessableEntityError} If validation fails.
+   * @throws {NotFoundError} If the company to update is not found.
+   */
   @Put("/{id}")
   @Security("jwt", ["admin"])
   public async updateCompany(

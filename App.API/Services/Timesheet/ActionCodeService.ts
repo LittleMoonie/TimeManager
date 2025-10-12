@@ -73,6 +73,21 @@ export class ActionCodeService {
   }
 
   /**
+   * @description Retrieves an action code by its unique identifier within a specific company.
+   * @param companyId The unique identifier of the company.
+   * @param id The unique identifier of the action code.
+   * @returns A Promise that resolves to the ActionCode entity.
+   * @throws {NotFoundError} If the action code is not found or does not belong to the specified company.
+   */
+  public async getActionCodeById(companyId: string, id: string): Promise<ActionCode> {
+    const actionCode = await this.actionCodeRepository.findById(id);
+    if (!actionCode || actionCode.companyId !== companyId) {
+      throw new NotFoundError("Action code not found");
+    }
+    return actionCode;
+  }
+
+  /**
    * @description Creates a new action code within a specified company.
    * @param companyId The unique identifier of the company.
    * @param actorUserId The unique identifier of the user creating the action code.

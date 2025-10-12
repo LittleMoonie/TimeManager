@@ -13,7 +13,11 @@ export class AnonymizationController extends Controller {
   }
 
   /**
-   * @summary Anonymizes a user's data and removes sensitive information (irreversible).
+   * @summary Anonymizes a user's data and removes sensitive information. This is a permanent and irreversible action.
+   * @param userId The ID of the user to anonymize.
+   * @param request The Express request object, containing user information.
+   * @returns A Promise that resolves upon successful anonymization.
+   * @throws {NotFoundError} If the user is not found or does not belong to the authenticated user's company.
    */
   @Delete("/{userId}")
   @Security("jwt", ["admin"])

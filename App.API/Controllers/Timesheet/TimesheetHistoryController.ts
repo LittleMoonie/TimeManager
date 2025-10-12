@@ -7,7 +7,7 @@ import { TimesheetHistoryRepository } from "@/Repositories/Timesheets/TimesheetH
 import User from "@/Entities/Users/User";
 
 /**
- * @summary Retrieve history events (company-scoped).
+ * @summary Controller for retrieving timesheet history events.
  * @tags Timesheet History
  * @security jwt
  */
@@ -21,8 +21,12 @@ export class TimesheetHistoryController extends Controller {
   }
 
   /**
-   * @summary Filter history by target
-   * @example body { "targetType": "Timesheet", "targetId": "uuid" }
+   * @summary Filters and retrieves timesheet history events by a specific target (e.g., Timesheet, TimesheetEntry).
+   * @param request The Express request object, containing user information.
+   * @param body The request body containing the target type and ID to filter history by.
+   * @param body.targetType The type of the target entity (e.g., "Timesheet", "TimesheetEntry", "TimesheetApproval", "ActionCode").
+   * @param body.targetId The unique identifier of the target entity.
+   * @returns An array of TimesheetHistory entities matching the filter criteria.
    */
   @Post("/filter")
   public async listHistory(

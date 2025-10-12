@@ -5,12 +5,12 @@ import logger from "../Utils/Logger";
 import "reflect-metadata";
 import { Container } from "typedi";
 import { Server } from "http";
+import { RegisterRoutes } from "@Routes/Generated/routes";
 
 let RegisterRoutes: (app: express.Application) => void;
 
 try {
   // Try importing TSOA routes
-import { RegisterRoutes } from "../Routes/Generated/routes";
 } catch (err) {
   console.warn("⚠️ Skipping TSOA route registration in test mode:", (err as Error).message);
   RegisterRoutes = () => {};

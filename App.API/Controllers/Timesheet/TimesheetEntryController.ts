@@ -20,7 +20,7 @@ import { TimesheetEntry } from "@/Entities/Timesheets/TimesheetEntry";
 import User from "@/Entities/Users/User";
 
 /**
- * @summary Manage timesheet entries (company-scoped for creation).
+ * @summary Controller for managing timesheet entries.
  * @tags Timesheet Entries
  * @security jwt
  */
@@ -33,6 +33,13 @@ export class TimesheetEntryController extends Controller {
     super();
   }
 
+  /**
+   * @summary Creates a new timesheet entry for the authenticated user.
+   * @param dto The data for creating the timesheet entry.
+   * @param request The Express request object, containing user information.
+   * @returns The newly created timesheet entry.
+   * @throws {UnprocessableEntityError} If validation of the DTO fails.
+   */
   @Post("/")
   public async createTimesheetEntry(
     @Body() dto: CreateTimesheetEntryDto,
@@ -42,6 +49,12 @@ export class TimesheetEntryController extends Controller {
     return this.timesheetEntryService.createTimesheetEntry(me.companyId, me.id, dto);
   }
 
+  /**
+   * @summary Retrieves a single timesheet entry by its ID.
+   * @param id The ID of the timesheet entry to retrieve.
+   * @returns The timesheet entry details.
+   * @throws {NotFoundError} If the timesheet entry is not found.
+   */
   @Get("/{id}")
   public async getTimesheetEntry(
     @Path() id: string,
@@ -49,6 +62,14 @@ export class TimesheetEntryController extends Controller {
     return this.timesheetEntryService.getTimesheetEntryById(id);
   }
 
+  /**
+   * @summary Updates an existing timesheet entry.
+   * @param id The ID of the timesheet entry to update.
+   * @param dto The data for updating the timesheet entry.
+   * @returns The updated timesheet entry details.
+   * @throws {UnprocessableEntityError} If validation of the DTO fails.
+   * @throws {NotFoundError} If the timesheet entry to update is not found.
+   */
   @Put("/{id}")
   public async updateTimesheetEntry(
     @Path() id: string,
@@ -57,6 +78,12 @@ export class TimesheetEntryController extends Controller {
     return this.timesheetEntryService.updateTimesheetEntry(id, dto);
   }
 
+  /**
+   * @summary Deletes a timesheet entry by its ID.
+   * @param id The ID of the timesheet entry to delete.
+   * @returns A Promise that resolves upon successful deletion.
+   * @throws {NotFoundError} If the timesheet entry to delete is not found.
+   */
   @Delete("/{id}")
   public async deleteTimesheetEntry(
     @Path() id: string,

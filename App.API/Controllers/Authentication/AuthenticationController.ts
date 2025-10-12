@@ -18,6 +18,13 @@ export class AuthenticationController extends Controller {
     super();
   }
 
+  /**
+   * @summary Registers a new user.
+   * @param requestBody The registration details for the new user.
+   * @returns The newly registered user's details.
+   * @throws {UnprocessableEntityError} If validation fails or the email already exists.
+   * @throws {NotFoundError} If the default user status is not found.
+   */
   @Post("/register")
   @SuccessResponse("201", "User registered successfully")
   public async register(@Body() requestBody: RegisterDto): Promise<UserResponseDto> {
@@ -44,6 +51,14 @@ export class AuthenticationController extends Controller {
     };
   }
 
+  /**
+   * @summary Logs in a user and returns authentication tokens.
+   * @param requestBody The login credentials (email and password).
+   * @param request The Express request object, used to get IP and user-agent, and set cookies.
+   * @returns An object containing the JWT token and the authenticated user's profile.
+   * @throws {UnprocessableEntityError} If validation fails.
+   * @throws {AuthenticationError} If credentials are wrong, the user account is inactive, or JWT secret is not configured.
+   */
   @Post("/login")
   @SuccessResponse("200", "User logged in successfully")
   public async login(
@@ -84,6 +99,12 @@ export class AuthenticationController extends Controller {
     };
   }
 
+  /**
+   * @summary Logs out the current user by revoking their refresh token.
+   * @param request The Express request object, used to get refresh token from cookies/headers and user info.
+   * @returns A Promise that resolves when the logout is complete.
+   * @throws {NotFoundError} If no refresh token is provided or the session is not found.
+   */
   @Post("/logout")
   @Security("jwt")
   @SuccessResponse("204", "User logged out successfully")
@@ -116,6 +137,12 @@ export class AuthenticationController extends Controller {
     this.setStatus(204);
   }
 
+  /**
+   * @summary Retrieves the profile of the currently authenticated user.
+   * @param request The Express request object, containing the authenticated user's information.
+   * @returns The authenticated user's profile.
+   * @throws {ForbiddenError} If the user is not authenticated.
+   */
   @Get("/current")
   @Security("jwt")
   public async getCurrentUser(@Request() request: ExpressRequest): Promise<UserResponseDto> {

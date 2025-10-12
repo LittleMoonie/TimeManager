@@ -62,6 +62,15 @@ export class TimesheetEntryService {
   }
 
   /**
+   * @description Retrieves all timesheet entries for a specific timesheet.
+   * @param timesheetId The unique identifier of the timesheet.
+   * @returns A Promise that resolves to an array of TimesheetEntry entities.
+   */
+  public async getAllTimesheetEntriesForTimesheet(timesheetId: string): Promise<TimesheetEntry[]> {
+    return this.timesheetEntryRepository.findAllForTimesheet(timesheetId);
+  }
+
+  /**
    * @description Updates an existing timesheet entry.
    * @param id The unique identifier of the timesheet entry to update.
    * @param dto The UpdateTimesheetEntryDto containing the updated details for the entry.

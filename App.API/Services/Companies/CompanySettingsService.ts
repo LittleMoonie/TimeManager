@@ -4,7 +4,7 @@ import { validate } from "class-validator";
 import { CompanySettingsRepository } from "@/Repositories/Companies/CompanySettingsRepository";
 import { UpdateCompanySettingsDto } from "@/Dtos/Companies/CompanyDto";
 import { CompanySettings } from "@/Entities/Companies/CompanySettings";
-import { ForbiddenError, UnprocessableEntityError } from "@/Errors/HttpErrors";
+import { ForbiddenError, UnprocessableEntityError, NotFoundError } from "@/Errors/HttpErrors";
 import User from "@/Entities/Users/User";
 import { RolePermissionService } from "@/Services/RoleService/RolePermissionService";
 
@@ -40,6 +40,26 @@ export class CompanySettingsService {
   }
 
   /**
+   * @description Retrieves company settings for a specific company.
+   * @param companyId The unique identifier of the company.
+   * @returns A Promise that resolves to the CompanySettings entity.
+   * @throws {NotFoundError} If company settings are not found for the given company ID.
+   */
+  async getCompanySettings(companyId: string): Promise<CompanySettings> {
+    return this.companySettingsRepository.getCompanySettings(companyId);
+  }
+
+  /**
+   * @description Creates new company settings for a specific company.
+   * @param companyId The unique identifier of the company.
+   * @param settings The CompanySettings object to create.
+   * @returns A Promise that resolves to the newly created CompanySettings entity.
+   */
+  async createCompanySettings(companyId: string, settings: CompanySettings): Promise<CompanySettings> {
+    return this.companySettingsRepository.create({ ...settings, companyId });
+  }
+
+  /**
    * @description Updates the company settings for the acting user's company. Requires 'update_company_settings' permission.
    * @param actingUser The user performing the action.
    * @param dto The UpdateCompanySettingsDto containing the updated company settings data.
@@ -61,5 +81,16 @@ export class CompanySettingsService {
 
     const updated = await this.companySettingsRepository.update(actingUser.companyId, dto);
     return updated!;
+  }
+
+  /**
+   * @description Deletes company settings for a specific company.
+   * @param companyId The unique identifier of the company.
+   * @returns A Promise that resolves when the deletion is complete.
+   * @throws {NotFoundError} If company settings are not found for the given company ID.
+   */
+  async deleteCompanySettings(companyId: string): Promise<void> {
+    const settings = await this.companySettingsRepository.getCompanySettings(companyId);
+    await this.companySettingsRepository.delete(settings.id);
   }
 }
