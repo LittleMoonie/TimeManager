@@ -1,100 +1,172 @@
-/**
- * User Data Transfer Objects for API requests and responses
- */
-import { RoleResponse } from "./RoleDto";
-import { UserStatusResponseDto } from "./UserStatusDto";
-import { CompanyResponseDto } from "../Company/CompanyDto";
-
-/**
- * @summary Data transfer object for a user response.
- */
-export class UserDto {
+import {
+    IsEmail,
+    IsString,
+    IsNotEmpty,
+    MinLength,
+    IsUUID,
+    IsOptional,
+    Matches,
+  } from "class-validator";
+  import { PaginationQueryDto } from "../Common/PaginationDto";
+  
+  /** Common E.164 phone regex */
+  const E164 = /^\+?[1-9]\d{1,14}$/;
+  
   /**
-   * @description The unique identifier of the user.
-   * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+   * @summary Data transfer object for creating a new user.
    */
-  id!: string;
+  export class CreateUserDto {
+    /** @description The user's email address. */
+    @IsEmail()
+    email!: string;
+  
+    /** @description First name. */
+    @IsString()
+    @IsNotEmpty()
+    firstName!: string;
+  
+    /** @description Last name. */
+    @IsString()
+    @IsNotEmpty()
+    lastName!: string;
+  
+    /** @description Plain password (min 6 chars). */
+    @IsString()
+    @MinLength(6)
+    password!: string;
+  
+    /** @description Role id to assign. */
+    @IsUUID()
+    roleId!: string;
+  
+    /** @description Optional E.164 phone number. */
+    @IsString()
+    @IsOptional()
+    @Matches(E164, { message: "phoneNumber must be E.164" })
+    phoneNumber?: string;
+  }
+  
   /**
-   * @description The user's email address.
-   * @example "john.doe@example.com"
+   * @summary Data transfer object for updating an existing user.
    */
-  email!: string;
+  export class UpdateUserDto {
+    /** @description Optional updated email. */
+    @IsEmail()
+    @IsOptional()
+    email?: string;
+  
+    /** @description Optional updated first name. */
+    @IsString()
+    @IsNotEmpty()
+    @IsOptional()
+    firstName?: string;
+  
+    /** @description Optional updated last name. */
+    @IsString()
+    @IsNotEmpty()
+    @IsOptional()
+    lastName?: string;
+  
+    /** @description Optional updated password (min 6). */
+    @IsString()
+    @MinLength(6)
+    @IsOptional()
+    password?: string;
+  
+    /** @description Optional new role id. */
+    @IsUUID()
+    @IsOptional()
+    roleId?: string;
+  
+    /** @description Optional new status id. */
+    @IsUUID()
+    @IsOptional()
+    statusId?: string;
+  
+    /** @description Optional new company id. */
+    @IsUUID()
+    @IsOptional()
+    companyId?: string;
+  
+    /** @description Optional updated phone number. */
+    @IsString()
+    @IsOptional()
+    @Matches(E164, { message: "phoneNumber must be E.164" })
+    phoneNumber?: string;
+  }
+  
   /**
-   * @description The user's first name.
-   * @example "John"
+   * @summary DTO for user updating their own profile (no role/status/company).
    */
-  firstName!: string;
+  export class UpdateMeDto {
+    @IsEmail()
+    @IsOptional()
+    email?: string;
+  
+    @IsString()
+    @IsOptional()
+    firstName?: string;
+  
+    @IsString()
+    @IsOptional()
+    lastName?: string;
+  
+    @IsString()
+    @IsOptional()
+    @Matches(E164, { message: "phoneNumber must be E.164" })
+    phoneNumber?: string;
+  }
+  
   /**
-   * @description The user's last name.
-   * @example "Doe"
+   * @summary DTO for a user changing their own password.
    */
-  lastName!: string;
-  /**
-   * @description The ID of the company the user belongs to.
-   * @example "f0e9d8c7-b6a5-4321-fedc-ba9876543210"
-   */
-  companyId!: string;
-  /**
-   * @description Optional: The company details.
-   */
-  company?: CompanyResponseDto;
-  /**
-   * @description The ID of the role assigned to the user.
-   * @example "1a2b3c4d-5e6f-7890-abcd-ef1234567890"
-   */
-  roleId!: string;
-  /**
-   * @description Optional: The role details.
-   */
-  role?: RoleResponse;
-  /**
-   * @description The ID of the user's status.
-   * @example "2b3c4d5e-6f7a-8901-bcde-f1234567890a"
-   */
-  statusId!: string;
-  /**
-   * @description Optional: The user status details.
-   */
-  status?: UserStatusResponseDto;
-  /**
-   * @description The date and time when the user account was created.
-   * @example "2023-10-27T10:00:00Z"
-   */
-  createdAt!: Date;
-  /**
-   * @description Optional: The user's phone number.
-   * @example "+15551234567"
-   */
-  phone?: string;
-  /**
-   * @description Optional: The date and time of the user's last login.
-   * @example "2023-10-27T11:30:00Z"
-   */
-  lastLogin?: Date;
-}
-
-/**
- * @summary Generic API response for messages.
- */
-export class ApiResponse {
-  /**
-   * @description A message describing the API response.
-   * @example "Operation successful"
-   */
-  message!: string;
-}
-
-/**
- * @summary Data transfer object for authentication response.
- 保護 */
-export class AuthResponse {
-  /**
-   * @description The JWT authentication token.
-   * @example "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-   */
-  token!: string;
-  /**
-   * @description The details of the authenticated user.
-   */
-  user!: UserDto;
-}
+  export class ChangePasswordDto {
+    /** @description Current password. */
+    @IsString()
+    currentPassword!: string;
+  
+    /** @description New password (min 6). */
+    @IsString()
+    @MinLength(6)
+    newPassword!: string;
+  }
+  
+  /** @summary Filters + pagination for listing users. */
+  export class ListUsersQueryDto extends PaginationQueryDto {
+    /** @description Optional filter by role id. */
+    @IsUUID()
+    @IsOptional()
+    roleId?: string;
+  
+    /** @description Optional filter by status id. */
+    @IsUUID()
+    @IsOptional()
+    statusId?: string;
+  
+    /** @description Optional company-wide search (overrides base q semantics). */
+    @IsString()
+    @IsOptional()
+    declare q?: string;
+  }
+  
+  /** @summary Admin-driven session revocation by id. */
+  export class RevokeSessionDto {
+    /** @description Session id to revoke. */
+    @IsUUID()
+    sessionId!: string;
+  }
+  
+  /** @summary Data transfer object for an active session response. */
+  export class ActiveSessionResponseDto {
+    id!: string;
+    userId!: string;
+    companyId!: string;
+    ip?: string;
+    userAgent?: string;
+    deviceId?: string;
+    lastSeenAt?: Date;
+    createdAt?: Date;
+    expiresAt?: Date;
+    revokedAt?: Date;
+  }
+  

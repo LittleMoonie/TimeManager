@@ -1,7 +1,7 @@
 import { DataSource } from "typeorm";
-import { Role } from "../Entities/Users/Role";
-import { Permission } from "../Entities/Users/Permission";
-import { RolePermission } from "../Entities/Users/RolePermission";
+import { Role } from "../Entities/Roles/Role";
+import { Permission } from "../Entities/Roles/Permission";
+import { RolePermission } from "../Entities/Roles/RolePermission";
 import { Company } from "../Entities/Companies/Company";
 
 export async function seedRolesAndPermissions(

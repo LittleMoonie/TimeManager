@@ -12,12 +12,8 @@ export class UserStatus extends BaseEntity {
 
   @Column({ type: "text", nullable: true }) description?: string;
 
-  // For Authentication purposes
-  // Login guard can turn into
-  // if (!user.status.canLogin) throw Forbidden
-  @Column({ type: "boolean", default: true }) canLogin!: boolean; // ACTIVE = true, others = false
-
-  @Column({ type: "boolean", default: false }) isTerminal!: boolean; // TERMINATED = true
+  @Column({ type: "boolean", default: true }) canLogin!: boolean;
+  @Column({ type: "boolean", default: false }) isTerminal!: boolean;
 
   @OneToMany(() => User, (user) => user.status)
   users!: User[];

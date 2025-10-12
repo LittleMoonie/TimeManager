@@ -1,70 +1,82 @@
 import { Service } from "typedi";
-import { Repository } from "typeorm";
-import { InjectRepository } from "typeorm-typedi-extensions";
-import { LeaveRequest } from "../../Entities/Companies/LeaveRequest";
-import {
-  CreateLeaveRequestDto,
-  UpdateLeaveRequestDto,
-} from "../../Dtos/Company/LeaveRequestDto";
-import { NotFoundError } from "../../Errors/HttpErrors";
-import User from "../../Entities/Users/User";
+import { validate } from "class-validator";
+
+import { LeaveRequestRepository } from "@/Repositories/Companies/LeaveRequestRepository";
+import { CreateLeaveRequestDto, UpdateLeaveRequestDto } from "@/Dtos/Companies/CompanyDto";
+import { LeaveRequest } from "@/Entities/Companies/LeaveRequest";
+import { ForbiddenError, UnprocessableEntityError } from "@/Errors/HttpErrors";
+import User from "@/Entities/Users/User";
+import { RolePermissionService } from "@/Services/RoleService/RolePermissionService";
 
 @Service()
 export class LeaveRequestService {
   constructor(
-    @InjectRepository(LeaveRequest)
-    private leaveRequestRepository: Repository<LeaveRequest>,
+    private readonly leaveRequestRepository: LeaveRequestRepository,
+    private readonly rolePermissionService: RolePermissionService,
   ) {}
 
-  public async createLeaveRequest(
-    actingUser: User,
-    companyId: string,
-    createLeaveRequestDto: CreateLeaveRequestDto,
-  ): Promise<LeaveRequest> {
-    const leaveRequest = this.leaveRequestRepository.create({
-      ...createLeaveRequestDto,
-      companyId,
-      userId: actingUser.id,
-    });
-    return this.leaveRequestRepository.save(leaveRequest);
-  }
-
-  public async getLeaveRequestById(
-    companyId: string,
-    id: string,
-  ): Promise<LeaveRequest> {
-    const leaveRequest = await this.leaveRequestRepository.findOne({
-      where: { id, companyId },
-    });
-    if (!leaveRequest) {
-      throw new NotFoundError("Leave request not found");
+  private async ensureValidation(dto: unknown) {
+    const errors = await validate(dto as object);
+    if (errors.length > 0) {
+      throw new UnprocessableEntityError(
+        `Validation error: ${errors.map(e => e.toString()).join(", ")}`
+      );
     }
-    return leaveRequest;
   }
 
-  public async getAllLeaveRequests(companyId: string): Promise<LeaveRequest[]> {
-    return this.leaveRequestRepository.find({ where: { companyId } });
-  }
-
-  public async updateLeaveRequest(
+  async createLeaveRequest(
     actingUser: User,
     companyId: string,
-    id: string,
-    updateLeaveRequestDto: UpdateLeaveRequestDto,
+    dto: CreateLeaveRequestDto,
   ): Promise<LeaveRequest> {
-    const leaveRequest = await this.getLeaveRequestById(companyId, id);
-    // Add authorization logic here if needed
-    Object.assign(leaveRequest, updateLeaveRequestDto);
-    return this.leaveRequestRepository.save(leaveRequest);
+    await this.ensureValidation(dto);
+
+    // Users can create their own; managers can create for others
+    if (
+      actingUser.id !== dto.userId &&
+      !(await this.rolePermissionService.checkPermission(actingUser, "create_other_leave_request"))
+    ) {
+      throw new ForbiddenError("User does not have permission to create leave requests for other users.");
+    }
+
+    return this.leaveRequestRepository.create({ companyId, ...dto });
   }
 
-  public async deleteLeaveRequest(
+  async updateLeaveRequest(
     actingUser: User,
     companyId: string,
-    id: string,
+    leaveRequestId: string,
+    dto: UpdateLeaveRequestDto,
+  ): Promise<LeaveRequest> {
+    await this.ensureValidation(dto);
+
+    const leaveRequest = await this.leaveRequestRepository.getLeaveRequestById(companyId, leaveRequestId);
+
+    if (
+      actingUser.id !== leaveRequest.userId &&
+      !(await this.rolePermissionService.checkPermission(actingUser, "update_other_leave_request"))
+    ) {
+      throw new ForbiddenError("User does not have permission to update leave requests for other users.");
+    }
+
+    const updated = await this.leaveRequestRepository.update(leaveRequestId, dto);
+    return updated!;
+  }
+
+  async deleteLeaveRequest(
+    actingUser: User,
+    companyId: string,
+    leaveRequestId: string,
   ): Promise<void> {
-    const leaveRequest = await this.getLeaveRequestById(companyId, id);
-    // Add authorization logic here if needed
-    await this.leaveRequestRepository.remove(leaveRequest);
+    const leaveRequest = await this.leaveRequestRepository.getLeaveRequestById(companyId, leaveRequestId);
+
+    if (
+      actingUser.id !== leaveRequest.userId &&
+      !(await this.rolePermissionService.checkPermission(actingUser, "delete_other_leave_request"))
+    ) {
+      throw new ForbiddenError("User does not have permission to delete leave requests for other users.");
+    }
+
+    await this.leaveRequestRepository.softDelete(leaveRequestId);
   }
 }

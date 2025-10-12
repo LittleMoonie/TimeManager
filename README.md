@@ -22,83 +22,10 @@ GoGoTime is a modern, full-stack application built with **TypeScript-first** app
 
 ## 🛠️ Technology Stack
 
-### 🎨 Frontend (`App.Web`)
-- **Framework**: React 19.2.0 with Vite
-- **Language**: TypeScript 5.9+
-- **UI Library**: Material-UI (MUI) v7
-- **State Management**: Redux Toolkit + React Redux
-- **Build Tool**: Vite 7+ with hot reload
-- **Testing**: Vitest + React Testing Library
-
-### ⚙️ Backend (`App.API`)
-- **Runtime**: Node.js 24.9+
-- **Framework**: Express.js 4+ with TypeScript
-- **Database**: PostgreSQL 18 with TypeORM 0.3+
-- **Documentation**: **tsoa** for OpenAPI auto-generation
-- **Authentication**: JWT with bcrypt password hashing
-- **Validation**: Joi schemas for request validation
-- **Process Manager**: PM2 for production
-
-### 🐳 Infrastructure (`App.Infra`)
-- **Containerization**: Docker with multi-stage builds
-- **Orchestration**: Docker Compose with watch mode
-- **Database**: PostgreSQL 18-alpine
-- **Development**: Hot reloading and file sync
-- **Production**: Optimized builds with health checks
-
-### 📚 Documentation (`App.Docs/`)
-- **Organized Structure**: API, Backend, Frontend, Infrastructure, Guides
-- **Auto-Generated**: OpenAPI specs from code annotations
-- **Interactive**: Swagger UI at `/api/docs`
-- **Comprehensive**: Setup, troubleshooting, and deployment guides
-
-## 🚀 Quick Start (2 minutes)
-
-### Prerequisites
-- **Docker** and **Docker Compose** (recommended)
-- **Node.js 24.9+** and **Yarn 4.10.3+** (for local development)
-- **Git** for version control
-
-### 🐳 Docker Setup (Recommended)
-   ```bash
-# 1. Clone and navigate
-git clone <repository-url>
-cd T-DEV-700-project-NCY_8
-
-# 2. Start all services with hot reloading
-cd App.Infra
-docker compose up --build --watch
-
-# 3. That's it! 🎉
-```
-
-**🌐 Access Your Application:**
-- **Web App**: http://localhost:3000
-- **API Server**: http://localhost:4000  
-- **📖 API Documentation**: http://localhost:4000/api/docs ✨
-- **Database**: localhost:5432
-
-### ⚡ Local Development (Alternative)
-   ```bash
-# 1. Start database only
-cd App.Infra && docker compose up -d db
-
-# 2. Start API (auto-generates OpenAPI docs)
-cd App.API && yarn dev
-
-# 3. Start frontend (auto-generates API client)  
-cd App.Web && yarn dev
-```
-
-## 🏗️ Project Structure
-
-```
-GoGoTime/
 ├── 📁 App.API/                  # 🔌 Express.js + TypeORM Backend
-│   ├── src/
-│   │   ├── controllers/         # 🎯 API endpoints with tsoa decorators
-│   │   ├── dto/                 # 📋 TypeScript data transfer objects
-│   │   ├── models/              # 🗄️ TypeORM database entities
+│   ├── controllers/         # 🎯 API endpoints with tsoa decorators
+│   ├── dto/                 # 📋 TypeScript data transfer objects
+│   ├── entities/              # 🗄️ TypeORM database entities
 │   │   ├── services/            # ⚙️ Business logic services
 │   │   └── routes/generated/    # ✨ Auto-generated tsoa routes
 │   ├── swagger.json             # ✨ Auto-generated OpenAPI spec
@@ -332,7 +259,7 @@ App.Docs/
 - **🔐 JWT Authentication**: Secure token-based auth
 - **🛡️ Password Hashing**: bcrypt with salt rounds
 - **⚡ Rate Limiting**: Protection against abuse
-- **🔍 Input Validation**: Joi schema validation
+- **🔍 Input Validation**: Zod schemas for request validation
 - **🚨 Security Headers**: CORS, CSP, and security middleware
 
 ## 📞 Support & Community

@@ -71,13 +71,14 @@ module.exports = {
 ```typescript
 // tests/services/user.service.test.ts
 import { UserService } from '@/services/user.service';
-import { prisma } from '@/lib/prisma';
+import { AppDataSource } from '@/data-source';
+import { User } from '@/entities/User';
 import { hashPassword } from '@/utils/auth';
 
-jest.mock('@/lib/prisma');
+jest.mock('@/data-source');
 jest.mock('@/utils/auth');
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+const mockUserRepository = AppDataSource.getRepository(User);
 const mockHashPassword = hashPassword as jest.MockedFunction<typeof hashPassword>;
 
 describe('UserService', () => {
@@ -99,7 +100,7 @@ describe('UserService', () => {
       };
 
       mockHashPassword.mockResolvedValue('hashedPassword');
-      mockPrisma.user.create.mockResolvedValue({
+      (mockUserRepository.save as jest.Mock).mockResolvedValue({
         id: 'user-123',
         email: userData.email,
         passwordHash: 'hashedPassword',
@@ -116,14 +117,12 @@ describe('UserService', () => {
 
       // Assert
       expect(mockHashPassword).toHaveBeenCalledWith(userData.password);
-      expect(mockPrisma.user.create).toHaveBeenCalledWith({
-        data: {
-          email: userData.email,
-          passwordHash: 'hashedPassword',
-          name: userData.name,
-          role: userData.role,
-          status: 'ACTIVE',
-        },
+      expect(mockUserRepository.save).toHaveBeenCalledWith({
+        email: userData.email,
+        passwordHash: 'hashedPassword',
+        name: userData.name,
+        role: userData.role,
+        status: 'ACTIVE',
       });
       expect(result.email).toBe(userData.email);
       expect(result.passwordHash).toBe('hashedPassword');
@@ -138,9 +137,9 @@ describe('UserService', () => {
         role: 'EMPLOYEE' as const,
       };
 
-      mockPrisma.user.create.mockRejectedValue({
-        code: 'P2002',
-        meta: { target: ['email'] },
+      (mockUserRepository.save as jest.Mock).mockRejectedValue({
+        code: '23505', // PostgreSQL unique violation error code
+        detail: 'Key (email)=(existing@example.com) already exists.',
       });
 
       // Act & Assert
@@ -180,13 +179,13 @@ describe('UserService', () => {
         deletedAt: null,
       };
 
-      mockPrisma.user.findUnique.mockResolvedValue(mockUser);
+      (mockUserRepository.findOne as jest.Mock).mockResolvedValue(mockUser);
 
       // Act
       const result = await userService.getUserById(userId);
 
       // Assert
-      expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
+      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
         where: { id: userId },
       });
       expect(result).toEqual(mockUser);
@@ -195,7 +194,7 @@ describe('UserService', () => {
     it('should return null when user not found', async () => {
       // Arrange
       const userId = 'non-existent';
-      mockPrisma.user.findUnique.mockResolvedValue(null);
+      (mockUserRepository.findOne as jest.Mock).mockResolvedValue(null);
 
       // Act
       const result = await userService.getUserById(userId);
@@ -391,7 +390,9 @@ describe('Validation Utils', () => {
 // tests/integration/api/users.test.ts
 import request from 'supertest';
 import { app } from '@/app';
-import { prisma } from '@/lib/prisma';
+import { AppDataSource } from '@/data-source';
+import { User } from '@/entities/User';
+import { Organization } from '@/entities/Organization';
 import { generateTestToken } from '@/tests/utils/auth';
 
 describe('Users API', () => {
@@ -405,20 +406,19 @@ describe('Users API', () => {
 
   beforeEach(async () => {
     // Clean up database
-    await prisma.user.deleteMany();
-    await prisma.Company.deleteMany();
+    await AppDataSource.getRepository(User).clear();
+    await AppDataSource.getRepository(Organization).clear();
   });
 
   describe('GET /api/v1/users', () => {
     it('should return users for admin', async () => {
       // Arrange
-      const testUser = await prisma.user.create({
-        data: {
-          email: 'test@example.com',
-          passwordHash: 'hashedPassword',
-          name: 'Test User',
-          role: 'EMPLOYEE',
-        },
+      const userRepository = AppDataSource.getRepository(User);
+      const testUser = await userRepository.save({
+        email: 'test@example.com',
+        passwordHash: 'hashedPassword',
+        name: 'Test User',
+        role: 'EMPLOYEE',
       });
 
       // Act
@@ -448,14 +448,13 @@ describe('Users API', () => {
 
     it('should support pagination', async () => {
       // Arrange - create multiple users
+      const userRepository = AppDataSource.getRepository(User);
       for (let i = 0; i < 25; i++) {
-        await prisma.user.create({
-          data: {
-            email: `user${i}@example.com`,
-            passwordHash: 'hashedPassword',
-            name: `User ${i}`,
-            role: 'EMPLOYEE',
-          },
+        await userRepository.save({
+          email: `user${i}@example.com`,
+          passwordHash: 'hashedPassword',
+          name: `User ${i}`,
+          role: 'EMPLOYEE',
         });
       }
 
@@ -493,7 +492,8 @@ describe('Users API', () => {
       expect(response.body.data.passwordHash).toBeUndefined();
 
       // Verify user was created in database
-      const createdUser = await prisma.user.findUnique({
+      const userRepository = AppDataSource.getRepository(User);
+      const createdUser = await userRepository.findOne({
         where: { email: userData.email },
       });
       expect(createdUser).toBeTruthy();
@@ -525,13 +525,12 @@ describe('Users API', () => {
 
     it('should return 409 for duplicate email', async () => {
       // Arrange
-      await prisma.user.create({
-        data: {
-          email: 'existing@example.com',
-          passwordHash: 'hashedPassword',
-          name: 'Existing User',
-          role: 'EMPLOYEE',
-        },
+      const userRepository = AppDataSource.getRepository(User);
+      await userRepository.save({
+        email: 'existing@example.com',
+        passwordHash: 'hashedPassword',
+        name: 'Existing User',
+        role: 'EMPLOYEE',
       });
 
       const userData = {
@@ -553,13 +552,12 @@ describe('Users API', () => {
   describe('PUT /api/v1/users/:id', () => {
     it('should update user with valid data', async () => {
       // Arrange
-      const user = await prisma.user.create({
-        data: {
-          email: 'test@example.com',
-          passwordHash: 'hashedPassword',
-          name: 'Test User',
-          role: 'EMPLOYEE',
-        },
+      const userRepository = AppDataSource.getRepository(User);
+      const user = await userRepository.save({
+        email: 'test@example.com',
+        passwordHash: 'hashedPassword',
+        name: 'Test User',
+        role: 'EMPLOYEE',
       });
 
       const updateData = {
@@ -579,7 +577,7 @@ describe('Users API', () => {
       expect(response.body.data.role).toBe(updateData.role);
 
       // Verify database was updated
-      const updatedUser = await prisma.user.findUnique({
+      const updatedUser = await userRepository.findOne({
         where: { id: user.id },
       });
       expect(updatedUser?.name).toBe(updateData.name);
@@ -602,13 +600,12 @@ describe('Users API', () => {
   describe('DELETE /api/v1/users/:id', () => {
     it('should soft delete user', async () => {
       // Arrange
-      const user = await prisma.user.create({
-        data: {
-          email: 'test@example.com',
-          passwordHash: 'hashedPassword',
-          name: 'Test User',
-          role: 'EMPLOYEE',
-        },
+      const userRepository = AppDataSource.getRepository(User);
+      const user = await userRepository.save({
+        email: 'test@example.com',
+        passwordHash: 'hashedPassword',
+        name: 'Test User',
+        role: 'EMPLOYEE',
       });
 
       // Act
@@ -618,13 +615,14 @@ describe('Users API', () => {
         .expect(204);
 
       // Assert - user should be soft deleted
-      const deletedUser = await prisma.user.findUnique({
+      const deletedUser = await userRepository.findOne({
         where: { id: user.id },
+        withDeleted: true, // Include soft deleted records
       });
       expect(deletedUser?.deletedAt).toBeTruthy();
 
       // User should not appear in regular queries
-      const users = await prisma.user.findMany();
+      const users = await userRepository.find();
       expect(users).toHaveLength(0);
     });
   });
@@ -636,36 +634,35 @@ describe('Users API', () => {
 ```typescript
 // tests/integration/database/user.repository.test.ts
 import { UserRepository } from '@/repositories/user.repository';
-import { prisma } from '@/lib/prisma';
+import { AppDataSource } from '@/data-source';
+import { User } from '@/entities/User';
 import { createTestDatabase, cleanupTestDatabase } from '@/tests/utils/database';
 
 describe('UserRepository', () => {
   let userRepository: UserRepository;
-  let testDb: any;
+  let dataSource: AppDataSource;
 
   beforeAll(async () => {
-    testDb = await createTestDatabase();
-    userRepository = new UserRepository();
+    dataSource = await createTestDatabase();
+    userRepository = new UserRepository(dataSource.getRepository(User));
   });
 
   afterAll(async () => {
-    await cleanupTestDatabase(testDb);
+    await cleanupTestDatabase(dataSource);
   });
 
   beforeEach(async () => {
-    await prisma.user.deleteMany();
+    await dataSource.getRepository(User).clear();
   });
 
   describe('findByEmail', () => {
     it('should find user by email', async () => {
       // Arrange
-      const user = await prisma.user.create({
-        data: {
-          email: 'test@example.com',
-          passwordHash: 'hashedPassword',
-          name: 'Test User',
-          role: 'EMPLOYEE',
-        },
+      const user = await dataSource.getRepository(User).save({
+        email: 'test@example.com',
+        passwordHash: 'hashedPassword',
+        name: 'Test User',
+        role: 'EMPLOYEE',
       });
 
       // Act
@@ -685,8 +682,7 @@ describe('UserRepository', () => {
   describe('findActiveUsers', () => {
     it('should return only active users', async () => {
       // Arrange
-      await prisma.user.createMany({
-        data: [
+      await dataSource.getRepository(User).save([
           {
             email: 'active1@example.com',
             passwordHash: 'hashedPassword',
@@ -708,8 +704,7 @@ describe('UserRepository', () => {
             role: 'EMPLOYEE',
             status: 'INACTIVE',
           },
-        ],
-      });
+        ]);
 
       // Act
       const result = await userRepository.findActiveUsers();
@@ -723,13 +718,11 @@ describe('UserRepository', () => {
   describe('updateLastLogin', () => {
     it('should update last login timestamp', async () => {
       // Arrange
-      const user = await prisma.user.create({
-        data: {
-          email: 'test@example.com',
-          passwordHash: 'hashedPassword',
-          name: 'Test User',
-          role: 'EMPLOYEE',
-        },
+      const user = await dataSource.getRepository(User).save({
+        email: 'test@example.com',
+        passwordHash: 'hashedPassword',
+        name: 'Test User',
+        role: 'EMPLOYEE',
       });
 
       const loginTime = new Date();
@@ -738,7 +731,7 @@ describe('UserRepository', () => {
       await userRepository.updateLastLogin(user.id, loginTime);
 
       // Assert
-      const updatedUser = await prisma.user.findUnique({
+      const updatedUser = await dataSource.getRepository(User).findOne({
         where: { id: user.id },
       });
       expect(updatedUser?.lastLoginAt).toEqual(loginTime);
@@ -788,12 +781,12 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'pnpm dev',
+      command: 'yarn dev',
       port: 3000,
       reuseExistingServer: !process.env.CI,
     },
     {
-      command: 'pnpm dev:api',
+      command: 'yarn dev:api',
       port: 3001,
       reuseExistingServer: !process.env.CI,
     },
@@ -1303,7 +1296,8 @@ describe('Authentication Security', () => {
         .expect(201);
 
       // Verify password is hashed in database
-      const user = await prisma.user.findUnique({
+      const userRepository = AppDataSource.getRepository(User);
+      const user = await userRepository.findOne({
         where: { email: userData.email },
       });
 
@@ -1398,33 +1392,35 @@ describe('Authentication Security', () => {
 
 ```typescript
 // tests/utils/test-helpers.ts
-import { PrismaClient } from '@prisma/client';
+import { DataSource } from 'typeorm';
+import { User } from '@/entities/User';
+import { Organization } from '@/entities/Organization';
 import jwt from 'jsonwebtoken';
 
-export const createTestDatabase = async () => {
-  const testDb = new PrismaClient({
-    datasources: {
-      db: {
-        url: process.env.TEST_DATABASE_URL,
-      },
-    },
+export const createTestDatabase = async (): Promise<DataSource> => {
+  const dataSource = new DataSource({
+    type: 'postgres',
+    host: process.env.TEST_DB_HOST || 'localhost',
+    port: parseInt(process.env.TEST_DB_PORT || '5432'),
+    username: process.env.TEST_DB_USERNAME || 'postgres',
+    password: process.env.TEST_DB_PASSWORD || 'postgres',
+    database: process.env.TEST_DB_DATABASE || 'ncy8_test',
+    synchronize: true,
+    logging: false,
+    entities: [User, Organization /* ... other entities */],
   });
 
-  await testDb.$connect();
-  return testDb;
+  await dataSource.initialize();
+  return dataSource;
 };
 
-export const cleanupTestDatabase = async (db: PrismaClient) => {
-  // Delete all data in reverse order of dependencies
-  await db.auditLog.deleteMany();
-  await db.task.deleteMany();
-  await db.project.deleteMany();
-  await db.CompanyMember.deleteMany();
-  await db.Company.deleteMany();
-  await db.session.deleteMany();
-  await db.user.deleteMany();
-  
-  await db.$disconnect();
+export const cleanupTestDatabase = async (dataSource: DataSource) => {
+  // Clear all data from tables
+  await dataSource.getRepository(User).clear();
+  await dataSource.getRepository(Organization).clear();
+  // ... clear other entities
+
+  await dataSource.destroy();
 };
 
 export const generateTestToken = async (role: string = 'EMPLOYEE') => {
@@ -1433,7 +1429,7 @@ export const generateTestToken = async (role: string = 'EMPLOYEE') => {
       userId: 'test-user-id',
       email: 'test@example.com',
       role,
-      CompanyId: 'test-org-id',
+      organizationId: 'test-org-id',
     },
     process.env.JWT_SECRET!,
     { expiresIn: '1h' }
@@ -1452,26 +1448,24 @@ export const generateExpiredToken = () => {
   );
 };
 
-export const createTestUser = async (overrides: any = {}) => {
-  return prisma.user.create({
-    data: {
-      email: 'test@example.com',
-      passwordHash: 'hashedPassword',
-      name: 'Test User',
-      role: 'EMPLOYEE',
-      ...overrides,
-    },
+export const createTestUser = async (dataSource: DataSource, overrides: any = {}) => {
+  const userRepository = dataSource.getRepository(User);
+  return userRepository.save({
+    email: 'test@example.com',
+    passwordHash: 'hashedPassword',
+    name: 'Test User',
+    role: 'EMPLOYEE',
+    ...overrides,
   });
 };
 
-export const createTestCompany = async (overrides: any = {}) => {
-  return prisma.Company.create({
-    data: {
-      name: 'Test Company',
-      slug: 'test-org',
-      ownerId: 'test-user-id',
-      ...overrides,
-    },
+export const createTestOrganization = async (dataSource: DataSource, overrides: any = {}) => {
+  const organizationRepository = dataSource.getRepository(Organization);
+  return organizationRepository.save({
+    name: 'Test Organization',
+    slug: 'test-org',
+    ownerId: 'test-user-id',
+    ...overrides,
   });
 };
 ```
@@ -1558,7 +1552,7 @@ export const mockManagerUser = {
     "test:e2e:ui": "playwright test --ui",
     "test:load": "k6 run tests/load/api-load.test.js",
     "test:security": "jest --testPathPattern=tests/security",
-    "test:all": "pnpm test:unit && pnpm test:integration && pnpm test:e2e"
+    "test:all": "yarn test:unit && yarn test:integration && yarn test:e2e"
   }
 }
 ```

@@ -13,7 +13,7 @@ import { CompanySettingsService } from "../../Services/Company/CompanySettingsSe
 import {
   CompanySettingsResponseDto,
   UpdateCompanySettingsDto,
-} from "../../Dtos/Company/CompanySettingsDto";
+} from "../../Dtos/Companies/CompanySettingsDto";
 import { UserService } from "../../Services/User/UserService";
 import { Service } from "typedi";
 import { UserDto } from "../../Dtos/Users/UserDto";

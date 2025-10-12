@@ -10,7 +10,7 @@ import {
 } from "tsoa";
 import { Request as ExpressRequest } from "express";
 import { ActiveSessionService } from "../../Services/User/ActiveSessionService";
-import { ActiveSessionResponseDto } from "../../Dtos/Users/ActiveSessionDto";
+import { ActiveSessionResponseDto } from "../../Dtos/Users/ActiveSessionResponseDto";
 import { Service } from "typedi";
 import { UserDto } from "../../Dtos/Users/UserDto";
 

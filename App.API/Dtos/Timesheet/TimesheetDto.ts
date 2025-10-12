@@ -6,141 +6,194 @@ import {
   IsInt,
   Min,
   Max,
+  IsIn,
+  IsUUID,
+  IsEnum,
+  IsISO8601,
+  IsObject,
 } from "class-validator";
+import { ApprovalStatus } from "../../Entities/Timesheets/TimesheetApproval";
+import { WorkMode } from "../../Entities/Timesheets/TimesheetEntry";
 
-/**
- * @summary Data transfer object for creating a new timesheet.
- */
+/* --------------------------------- ActionCode --------------------------------- */
+
+export class CreateActionCodeDto {
+  @IsString()
+  @IsNotEmpty()
+  name!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  code!: string;
+}
+
+export class UpdateActionCodeDto {
+  @IsString()
+  @IsNotEmpty()
+  name!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  code!: string;
+}
+
+/* -------------------------------- Timesheet(s) -------------------------------- */
+
 export class CreateTimesheetDto {
-  /**
-   * @description The start date of the timesheet period (ISO 8601 format).
-   * @example "2023-10-01T00:00:00Z"
-   */
   @IsDateString()
   @IsNotEmpty()
   periodStart!: string;
 
-  /**
-   * @description The end date of the timesheet period (ISO 8601 format).
-   * @example "2023-10-07T23:59:59Z"
-   */
   @IsDateString()
   @IsNotEmpty()
   periodEnd!: string;
 
-  /**
-   * @description Optional: Any notes associated with the timesheet.
-   * @example "Weekly timesheet for project Alpha."
-   */
   @IsString()
   @IsOptional()
   notes?: string;
 }
 
-/**
- * @summary Data transfer object for creating a new timesheet entry.
- */
+/* ------------------------------ Timesheet Entry ------------------------------- */
+
 export class CreateTimesheetEntryDto {
-  /**
-   * @description The ID of the action code for this entry.
-   * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
-   */
   @IsString()
   @IsNotEmpty()
   actionCodeId!: string;
 
-  /**
-   * @description The date of the timesheet entry (ISO 8601 format).
-   * @example "2023-10-02T09:00:00Z"
-   */
   @IsDateString()
   @IsNotEmpty()
   day!: string;
 
-  /**
-   * @description The duration of the entry in minutes (0-1440).
-   * @example 480
-   */
   @IsInt()
   @Min(0)
   @Max(1440)
   durationMin!: number;
 
-  /**
-   * @description Optional: Any notes for the timesheet entry.
-   * @example "Worked on feature X."
-   */
+  /** ISO 3166-1 alpha-2 */
+  @IsString()
+  @IsNotEmpty()
+  country!: string;
+
+  @IsOptional()
+  @IsIn(["office", "remote", "hybrid"])
+  workMode?: WorkMode;
+
   @IsString()
   @IsOptional()
   note?: string;
 }
 
-/**
- * @summary Data transfer object for updating an existing timesheet entry.
- */
 export class UpdateTimesheetEntryDto {
-  /**
-   * @description Optional: The updated ID of the action code for this entry.
-   * @example "f0e9d8c7-b6a5-4321-fedc-ba9876543210"
-   */
   @IsString()
   @IsOptional()
   actionCodeId?: string;
 
-  /**
-   * @description Optional: The updated date of the timesheet entry (ISO 8601 format).
-   * @example "2023-10-03T10:00:00Z"
-   */
   @IsDateString()
   @IsOptional()
   day?: string;
 
-  /**
-   * @description Optional: The updated duration of the entry in minutes (0-1440).
-   * @example 540
-   */
   @IsInt()
   @Min(0)
   @Max(1440)
   @IsOptional()
   durationMin?: number;
 
-  /**
-   * @description Optional: Any updated notes for the timesheet entry.
-   * @example "Completed feature X and started feature Y."
-   */
+  @IsString()
+  @IsOptional()
+  country?: string;
+
+  @IsOptional()
+  @IsIn(["office", "remote", "hybrid"])
+  workMode?: WorkMode;
+
   @IsString()
   @IsOptional()
   note?: string;
 }
 
-/**
- * @summary Data transfer object for a timesheet entry response.
- */
 export class TimesheetEntryResponseDto {
-  /**
-   * @description The unique identifier of the timesheet entry.
-   * @example "1a2b3c4d-5e6f-7890-abcd-ef1234567890"
-   */
   id!: string;
-  /**
-   * @description The ID of the action code for this entry.
-   * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
-   */
   actionCodeId!: string;
-  /**
-   * @description The date of the timesheet entry (ISO 8601 format).
-   * @example "2023-10-02T09:00:00Z"
-   */
   day!: string;
-  /**
-   * @description The duration of the entry in minutes.
-   * @example 480
-   */
   durationMin!: number;
-  /**
-   * @description Optional: Any notes for the timesheet entry.
-   * @example "Worked on feature X."
-   */
+  country!: string;
+  workMode!: WorkMode;
   note?: string;
+}
+
+/* ---------------------------- Timesheet Approvals ----------------------------- */
+
+export class CreateTimesheetApprovalDto {
+  @IsUUID()
+  @IsNotEmpty()
+  timesheetId!: string;
+
+  @IsUUID()
+  @IsNotEmpty()
+  approverId!: string;
+}
+
+export class UpdateTimesheetApprovalDto {
+  @IsEnum(ApprovalStatus)
+  @IsNotEmpty()
+  status!: ApprovalStatus;
+
+  @IsString()
+  @IsOptional()
+  reason?: string;
+}
+
+export class TimesheetApprovalResponseDto {
+  id!: string;
+  timesheetId!: string;
+  approverId!: string;
+  status!: ApprovalStatus;
+  reason?: string;
+  decidedAt?: Date;
+}
+
+/* ------------------------------- Record History ------------------------------- */
+
+const TARGET_TYPES = ["Timesheet", "TimesheetEntry", "TimesheetApproval", "ActionCode"] as const;
+type TargetType = typeof TARGET_TYPES[number];
+
+const ACTIONS = ["created", "updated", "submitted", "approved", "rejected", "deleted"] as const;
+type ActionType = typeof ACTIONS[number];
+
+export class RecordHistoryDto {
+  @IsIn(TARGET_TYPES as unknown as string[])
+  targetType!: TargetType;
+
+  @IsUUID()
+  targetId!: string;
+
+  @IsIn(ACTIONS as unknown as string[])
+  action!: ActionType;
+
+  @IsUUID()
+  userId!: string;
+
+  @IsOptional()
+  @IsUUID()
+  actorUserId?: string;
+
+  @IsOptional()
+  @IsString()
+  reason?: string;
+
+  @IsOptional()
+  @IsObject()
+  diff?: Record<string, string>;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, string>;
+
+  @IsOptional()
+  @IsISO8601()
+  occurredAt?: string;
+
+  @IsOptional()
+  @IsString()
+  hash?: string;
 }

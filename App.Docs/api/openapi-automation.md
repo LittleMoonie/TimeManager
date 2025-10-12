@@ -66,7 +66,8 @@ App.API/
 ├── swagger.json                    # ✅ Generated OpenAPI 3.0 spec
 ├── src/routes/generated/routes.ts  # ✅ Generated tsoa routes
 ├── src/controllers/UserController.ts # ✅ Annotated with tsoa decorators
-├── src/dto/UserDto.ts              # ✅ TypeScript DTOs
+├── src/entities/User.ts            # ✅ TypeORM Entities
+├── src/dtos/UserDto.ts             # ✅ TypeScript DTOs
 └── tsoa.json                       # ✅ tsoa configuration
 
 App.Web/

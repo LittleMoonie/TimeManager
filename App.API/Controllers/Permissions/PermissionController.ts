@@ -13,12 +13,12 @@ import {
   Delete,
 } from "tsoa";
 import { Request as ExpressRequest } from "express";
-import { PermissionService } from "../../Services/PermissionService/PermissionService";
+import { PermissionService } from "../../Services/RoleService/PermissionService";
 import {
   CreatePermissionDto,
   PermissionResponse,
   UpdatePermissionDto,
-} from "../../Dtos/Users/PermissionDto";
+} from "../../Dtos/Roles/PermissionResponseDto";
 import { Service } from "typedi";
 import { UserDto } from "../../Dtos/Users/UserDto";
 

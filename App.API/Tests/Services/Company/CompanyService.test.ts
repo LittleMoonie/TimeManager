@@ -1,7 +1,7 @@
 import { CompanyService } from "../../../Services/Company/CompanyService";
 import { CompanyRepository } from "../../../Repositories/Companies/CompanyRepository";
 import { UserService } from "../../../Services/User/UserService";
-import { RolePermissionService } from "../../../Services/User/RolePermissionService";
+import { RolePermissionService } from "../../../Services/RoleService/RolePermissionService";
 import { ForbiddenError, NotFoundError } from "../../../Errors/HttpErrors";
 import User from "../../../Entities/Users/User";
 

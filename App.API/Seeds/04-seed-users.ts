@@ -2,7 +2,7 @@ import { DataSource } from "typeorm";
 import bcrypt from "bcryptjs";
 import User from "../Entities/Users/User";
 import { Company } from "../Entities/Companies/Company";
-import { Role } from "../Entities/Users/Role";
+import { Role } from "../Entities/Roles/Role";
 import { UserStatus } from "../Entities/Users/UserStatus";
 
 type RolesMap = Map<string, Role>;

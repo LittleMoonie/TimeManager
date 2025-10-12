@@ -60,19 +60,19 @@ const httpRequestDuration = new Histogram({
 const userRegistrations = new Counter({
   name: 'user_registrations_total',
   help: 'Total number of user registrations',
-  labelNames: ['Company_id'],
+  labelNames: ['organization_id'],
 });
 
 const activeUsers = new Gauge({
   name: 'active_users_total',
   help: 'Number of currently active users',
-  labelNames: ['Company_id'],
+  labelNames: ['organization_id'],
 });
 
 const projectCreationRate = new Counter({
   name: 'projects_created_total',
   help: 'Total number of projects created',
-  labelNames: ['Company_id', 'project_type'],
+  labelNames: ['organization_id', 'project_type'],
 });
 
 // Database metrics
@@ -210,18 +210,18 @@ export const withCacheMetrics = <T extends any[], R>(
 // Custom metrics service
 export class MetricsService {
   // User activity metrics
-  static recordUserRegistration(CompanyId: string): void {
-    userRegistrations.inc({ Company_id: CompanyId });
+  static recordUserRegistration(organizationId: string): void {
+    userRegistrations.inc({ organization_id: organizationId });
   }
 
-  static updateActiveUsers(CompanyId: string, count: number): void {
-    activeUsers.set({ Company_id: CompanyId }, count);
+  static updateActiveUsers(organizationId: string, count: number): void {
+    activeUsers.set({ organization_id: organizationId }, count);
   }
 
   // Project metrics
-  static recordProjectCreation(CompanyId: string, projectType: string): void {
+  static recordProjectCreation(organizationId: string, projectType: string): void {
     projectCreationRate.inc({ 
-      Company_id: CompanyId, 
+      organization_id: organizationId, 
       project_type: projectType 
     });
   }
@@ -307,7 +307,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
   req.log = logger.child({
     requestId: req.headers['x-request-id'] || generateRequestId(),
     userId: req.user?.id,
-    CompanyId: req.user?.CompanyId,
+    organizationId: req.user?.organizationId,
     ip: req.ip,
     userAgent: req.headers['user-agent'],
   });

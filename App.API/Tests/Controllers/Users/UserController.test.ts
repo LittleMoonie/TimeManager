@@ -3,7 +3,7 @@ import { Express } from "express";
 import { Container } from "typedi";
 import { createTestApp } from "../../TestHelper";
 import { UserService } from "../../../Services/User/UserService";
-import { RolePermissionService } from "../../../Services/User/RolePermissionService";
+import { RolePermissionService } from "../../../Services/RoleService/RolePermissionService";
 import { sign } from "jsonwebtoken";
 import { UserDto } from "../../../Dtos/Users/UserDto";
 import { CreateUserDto } from "../../../Dtos/Users/CreateUserDto";

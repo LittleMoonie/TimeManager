@@ -10,7 +10,7 @@ The GoGoTime frontend is built with React 19, TypeScript, and Material-UI, follo
 - **React 19.2.0** with Vite for development
 - **TypeScript 5.9+** for type safety
 - **Material-UI (MUI) v7** for UI components
-- **Redux Toolkit** with React Redux for state management
+- **Zustand** for global state management
 
 ### Development Tools
 - **Vite 7+** for fast development and building
@@ -33,12 +33,7 @@ App.Web/src/
 │   ├── dashboard/     # Dashboard components
 │   └── utilities/     # Utility pages
 ├── hooks/             # 🎣 Custom React hooks
-├── lib/               # 📚 Libraries and utilities
-│   ├── api/           # ✨ Auto-generated API client
-│   ├── menu-items/   # Navigation configuration
-│   ├── router.tsx     # React Router setup
-│   ├── routes/        # Route definitions
-│   └── store/         # Redux store configuration
+├── lib/               # 📚 Libraries and utilities (e.g., API client, store, navigation config)
 ├── styles/            # 🎨 Styling and themes
 ├── themes/            # Material-UI theme configuration
 └── types/             # 🏷️ TypeScript type definitions
@@ -46,32 +41,26 @@ App.Web/src/
 
 ## State Management
 
-### Redux Toolkit Setup
+### Zustand Store Setup
 ```typescript
 // lib/store/index.ts
-import { configureStore } from '@reduxjs/toolkit';
-import customizationSlice from './slices/customizationSlice';
+import { create } from 'zustand';
 
-export const store = configureStore({
-  reducer: {
-    customization: customizationSlice,
-  },
-});
-
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
-```
-
-### Customization State
-```typescript
-// lib/store/slices/customizationSlice.ts
-export interface CustomizationState {
-  isOpen: string[];           // Opened menu items
-  defaultId: string;          // Default opened menu
-  fontFamily: string;         // Font family setting  
-  borderRadius: number;       // UI border radius
-  opened: boolean;            // Sidebar open state
+interface CustomizationState {
+  isOpen: string[];
+  defaultId: string;
+  fontFamily: string;
+  borderRadius: number;
+  opened: boolean;
 }
+
+export const useAppStore = create<CustomizationState>((set) => ({
+  isOpen: [],
+  defaultId: 'default',
+  fontFamily: 'Roboto',
+  borderRadius: 8,
+  opened: true,
+}));
 ```
 
 ## API Integration
@@ -148,28 +137,42 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
 
 ### Route Structure
 ```typescript
-// lib/routes/MainRoutes.tsx
-const MainRoutes = {
-  path: '/',
-  element: <MainLayout />,
-  children: [
-    {
-      path: '/',
-      element: <DashboardDefault />
-    },
-    {
-      path: '/dashboard',
-      element: <AuthGuard><DashboardDefault /></AuthGuard>
-    },
-    {
-      path: '/utilities',
-      children: [
-        { path: 'typography', element: <Typography /> },
-        { path: 'color', element: <Color /> },
-      ]
-    }
-  ]
-};
+// src/app/router.tsx
+const routeConfig: RouteObject[] = [
+  {
+    path: '/login',
+    element: (
+      <PublicRoute>
+        <LoginPage />
+      </PublicRoute>
+    ),
+  },
+  {
+    path: '/forgot-password',
+    element: (
+      <PublicRoute>
+        <ForgotPasswordPage />
+      </PublicRoute>
+    ),
+  },
+  {
+    path: '/',
+    element: (
+      <ProtectedRoute>
+        <AppLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      { index: true, element: <HomePage /> },
+      // { path: 'tasks', element: <TasksPage /> },
+      { path: 'timesheet', element: <TimesheetPage /> },
+      { path: 'people', element: <PeoplePage /> },
+      { path: 'reports', element: <ReportsPage /> },
+      { path: 'profile', element: <ProfilePage /> },
+    ],
+  },
+  { path: '*', element: <Navigate to="/" replace /> },
+];
 ```
 
 ### Navigation Configuration
@@ -296,7 +299,7 @@ The frontend is containerized with:
 
 ## Best Practices
 
-### Code Company
+### Code Organization
 - **Feature-based** folder structure
 - **Barrel exports** for clean imports
 - **Consistent naming** conventions

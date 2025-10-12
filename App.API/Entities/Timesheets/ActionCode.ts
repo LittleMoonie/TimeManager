@@ -12,6 +12,7 @@ export enum ActionCodeType {
 @Index(["companyId", "code"])
 export class ActionCode extends BaseEntity {
   @Column("uuid") companyId!: string;
+
   @ManyToOne(() => Company, (c) => c.actionCodes, { onDelete: "RESTRICT" })
   @JoinColumn({ name: "companyId" })
   company!: Company;

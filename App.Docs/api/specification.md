@@ -176,7 +176,7 @@ export interface ApiResponse {
 The auto-generated TypeScript client provides full type safety:
 
 ```typescript
-import { apiClient, RegisterRequest, LoginRequest } from '@/lib/api/apiClient';
+import { apiClient } from '@/lib/api/apiClient';
 
 // Register a new user
 const registerResult = await apiClient.register({
@@ -227,18 +227,10 @@ public async getUser(@Path() userId: string): Promise<UserResponse> {
 ### 2. Generate Documentation
 ```bash
 # In App.API directory
-yarn api:generate          # Generate OpenAPI spec only
-yarn api:generate-full     # Generate spec + frontend client
-yarn api:sync              # Alias for api:generate-full
+yarn api:sync              # Generates spec + frontend client
 ```
 
-### 3. Generate Frontend Client
-```bash
-# In App.Web directory
-yarn api:client            # Generate TypeScript client from spec
-```
-
-### 4. Validation
+### 3. Validation
 ```bash
 # Validate generated files
 yarn typecheck             # TypeScript compilation check

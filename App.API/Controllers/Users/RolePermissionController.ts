@@ -10,11 +10,11 @@ import {
   Request,
 } from "tsoa";
 import { Request as ExpressRequest } from "express";
-import { RolePermissionService } from "../../Services/User/RolePermissionService";
+import { RolePermissionService } from "../../Services/RoleService/RolePermissionService";
 import {
   CreateRolePermissionDto,
   RolePermissionResponseDto,
-} from "../../Dtos/Users/RolePermissionDto";
+} from "../../Dtos/Roles/RolePermissionDto";
 import { Service } from "typedi";
 import { UserDto } from "../../Dtos/Users/UserDto";
 import User from "../../Entities/Users/User";

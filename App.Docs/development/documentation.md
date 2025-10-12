@@ -10,9 +10,9 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 |------|---------|------------|
 | **[README.md](#readme)** | Executive summary, stack overview, quick start guide | Project overview, technology stack, getting started, development setup |
 | **[ARCHITECTURE.md](#architecture)** | System design, layers, and architectural decisions | Frontend/backend separation, database design, infrastructure components, design patterns |
-| **[CODE_QUALITY.md](#code-quality)** | Monorepo hygiene and development standards | pnpm workspaces, conventional commits, linting, code formatting, quality gates |
+| **[CODE_QUALITY.md](#code-quality)** | Monorepo hygiene and development standards | yarn workspaces, conventional commits, linting, code formatting, quality gates |
 | **[API_VERSIONING.md](#api-versioning)** | API versioning strategy and compatibility | Versioning scheme, deprecation policy, backward compatibility, changelog management |
-| **[DATABASE.md](#database)** | Database design, migrations, and operations | Prisma schema, migration strategy, indexing, backups, audit trails, GDPR compliance |
+| **[DATABASE.md](#database)** | Database design, migrations, and operations | TypeORM entities, migration strategy, indexing, backups, audit trails, GDPR compliance |
 | **[AUTH_SECURITY.md](#auth-security)** | Authentication, authorization, and security policies | JWT/OIDC implementation, RBAC/ABAC, input validation, secrets management, security headers |
 | **[CACHE_QUEUES_REALTIME.md](#cache-queues)** | Caching, background jobs, and real-time features | Redis strategy, BullMQ configuration, cache invalidation, job processing, WebSocket setup |
 | **[OBSERVABILITY.md](#observability)** | Monitoring, logging, and alerting | Prometheus metrics, Grafana dashboards, structured logging, health checks, SLO monitoring |
@@ -33,7 +33,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 - Technology stack summary (React + Vite, Node.js, PostgreSQL, Docker)
 - Quick start instructions for developers
 - Development environment setup
-- Project structure and monorepo Company
+- Project structure and monorepo structure
 - Contributing guidelines and code of conduct
 
 ---
@@ -46,7 +46,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 - System overview and high-level architecture
 - Frontend architecture (React 19, Vite, TypeScript, MUI)
 - Backend architecture (Node.js, Express, TypeScript)
-- Database design and Prisma ORM integration
+- Database design and TypeORM integration
 - Caching layer with Redis
 - Infrastructure components (Docker, Nginx, monitoring)
 - API design patterns and RESTful conventions
@@ -60,7 +60,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 **Purpose**: Monorepo hygiene standards and development best practices.
 
 **Key Topics**:
-- pnpm workspace configuration and dependency management
+- yarn workspace configuration and dependency management
 - Conventional commits and commitlint setup
 - ESLint and Prettier configuration
 - Husky pre-commit hooks and lint-staged
@@ -92,7 +92,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 **Purpose**: Database design, operations, and data management strategy.
 
 **Key Topics**:
-- Prisma schema design and relationships
+- TypeORM entity design and relationships
 - Migration strategy and version control
 - Indexing strategy and query optimization
 - Backup and disaster recovery procedures
@@ -236,21 +236,15 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 ## Project Structure
 
 ```
-ncy-8/
-├── docs/                          # Documentation files
+GoGoTime/
+├── App.Docs/                      # Documentation files
 │   ├── README.md
-│   ├── ARCHITECTURE.md
-│   ├── CODE_QUALITY.md
-│   ├── API_VERSIONING.md
-│   ├── DATABASE.md
-│   ├── AUTH_SECURITY.md
-│   ├── CACHE_QUEUES_REALTIME.md
-│   ├── OBSERVABILITY.md
-│   ├── CI_CD.md
-│   ├── TESTING.md
-│   ├── NETWORKING_DELIVERY.md
-│   ├── DEVELOPER_EXPERIENCE.md
-│   └── THREAT_MODEL.md
+│   ├── api/
+│   ├── backend/
+│   ├── frontend/
+│   ├── infrastructure/
+│   ├── development/
+│   └── guides/
 ├── App.Web/                       # React + Vite frontend application
 │   ├── src/
 │   │   ├── app/                   # App Router pages
@@ -259,34 +253,21 @@ ncy-8/
 │   │   └── types/                 # TypeScript type definitions
 │   ├── public/                    # Static assets
 │   └── package.json
-├── back/                          # Node.js backend API
+├── App.API/                       # Node.js backend API
 │   ├── src/
 │   │   ├── routes/                # API route handlers
 │   │   ├── middleware/            # Express middleware
 │   │   ├── services/              # Business logic services
-│   │   ├── models/                # Database models and Prisma
+│   │   ├── entities/              # Database entities and TypeORM
 │   │   └── utils/                 # Utility functions
 │   └── package.json
-├── shared/                        # Shared code and types
-│   ├── types/                     # Shared TypeScript types
-│   ├── schemas/                   # Zod validation schemas
-│   └── constants/                 # Shared constants
-├── infrastructure/                # Infrastructure as Code
+├── App.Infra/                     # Infrastructure as Code
 │   ├── docker/                    # Docker configurations
 │   ├── nginx/                     # Nginx configurations
 │   └── monitoring/                # Monitoring configurations
-├── scripts/                       # Automation scripts
-│   ├── setup/                     # Environment setup scripts
-│   ├── deployment/                # Deployment scripts
-│   └── maintenance/               # Maintenance and backup scripts
-├── tests/                         # Integration and E2E tests
-│   ├── e2e/                       # Playwright E2E tests
-│   ├── integration/               # API integration tests
-│   └── load/                      # k6 load tests
 ├── .github/                       # GitHub Actions workflows
 ├── docker-compose.yml             # Local development environment
-├── package.json                   # Root package.json for monorepo
-└── pnpm-workspace.yaml           # pnpm workspace configuration
+├── yarn.lock                      # yarn lock file
 ```
 
 ---

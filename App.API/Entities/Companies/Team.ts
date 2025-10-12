@@ -1,11 +1,4 @@
-import {
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-} from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { BaseEntity } from "../BaseEntity";
 import { Company } from "./Company";
 import User from "../Users/User";
@@ -15,9 +8,7 @@ import User from "../Users/User";
 export class Team extends BaseEntity {
   @Column({ type: "uuid" }) companyId!: string;
 
-  @ManyToOne(() => Company, (company) => company.teams, {
-    onDelete: "RESTRICT",
-  })
+  @ManyToOne(() => Company, (company) => company.teams, { onDelete: "RESTRICT" })
   @JoinColumn({ name: "companyId" })
   company!: Company;
 

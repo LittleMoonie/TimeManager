@@ -423,10 +423,10 @@ export const initializeDataSource = async () => {
 
 ```bash
 # Development workflow
-pnpm typeorm migration:run # Apply migrations
-pnpm typeorm migration:generate -n MyMigration # Generate a new migration
-pnpm typeorm migration:revert # Revert last migration
-pnpm db:seed        # Seed development data
+yarn migration:run # Apply migrations
+yarn migration:generate -n MyMigration # Generate a new migration
+yarn migration:revert # Revert last migration
+yarn db:seed        # Seed development data
 ```
 
 ### Migration Best Practices

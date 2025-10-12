@@ -1,172 +1,169 @@
-import { AppDataSource } from "../../Server/Database";
-import { Role } from "../../Entities/Users/Role";
-import { Permission } from "../../Entities/Users/Permission";
-import { RolePermission } from "../../Entities/Users/RolePermission";
-import { UserActivityType } from "../../Entities/Logs/Users/UserActivityLog";
-import { PermissionService } from "../PermissionService/PermissionService";
-import { NotFoundError } from "../../Errors/HttpErrors";
-import { RoleRepository } from "../../Repositories/Users/RoleRepository";
-import { UserActivityLogService } from "../Logs/User/UserActivityLogService";
-import { CreateRoleDto, UpdateRoleDto } from "../../Dtos/Users/RoleDto";
-import { CreateUserActivityLogDto } from "../../Dtos/Logs/User/UserActivityLogDto";
+import { Service } from "typedi";
+import { validate } from "class-validator";
 
+import { RoleRepository } from "@/Repositories/Roles/RoleRepository";
+import { RolePermissionRepository } from "@/Repositories/Roles/RolePermissionRepository";
+
+import { Role } from "@/Entities/Roles/Role";
+import { RolePermission } from "@/Entities/Roles/RolePermission";
+import User from "@/Entities/Users/User";
+
+import {
+  ForbiddenError,
+  NotFoundError,
+  UnprocessableEntityError,
+} from "@/Errors/HttpErrors";
+
+import { CreateRoleDto, UpdateRoleDto } from "@/Dtos/Roles/RoleDto";
+
+@Service()
 export class RoleService {
-  private roleRepository = new RoleRepository();
-  private rolePermissionRepository =
-    AppDataSource.getRepository(RolePermission);
-  private userActivityLogService = new UserActivityLogService();
-  private permissionService = new PermissionService();
+  constructor(
+    private readonly roleRepository: RoleRepository,
+    private readonly rolePermissionRepository: RolePermissionRepository
+  ) {}
+
+  private async ensureValidation(dto: unknown) {
+    const errors = await validate(dto as object);
+    if (errors.length > 0) {
+      throw new UnprocessableEntityError(
+        `Validation error: ${errors.map(e => e.toString()).join(", ")}`
+      );
+    }
+  }
+
+  private async ensurePermission(currentUser: User, permission: string) {
+    const role = currentUser.role;
+    const allowed =
+      !!role &&
+      Array.isArray(role.rolePermissions) &&
+      role.rolePermissions.some(rp => rp.permission?.name === permission);
+
+    if (!allowed) {
+      throw new ForbiddenError(`Missing permission: ${permission}`);
+    }
+  }
+
+  private ensureSameCompanyOrAdmin(currentUser: User, targetCompanyId: string) {
+    if (currentUser.role?.name !== "admin" && currentUser.companyId !== targetCompanyId) {
+      throw new ForbiddenError("Operation is restricted to your company.");
+    }
+  }
+
+  async getRoleById(companyId: string, roleId: string, currentUser: User): Promise<Role> {
+    const role = await this.roleRepository.findByIdInCompany(roleId, companyId);
+    if (!role) throw new NotFoundError("Role not found");
+    this.ensureSameCompanyOrAdmin(currentUser, role.companyId);
+    return role;
+  }
+
+  async listRoles(companyId: string, currentUser: User): Promise<Role[]> {
+    this.ensureSameCompanyOrAdmin(currentUser, companyId);
+    return this.roleRepository.findAllByCompanyId(companyId);
+  }
 
   async createRole(
     companyId: string,
-    userId: string,
-    createRoleDto: CreateRoleDto,
+    currentUser: User,
+    dto: CreateRoleDto
   ): Promise<Role> {
-    const role = await this.roleRepository.create({
+    await this.ensurePermission(currentUser, "create_role");
+    await this.ensureValidation(dto);
+
+    const existing = await this.roleRepository.findByNameInCompany(dto.name, companyId);
+    if (existing) {
+      throw new UnprocessableEntityError("A role with this name already exists in the company.");
+    }
+
+    return this.roleRepository.create({
       companyId,
-      ...createRoleDto,
-    });
-
-    await this.userActivityLogService.log(companyId, {
-      userId,
-      activityType: UserActivityType.CREATE_ROLE,
-      targetId: role.id,
-      details: createRoleDto as unknown as Record<string, string>,
-    });
-
-    return role;
-  }
-
-  async getRoleById(roleId: string): Promise<Role> {
-    const role = await this.roleRepository.findById(roleId);  
-    if (!role) {
-      throw new NotFoundError("Role not found");
-    }
-    return role;
-  }
-
-  async getRoleByName(companyId: string, name: string): Promise<Role> {
-    const role = await this.roleRepository.findOne({
-      where: { companyId, name },
-      relations: ["rolePermissions", "rolePermissions.permission"],
-    });
-    if (!role) {
-      throw new NotFoundError("Role not found");
-    }
-    return role;
-  }
-
-  async getAllRoles(companyId: string): Promise<Role[]> {
-    return this.roleRepository.findAll();
+      name: dto.name,
+      description: dto.description,
+    } as Role);
   }
 
   async updateRole(
     companyId: string,
     roleId: string,
-    updateRoleDto: UpdateRoleDto,
+    currentUser: User,
+    dto: UpdateRoleDto
   ): Promise<Role> {
-    const role = await this.getRoleById(roleId);
-    const updatedRole = await this.roleRepository.update(roleId, updateRoleDto);
-    if (!updatedRole) {
-      throw new NotFoundError("Role not found");
+    await this.ensurePermission(currentUser, "update_role");
+    await this.ensureValidation(dto);
+
+    const role = await this.getRoleById(companyId, roleId, currentUser);
+
+    if (dto.name && dto.name !== role.name) {
+      const nameTaken = await this.roleRepository.findByNameInCompany(dto.name, companyId);
+      if (nameTaken) {
+        throw new UnprocessableEntityError("A role with this name already exists in the company.");
+      }
     }
-    return updatedRole;
+
+    role.name = dto.name ?? role.name;
+    role.description = dto.description ?? role.description;
+
+    return this.roleRepository.save(role);
   }
 
-  async updateRolePermissions(
-    companyId: string,
-    userId: string,
-    roleId: string,
-    updateRoleDto: UpdateRoleDto,
-  ): Promise<Role> {
-    const role = await this.getRoleById(roleId);
+  async deleteRole(companyId: string, roleId: string, currentUser: User): Promise<void> {
+    await this.ensurePermission(currentUser, "delete_role");
 
-    const oldRoleDetails = { ...role } as unknown as Record<string, string>;
+    const role = await this.getRoleById(companyId, roleId, currentUser);
+    this.ensureSameCompanyOrAdmin(currentUser, role.companyId);
 
-    const updatedRole = await this.roleRepository.update(roleId, updateRoleDto);
-
-    await this.userActivityLogService.log(companyId, {
-      userId,
-      activityType: UserActivityType.UPDATE_ROLE,
-      targetId: roleId,
-      details: {
-        old: oldRoleDetails,
-        new: updateRoleDto as unknown as Record<string, string>,
-      },
-    } as unknown as CreateUserActivityLogDto);
-
-    return updatedRole!;
+    await this.roleRepository.softDelete(role.id);
   }
 
-  async deleteRole(
+  async assignPermissionToRole(
     companyId: string,
-    userId: string,
-    roleId: string,
-  ): Promise<void> {
-    const role = await this.getRoleById(roleId);
-
-    await this.roleRepository.delete(roleId);
-
-    await this.userActivityLogService.log(companyId, {
-      userId,
-      activityType: UserActivityType.DELETE_ROLE,
-      targetId: roleId,
-      details: { name: role.name },
-    });
-  }
-
-  async addPermissionToRole(
-    companyId: string,
-    userId: string,
     roleId: string,
     permissionId: string,
+    currentUser: User
   ): Promise<RolePermission> {
-    await this.getRoleById(roleId);
-    await this.permissionService.getPermissionById(companyId, permissionId);
+    await this.ensurePermission(currentUser, "assign_role_permission");
 
-    const rolePermission = this.rolePermissionRepository.create({
+    const role = await this.getRoleById(companyId, roleId, currentUser);
+
+    const existing = await this.rolePermissionRepository.findByRoleAndPermission(
       companyId,
-      roleId,
+      role.id,
+      permissionId
+    );
+    if (existing) return existing;
+
+    return this.rolePermissionRepository.create({
+      companyId,
+      roleId: role.id,
       permissionId,
-    });
-    const savedRolePermission =
-      await this.rolePermissionRepository.save(rolePermission);
-
-    await this.userActivityLogService.log(companyId, {
-      userId,
-      activityType: UserActivityType.ADD_PERMISSION_TO_ROLE,
-      targetId: roleId,
-      details: { permissionId },
-    } as unknown as CreateUserActivityLogDto);
-
-    return savedRolePermission;
+    } as RolePermission);
   }
 
   async removePermissionFromRole(
     companyId: string,
-    userId: string,
     roleId: string,
     permissionId: string,
+    currentUser: User
   ): Promise<void> {
-    const rolePermission = await this.rolePermissionRepository.findAndCountBy({ companyId, roleId, permissionId });
-    if (rolePermission[0].length === 0) {
-      throw new NotFoundError("RolePermission not found");
-    }
-    await this.rolePermissionRepository.delete(rolePermission[0][0].id);
+    await this.ensurePermission(currentUser, "remove_role_permission");
 
-    await this.userActivityLogService.log(companyId, {
-      userId,
-      activityType: UserActivityType.REMOVE_PERMISSION_FROM_ROLE,
-      targetId: roleId,
-      details: { permissionId },
-    } as unknown as CreateUserActivityLogDto);
+    const role = await this.getRoleById(companyId, roleId, currentUser);
+
+    const link = await this.rolePermissionRepository.findByRoleAndPermission(
+      companyId,
+      role.id,
+      permissionId
+    );
+    if (!link) return;
+    await this.rolePermissionRepository.removeById(companyId, link.id);
   }
 
-  async getRolePermissions(
+  async listRolePermissions(
     companyId: string,
     roleId: string,
-  ): Promise<Permission[]> {
-    const role = await this.getRoleById(roleId);
-    return role.rolePermissions.map((rp) => rp.permission);
+    currentUser: User
+  ): Promise<RolePermission[]> {
+    const role = await this.getRoleById(companyId, roleId, currentUser);
+    return this.rolePermissionRepository.findAllByRole(companyId, role.id);
   }
 }

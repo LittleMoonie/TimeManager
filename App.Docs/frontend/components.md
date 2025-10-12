@@ -218,13 +218,14 @@ export const CardSecondaryAction: React.FC<CardSecondaryActionProps> = ({
 
 ### Main Layout Structure
 ```typescript
-// components/layout/MainLayout.tsx
-export const MainLayout = () => {
+// components/layout/AppLayout.tsx
+import { useAppStore } from '@/lib/store';
+
+export const AppLayout = () => {
   const theme = useTheme();
   const matchDown = useMediaQuery(theme.breakpoints.down('lg'));
   
-  const dispatch = useDispatch();
-  const { drawerOpen } = useSelector((state) => state.customization);
+  const { opened } = useAppStore(); // Using Zustand store
   
   return (
     <Box sx={{ display: 'flex', width: '100%' }}>
@@ -245,7 +246,7 @@ export const MainLayout = () => {
       <Sidebar />
       
       {/* Main content */}
-      <Main theme={theme} open={drawerOpen}>
+      <Main theme={theme} open={opened}>
         <Breadcrumbs />
         <Outlet />
       </Main>
@@ -324,8 +325,10 @@ export const Sidebar = ({ drawerOpen, drawerToggle }) => {
 ### Menu List Component
 ```typescript
 // components/layout/MenuList.tsx
+import { useAppStore } from '@/lib/store';
+
 export const MenuList = () => {
-  const menuItems = useSelector((state) => state.menu);
+  const menuItems = useAppStore((state) => state.menu);
   
   const renderNavItems = (items) => {
     return items.map((item) => {
@@ -602,7 +605,7 @@ import MyComponent from './MyComponent';
 
 const renderWithTheme = (component: React.ReactElement) => {
   return render(
-    <ThemeProvider theme={theme()}>
+    <ThemeProvider theme={theme}>
       {component}
     </ThemeProvider>
   );

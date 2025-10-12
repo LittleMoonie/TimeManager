@@ -1,15 +1,34 @@
 import { Service } from "typedi";
-import { CompanyRepository } from "../../Repositories/Companies/CompanyRepository";
-import { CreateCompanyDto } from "../../Dtos/Company/CompanyDto";
-import { Company } from "../../Entities/Companies/Company";
+import { validate } from "class-validator";
+
+import { CompanyRepository } from "@/Repositories/Companies/CompanyRepository";
+import { Company } from "@/Entities/Companies/Company";
+import { CreateCompanyDto, UpdateCompanyDto } from "@/Dtos/Companies/CompanyDto";
+import { UnprocessableEntityError } from "@/Errors/HttpErrors";
 
 @Service()
 export class CompanyService {
-  constructor(private companyRepository: CompanyRepository) {}
+  constructor(private readonly companyRepository: CompanyRepository) {}
 
-  public async createCompany(
-    createCompanyDto: CreateCompanyDto,
-  ): Promise<Company> {
-    return this.companyRepository.create(createCompanyDto);
+  private async ensureValidation(dto: unknown) {
+    const errors = await validate(dto as object);
+    if (errors.length > 0) {
+      throw new UnprocessableEntityError(
+        `Validation error: ${errors.map(e => e.toString()).join(", ")}`
+      );
+    }
+  }
+
+  async createCompany(dto: CreateCompanyDto): Promise<Company> {
+    await this.ensureValidation(dto);
+    return this.companyRepository.create(dto as Company);
+  }
+
+  async updateCompany(companyId: string, dto: UpdateCompanyDto): Promise<Company> {
+    await this.ensureValidation(dto);
+    const existing = await this.companyRepository.getCompanyById(companyId);
+    existing.name = dto.name ?? existing.name;
+    existing.timezone = dto.timezone ?? existing.timezone;
+    return this.companyRepository.save(existing);
   }
 }

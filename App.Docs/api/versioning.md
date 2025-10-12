@@ -109,8 +109,8 @@ v1.0 (Stable)     v1.1 (Stable)     v2.0 (Stable)
 
 3. **Changing Endpoint Behavior**:
    ```typescript
-   // v1.0: GET /users returns all users
-   // v2.0: GET /users requires Company filter
+   // v1.0: DELETE /users returns all users
+   // v2.0: DELETE /users requires Organization filter
    ```
 
 4. **Removing Endpoints**:
@@ -296,7 +296,7 @@ POST /api/v2/users
 {
   "name": "John Doe",
   "email": "john@example.com",
-  "Company_id": "org_123" // Required
+  "organization_id": "org_123" // Required
 }
 ```
 
@@ -344,8 +344,8 @@ class APIMigrator {
   
   async createUserV2(userData: UserData): Promise<User> {
     // Ensure Company_id is present
-    if (!userData.Company_id) {
-      throw new Error('Company_id required in v2.0');
+    if (!userData.organization_id) {
+      throw new Error('organization_id required in v2.0');
     }
     return this.api.post('/api/v2/users', userData);
   }
@@ -497,10 +497,8 @@ jobs:
   generate-api-spec:
     runs-on: ubuntu-latest
     steps:
-      - name: Generate OpenAPI Spec
-        run: cd App.API && yarn api:generate
-      - name: Generate Frontend SDK
-        run: cd App.Web && yarn api:client
+      - name: Generate OpenAPI Spec and Frontend SDK
+        run: cd App.API && yarn api:sync
       - name: Commit Updates
         run: git commit -m "chore(api): auto-update OpenAPI spec and SDK"
 ```
@@ -533,10 +531,9 @@ const result = await apiClient.register({
 ### Development Workflow
 
 1. **Update API Routes**: Modify controllers with tsoa decorators
-2. **Generate Spec**: Run `yarn api:generate` in App.API
-3. **Generate Client**: Run `yarn api:client` in App.Web
-4. **Validate**: Check TypeScript compilation and tests
-5. **Commit**: Changes trigger CI/CD auto-generation
+2. **Generate Spec and Client**: Run `yarn api:sync` in App.API
+3. **Validate**: Check TypeScript compilation and tests
+4. **Commit**: Changes trigger CI/CD auto-generation
 
 ### Validation and Quality Assurance
 

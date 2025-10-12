@@ -1,10 +1,13 @@
-import { FindOneOptions } from "typeorm";
+import { Service } from "typedi";
+import { InjectRepository } from "typeorm-typedi-extensions";
+import { FindOneOptions, Repository } from "typeorm";
 import { Timesheet } from "../../Entities/Timesheets/Timesheet";
 import { BaseRepository } from "../BaseRepository";
 
+@Service()
 export class TimesheetRepository extends BaseRepository<Timesheet> {
-  constructor() {
-    super(Timesheet);
+  constructor(@InjectRepository(Timesheet) repo: Repository<Timesheet>) {
+    super(Timesheet, repo);
   }
 
   async findByPeriod(
@@ -20,10 +23,7 @@ export class TimesheetRepository extends BaseRepository<Timesheet> {
     return this.repository.findOne(options);
   }
 
-  async findAllForUser(
-    companyId: string,
-    userId: string,
-  ): Promise<Timesheet[]> {
+  async findAllForUser(companyId: string, userId: string): Promise<Timesheet[]> {
     return this.repository.find({
       where: { companyId, userId },
       relations: ["entries", "entries.actionCode"],

@@ -19,11 +19,9 @@ export class Company extends BaseEntity {
   @OneToMany(() => User, (user) => user.company) users!: User[];
   @OneToMany(() => Team, (team) => team.company) teams!: Team[];
   @OneToMany(() => ActionCode, (a) => a.company) actionCodes!: ActionCode[];
-  @OneToMany(() => TimesheetEntry, (e) => e.company)
-  timesheetEntries!: TimesheetEntry[];
+  @OneToMany(() => TimesheetEntry, (e) => e.company) timesheetEntries!: TimesheetEntry[];
   @OneToMany(() => TeamMember, (tm) => tm.company) teamMembers!: TeamMember[];
-  @OneToMany(() => TimesheetHistory, (th) => th.company)
-  timesheetHistory!: TimesheetHistory[];
+  @OneToMany(() => TimesheetHistory, (th) => th.company) timesheetHistory!: TimesheetHistory[];
 
   @OneToOne(() => CompanySettings, (settings) => settings.company)
   companySettings!: CompanySettings;

@@ -11,6 +11,7 @@ export interface IStringToStringDictionary {
 @Index(["companyId", "targetType", "targetId"])
 export class TimesheetHistory extends BaseEntity {
   @Column("uuid") companyId!: string;
+
   @ManyToOne(() => Company, { onDelete: "RESTRICT" })
   @JoinColumn({ name: "companyId" })
   company!: Company;
@@ -22,6 +23,7 @@ export class TimesheetHistory extends BaseEntity {
     | "TimesheetEntry"
     | "TimesheetApproval"
     | "ActionCode";
+
   @Column("uuid") targetId!: string;
 
   @Column({ type: "varchar", length: 32 }) action!:
@@ -36,8 +38,7 @@ export class TimesheetHistory extends BaseEntity {
 
   @Column({ type: "text", nullable: true }) reason?: string;
   @Column({ type: "jsonb", nullable: true }) diff?: IStringToStringDictionary;
-  @Column({ type: "jsonb", nullable: true })
-  metadata?: IStringToStringDictionary;
+  @Column({ type: "jsonb", nullable: true }) metadata?: IStringToStringDictionary;
 
   @Column({ type: "timestamp with time zone", default: () => "now()" })
   occurredAt!: Date;

@@ -11,18 +11,18 @@ This document defines the code quality standards, development practices, and too
 ```yaml
 # pnpm-workspace.yaml
 packages:
-  - 'front'
-  - 'back'
+  - 'App.Web'
+  - 'App.API'
   - 'shared'
   - 'packages/*'
 ```
 
 ### Package Management
 
-- **Package Manager**: pnpm for efficient dependency management
+- **Package Manager**: yarn for efficient dependency management
 - **Workspace Dependencies**: Shared dependencies at root level
 - **Version Management**: Changesets for coordinated versioning
-- **Lock File**: pnpm-lock.yaml for reproducible builds
+- **Lock File**: yarn.lock for reproducible builds
 
 ## Code Formatting & Linting
 
@@ -73,7 +73,6 @@ module.exports = {
     "exactOptionalPropertyTypes": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   }
@@ -296,7 +295,7 @@ Accepted
 We need to choose an ORM for our Node.js backend.
 
 ## Decision
-We will use Prisma as our ORM.
+We will use TypeORM as our ORM.
 
 ## Consequences
 - Type-safe database access
@@ -370,13 +369,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-      - run: pnpm install
-      - run: pnpm lint
-      - run: pnpm type-check
-      - run: pnpm test
-      - run: pnpm test:e2e
-      - run: pnpm build
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+      - run: yarn install
+      - run: yarn lint
+      - run: yarn type-check
+      - run: yarn test
+      - run: yarn test:e2e
+      - run: yarn build
 ```
 
 ### Automated Checks
@@ -400,7 +402,7 @@ jobs:
     "source.fixAll.eslint": true
   },
   "typescript.preferences.importModuleSpecifier": "relative",
-  "eslint.workingDirectories": ["front", "back", "shared"]
+  "eslint.workingDirectories": ["App.Web", "App.API"]
 }
 ```
 
@@ -416,12 +418,12 @@ jobs:
 ```json
 {
   "scripts": {
-    "dev": "concurrently \"pnpm --filter front dev\" \"pnpm --filter back dev\"",
-    "build": "pnpm --filter front build && pnpm --filter back build",
-    "test": "pnpm --filter front test && pnpm --filter back test",
-    "lint": "pnpm --filter front lint && pnpm --filter back lint",
-    "type-check": "pnpm --filter front type-check && pnpm --filter back type-check",
-    "clean": "pnpm --filter front clean && pnpm --filter back clean"
+    "dev": "concurrently \"yarn --filter App.Web dev\" \"yarn --filter App.API dev\"",
+    "build": "yarn --filter App.Web build && yarn --filter App.API build",
+    "test": "yarn --filter App.Web test && yarn --filter App.API test",
+    "lint": "yarn --filter App.Web lint && yarn --filter App.API lint",
+    "type-check": "yarn --filter App.Web type-check && yarn --filter App.API type-check",
+    "clean": "yarn --filter App.Web clean && yarn --filter App.API clean"
   }
 }
 ```

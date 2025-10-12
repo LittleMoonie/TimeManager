@@ -32,6 +32,5 @@ export class TimesheetApproval extends BaseEntity {
   status!: ApprovalStatus;
 
   @Column({ type: "text", nullable: true }) reason?: string;
-  @Column({ type: "timestamp with time zone", nullable: true })
-  decidedAt?: Date;
+  @Column({ type: "timestamp with time zone", nullable: true }) decidedAt?: Date;
 }

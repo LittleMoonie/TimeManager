@@ -87,21 +87,21 @@ const result = await apiClient.login({ email: '...', password: '...' });
 ### 🎯 Type Safety
 - **API Contracts**: TypeScript DTOs define request/response shapes
 - **Frontend Client**: Auto-generated, type-safe API client
-- **Validation**: Runtime validation with Joi schemas
+- **Validation**: Runtime validation with Zod schemas
 
 ## 🗂️ Project Structure Overview
 
 ```
-T-DEV-700-project-NCY_8/
+GoGoTime/
 ├── App.API/           # 🔌 Express.js + TypeORM backend
 │   ├── src/controllers/   # API endpoints with tsoa decorators  
-│   ├── src/dto/          # TypeScript data transfer objects
+│   ├── src/Dtos/          # TypeScript data transfer objects
 │   └── swagger.json      # ✨ Auto-generated OpenAPI spec
 ├── App.Web/           # ⚛️ React 19 + Vite frontend  
 │   └── src/lib/api/      # ✨ Auto-generated API client
 ├── App.Infra/         # 🐳 Docker infrastructure
 │   └── docker-compose.yml
-└── docs/              # 📚 This documentation
+└── App.Docs/              # 📚 This documentation
 ```
 
 ## 🔧 Essential Commands

@@ -2,45 +2,30 @@ import { Service } from "typedi";
 import { TimesheetEntryRepository } from "../../Repositories/Timesheets/TimesheetEntryRepository";
 import { TimesheetEntry } from "../../Entities/Timesheets/TimesheetEntry";
 import { NotFoundError } from "../../Errors/HttpErrors";
-import {
-  CreateTimesheetEntryDto,
-  UpdateTimesheetEntryDto,
-} from "../../Dtos/Timesheet/TimesheetDto";
+import { CreateTimesheetEntryDto, UpdateTimesheetEntryDto } from "../../Dtos/Timesheet/TimesheetDto";
 
 @Service()
 export class TimesheetEntryService {
-  constructor(private timesheetEntryRepository: TimesheetEntryRepository) {}
+  constructor(private readonly timesheetEntryRepository: TimesheetEntryRepository) {}
 
   public async createTimesheetEntry(
     companyId: string,
     userId: string,
-    createTimesheetEntryDto: CreateTimesheetEntryDto,
+    dto: CreateTimesheetEntryDto,
   ): Promise<TimesheetEntry> {
-    return this.timesheetEntryRepository.create({
-      companyId,
-      userId,
-      ...createTimesheetEntryDto,
-    });
-  }
+    return this.timesheetEntryRepository.create({ companyId, userId, ...dto });
+    }
 
   public async getTimesheetEntryById(id: string): Promise<TimesheetEntry> {
     const entry = await this.timesheetEntryRepository.findById(id);
-    if (!entry) {
-      throw new NotFoundError("Timesheet entry not found");
-    }
+    if (!entry) throw new NotFoundError("Timesheet entry not found");
     return entry;
   }
 
-  public async updateTimesheetEntry(
-    id: string,
-    updateTimesheetEntryDto: UpdateTimesheetEntryDto,
-  ): Promise<TimesheetEntry> {
+  public async updateTimesheetEntry(id: string, dto: UpdateTimesheetEntryDto): Promise<TimesheetEntry> {
     await this.getTimesheetEntryById(id);
-    const updatedEntry = await this.timesheetEntryRepository.update(
-      id,
-      updateTimesheetEntryDto,
-    );
-    return updatedEntry!;
+    const updated = await this.timesheetEntryRepository.update(id, dto);
+    return updated!;
   }
 
   public async deleteTimesheetEntry(id: string): Promise<void> {

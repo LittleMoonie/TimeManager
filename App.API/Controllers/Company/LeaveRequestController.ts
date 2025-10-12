@@ -17,7 +17,7 @@ import {
   CreateLeaveRequestDto,
   LeaveRequestResponseDto,
   UpdateLeaveRequestDto,
-} from "../../Dtos/Company/LeaveRequestDto";
+} from "../../Dtos/Companies/LeaveRequestDto";
 import { UserService } from "../../Services/User/UserService";
 import { Service } from "typedi";
 import { UserDto } from "../../Dtos/Users/UserDto";

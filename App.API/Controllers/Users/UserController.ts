@@ -16,7 +16,7 @@ import { UserService } from "../../Services/User/UserService";
 import { UserDto } from "../../Dtos/Users/UserDto";
 import { CreateUserDto } from "../../Dtos/Users/CreateUserDto";
 import { UpdateUserDto } from "../../Dtos/Users/UpdateUserDto";
-import { RolePermissionService } from "../../Services/User/RolePermissionService";
+import { RolePermissionService } from "../../Services/RoleService/RolePermissionService";
 import { Service } from "typedi";
 import User from "../../Entities/Users/User";
 

@@ -15,7 +15,7 @@ Modern Docker setup with hot reloading, health checks, and production-ready conf
 ### Development Mode (Recommended)
 
 ```bash
-cd infrastructure
+cd App.Infra
 ./scripts/dev.sh
 ```
 
@@ -28,14 +28,14 @@ This will:
 ### Manual Development Start
 
 ```bash
-cd infrastructure
+cd App.Infra
 docker compose up --build --watch
 ```
 
 ### Production Mode
 
 ```bash
-cd infrastructure
+cd App.Infra
 ./scripts/prod.sh
 ```
 
@@ -93,7 +93,7 @@ docker stats
 
 Create your environment file:
 ```bash
-cp .env.example ../env
+cp .env.example App.Infra/.env
 ```
 
 ### Environment Variables
@@ -120,11 +120,10 @@ infrastructure/
 │   └── prod.sh                # Production startup script
 └── README.md                  # This file
 
-apps/
-├── api/
+App.API/
 │   ├── Dockerfile             # Multi-stage API container
 │   └── ...
-└── web/
+App.Web/
     ├── Dockerfile             # Multi-stage web container
     ├── nginx.conf             # Production nginx config
     └── ...

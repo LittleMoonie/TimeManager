@@ -106,7 +106,7 @@ docker compose -f docker-compose.prod.yml up -d
 
 # Set up reverse proxy (nginx)
 sudo apt install nginx
-sudo cp nginx.conf /etc/nginx/sites-available/gogotime
+sudo cp App.Web/nginx.conf /etc/nginx/sites-available/gogotime
 sudo ln -s /etc/nginx/sites-available/gogotime /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
 ```
@@ -281,7 +281,7 @@ jobs:
         # Deploy to server
         ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
           "docker pull ${{ secrets.REGISTRY }}/gogotime-api:${{ github.sha }} && \
-           docker-compose up -d"
+           docker compose -f docker-compose.prod.yml up -d"
 ```
 
 ## 🚀 Performance Optimization

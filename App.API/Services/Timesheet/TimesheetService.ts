@@ -1,62 +1,52 @@
 import { Service } from "typedi";
 import { TimesheetRepository } from "../../Repositories/Timesheets/TimesheetRepository";
 import { TimesheetEntryRepository } from "../../Repositories/Timesheets/TimesheetEntryRepository";
-import { TimesheetApprovalRepository } from "../../Repositories/Timesheets/TimesheetApprovalRepository";
-import { TimesheetHistoryService } from "../Logs/Timesheet/TimesheetHistoryService";
-import {
-  Timesheet,
-  TimesheetStatus,
-} from "../../Entities/Timesheets/Timesheet";
-import {
-  NotFoundError,
-  UnprocessableEntityError,
-} from "../../Errors/HttpErrors";
-import {
-  CreateTimesheetDto,
-  CreateTimesheetEntryDto,
-} from "../../Dtos/Timesheet/TimesheetDto";
+import { TimesheetHistoryRepository } from "../../Repositories/Timesheets/TimesheetHistoryRepository";
+import { Timesheet, TimesheetStatus } from "../../Entities/Timesheets/Timesheet";
+import { NotFoundError, UnprocessableEntityError } from "../../Errors/HttpErrors";
+import { CreateTimesheetDto, CreateTimesheetEntryDto } from "../../Dtos/Timesheet/TimesheetDto";
 import { validate } from "class-validator";
+import { WorkMode } from "../../Entities/Timesheets/TimesheetEntry";
 
 @Service()
 export class TimesheetService {
   constructor(
-    private timesheetRepository: TimesheetRepository,
-    private timesheetEntryRepository: TimesheetEntryRepository,
-    private timesheetApprovalRepository: TimesheetApprovalRepository,
-    private timesheetHistoryService: TimesheetHistoryService,
+    private readonly timesheetRepository: TimesheetRepository,
+    private readonly timesheetEntryRepository: TimesheetEntryRepository,
+    private readonly historyRepository: TimesheetHistoryRepository,
   ) {}
 
-  public async createTimesheet(
-    companyId: string,
-    userId: string,
-    createTimesheetDto: CreateTimesheetDto,
-  ): Promise<Timesheet> {
-    const errors = await validate(createTimesheetDto);
+  private async recordEvent(companyId: string, payload: {
+    userId: string;
+    targetType: "Timesheet" | "TimesheetEntry";
+    targetId: string;
+    action: "created" | "submitted" | "approved" | "rejected";
+    actorUserId?: string;
+    reason?: string;
+    metadata?: Record<string, string>;
+  }) {
+    await this.historyRepository.create({ companyId, ...payload } as any);
+  }
+
+  public async createTimesheet(companyId: string, userId: string, dto: CreateTimesheetDto): Promise<Timesheet> {
+    const errors = await validate(dto as object);
     if (errors.length > 0) {
-      throw new UnprocessableEntityError(
-        `Validation error: ${errors.map((e) => e.toString()).join(", ")}`,
-      );
+      throw new UnprocessableEntityError(`Validation error: ${errors.map((e) => e.toString()).join(", ")}`);
     }
 
-    const newTimesheet = await this.timesheetRepository.create({
-      companyId,
-      userId,
-      ...createTimesheetDto,
-    });
+    const created = await this.timesheetRepository.create({ companyId, userId, ...dto });
 
-    await this.timesheetHistoryService.recordEvent(companyId, {
+    await this.recordEvent(companyId, {
       userId,
       targetType: "Timesheet",
-      targetId: newTimesheet.id,
+      targetId: created.id,
       action: "created",
     });
 
-    return newTimesheet;
+    return created;
   }
 
-  public async getTimesheet(
-    timesheetId: string,
-  ): Promise<Timesheet> {
+  public async getTimesheet(timesheetId: string): Promise<Timesheet> {
     const timesheet = await this.timesheetRepository.findById(timesheetId);
     if (!timesheet) {
       throw new NotFoundError("Timesheet not found");
@@ -68,7 +58,7 @@ export class TimesheetService {
     companyId: string,
     userId: string,
     timesheetId: string,
-    createTimesheetEntryDto: CreateTimesheetEntryDto,
+    dto: CreateTimesheetEntryDto,
   ): Promise<Timesheet> {
     const timesheet = await this.getTimesheet(timesheetId);
 
@@ -76,15 +66,13 @@ export class TimesheetService {
       companyId,
       userId,
       timesheetId,
-      ...createTimesheetEntryDto,
+      ...dto,
     });
 
-    timesheet.totalMinutes += newEntry.durationMin;
-    await this.timesheetRepository.update(timesheetId, {
-      totalMinutes: timesheet.totalMinutes,
-    });
+    const newTotal = (timesheet.totalMinutes ?? 0) + newEntry.durationMin;
+    await this.timesheetRepository.update(timesheetId, { totalMinutes: newTotal });
 
-    await this.timesheetHistoryService.recordEvent(companyId, {
+    await this.recordEvent(companyId, {
       userId,
       targetType: "TimesheetEntry",
       targetId: newEntry.id,
@@ -95,55 +83,43 @@ export class TimesheetService {
     return this.getTimesheet(timesheetId);
   }
 
-  public async submitTimesheet(
-    companyId: string,
-    userId: string,
-    timesheetId: string,
-  ): Promise<Timesheet> {
+  public async submitTimesheet(companyId: string, userId: string, timesheetId: string): Promise<Timesheet> {
     const timesheet = await this.getTimesheet(timesheetId);
 
     if (timesheet.status !== TimesheetStatus.DRAFT) {
       throw new UnprocessableEntityError("Timesheet is not in draft status");
     }
 
-    const updatedTimesheet = await this.timesheetRepository.update(
-      timesheetId,
-      {
-        status: TimesheetStatus.SUBMITTED,
-        submittedAt: new Date(),
-        submittedByUserId: userId,
-      },
-    );
+    const updated = await this.timesheetRepository.update(timesheetId, {
+      status: TimesheetStatus.SUBMITTED,
+      submittedAt: new Date(),
+      submittedByUserId: userId,
+    });
 
-    await this.timesheetHistoryService.recordEvent(companyId, {
+    await this.recordEvent(companyId, {
       userId,
       targetType: "Timesheet",
       targetId: timesheetId,
       action: "submitted",
     });
 
-    return updatedTimesheet!;
+    return updated!;
   }
 
-  public async approveTimesheet(
-    companyId: string,
-    approverId: string,
-    timesheetId: string,
-  ): Promise<Timesheet> {
+  public async approveTimesheet(companyId: string, approverId: string, timesheetId: string): Promise<Timesheet> {
     const timesheet = await this.getTimesheet(timesheetId);
 
     if (timesheet.status !== TimesheetStatus.SUBMITTED) {
-      throw new UnprocessableEntityError(
-        "Timesheet is not in submitted status",
-      );
+      throw new UnprocessableEntityError("Timesheet is not in submitted status");
     }
 
-    const updatedTimesheet = await this.timesheetRepository.update(
-      timesheetId,
-      { status: TimesheetStatus.APPROVED, approvedAt: new Date(), approverId },
-    );
+    const updated = await this.timesheetRepository.update(timesheetId, {
+      status: TimesheetStatus.APPROVED,
+      approvedAt: new Date(),
+      approverId,
+    });
 
-    await this.timesheetHistoryService.recordEvent(companyId, {
+    await this.recordEvent(companyId, {
       userId: timesheet.userId,
       targetType: "Timesheet",
       targetId: timesheetId,
@@ -151,7 +127,7 @@ export class TimesheetService {
       actorUserId: approverId,
     });
 
-    return updatedTimesheet!;
+    return updated!;
   }
 
   public async rejectTimesheet(
@@ -163,25 +139,20 @@ export class TimesheetService {
     const timesheet = await this.getTimesheet(timesheetId);
 
     if (timesheet.status !== TimesheetStatus.SUBMITTED) {
-      throw new UnprocessableEntityError(
-        "Timesheet is not in submitted status",
-      );
+      throw new UnprocessableEntityError("Timesheet is not in submitted status");
     }
 
-    const updatedTimesheet = await this.timesheetRepository.update(
-      timesheetId,
-      { status: TimesheetStatus.REJECTED },
-    );
+    const updated = await this.timesheetRepository.update(timesheetId, { status: TimesheetStatus.REJECTED });
 
-    await this.timesheetHistoryService.recordEvent(companyId, {
+    await this.recordEvent(companyId, {
       userId: timesheet.userId,
       targetType: "Timesheet",
       targetId: timesheetId,
       action: "rejected",
-      reason,
       actorUserId: approverId,
+      reason,
     });
 
-    return updatedTimesheet!;
+    return updated!;
   }
 }

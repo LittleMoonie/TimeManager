@@ -38,10 +38,10 @@ export class TimesheetEntry extends BaseEntity {
 
   @Column({ type: "varchar", length: 8, default: WorkMode.OFFICE })
   workMode!: WorkMode;
+
   @Column({ type: "varchar", length: 2 }) country!: string;
 
-  @Column({ type: "timestamp with time zone", nullable: true })
-  startedAt?: Date;
+  @Column({ type: "timestamp with time zone", nullable: true }) startedAt?: Date;
   @Column({ type: "timestamp with time zone", nullable: true }) endedAt?: Date;
 
   @Column("int") durationMin!: number; // store computed duration for fast totals

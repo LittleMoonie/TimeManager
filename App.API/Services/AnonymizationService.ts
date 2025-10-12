@@ -1,24 +1,22 @@
 import { Service } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { Repository } from "typeorm";
-import User from "@/Entities/Users/User";
-import { UserRepository } from "@/Repositories/Users/UserRepository";
 import ActiveSession from "@/Entities/Users/ActiveSessions";
 import { NotFoundError } from "@/Errors/HttpErrors";
+import { UserRepository } from "@/Repositories/Users/UserRepository";
 
 @Service()
 export class AnonymizationService {
   constructor(
-    @InjectRepository(User)
-    private userRepository: UserRepository,
+    private readonly userRepository: UserRepository,
+
     @InjectRepository(ActiveSession)
-    private activeSessionRepository: Repository<ActiveSession>,
+    private readonly activeSessionRepository: Repository<ActiveSession>,
   ) {}
 
   public async anonymizeUserData(userId: string, companyId: string): Promise<void> {
     const user = await this.userRepository.findById(userId);
-
-    if (!user) {
+    if (!user || user.companyId !== companyId) {
       throw new NotFoundError("User not found");
     }
 
@@ -34,7 +32,5 @@ export class AnonymizationService {
 
     // Hard delete related sensitive data
     await this.activeSessionRepository.delete({ userId: user.id });
-
-    // Other related data could be handled here in the future
   }
 }

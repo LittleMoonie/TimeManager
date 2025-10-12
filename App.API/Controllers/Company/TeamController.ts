@@ -17,7 +17,7 @@ import {
   CreateTeamDto,
   TeamResponseDto,
   UpdateTeamDto,
-} from "../../Dtos/Company/TeamDto";
+} from "../../Dtos/Companies/TeamDto";
 import { UserService } from "../../Services/User/UserService";
 import { Service } from "typedi";
 import { UserDto } from "../../Dtos/Users/UserDto";

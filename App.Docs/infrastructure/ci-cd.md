@@ -86,34 +86,34 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
-      - name: Install pnpm
+      - name: Install yarn
         uses: pnpm/action-setup@v2
         with:
           version: 8
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: yarn install --frozen-lockfile
 
       - name: Lint code
-        run: pnpm lint
+        run: yarn lint
 
       - name: Type check
-        run: pnpm type-check
+        run: yarn type-check
 
       - name: Run unit tests
-        run: pnpm test:unit
+        run: yarn test:unit
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ncy8_test
           REDIS_URL: redis://localhost:6379
 
       - name: Run integration tests
-        run: pnpm test:integration
+        run: yarn test:integration
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ncy8_test
           REDIS_URL: redis://localhost:6379
 
       - name: Build application
-        run: pnpm build
+        run: yarn build
 
       - name: Security scan
         run: pnpm audit --audit-level moderate
@@ -237,7 +237,7 @@ jobs:
       - name: Build and push frontend
         uses: docker/build-push-action@v5
         with:
-          context: ./front
+          context: ./App.Web
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -247,7 +247,7 @@ jobs:
       - name: Build and push backend
         uses: docker/build-push-action@v5
         with:
-          context: ./back
+          context: ./App.API
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -303,7 +303,7 @@ pipeline {
                         script {
                             def frontendImage = docker.build(
                                 "${DOCKER_REGISTRY}/frontend:${env.GIT_COMMIT_SHORT}",
-                                "-f front/Dockerfile front/"
+                                "-f App.Web/Dockerfile App.Web/"
                             )
                             frontendImage.push()
                         }
@@ -315,7 +315,7 @@ pipeline {
                         script {
                             def backendImage = docker.build(
                                 "${DOCKER_REGISTRY}/backend:${env.GIT_COMMIT_SHORT}",
-                                "-f back/Dockerfile back/"
+                                "-f App.API/Dockerfile App.API/"
                             )
                             backendImage.push()
                         }
@@ -465,13 +465,13 @@ pipeline {
                 script {
                     sh '''
                         # Run migrations in dry-run mode first
-                        pnpm db:migrate --dry-run
+                        yarn typeorm migration:run -d ./Server/Database.ts --check
                         
                         # Run actual migrations
-                        pnpm db:migrate
+                        yarn typeorm migration:run -d ./Server/Database.ts
                         
                         # Verify migration success
-                        pnpm db:migrate:status
+                        yarn typeorm migration:show -d ./Server/Database.ts
                     '''
                 }
             }
@@ -482,10 +482,10 @@ pipeline {
                 script {
                     sh '''
                         # Run smoke tests
-                        pnpm test:migration-smoke
+                        yarn test:migration-smoke
                         
                         # Check database integrity
-                        pnpm db:integrity-check
+                        yarn db:integrity-check
                     '''
                 }
             }
@@ -496,7 +496,7 @@ pipeline {
         failure {
             script {
                 // Rollback migration on failure
-                sh 'pnpm db:migrate:rollback'
+                sh 'yarn typeorm migration:revert -d ./Server/Database.ts'
             }
         }
     }
