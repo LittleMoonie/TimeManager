@@ -53,6 +53,6 @@ export class ActiveSessionService {
     companyId: string,
     userId: string,
   ): Promise<ActiveSession[]> {
-    return this.activeSessionRepository.findAll(companyId, userId);
+    return this.activeSessionRepository.findAll();
   }
 }

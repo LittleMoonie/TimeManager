@@ -109,7 +109,7 @@ export class RoleController extends Controller {
   ): Promise<RoleResponse> {
     const { id: userId } = request.user as UserDto;
     const user = await this.userService.getUserById(userId);
-    return this.roleService.updateRole(user.companyId, userId, id, requestBody);
+    return this.roleService.updateRolePermissions(user.companyId, userId, id, requestBody);
   }
 
   /**

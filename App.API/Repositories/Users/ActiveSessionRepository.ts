@@ -9,8 +9,4 @@ export class ActiveSessionRepository extends BaseRepository<ActiveSession> {
   async findByTokenHash(tokenHash: string): Promise<ActiveSession | null> {
     return this.repository.findOne({ where: { tokenHash } });
   }
-
-  async findAll(companyId: string, userId: string): Promise<ActiveSession[]> {
-    return this.repository.find({ where: { companyId, userId } });
-  }
 }

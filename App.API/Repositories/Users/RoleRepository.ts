@@ -1,4 +1,4 @@
-import { FindOneOptions } from "typeorm";
+
 import { Role } from "../../Entities/Users/Role";
 import { BaseRepository } from "../BaseRepository";
 
@@ -17,16 +17,5 @@ export class RoleRepository extends BaseRepository<Role> {
 
   async removePermission(companyId: string, id: string): Promise<void> {
     await this.repository.delete({ companyId, id });
-  }
-
-  async findByNameWithRelations(
-    companyId: string,
-    name: string,
-  ): Promise<Role | null> {
-    const options: FindOneOptions<Role> = {
-      where: { companyId, name },
-      relations: ["rolePermissions", "rolePermissions.permission"],
-    };
-    return this.repository.findOne(options);
   }
 }

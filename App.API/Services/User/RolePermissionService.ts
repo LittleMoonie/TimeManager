@@ -1,7 +1,7 @@
 import { Service } from "typedi";
 import { RolePermissionRepository } from "../../Repositories/Users/RolePermissionRepository";
 import { RolePermission } from "../../Entities/Users/RolePermission";
-import { NotFoundError, ForbiddenError } from "../../Errors/HttpErrors";
+import { ForbiddenError } from "../../Errors/HttpErrors";
 import { CreateRolePermissionDto } from "../../Dtos/Users/RolePermissionDto";
 import User from "../../Entities/Users/User";
 
@@ -36,18 +36,7 @@ export class RolePermissionService {
       companyId,
       ...createRolePermissionDto,
     });
-  }
-
-  public async getRolePermissionById(
-    id: string,
-  ): Promise<RolePermission> {
-    const rolePermission =
-      await this.rolePermissionRepository.findById(id);
-    if (!rolePermission) {
-      throw new NotFoundError("RolePermission not found");
-    }
-    return rolePermission;
-  }
+  } 
 
   public async deleteRolePermission(
     currentUser: User,
@@ -58,7 +47,7 @@ export class RolePermissionService {
         "User does not have permission to delete role permissions.",
       );
     }
-    await this.getRolePermissionById(id);
+    await this.rolePermissionRepository.findById(id);
     await this.rolePermissionRepository.delete(id);
   }
 }

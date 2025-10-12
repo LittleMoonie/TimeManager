@@ -46,10 +46,10 @@ export class RoleService {
   }
 
   async getRoleByName(companyId: string, name: string): Promise<Role> {
-    const role = await this.roleRepository.findByNameWithRelations(
-      companyId,
-      name,
-    );
+    const role = await this.roleRepository.findOne({
+      where: { companyId, name },
+      relations: ["rolePermissions", "rolePermissions.permission"],
+    });
     if (!role) {
       throw new NotFoundError("Role not found");
     }
@@ -61,6 +61,19 @@ export class RoleService {
   }
 
   async updateRole(
+    companyId: string,
+    roleId: string,
+    updateRoleDto: UpdateRoleDto,
+  ): Promise<Role> {
+    const role = await this.getRoleById(roleId);
+    const updatedRole = await this.roleRepository.update(roleId, updateRoleDto);
+    if (!updatedRole) {
+      throw new NotFoundError("Role not found");
+    }
+    return updatedRole;
+  }
+
+  async updateRolePermissions(
     companyId: string,
     userId: string,
     roleId: string,
@@ -135,14 +148,11 @@ export class RoleService {
     roleId: string,
     permissionId: string,
   ): Promise<void> {
-    const rolePermission = await this.rolePermissionRepository.findOne({
-      where: { companyId, roleId, permissionId },
-    });
-    if (!rolePermission) {
+    const rolePermission = await this.rolePermissionRepository.findAndCountBy({ companyId, roleId, permissionId });
+    if (rolePermission[0].length === 0) {
       throw new NotFoundError("RolePermission not found");
     }
-
-    await this.rolePermissionRepository.delete(rolePermission.id);
+    await this.rolePermissionRepository.delete(rolePermission[0][0].id);
 
     await this.userActivityLogService.log(companyId, {
       userId,
