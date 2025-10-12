@@ -1,108 +1,75 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
-  Path,
   Post,
   Put,
-  Query,
-  Request,
+  Delete,
   Route,
-  Security,
   Tags,
+  Path,
+  Security,
+  Request,
 } from "tsoa";
-import { ActionCode } from "../../Entities/Timesheets/ActionCode";
-import { Request as ExRequest } from "express";
+import { Request as ExpressRequest } from "express";
 import { Service } from "typedi";
-import {
-  CreateActionCodeDto,
-  UpdateActionCodeDto,
-} from "../../Dtos/Timesheet/ActionCodeDto";
-import { ActionCodeService } from "../../Services/Timesheet/ActionCodeService";
-import { UserDto } from "../../Dtos/Users/UserDto";
+
+import { TimesheetApprovalService } from "@/Services/Timesheet/TimesheetApprovalService";
+import { CreateTimesheetApprovalDto, UpdateTimesheetApprovalDto } from "@/Dtos/Timesheet/TimesheetDto";
+import { TimesheetApproval } from "@/Entities/Timesheets/TimesheetApproval";
+import User from "@/Entities/Users/User";
 
 /**
- * @summary Controller for managing action codes used in timesheets.
- * @tags Action Codes
+ * @summary Manage timesheet approvals (company-scoped).
+ * @tags Timesheet Approvals
  * @security jwt
  */
-@Route("action-codes")
-@Tags("Action Codes")
+@Route("timesheet-approvals")
+@Tags("Timesheet Approvals")
 @Security("jwt")
 @Service()
-export class ActionCodeController extends Controller {
-  constructor(private actionCodeService: ActionCodeService) {
+export class TimesheetApprovalController extends Controller {
+  constructor(private readonly timesheetApprovalService: TimesheetApprovalService) {
     super();
   }
 
-  /**
-   * @summary Retrieves a list of action codes, optionally filtered by a query string.
-   * @param {ExRequest} request - The Express request object, containing user information.
-   * @param {string} [q] - Optional query string to filter action codes.
-   * @returns {Promise<ActionCode[]>} An array of action codes.
-   */
-  @Get("/")
-  public async listActionCodes(
-    @Request() request: ExRequest,
-    @Query() q?: string,
-  ): Promise<ActionCode[]> {
-    const { companyId } = request.user as UserDto;
-    return this.actionCodeService.search(companyId, q);
-  }
-
-  /**
-   * @summary Creates a new action code.
-   * @param {ExRequest} request - The Express request object, containing user information.
-   * @param {CreateActionCodeDto} requestBody - The data for creating the action code.
-   * @returns {Promise<ActionCode>} The newly created action code.
-   */
   @Post("/")
-  @Security("jwt", ["manager", "admin"])
-  public async createActionCode(
-    @Request() request: ExRequest,
-    @Body() requestBody: CreateActionCodeDto,
-  ): Promise<ActionCode> {
-    const { id: actorUserId, companyId } = request.user as UserDto;
-    return this.actionCodeService.create(companyId, actorUserId, requestBody);
+  @Security("jwt", ["admin", "manager"])
+  public async createTimesheetApproval(
+    @Body() dto: CreateTimesheetApprovalDto,
+    @Request() request: ExpressRequest,
+  ): Promise<TimesheetApproval> {
+    const me = request.user as User;
+    return this.timesheetApprovalService.createTimesheetApproval(me.companyId, dto);
   }
 
-  /**
-   * @summary Updates an existing action code.
-   * @param {ExRequest} request - The Express request object, containing user information.
-   * @param {string} id - The ID of the action code to update.
-   * @param {UpdateActionCodeDto} requestBody - The data for updating the action code.
-   * @returns {Promise<ActionCode>} The updated action code.
-   */
+  @Get("/{id}")
+  public async getTimesheetApproval(
+    @Path() id: string,
+    @Request() request: ExpressRequest,
+  ): Promise<TimesheetApproval> {
+    const me = request.user as User;
+    return this.timesheetApprovalService.getTimesheetApprovalById(me.companyId, id);
+  }
+
   @Put("/{id}")
-  @Security("jwt", ["manager", "admin"])
-  public async updateActionCode(
-    @Request() request: ExRequest,
+  @Security("jwt", ["admin", "manager"])
+  public async updateTimesheetApproval(
     @Path() id: string,
-    @Body() requestBody: UpdateActionCodeDto,
-  ): Promise<ActionCode> {
-    const { id: actorUserId, companyId } = request.user as UserDto;
-    return this.actionCodeService.update(
-      companyId,
-      actorUserId,
-      id,
-      requestBody,
-    );
+    @Body() dto: UpdateTimesheetApprovalDto,
+    @Request() request: ExpressRequest,
+  ): Promise<TimesheetApproval> {
+    const me = request.user as User;
+    return this.timesheetApprovalService.updateTimesheetApproval(me.companyId, id, dto);
   }
 
-  /**
-   * @summary Deletes an action code by its ID.
-   * @param {ExRequest} request - The Express request object, containing user information.
-   * @param {string} id - The ID of the action code to delete.
-   * @returns {Promise<void>} Nothing is returned upon successful deletion.
-   */
   @Delete("/{id}")
-  @Security("jwt", ["manager", "admin"])
-  public async deleteActionCode(
-    @Request() request: ExRequest,
+  @Security("jwt", ["admin", "manager"])
+  public async deleteTimesheetApproval(
     @Path() id: string,
+    @Request() request: ExpressRequest,
   ): Promise<void> {
-    const { id: actorUserId, companyId } = request.user as UserDto;
-    await this.actionCodeService.delete(companyId, actorUserId, id);
+    const me = request.user as User;
+    await this.timesheetApprovalService.deleteTimesheetApproval(me.companyId, id);
   }
 }

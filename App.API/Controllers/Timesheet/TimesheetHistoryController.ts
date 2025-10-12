@@ -1,13 +1,13 @@
 import { Body, Controller, Post, Request, Route, Security, Tags } from "tsoa";
 import { Request as ExRequest } from "express";
 import { Service } from "typedi";
-import { TimesheetHistory } from "../../Entities/Timesheets/TimesheetHistory";
-import { TimesheetHistoryService } from "../../Services/Logs/Timesheet/TimesheetHistoryService";
-import { TimesheetHistoryResponseDto } from "../../Dtos/Logs/Timesheet/TimesheetHistoryDto";
-import { UserDto } from "../../Dtos/Users/UserDto";
+
+import { TimesheetHistory } from "@/Entities/Timesheets/TimesheetHistory";
+import { TimesheetHistoryRepository } from "@/Repositories/Timesheets/TimesheetHistoryRepository";
+import User from "@/Entities/Users/User";
 
 /**
- * @summary Controller for retrieving timesheet history logs.
+ * @summary Retrieve history events (company-scoped).
  * @tags Timesheet History
  * @security jwt
  */
@@ -16,27 +16,21 @@ import { UserDto } from "../../Dtos/Users/UserDto";
 @Security("jwt")
 @Service()
 export class TimesheetHistoryController extends Controller {
-  constructor(private timesheetHistoryService: TimesheetHistoryService) {
+  constructor(private readonly historyRepo: TimesheetHistoryRepository) {
     super();
   }
 
   /**
-   * @summary Retrieves the history of a specific timesheet or timesheet entry.
-   * @param {ExRequest} request - The Express request object, containing user information.
-   * @param {TimesheetHistoryResponseDto} body - The request body containing targetType and targetId for filtering.
-   * @returns {Promise<TimesheetHistory[]>} An array of timesheet history records.
+   * @summary Filter history by target
+   * @example body { "targetType": "Timesheet", "targetId": "uuid" }
    */
   @Post("/filter")
   public async listHistory(
     @Request() request: ExRequest,
-    @Body() body: TimesheetHistoryResponseDto,
+    @Body() body: { targetType: "ActionCode" | "Timesheet" | "TimesheetEntry" | "TimesheetApproval"; targetId: string; },
   ): Promise<TimesheetHistory[]> {
-    const { companyId } = request.user as UserDto;
-    // This is a simple implementation. A more complex implementation would handle pagination and filtering.
-    return this.timesheetHistoryService.getHistoryForTarget(
-      companyId,
-      body.targetType!,
-      body.targetId!,
-    );
+    const me = request.user as User;
+    // Assuming repository exposes a finder like this; if not, replace with a QueryBuilder in the repo.
+    return this.historyRepo.findAllForTarget(me.companyId, body.targetType, body.targetId);
   }
 }

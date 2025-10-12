@@ -1,11 +1,11 @@
 import { IsNotEmpty, IsString, IsOptional, IsBoolean } from "class-validator";
 
 /**
- * @summary Data transfer object for creating a new user status.
+ * @description Data transfer object for creating a new user status.
  */
 export class CreateUserStatusDto {
   /**
-   * @description The unique code for the user status.
+   * @description The unique code for the user status (e.g., "ACTIVE", "SUSPENDED").
    * @example "ACTIVE"
    */
   @IsString()
@@ -21,7 +21,7 @@ export class CreateUserStatusDto {
   name!: string;
 
   /**
-   * @description Optional: A description of the user status.
+   * @description Optional: A detailed description of the user status.
    * @example "User is currently active and can log in."
    */
   @IsString()
@@ -29,7 +29,7 @@ export class CreateUserStatusDto {
   description?: string;
 
   /**
-   * @description Optional: Indicates if users with this status can log in.
+   * @description Optional: Indicates whether users with this status are allowed to log in.
    * @example true
    */
   @IsBoolean()
@@ -37,7 +37,7 @@ export class CreateUserStatusDto {
   canLogin?: boolean;
 
   /**
-   * @description Optional: Indicates if this status is a terminal status (e.g., "terminated").
+   * @description Optional: Indicates whether this status is a terminal status (e.g., "terminated", "archived").
    * @example false
    */
   @IsBoolean()
@@ -46,7 +46,7 @@ export class CreateUserStatusDto {
 }
 
 /**
- * @summary Data transfer object for updating an existing user status.
+ * @description Data transfer object for updating an existing user status.
  */
 export class UpdateUserStatusDto {
   /**
@@ -66,7 +66,7 @@ export class UpdateUserStatusDto {
   name?: string;
 
   /**
-   * @description Optional: An updated description of the user status.
+   * @description Optional: An updated detailed description of the user status.
    * @example "User is currently inactive and cannot log in."
    */
   @IsString()
@@ -74,7 +74,7 @@ export class UpdateUserStatusDto {
   description?: string;
 
   /**
-   * @description Optional: Indicates if users with this status can log in.
+   * @description Optional: Indicates whether users with this status can log in.
    * @example false
    */
   @IsBoolean()
@@ -82,7 +82,7 @@ export class UpdateUserStatusDto {
   canLogin?: boolean;
 
   /**
-   * @description Optional: Indicates if this status is a terminal status.
+   * @description Optional: Indicates whether this status is a terminal status.
    * @example true
    */
   @IsBoolean()
@@ -91,7 +91,7 @@ export class UpdateUserStatusDto {
 }
 
 /**
- * @summary Data transfer object for a user status response.
+ * @description Data transfer object for a user status response.
  */
 export class UserStatusResponseDto {
   /**
@@ -110,17 +110,17 @@ export class UserStatusResponseDto {
    */
   name!: string;
   /**
-   * @description Optional: A description of the user status.
+   * @description Optional: A detailed description of the user status.
    * @example "User is currently active and can log in."
    */
   description?: string;
   /**
-   * @description Indicates if users with this status can log in.
+   * @description Indicates whether users with this status are allowed to log in.
    * @example true
    */
   canLogin!: boolean;
   /**
-   * @description Indicates if this status is a terminal status.
+   * @description Indicates whether this status is a terminal status.
    * @example false
    */
   isTerminal!: boolean;

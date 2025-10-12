@@ -11,29 +11,30 @@ import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity
 import { InternalServerError } from "../Errors/HttpErrors";
 
 /**
- * Generic, reusable base repository class for TypeORM entities.
- * Includes CRUD, soft delete, pagination, and error handling.
+ * @description Generic, reusable base repository class for TypeORM entities. Provides common CRUD (Create, Read, Update, Delete)
+ * operations, soft deletion capabilities, pagination, and centralized error handling.
+ * @template T The TypeORM entity type that extends BaseEntity.
  *
  * IMPORTANT:
- * - Supports optional DI: pass an injected Repository<T> when available.
+ * - Supports optional Dependency Injection (DI): a pre-initialized `Repository<T>` can be passed during construction.
  */
 export class BaseRepository<T extends BaseEntity> {
   protected repository: Repository<T>;
 
   /**
-   * Create a repository instance for the given entity.
-   * @param entity The TypeORM entity target.
-   * @param repo (Optional) A pre-initialized TypeORM Repository<T> for DI.
+   * @description Creates a new instance of the BaseRepository for a given entity.
+   * @param entity The TypeORM entity target (e.g., `User`, `Company`).
+   * @param repo Optional: A pre-initialized TypeORM `Repository<T>` instance. If not provided, one will be obtained from `AppDataSource`.
    */
   constructor(entity: EntityTarget<T>, repo?: Repository<T>) {
     this.repository = repo ?? AppDataSource.getRepository<T>(entity);
   }
 
   /**
-   * Create a new entity and persist it to the database.
-   * @param data Partial entity fields to initialize the new record.
-   * @returns The persisted entity.
-   * @throws {InternalServerError} When the insert fails.
+   * @description Creates a new entity record in the database and persists it.
+   * @param data A partial object containing the fields to initialize the new entity.
+   * @returns A Promise that resolves to the newly created and persisted entity.
+   * @throws {InternalServerError} If the entity creation or persistence fails due to a database error.
    */
   async create(data: DeepPartial<T>): Promise<T> {
     try {
@@ -45,11 +46,12 @@ export class BaseRepository<T extends BaseEntity> {
   }
 
   /**
-   * Update an existing entity by its id.
-   * @param id The entity id to update.
-   * @param data Partial fields to update.
-   * @returns The updated entity, or null if not found after update.
-   * @throws {InternalServerError} When the update fails.
+   * @description Updates an existing entity identified by its ID with new data.
+   * After updating, it attempts to retrieve and return the updated entity.
+   * @param id The unique identifier of the entity to update.
+   * @param data A partial object containing the fields and their new values to update.
+   * @returns A Promise that resolves to the updated entity, or `null` if the entity was not found after the update operation.
+   * @throws {InternalServerError} If the update operation fails due to a database error.
    */
   async update(id: string, data: DeepPartial<T>): Promise<T | null> {
     try {
@@ -64,10 +66,11 @@ export class BaseRepository<T extends BaseEntity> {
   }
 
   /**
-   * Insert or update an entity instance.
+   * @description Saves a given entity instance to the database. This method can be used for both inserting new entities
+   * and updating existing ones (if the entity has an ID).
    * @param entity The entity instance to save.
-   * @returns The saved entity.
-   * @throws {InternalServerError} When the save fails.
+   * @returns A Promise that resolves to the saved entity instance.
+   * @throws {InternalServerError} If the save operation fails due to a database error.
    */
   async save(entity: T): Promise<T> {
     try {
@@ -78,9 +81,10 @@ export class BaseRepository<T extends BaseEntity> {
   }
 
   /**
-   * Permanently delete an entity by its id.
-   * @param id The id of the entity to delete.
-   * @throws {InternalServerError} When the delete operation fails.
+   * @description Permanently deletes an entity from the database by its unique identifier. This operation is irreversible.
+   * @param id The unique identifier of the entity to delete.
+   * @returns A Promise that resolves when the delete operation is complete.
+   * @throws {InternalServerError} If the delete operation fails due to a database error.
    */
   async delete(id: string): Promise<void> {
     try {
@@ -91,9 +95,11 @@ export class BaseRepository<T extends BaseEntity> {
   }
 
   /**
-   * Soft delete an entity (sets deletedAt) by its id.
-   * @param id The id of the entity to soft delete.
-   * @throws {InternalServerError} When the soft delete fails.
+   * @description Soft deletes an entity by setting its `deletedAt` timestamp. The record remains in the database
+   * but is typically excluded from standard queries.
+   * @param id The unique identifier of the entity to soft delete.
+   * @returns A Promise that resolves when the soft delete operation is complete.
+   * @throws {InternalServerError} If the soft delete operation fails due to a database error.
    */
   async softDelete(id: string): Promise<void> {
     try {
@@ -104,9 +110,10 @@ export class BaseRepository<T extends BaseEntity> {
   }
 
   /**
-   * Restore a soft-deleted entity by its id.
-   * @param id The id of the entity to restore.
-   * @throws {InternalServerError} When the restore fails.
+   * @description Restores a soft-deleted entity by clearing its `deletedAt` timestamp.
+   * @param id The unique identifier of the entity to restore.
+   * @returns A Promise that resolves when the restore operation is complete.
+   * @throws {InternalServerError} If the restore operation fails due to a database error.
    */
   async restore(id: string): Promise<void> {
     try {
@@ -117,11 +124,11 @@ export class BaseRepository<T extends BaseEntity> {
   }
 
   /**
-   * Find a single entity by its id.
-   * @param id The entity id.
-   * @param withDeleted Whether to include soft-deleted records.
-   * @returns The matching entity or null if not found.
-   * @throws {InternalServerError} When the query fails.
+   * @description Finds a single entity by its unique identifier.
+   * @param id The unique identifier of the entity to find.
+   * @param withDeleted Optional: If `true`, includes soft-deleted records in the search. Defaults to `false`.
+   * @returns A Promise that resolves to the matching entity or `null` if no entity is found.
+   * @throws {InternalServerError} If the query operation fails due to a database error.
    */
   async findById(id: string, withDeleted = false): Promise<T | null> {
     try {
@@ -135,28 +142,29 @@ export class BaseRepository<T extends BaseEntity> {
   }
 
   /**
-   * Find all entities (optionally including soft-deleted).
-   * @param withDeleted Whether to include soft-deleted records.
-   * @returns An array of entities.
+   * @description Retrieves all entities of the repository's type.
+   * @param withDeleted Optional: If `true`, includes soft-deleted records in the results. Defaults to `false`.
+   * @returns A Promise that resolves to an array of all entities.
    */
   async findAll(withDeleted = false): Promise<T[]> {
     return this.repository.find({ withDeleted });
   }
 
   /**
-   * Find a single entity by arbitrary conditions.
-   * @param options TypeORM FindOneOptions<T> (where/relations/etc).
-   * @returns The matching entity or null if not found.
+   * @description Finds a single entity based on arbitrary TypeORM `FindOneOptions`.
+   * This allows for complex queries including `where` conditions, `relations`, `order`, etc.
+   * @param options The TypeORM `FindOneOptions<T>` object specifying the query criteria.
+   * @returns A Promise that resolves to the matching entity or `null` if no entity is found.
    */
   async findOne(options: FindOneOptions<T>): Promise<T | null> {
     return this.repository.findOne(options);
   }
 
   /**
-   * Find entities using pagination (page, limit).
-   * @param page The page number (1-based).
-   * @param limit The number of records per page.
-   * @returns An object with { data, total } where total is the count of all matching rows.
+   * @description Retrieves a paginated list of entities.
+   * @param page The 1-based page number to retrieve. Defaults to `1`.
+   * @param limit The maximum number of records to return per page. Defaults to `10`.
+   * @returns A Promise that resolves to an object containing the paginated data (`data`) and the total count of entities (`total`).
    */
   async findPaginated(page = 1, limit = 10): Promise<{ data: T[]; total: number }> {
     const [data, total] = await this.repository.findAndCount({

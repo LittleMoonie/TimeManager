@@ -10,7 +10,7 @@ let RegisterRoutes: (app: express.Application) => void;
 
 try {
   // Try importing TSOA routes
-  ({ RegisterRoutes } = require("../Routes/Generated/routes"));
+import { RegisterRoutes } from "../Routes/Generated/routes";
 } catch (err) {
   console.warn("⚠️ Skipping TSOA route registration in test mode:", (err as Error).message);
   RegisterRoutes = () => {};

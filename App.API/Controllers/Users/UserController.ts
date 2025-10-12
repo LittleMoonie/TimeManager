@@ -10,18 +10,28 @@ import {
   Path,
   Security,
   Request,
+  Query,
 } from "tsoa";
 import { Request as ExpressRequest } from "express";
-import { UserService } from "../../Services/User/UserService";
-import { UserDto } from "../../Dtos/Users/UserDto";
-import { CreateUserDto } from "../../Dtos/Users/CreateUserDto";
-import { UpdateUserDto } from "../../Dtos/Users/UpdateUserDto";
-import { RolePermissionService } from "../../Services/RoleService/RolePermissionService";
 import { Service } from "typedi";
-import User from "../../Entities/Users/User";
+
+import { UserService } from "@/Services/User/UserService";
+import {
+  CreateUserDto,
+  UpdateUserDto,
+} from "@/Dtos/Users/UserDto";
+import { UserResponseDto } from "@/Dtos/Users/UserResponseDto";
+import User from "@/Entities/Users/User";
+
+type UsersPage = {
+  data: UserResponseDto[];
+  total: number;
+  page: number;
+  limit: number;
+};
 
 /**
- * @summary Controller for managing user accounts.
+ * @summary Company-scoped user management.
  * @tags Users
  * @security jwt
  */
@@ -30,105 +40,69 @@ import User from "../../Entities/Users/User";
 @Security("jwt")
 @Service()
 export class UserController extends Controller {
-  constructor(
-    private userService: UserService,
-    private rolePermissionService: RolePermissionService,
-  ) {
+  constructor(private readonly userService: UserService) {
     super();
   }
 
   /**
-   * @summary Retrieves all users within the authenticated user's company.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<UserResponseDto[]>} An array of user details.
+   * @summary Paginated users list (company-scoped).
    */
   @Get("/")
-  public async getAllUsers(
+  public async listUsers(
     @Request() request: ExpressRequest,
-  ): Promise<UserDto[]> {
-    const { companyId } = request.user as UserDto;
-    return this.userService.getAllUsers(companyId);
+    @Query() page?: number,
+    @Query() limit?: number,
+  ): Promise<UsersPage> {
+    const me = request.user as User;
+    return this.userService.listUsers(me.companyId, me, { page, limit });
   }
 
   /**
-   * @summary Retrieves a single user by their ID.
-   * @param {string} id - The ID of the user to retrieve.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<UserResponseDto>} The user details.
+   * @summary Get a single user (company-scoped).
    */
-  @Get("{id}")
+  @Get("/{id}")
   public async getUserById(
     @Path() id: string,
     @Request() request: ExpressRequest,
-  ): Promise<UserDto> {
-    const { id: userId } = request.user as UserDto;;
-    return this.userService.getUserById(userId);
+  ): Promise<UserResponseDto> {
+    const me = request.user as User;
+    return this.userService.getUser(me.companyId, id, me);
   }
 
   /**
-   * @summary Creates a new user account.
-   * @param {CreateUserDto} createUserDto - The data for creating the user.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<UserResponseDto>} The newly created user's details.
+   * @summary Create a user in my company.
    */
   @Post("/")
-  @Security("jwt", ["admin"])
   public async createUser(
     @Body() createUserDto: CreateUserDto,
     @Request() request: ExpressRequest,
-  ): Promise<UserDto> {
-    const { companyId } = request.user as UserDto;
-
-    // Check if the user has permission to create users
-    await this.rolePermissionService.checkPermission(
-      request.user as User,
-      "create_user",
-    );
-    const user = await this.userService.createUser(
-      companyId,
-      request.user as User,
-      createUserDto,
-    );
-    return user;
+  ): Promise<UserResponseDto> {
+    const me = request.user as User;
+    return this.userService.createUser(me.companyId, me, createUserDto);
   }
 
   /**
-   * @summary Updates an existing user account.
-   * @param {string} id - The ID of the user to update.
-   * @param {UpdateUserDto} updateUserDto - The data for updating the user.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<UserResponseDto>} The updated user details.
+   * @summary Update a user in my company.
    */
-  @Put("{id}")
-  @Security("jwt", ["admin"])
+  @Put("/{id}")
   public async updateUser(
     @Path() id: string,
     @Body() updateUserDto: UpdateUserDto,
     @Request() request: ExpressRequest,
-  ): Promise<UserDto> {
-    const { companyId } = request.user as UserDto;
-    const updatedUser = await this.userService.updateUser(
-      companyId,
-      id,
-      request.user as User,
-      updateUserDto,
-    );
-    return updatedUser;
+  ): Promise<UserResponseDto> {
+    const me = request.user as User;
+    return this.userService.updateUser(me.companyId, id, me, updateUserDto);
   }
 
   /**
-   * @summary Deletes a user account by its ID.
-   * @param {string} id - The ID of the user to delete.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<void>} Nothing is returned upon successful deletion.
+   * @summary Soft-delete a user in my company.
    */
-  @Delete("{id}")
-  @Security("jwt", ["admin"])
+  @Delete("/{id}")
   public async deleteUser(
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
-    const { companyId } = request.user as UserDto;
-    await this.userService.deleteUser(companyId, id, request.user as User);
+    const me = request.user as User;
+    await this.userService.softDeleteUser(me.companyId, id, me);
   }
 }

@@ -13,27 +13,40 @@ import { AuthenticationError, NotFoundError } from "@/Errors/HttpErrors";
 import { UserStatusService } from "@/Services/Users/UserStatusService";
 import { ActiveSessionService } from "@/Services/Users/ActiveSessionService";
 import { AuthenticationRepository } from "@/Repositories/Authentication/AuthenticationRepository";
+import { UserStatus } from "@Entities/Users/UserStatus";
 
 /**
- * AuthenticationService
- * - Returns AuthResponseDto with a properly shaped UserResponseDto
- * - Secure refresh token flow (store hash only, return raw token)
- * - Uses company-scoped ActiveSessionService APIs
+ * @description Service layer for handling user authentication processes, including registration, login, logout,
+ * and managing active sessions. It orchestrates interactions between repositories and other services
+ * to provide secure authentication flows.
  */
 @Service()
 export class AuthenticationService {
+  /**
+   * @description Initializes the AuthenticationService with necessary repositories and services.
+   * @param authRepo The repository for authentication-related database operations.
+   * @param userStatusService The service for managing user statuses.
+   * @param activeSessionService The service for managing active user sessions.
+   */
   constructor(
     private readonly authRepo: AuthenticationRepository,
     private readonly userStatusService: UserStatusService,
     private readonly activeSessionService: ActiveSessionService,
   ) {}
 
-  /** Register a new user */
+  /**
+   * @description Registers a new user in the system.
+   * @param registerDto The data transfer object containing new user registration details.
+   * @returns A Promise that resolves to the newly created User entity.
+   * @throws {AuthenticationError} If a user with the provided email already exists.
+   * @throws {NotFoundError} If the default user status (ACTIVE) is not found.
+   */
   public async register(registerDto: RegisterDto): Promise<User> {
     const existingUser = await this.authRepo.findUserByEmailWithAuthRelations(registerDto.email);
     if (existingUser) {
       throw new AuthenticationError("Email already exists");
     }
+
 
     const hashedPassword = await argon2.hash(registerDto.password);
 
@@ -51,17 +64,19 @@ export class AuthenticationService {
     user.roleId = registerDto.roleId;
     user.statusId = registerDto.statusId;
     user.phoneNumber = registerDto.phoneNumber;
-    user.status = defaultUserStatus;
+    user.status = defaultUserStatus as UserStatus;
 
     return this.authRepo.saveUser(user);
   }
 
   /**
-   * Login:
-   *  - verifies credentials
-   *  - issues JWT access token (24h)
-   *  - generates a secure refresh token, stores hash in ActiveSession
-   *  - returns AuthResponseDto
+   * @description Authenticates a user with provided credentials, issues a JWT access token, and generates a secure refresh token.
+   * @param loginDto The data transfer object containing user login credentials (email and password).
+   * @param ipAddress Optional: The IP address from which the login request originated.
+   * @param userAgent Optional: The user agent string of the client.
+   * @returns A Promise that resolves to an AuthResponseDto containing the JWT token and the authenticated user's profile.
+   * @throws {AuthenticationError} If credentials are wrong, the user account is inactive, or JWT secret is not configured.
+   * @throws {NotFoundError} If the user is not found during the authentication process.
    */
   public async login(
     loginDto: LoginDto,
@@ -160,13 +175,17 @@ export class AuthenticationService {
 
     return {
       token,
+      refreshToken: refreshTokenRaw,
       user: userResponse,
     };
   }
 
   /**
-   * Logout:
-   *  - revoke a refresh token in the user's company
+   * @description Logs out a user by revoking their refresh token within a specific company scope.
+   * @param companyId The unique identifier of the company.
+   * @param refreshToken The raw refresh token to be revoked.
+   * @returns A Promise that resolves when the logout operation is complete.
+   * @throws {NotFoundError} If the active session associated with the refresh token is not found.
    */
   public async logout(companyId: string, refreshToken: string): Promise<void> {
     const tokenHash = this.hashToken(refreshToken);
@@ -174,7 +193,13 @@ export class AuthenticationService {
     await this.activeSessionService.updateLastSeen(companyId, tokenHash);
   }
 
-  /** Resolve current user from a refresh token within a company scope. */
+  /**
+   * @description Resolves the current user's profile from a refresh token within a company scope.
+   * @param companyId The unique identifier of the company.
+   * @param refreshToken The raw refresh token.
+   * @returns A Promise that resolves to the User entity associated with the refresh token.
+   * @throws {NotFoundError} If the active session or the user is not found.
+   */
   public async getCurrentUser(companyId: string, refreshToken: string): Promise<User> {
     const tokenHash = this.hashToken(refreshToken);
     const active = await this.activeSessionService.getActiveSessionByTokenInCompany(companyId, tokenHash);
@@ -190,7 +215,10 @@ export class AuthenticationService {
   // Helpers
   // ----------------------
 
-  /** Create a new random raw token, hash it, and return material for persistence. */
+  /**
+   * @description Generates a new random raw refresh token, hashes it, and returns all necessary material for persistence.
+   * @returns A Promise that resolves to an object containing the raw token, its SHA-256 hash, a device ID, and its expiration date.
+   */
   private async generateRefreshTokenMaterial(): Promise<{
     rawToken: string;
     tokenHash: string;
@@ -204,7 +232,11 @@ export class AuthenticationService {
     return { rawToken, tokenHash, deviceId, expiresAt };
   }
 
-  /** Hash raw refresh token using SHA-256. */
+  /**
+   * @description Hashes a raw refresh token using SHA-256 algorithm.
+   * @param raw The raw refresh token string.
+   * @returns The SHA-256 hash of the raw token as a hexadecimal string.
+   */
   private hashToken(raw: string): string {
     return crypto.createHash("sha256").update(raw).digest("hex");
   }

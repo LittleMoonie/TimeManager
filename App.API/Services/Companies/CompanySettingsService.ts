@@ -8,13 +8,28 @@ import { ForbiddenError, UnprocessableEntityError } from "@/Errors/HttpErrors";
 import User from "@/Entities/Users/User";
 import { RolePermissionService } from "@/Services/RoleService/RolePermissionService";
 
+/**
+ * @description Service layer for managing CompanySettings entities. This service provides business logic
+ * for updating company settings, with integrated permission checks.
+ */
 @Service()
 export class CompanySettingsService {
+  /**
+   * @description Initializes the CompanySettingsService with necessary repositories and services.
+   * @param companySettingsRepository The repository for CompanySettings entities.
+   * @param rolePermissionService The service for checking user permissions.
+   */
   constructor(
     private readonly companySettingsRepository: CompanySettingsRepository,
     private readonly rolePermissionService: RolePermissionService,
   ) {}
 
+  /**
+   * @description Ensures that a given DTO (Data Transfer Object) is valid by performing class-validator validation.
+   * @param dto The DTO object to validate.
+   * @returns A Promise that resolves if validation passes.
+   * @throws {UnprocessableEntityError} If validation fails, containing details of the validation errors.
+   */
   private async ensureValidation(dto: unknown) {
     const errors = await validate(dto as object);
     if (errors.length > 0) {
@@ -24,6 +39,15 @@ export class CompanySettingsService {
     }
   }
 
+  /**
+   * @description Updates the company settings for the acting user's company. Requires 'update_company_settings' permission.
+   * @param actingUser The user performing the action.
+   * @param dto The UpdateCompanySettingsDto containing the updated company settings data.
+   * @returns A Promise that resolves to the updated CompanySettings entity.
+   * @throws {ForbiddenError} If the acting user does not have permission to update company settings.
+   * @throws {UnprocessableEntityError} If validation of the DTO fails.
+   * @throws {NotFoundError} If the company settings are not found.
+   */
   async updateCompanySettings(
     actingUser: User,
     dto: UpdateCompanySettingsDto,

@@ -1,20 +1,32 @@
 /**
- * @summary Generic success message.
+ * @description Data transfer object for a generic successful API response, typically containing a human-readable message.
  */
 export class ApiResponseDto {
-    /** @description Human-readable message. */
+    /**
+     * @description A human-readable message indicating the outcome of the operation.
+     * @example "Operation successful"
+     */
     message!: string;
   }
   
   /**
-   * @summary Generic error response shape.
+   * @description Data transfer object for a generic API error response, providing details about the error.
    */
   export class ApiErrorDto {
-    /** @description Error name or type. */
+    /**
+     * @description The name or type of the error.
+     * @example "ValidationError"
+     */
     error!: string;
-    /** @description Human-readable message. */
+    /**
+     * @description A human-readable message describing the error.
+     * @example "One or more validation errors occurred."
+     */
     message!: string;
-    /** @description Optional field-level validation issues. */
+    /**
+     * @description Optional: A record of field-level validation issues, where keys are field names and values are arrays of error messages.
+     * @example { "email": ["Email is invalid"], "password": ["Password is too short"] }
+     */
     details?: Record<string, string[]>;
   }
   

@@ -8,14 +8,38 @@ import { CreateTimesheetDto, CreateTimesheetEntryDto } from "../../Dtos/Timeshee
 import { validate } from "class-validator";
 import { WorkMode } from "../../Entities/Timesheets/TimesheetEntry";
 
+/**
+ * @description Service layer for managing Timesheet entities. This service provides business logic
+ * for timesheet operations, including creation, entry management, submission, approval, and rejection.
+ * It also integrates with TimesheetHistoryRepository to record events.
+ */
 @Service()
 export class TimesheetService {
+  /**
+   * @description Initializes the TimesheetService with necessary repositories.
+   * @param timesheetRepository The repository for Timesheet entities.
+   * @param timesheetEntryRepository The repository for TimesheetEntry entities.
+   * @param historyRepository The repository for TimesheetHistory entities.
+   */
   constructor(
     private readonly timesheetRepository: TimesheetRepository,
     private readonly timesheetEntryRepository: TimesheetEntryRepository,
     private readonly historyRepository: TimesheetHistoryRepository,
   ) {}
 
+  /**
+   * @description Records an event related to a timesheet entity in the history.
+   * @param companyId The unique identifier of the company.
+   * @param payload An object containing details about the event.
+   * @param payload.userId The unique identifier of the user associated with the event.
+   * @param payload.targetType The type of the target entity (e.g., "Timesheet", "TimesheetEntry").
+   * @param payload.targetId The unique identifier of the target entity.
+   * @param payload.action The action performed (e.g., "created", "submitted", "approved", "rejected").
+   * @param payload.actorUserId Optional: The unique identifier of the user who performed the action, if different from `userId`.
+   * @param payload.reason Optional: A reason for the action.
+   * @param payload.metadata Optional: Additional metadata related to the action.
+   * @returns A Promise that resolves when the event is recorded.
+   */
   private async recordEvent(companyId: string, payload: {
     userId: string;
     targetType: "Timesheet" | "TimesheetEntry";
@@ -28,6 +52,14 @@ export class TimesheetService {
     await this.historyRepository.create({ companyId, ...payload } as any);
   }
 
+  /**
+   * @description Creates a new timesheet for a user within a specified company.
+   * @param companyId The unique identifier of the company.
+   * @param userId The unique identifier of the user for whom the timesheet is created.
+   * @param dto The CreateTimesheetDto containing the period start and end dates, and optional notes.
+   * @returns A Promise that resolves to the newly created Timesheet entity.
+   * @throws {UnprocessableEntityError} If validation of the DTO fails.
+   */
   public async createTimesheet(companyId: string, userId: string, dto: CreateTimesheetDto): Promise<Timesheet> {
     const errors = await validate(dto as object);
     if (errors.length > 0) {
@@ -46,6 +78,12 @@ export class TimesheetService {
     return created;
   }
 
+  /**
+   * @description Retrieves a single timesheet by its unique identifier.
+   * @param timesheetId The unique identifier of the timesheet.
+   * @returns A Promise that resolves to the Timesheet entity.
+   * @throws {NotFoundError} If the timesheet is not found.
+   */
   public async getTimesheet(timesheetId: string): Promise<Timesheet> {
     const timesheet = await this.timesheetRepository.findById(timesheetId);
     if (!timesheet) {
@@ -54,6 +92,15 @@ export class TimesheetService {
     return timesheet;
   }
 
+  /**
+   * @description Adds a new entry to an existing timesheet.
+   * @param companyId The unique identifier of the company.
+   * @param userId The unique identifier of the user who owns the timesheet.
+   * @param timesheetId The unique identifier of the timesheet to add the entry to.
+   * @param dto The CreateTimesheetEntryDto containing the details of the new timesheet entry.
+   * @returns A Promise that resolves to the updated Timesheet entity with the new entry.
+   * @throws {NotFoundError} If the timesheet is not found.
+   */
   public async addTimesheetEntry(
     companyId: string,
     userId: string,
@@ -83,6 +130,15 @@ export class TimesheetService {
     return this.getTimesheet(timesheetId);
   }
 
+  /**
+   * @description Submits a timesheet for approval. Changes its status from DRAFT to SUBMITTED.
+   * @param companyId The unique identifier of the company.
+   * @param userId The unique identifier of the user submitting the timesheet.
+   * @param timesheetId The unique identifier of the timesheet to submit.
+   * @returns A Promise that resolves to the updated Timesheet entity.
+   * @throws {NotFoundError} If the timesheet is not found.
+   * @throws {UnprocessableEntityError} If the timesheet is not in DRAFT status.
+   */
   public async submitTimesheet(companyId: string, userId: string, timesheetId: string): Promise<Timesheet> {
     const timesheet = await this.getTimesheet(timesheetId);
 
@@ -106,6 +162,15 @@ export class TimesheetService {
     return updated!;
   }
 
+  /**
+   * @description Approves a submitted timesheet. Changes its status from SUBMITTED to APPROVED.
+   * @param companyId The unique identifier of the company.
+   * @param approverId The unique identifier of the user approving the timesheet.
+   * @param timesheetId The unique identifier of the timesheet to approve.
+   * @returns A Promise that resolves to the updated Timesheet entity.
+   * @throws {NotFoundError} If the timesheet is not found.
+   * @throws {UnprocessableEntityError} If the timesheet is not in SUBMITTED status.
+   */
   public async approveTimesheet(companyId: string, approverId: string, timesheetId: string): Promise<Timesheet> {
     const timesheet = await this.getTimesheet(timesheetId);
 
@@ -130,6 +195,16 @@ export class TimesheetService {
     return updated!;
   }
 
+  /**
+   * @description Rejects a submitted timesheet. Changes its status from SUBMITTED to REJECTED.
+   * @param companyId The unique identifier of the company.
+   * @param approverId The unique identifier of the user rejecting the timesheet.
+   * @param timesheetId The unique identifier of the timesheet to reject.
+   * @param reason The reason for rejecting the timesheet.
+   * @returns A Promise that resolves to the updated Timesheet entity.
+   * @throws {NotFoundError} If the timesheet is not found.
+   * @throws {UnprocessableEntityError} If the timesheet is not in SUBMITTED status.
+   */
   public async rejectTimesheet(
     companyId: string,
     approverId: string,

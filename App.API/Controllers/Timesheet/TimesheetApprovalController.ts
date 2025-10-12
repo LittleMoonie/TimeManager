@@ -12,17 +12,15 @@ import {
   Request,
 } from "tsoa";
 import { Request as ExpressRequest } from "express";
-import { TimesheetApprovalService } from "../../Services/Timesheet/TimesheetApprovalService";
-import {
-  CreateTimesheetApprovalDto,
-  TimesheetApprovalResponseDto,
-  UpdateTimesheetApprovalDto,
-} from "../../Dtos/Timesheet/TimesheetApprovalDto";
 import { Service } from "typedi";
-import { UserDto } from "../../Dtos/Users/UserDto";
+
+import { TimesheetApprovalService } from "@/Services/Timesheet/TimesheetApprovalService";
+import { CreateTimesheetApprovalDto, UpdateTimesheetApprovalDto } from "@/Dtos/Timesheet/TimesheetDto";
+import { TimesheetApproval } from "@/Entities/Timesheets/TimesheetApproval";
+import User from "@/Entities/Users/User";
 
 /**
- * @summary Controller for managing timesheet approvals.
+ * @summary Manage timesheet approvals (company-scoped).
  * @tags Timesheet Approvals
  * @security jwt
  */
@@ -31,82 +29,47 @@ import { UserDto } from "../../Dtos/Users/UserDto";
 @Security("jwt")
 @Service()
 export class TimesheetApprovalController extends Controller {
-  constructor(private timesheetApprovalService: TimesheetApprovalService) {
+  constructor(private readonly timesheetApprovalService: TimesheetApprovalService) {
     super();
   }
 
-  /**
-   * @summary Creates a new timesheet approval.
-   * @param {CreateTimesheetApprovalDto} createTimesheetApprovalDto - The data for creating the timesheet approval.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<TimesheetApprovalResponseDto>} The newly created timesheet approval.
-   */
   @Post("/")
   @Security("jwt", ["admin", "manager"])
   public async createTimesheetApproval(
-    @Body() createTimesheetApprovalDto: CreateTimesheetApprovalDto,
+    @Body() dto: CreateTimesheetApprovalDto,
     @Request() request: ExpressRequest,
-  ): Promise<TimesheetApprovalResponseDto> {
-    const { companyId } = request.user as UserDto;
-    // In a real application, you would check if the user has permission to create timesheet approvals
-    const timesheetApproval =
-      await this.timesheetApprovalService.createTimesheetApproval(
-        companyId,
-        createTimesheetApprovalDto,
-      );
-    return timesheetApproval;
+  ): Promise<TimesheetApproval> {
+    const me = request.user as User;
+    return this.timesheetApprovalService.createTimesheetApproval(me.companyId, dto);
   }
 
-  /**
-   * @summary Retrieves a single timesheet approval by its ID.
-   * @param {string} id - The ID of the timesheet approval to retrieve.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<TimesheetApprovalResponseDto>} The timesheet approval details.
-   */
   @Get("/{id}")
   public async getTimesheetApproval(
     @Path() id: string,
     @Request() request: ExpressRequest,
-  ): Promise<TimesheetApprovalResponseDto> {
-    return this.timesheetApprovalService.getTimesheetApprovalById(id);
+  ): Promise<TimesheetApproval> {
+    const me = request.user as User;
+    return this.timesheetApprovalService.getTimesheetApprovalById(me.companyId, id);
   }
 
-  /**
-   * @summary Updates an existing timesheet approval.
-   * @param {string} id - The ID of the timesheet approval to update.
-   * @param {UpdateTimesheetApprovalDto} updateTimesheetApprovalDto - The data for updating the timesheet approval.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<TimesheetApprovalResponseDto>} The updated timesheet approval details.
-   */
   @Put("/{id}")
   @Security("jwt", ["admin", "manager"])
   public async updateTimesheetApproval(
     @Path() id: string,
-    @Body() updateTimesheetApprovalDto: UpdateTimesheetApprovalDto,
+    @Body() dto: UpdateTimesheetApprovalDto,
     @Request() request: ExpressRequest,
-  ): Promise<TimesheetApprovalResponseDto> {
-    // In a real application, you would check if the user has permission to update timesheet approvals
-    const updatedTimesheetApproval =
-      await this.timesheetApprovalService.updateTimesheetApproval(
-        id,
-        updateTimesheetApprovalDto,
-      );
-    return updatedTimesheetApproval;
+  ): Promise<TimesheetApproval> {
+    const me = request.user as User;
+    return this.timesheetApprovalService.updateTimesheetApproval(me.companyId, id, dto);
   }
 
-  /**
-   * @summary Deletes a timesheet approval by its ID.
-   * @param {string} id - The ID of the timesheet approval to delete.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<void>} Nothing is returned upon successful deletion.
-   */
   @Delete("/{id}")
   @Security("jwt", ["admin", "manager"])
   public async deleteTimesheetApproval(
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
-    // In a real application, you would check if the user has permission to delete timesheet approvals
-    await this.timesheetApprovalService.deleteTimesheetApproval(id);
+    const me = request.user as User;
+    await this.timesheetApprovalService.deleteTimesheetApproval(me.companyId, id);
   }
 }

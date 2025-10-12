@@ -6,15 +6,15 @@ import { fetchMiddlewares, ExpressTemplateService } from "@tsoa/runtime";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { AuthenticationController } from "./../../Controllers/Authentication/AuthenticationController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { CompanyController } from "./../../Controllers/Company/CompanyController";
+import { CompanyController } from "../../Controllers/Companies/CompanyController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { CompanySettingsController } from "./../../Controllers/Company/CompanySettingsController";
+import { CompanySettingsController } from "../../Controllers/Companies/CompanySettingsController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { LeaveRequestController } from "./../../Controllers/Company/LeaveRequestController";
+import { LeaveRequestController } from "../../Controllers/Companies/LeaveRequestController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { TeamController } from "./../../Controllers/Company/TeamController";
+import { TeamController } from "../../Controllers/Companies/TeamController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { PermissionController } from "./../../Controllers/Permissions/PermissionController";
+import { PermissionController } from "../../Controllers/Roles/PermissionController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { RoleController } from "./../../Controllers/Roles/RoleController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -32,7 +32,7 @@ import { TimesheetHistoryController } from "./../../Controllers/Timesheet/Timesh
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ActiveSessionsController } from "./../../Controllers/Users/ActiveSessionsController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { RolePermissionController } from "./../../Controllers/Users/RolePermissionController";
+import { RolePermissionController } from "../../Controllers/Roles/RolePermissionController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { UserController } from "./../../Controllers/Users/UserController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

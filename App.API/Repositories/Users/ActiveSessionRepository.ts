@@ -6,10 +6,15 @@ import ActiveSession from "@/Entities/Users/ActiveSessions";
 import { BaseRepository } from "../BaseRepository";
 
 /**
- * Repository for ActiveSession entities.
+ * @description Repository for managing ActiveSession entities. Extends BaseRepository to provide standard CRUD operations
+ * and includes specific methods for querying active sessions by token hash and for a specific user.
  */
 @Service()
 export class ActiveSessionRepository extends BaseRepository<ActiveSession> {
+  /**
+   * @description Initializes the ActiveSessionRepository with a TypeORM Repository instance for ActiveSession.
+   * @param repo The TypeORM Repository<ActiveSession> injected by TypeDI.
+   */
   constructor(
     @InjectRepository(ActiveSession)
     repo: Repository<ActiveSession>
@@ -17,6 +22,12 @@ export class ActiveSessionRepository extends BaseRepository<ActiveSession> {
     super(ActiveSession, repo);
   }
 
+  /**
+   * @description Finds an active session by its token hash within a specific company.
+   * @param companyId The unique identifier of the company.
+   * @param tokenHash The SHA-256 hash of the refresh token.
+   * @returns A Promise that resolves to the ActiveSession entity or null if not found.
+   */
   async findByTokenHashInCompany(
     companyId: string,
     tokenHash: string
@@ -27,11 +38,22 @@ export class ActiveSessionRepository extends BaseRepository<ActiveSession> {
     return this.repository.findOne(options);
   }
 
-  /** Global lookup (admin/system only). */
+  /**
+   * @description Finds an active session by its token hash globally (without company scope).
+   * This method is typically used for admin or system-level lookups.
+   * @param tokenHash The SHA-256 hash of the refresh token.
+   * @returns A Promise that resolves to the ActiveSession entity or null if not found.
+   */
   async findByTokenHash(tokenHash: string): Promise<ActiveSession | null> {
     return this.repository.findOne({ where: { tokenHash } });
   }
 
+  /**
+   * @description Finds all active sessions for a specific user within a given company.
+   * @param companyId The unique identifier of the company.
+   * @param userId The unique identifier of the user.
+   * @returns A Promise that resolves to an array of ActiveSession entities, ordered by last seen time.
+   */
   async findAllForUser(
     companyId: string,
     userId: string

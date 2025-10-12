@@ -13,111 +13,74 @@ import {
   Delete,
 } from "tsoa";
 import { Request as ExpressRequest } from "express";
-import { RoleService } from "../../Services/RoleService/RoleService";
-import {
-  CreateRoleDto,
-  RoleResponse,
-  UpdateRoleDto,
-} from "../../Dtos/Users/RoleDto";
-import { UserService } from "../../Services/User/UserService";
 import { Service } from "typedi";
-import { UserDto } from "../../Dtos/Users/UserDto";
+
+import { RoleService } from "@/Services/RoleService/RoleService";
+import { CreateRoleDto, UpdateRoleDto } from "@/Dtos/Roles/RoleDto";
+import { Role } from "@/Entities/Roles/Role";
+import User from "@/Entities/Users/User";
 
 /**
- * @summary Controller for managing user roles and their associated permissions.
+ * @summary Manage roles (company-scoped)
  * @tags Roles
+ * @security jwt
  */
 @Route("roles")
 @Tags("Roles")
 @Service()
 export class RoleController extends Controller {
-  constructor(
-    private roleService: RoleService,
-    private userService: UserService,
-  ) {
+  constructor(private readonly roleService: RoleService) {
     super();
   }
 
-  /**
-   * @summary Creates a new role.
-   * @param {CreateRoleDto} requestBody - The data for creating the role.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<RoleResponse>} The newly created role.
-   */
+  /** Create a role */
   @Post("/")
   @Security("jwt", ["admin"])
   @SuccessResponse("201", "Role created successfully")
   public async createRole(
-    @Body() requestBody: CreateRoleDto,
+    @Body() body: CreateRoleDto,
     @Request() request: ExpressRequest,
-  ): Promise<RoleResponse> {
-    const { id: userId, companyId } = request.user as UserDto;
-    const role = await this.roleService.createRole(
-      companyId,
-      userId,
-      requestBody,
-    );
+  ): Promise<Role> {
+    const me = request.user as User;
+    const role = await this.roleService.createRole(me.companyId, me, body);
     this.setStatus(201);
     return role;
   }
 
-  /**
-   * @summary Retrieves a single role by its ID.
-   * @param {string} id - The ID of the role to retrieve.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<RoleResponse>} The role details.
-   */
+  /** Get a role by id */
   @Get("/{id}")
   @Security("jwt", ["admin"])
   public async getRole(
     @Path() id: string,
     @Request() request: ExpressRequest,
-  ): Promise<RoleResponse> {
-    const { id: userId } = request.user as UserDto;
-    await this.userService.getUserById(userId);
-    return this.roleService.getRoleById(id);
+  ): Promise<Role> {
+    const me = request.user as User;
+    return this.roleService.getRoleById(me.companyId, id, me);
   }
 
-  /**
-   * @summary Retrieves all roles for the authenticated user's company.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<RoleResponse[]>} An array of roles.
-   */
+  /** List all roles in my company */
   @Get("/")
   @Security("jwt", ["admin"])
-  public async getAllRoles(
+  public async listRoles(
     @Request() request: ExpressRequest,
-  ): Promise<RoleResponse[]> {
-    const { id: userId } = request.user as UserDto;
-    const user = await this.userService.getUserById(userId);
-    return this.roleService.getAllRoles(user.companyId);
+  ): Promise<Role[]> {
+    const me = request.user as User;
+    return this.roleService.listRoles(me.companyId, me);
   }
 
-  /**
-   * @summary Updates an existing role.
-   * @param {string} id - The ID of the role to update.
-   * @param {UpdateRoleDto} requestBody - The data for updating the role.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<RoleResponse>} The updated role details.
-   */
+  /** Update a role */
   @Put("/{id}")
   @Security("jwt", ["admin"])
   public async updateRole(
     @Path() id: string,
-    @Body() requestBody: UpdateRoleDto,
+    @Body() body: UpdateRoleDto,
     @Request() request: ExpressRequest,
-  ): Promise<RoleResponse> {
-    const { id: userId } = request.user as UserDto;
-    const user = await this.userService.getUserById(userId);
-    return this.roleService.updateRolePermissions(user.companyId, userId, id, requestBody);
+  ): Promise<Role> {
+    const me = request.user as User;
+    return this.roleService.updateRole(me.companyId, id, me, body);
   }
 
-  /**
-   * @summary Deletes a role by its ID.
-   * @param {string} id - The ID of the role to delete.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<void>} Nothing is returned upon successful deletion.
-   */
+  /** Delete (soft) a role */
   @Delete("/{id}")
   @Security("jwt", ["admin"])
   @SuccessResponse("200", "Role deleted successfully")
@@ -125,18 +88,11 @@ export class RoleController extends Controller {
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
-    const { id: userId } = request.user as UserDto;
-    const user = await this.userService.getUserById(userId);
-    await this.roleService.deleteRole(user.companyId, userId, id);
+    const me = request.user as User;
+    await this.roleService.deleteRole(me.companyId, id, me);
   }
 
-  /**
-   * @summary Adds a permission to a specific role.
-   * @param {string} roleId - The ID of the role to which the permission will be added.
-   * @param {string} permissionId - The ID of the permission to add.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<void>} Nothing is returned upon successful addition.
-   */
+  /** Add a permission to a role */
   @Post("/{roleId}/permissions/{permissionId}")
   @Security("jwt", ["admin"])
   @SuccessResponse("201", "Permission added to role successfully")
@@ -145,23 +101,12 @@ export class RoleController extends Controller {
     @Path() permissionId: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
-    const { id: userId } = request.user as UserDto;
-    const user = await this.userService.getUserById(userId);
-    await this.roleService.addPermissionToRole(
-      user.companyId,
-      userId,
-      roleId,
-      permissionId,
-    );
+    const me = request.user as User;
+    await this.roleService.assignPermissionToRole(me.companyId, roleId, permissionId, me);
+    this.setStatus(201);
   }
 
-  /**
-   * @summary Removes a permission from a specific role.
-   * @param {string} roleId - The ID of the role from which the permission will be removed.
-   * @param {string} permissionId - The ID of the permission to remove.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<void>} Nothing is returned upon successful removal.
-   */
+  /** Remove a permission from a role */
   @Delete("/{roleId}/permissions/{permissionId}")
   @Security("jwt", ["admin"])
   @SuccessResponse("200", "Permission removed from role successfully")
@@ -170,13 +115,7 @@ export class RoleController extends Controller {
     @Path() permissionId: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
-    const { id: userId } = request.user as UserDto;
-    const user = await this.userService.getUserById(userId);
-    await this.roleService.removePermissionFromRole(
-      user.companyId,
-      userId,
-      roleId,
-      permissionId,
-    );
+    const me = request.user as User;
+    await this.roleService.removePermissionFromRole(me.companyId, roleId, permissionId, me);
   }
 }

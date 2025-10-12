@@ -8,13 +8,28 @@ import User from "@/Entities/Users/User";
 import { RolePermissionService } from "@/Services/RoleService/RolePermissionService";
 import { UpdateLeaveRequestDto } from "@/Dtos/Companies/CompanyDto";
 
+/**
+ * @description Service layer for handling approval-related business logic, specifically for leave requests.
+ * It integrates with LeaveRequestRepository and RolePermissionService to manage approval workflows and permissions.
+ */
 @Service()
 export class ApprovalService {
+  /**
+   * @description Initializes the ApprovalService with necessary repositories and services.
+   * @param leaveRequestRepository The repository for LeaveRequest entities.
+   * @param rolePermissionService The service for checking user permissions.
+   */
   constructor(
     private readonly leaveRequestRepository: LeaveRequestRepository,
     private readonly rolePermissionService: RolePermissionService,
   ) {}
 
+  /**
+   * @description Ensures that a given DTO (Data Transfer Object) is valid by performing class-validator validation.
+   * @param dto The DTO object to validate.
+   * @returns A Promise that resolves if validation passes.
+   * @throws {UnprocessableEntityError} If validation fails, containing details of the validation errors.
+   */
   private async ensureValidation(dto: unknown) {
     const errors = await validate(dto as object);
     if (errors.length > 0) {
@@ -24,7 +39,16 @@ export class ApprovalService {
     }
   }
 
-  /** Approve a leave request (RBAC: approve_leave_request). */
+  /**
+   * @description Approves a leave request. Requires 'approve_leave_request' permission.
+   * If the leave request is already approved, it returns the existing approved request.
+   * @param actingUser The user performing the action.
+   * @param companyId The unique identifier of the company.
+   * @param leaveRequestId The unique identifier of the leave request to approve.
+   * @returns A Promise that resolves to the approved LeaveRequest entity.
+   * @throws {ForbiddenError} If the acting user does not have permission to approve leave requests.
+   * @throws {NotFoundError} If the leave request is not found.
+   */
   async approve(
     actingUser: User,
     companyId: string,
@@ -45,7 +69,17 @@ export class ApprovalService {
     return updated!;
   }
 
-  /** Reject a leave request (RBAC: approve_leave_request). */
+  /**
+   * @description Rejects a leave request with a specified reason. Requires 'approve_leave_request' permission.
+   * @param actingUser The user performing the action.
+   * @param companyId The unique identifier of the company.
+   * @param leaveRequestId The unique identifier of the leave request to reject.
+   * @param rejectionReason The reason for rejecting the leave request.
+   * @returns A Promise that resolves to the rejected LeaveRequest entity.
+   * @throws {ForbiddenError} If the acting user does not have permission to reject leave requests.
+   * @throws {UnprocessableEntityError} If validation of the rejection reason fails.
+   * @throws {NotFoundError} If the leave request is not found.
+   */
   async reject(
     actingUser: User,
     companyId: string,

@@ -11,17 +11,15 @@ import {
   Request,
 } from "tsoa";
 import { Request as ExpressRequest } from "express";
-import { Timesheet } from "../../Entities/Timesheets/Timesheet";
-import {
-  CreateTimesheetDto,
-  CreateTimesheetEntryDto,
-} from "../../Dtos/Timesheet/TimesheetDto";
-import { TimesheetService } from "../../Services/Timesheet/TimesheetService";
 import { Service } from "typedi";
-import { UserDto } from "../../Dtos/Users/UserDto";
+
+import { TimesheetService } from "@/Services/Timesheet/TimesheetService";
+import { Timesheet } from "@/Entities/Timesheets/Timesheet";
+import { CreateTimesheetDto, CreateTimesheetEntryDto } from "@/Dtos/Timesheet/TimesheetDto";
+import User from "@/Entities/Users/User";
 
 /**
- * @summary Controller for managing timesheets and timesheet entries.
+ * @summary Timesheet operations (company-scoped for mutations).
  * @tags Timesheets
  * @security jwt
  */
@@ -30,105 +28,56 @@ import { UserDto } from "../../Dtos/Users/UserDto";
 @Security("jwt")
 @Service()
 export class TimesheetController extends Controller {
-  constructor(private timesheetService: TimesheetService) {
+  constructor(private readonly timesheetService: TimesheetService) {
     super();
   }
 
-  /**
-   * @summary Creates a new timesheet for the authenticated user.
-   * @param {CreateTimesheetDto} createTimesheetDto - The data for creating the timesheet.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<Timesheet>} The newly created timesheet.
-   */
   @Post("/")
   public async createTimesheet(
-    @Body() createTimesheetDto: CreateTimesheetDto,
+    @Body() dto: CreateTimesheetDto,
     @Request() request: ExpressRequest,
   ): Promise<Timesheet> {
-    const { id: userId, companyId } = request.user as UserDto;
-    return this.timesheetService.createTimesheet(
-      companyId,
-      userId,
-      createTimesheetDto,
-    );
+    const me = request.user as User;
+    return this.timesheetService.createTimesheet(me.companyId, me.id, dto);
   }
 
-  /**
-   * @summary Retrieves a single timesheet by its ID.
-   * @param {string} id - The ID of the timesheet to retrieve.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<Timesheet>} The timesheet details.
-   */
   @Get("/{id}")
   public async getTimesheet(
     @Path() id: string,
-    @Request() request: ExpressRequest,
   ): Promise<Timesheet> {
-    const { companyId } = request.user as UserDto;
-    return this.timesheetService.getTimesheet(companyId, id);
+    // Service is not company-scoped for this read in current impl.
+    return this.timesheetService.getTimesheet(id);
   }
 
-  /**
-   * @summary Adds a new entry to an existing timesheet.
-   * @param {string} id - The ID of the timesheet to add the entry to.
-   * @param {CreateTimesheetEntryDto} createTimesheetEntryDto - The data for creating the timesheet entry.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<Timesheet>} The updated timesheet with the new entry.
-   */
   @Post("/{id}/entries")
   public async addTimesheetEntry(
     @Path() id: string,
-    @Body() createTimesheetEntryDto: CreateTimesheetEntryDto,
+    @Body() dto: CreateTimesheetEntryDto,
     @Request() request: ExpressRequest,
   ): Promise<Timesheet> {
-    const { id: userId, companyId } = request.user as UserDto;
-    return this.timesheetService.addTimesheetEntry(
-      companyId,
-      userId,
-      id,
-      createTimesheetEntryDto,
-    );
+    const me = request.user as User;
+    return this.timesheetService.addTimesheetEntry(me.companyId, me.id, id, dto);
   }
 
-  /**
-   * @summary Submits a timesheet for approval.
-   * @param {string} id - The ID of the timesheet to submit.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<Timesheet>} The submitted timesheet.
-   */
   @Put("/{id}/submit")
   public async submitTimesheet(
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<Timesheet> {
-    const { id: userId, companyId } = request.user as UserDto;
-    return this.timesheetService.submitTimesheet(companyId, userId, id);
+    const me = request.user as User;
+    return this.timesheetService.submitTimesheet(me.companyId, me.id, id);
   }
 
-  /**
-   * @summary Approves a timesheet.
-   * @param {string} id - The ID of the timesheet to approve.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<Timesheet>} The approved timesheet.
-   */
   @Put("/{id}/approve")
   @Security("jwt", ["manager", "admin"])
   public async approveTimesheet(
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<Timesheet> {
-    const { id: approverId, companyId } = request.user as UserDto;
-    return this.timesheetService.approveTimesheet(companyId, approverId, id);
+    const me = request.user as User;
+    return this.timesheetService.approveTimesheet(me.companyId, me.id, id);
   }
 
-  /**
-   * @summary Rejects a timesheet with a given reason.
-   * @param {string} id - The ID of the timesheet to reject.
-   * @param {object} body - The request body containing the rejection reason.
-   * @param {string} body.reason - The reason for rejecting the timesheet.
-   * @param {ExpressRequest} request - The Express request object, containing user information.
-   * @returns {Promise<Timesheet>} The rejected timesheet.
-   */
   @Put("/{id}/reject")
   @Security("jwt", ["manager", "admin"])
   public async rejectTimesheet(
@@ -136,12 +85,7 @@ export class TimesheetController extends Controller {
     @Body() body: { reason: string },
     @Request() request: ExpressRequest,
   ): Promise<Timesheet> {
-    const { id: approverId, companyId } = request.user as UserDto;
-    return this.timesheetService.rejectTimesheet(
-      companyId,
-      approverId,
-      id,
-      body.reason,
-    );
+    const me = request.user as User;
+    return this.timesheetService.rejectTimesheet(me.companyId, me.id, id, body.reason);
   }
 }

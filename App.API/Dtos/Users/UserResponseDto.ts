@@ -3,48 +3,87 @@ import { CompanyResponseDto } from "../Companies/CompanyDto";
 import { UserStatusResponseDto } from "./UserStatusDto";
 
 /**
- * @summary Response DTO for a user. (Never return the entity directly.)
+ * @description Data transfer object for a user response. This DTO should be used when returning user information to clients, never return the entity directly.
  */
 export class UserResponseDto {
-  /** @description User id. */
+  /**
+   * @description The unique identifier of the user.
+   * @example "u1s2e3r4-i5d6-7890-1234-567890abcdef"
+   */
   id!: string;
 
-  /** @description Email (unique within company). */
+  /**
+   * @description The user's email address, unique within the company.
+   * @example "john.doe@example.com"
+   */
   email!: string;
 
-  /** @description First name. */
+  /**
+   * @description The first name of the user.
+   * @example "John"
+   */
   firstName!: string;
 
-  /** @description Last name. */
+  /**
+   * @description The last name of the user.
+   * @example "Doe"
+   */
   lastName!: string;
 
-  /** @description Company id. */
+  /**
+   * @description The unique identifier of the company the user belongs to.
+   * @example "c1o2m3p4-a5n6-7890-1234-567890abcdef"
+   */
   companyId!: string;
 
-  /** @description Optional: company details. */
+  /**
+   * @description Optional: Detailed information about the company the user belongs to.
+   */
   company?: CompanyResponseDto;
 
-  /** @description Role id. */
+  /**
+   * @description The unique identifier of the role assigned to the user.
+   * @example "r1o2l3e4-i5d6-7890-1234-567890abcdef"
+   */
   roleId!: string;
 
-  /** @description Optional: role details. */
+  /**
+   * @description Optional: Detailed information about the role assigned to the user.
+   */
   role?: RoleResponse;
 
-  /** @description Status id. */
+  /**
+   * @description The unique identifier of the user's current status.
+   * @example "s1t2a3t4-u5s6-7890-1234-567890abcdef"
+   */
   statusId!: string;
 
-  /** @description Optional: status details. */
+  /**
+   * @description Optional: Detailed information about the user's current status.
+   */
   status?: UserStatusResponseDto;
 
-  /** @description ISO timestamp when the user was created. */
+  /**
+   * @description The ISO timestamp when the user account was created.
+   * @example "2023-10-27T10:00:00Z"
+   */
   createdAt!: Date;
 
-  /** @description Optional: E.164 phone. */
+  /**
+   * @description Optional: The user's phone number in E.164 format.
+   * @example "+15551234567"
+   */
   phoneNumber?: string;
 
-  /** @description Optional: last login ISO timestamp. */
+  /**
+   * @description Optional: The ISO timestamp of the user's last successful login.
+   * @example "2023-10-27T11:30:00Z"
+   */
   lastLogin?: Date;
 
-  /** @description Optional: soft-deleted at timestamp (if included). */
+  /**
+   * @description Optional: The ISO timestamp when the user account was soft-deleted. Null if not deleted.
+   * @example "2023-10-27T12:00:00Z"
+   */
   deletedAt?: Date | null;
 }
