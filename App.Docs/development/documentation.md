@@ -33,7 +33,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 - Technology stack summary (React + Vite, Node.js, PostgreSQL, Docker)
 - Quick start instructions for developers
 - Development environment setup
-- Project structure and monorepo organization
+- Project structure and monorepo Company
 - Contributing guidelines and code of conduct
 
 ---

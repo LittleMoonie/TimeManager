@@ -15,7 +15,7 @@ All historical events are stored in the `timesheet_history` table. This table is
 | Column Name      | Type                 | Description                                                               |
 | :--------------- | :------------------- | :------------------------------------------------------------------------ |
 | `id`             | `UUID`               | Primary Key, auto-generated.                                              |
-| `orgId`          | `UUID`               | Foreign Key to `organization.id`.                                         |
+| `orgId`          | `UUID`               | Foreign Key to `Company.id`.                                         |
 | `userId`         | `UUID`               | Subject user whose timesheet is affected. Foreign Key to `user.id`.       |
 | `actorUserId`    | `UUID` (nullable)    | User who performed the action. Foreign Key to `user.id`. Nullable for system jobs. |
 | `entityType`     | `TEXT` (ENUM-like)   | Type of the affected entity: `TimesheetEntry`, `TimesheetWeek`, `Approval`, `Permit`, `ActionCode`. |
@@ -48,7 +48,7 @@ All historical events are stored in the `timesheet_history` table. This table is
 Retrieves a paginated list of timesheet history events. Results are scoped based on the user's role:
 
 *   **Employees:** Can only view their own history.
-*   **Managers/Admins:** Can view organization-wide history.
+*   **Managers/Admins:** Can view Company-wide history.
 
 **Query Parameters:**
 

@@ -63,7 +63,7 @@ export class AuthService {
       userId: user.id,
       email: user.email,
       role: user.role,
-      organizationId: user.organizationId,
+      CompanyId: user.CompanyId,
     };
 
     const accessToken = jwt.sign(payload, JWT_SECRET, {
@@ -222,7 +222,7 @@ export enum Permission {
   USER_WRITE = 'user:write',
   USER_DELETE = 'user:delete',
   
-  // Organization permissions
+  // Company permissions
   ORG_READ = 'org:read',
   ORG_WRITE = 'org:write',
   ORG_DELETE = 'org:delete',
@@ -288,8 +288,8 @@ export class AuthorizationService {
   }
 
   canAccessResource(user: User, resource: Resource): boolean {
-    // Organization-based access control
-    if (resource.organizationId && user.organizationId !== resource.organizationId) {
+    // Company-based access control
+    if (resource.CompanyId && user.CompanyId !== resource.CompanyId) {
       return false;
     }
 
@@ -378,14 +378,14 @@ router.get('/api/users',
   userController.getUsers
 );
 
-// Organization management (Manager+)
-router.post('/organizations',
+// Company management (Manager+)
+router.post('/Companys',
   authenticateToken,
   requirePermission(Permission.ORG_WRITE),
-  organizationController.createOrganization
+  CompanyController.createCompany
 );
 
-// Project access (Organization members)
+// Project access (Company members)
 router.get('/api/projects/:id',
   authenticateToken,
   requirePermission(Permission.PROJECT_READ),
@@ -409,10 +409,10 @@ export const UserCreateSchema = z.object({
       'Password must contain uppercase, lowercase, number, and special character'),
   name: z.string().min(1).max(100),
   role: z.enum(['ADMIN', 'MANAGER', 'EMPLOYEE']),
-  organizationId: z.string().uuid(),
+  CompanyId: z.string().uuid(),
 });
 
-export const OrganizationCreateSchema = z.object({
+export const CompanyCreateSchema = z.object({
   name: z.string().min(1).max(255),
   slug: z.string()
     .min(3).max(100)
@@ -782,15 +782,13 @@ export class SecurityLogger {
     });
 
     // Store in database for audit
-    await prisma.securityLog.create({
-      data: {
-        userId: event.userId,
-        eventType: event.type,
-        ipAddress: event.ipAddress,
-        userAgent: event.userAgent,
-        details: event.details,
-        severity: event.severity,
-      },
+    await AppDataSource.getRepository(SecurityLog).save({
+      userId: event.userId,
+      eventType: event.type,
+      ipAddress: event.ipAddress,
+      userAgent: event.userAgent,
+      details: event.details,
+      severity: event.severity,
     });
   }
 

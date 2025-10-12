@@ -20,7 +20,7 @@ This document outlines the database strategy for the NCY_8 platform, including s
 2. **UUID Primary Keys**: Better distribution and security
 3. **Soft Deletes**: Audit trails and data recovery
 4. **Audit Logging**: Comprehensive change tracking
-5. **Multi-tenancy**: Organization-based data isolation
+5. **Multi-tenancy**: Company-based data isolation
 
 ## Schema Design
 
@@ -93,11 +93,11 @@ CREATE TABLE "UserRoleMap" (
 );
 ```
 
-### Organization Structure
+### Company Structure
 
 ```sql
--- Multi-tenant Organization System
-CREATE TABLE "Organization" (
+-- Multi-tenant Company System
+CREATE TABLE "Company" (
   "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "name" VARCHAR(255) NOT NULL,
   "slug" VARCHAR(100) UNIQUE NOT NULL,
@@ -108,19 +108,19 @@ CREATE TABLE "Organization" (
   "deleted_at" TIMESTAMP(3)
 );
 
-CREATE TABLE "OrganizationMember" (
+CREATE TABLE "CompanyMember" (
   "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  "organization_id" UUID NOT NULL REFERENCES "Organization"("id") ON DELETE CASCADE,
+  "Company_id" UUID NOT NULL REFERENCES "Company"("id") ON DELETE CASCADE,
   "user_id" UUID NOT NULL REFERENCES "User"("id") ON DELETE CASCADE,
   "role" "OrgRole" NOT NULL DEFAULT 'MEMBER',
   "joined_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "deleted_at" TIMESTAMP(3),
-  UNIQUE ("organization_id", "user_id")
+  UNIQUE ("Company_id", "user_id")
 );
 
 CREATE TABLE "Team" (
   "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  "organization_id" UUID NOT NULL REFERENCES "Organization"("id") ON DELETE CASCADE,
+  "Company_id" UUID NOT NULL REFERENCES "Company"("id") ON DELETE CASCADE,
   "name" VARCHAR(255) NOT NULL,
   "description" TEXT,
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -143,7 +143,7 @@ CREATE TABLE "TeamMember" (
 -- Project Management
 CREATE TABLE "Project" (
   "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  "organization_id" UUID NOT NULL REFERENCES "Organization"("id") ON DELETE CASCADE,
+  "Company_id" UUID NOT NULL REFERENCES "Company"("id") ON DELETE CASCADE,
   "name" VARCHAR(255) NOT NULL,
   "description" TEXT,
   "status" "ProjectStatus" NOT NULL DEFAULT 'ACTIVE',
@@ -207,153 +207,120 @@ CREATE TABLE "AccessLog" (
 );
 ```
 
-## Prisma Configuration
+## TypeORM Configuration
 
-### Schema Definition
-
-```prisma
-// prisma/schema.prisma
-generator client {
-  provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-enum UserRole {
-  ADMIN
-  MANAGER
-  EMPLOYEE
-  SYSTEM
-}
-
-enum UserStatus {
-  ACTIVE
-  INACTIVE
-  SUSPENDED
-  PENDING
-}
-
-enum OrgRole {
-  OWNER
-  ADMIN
-  MANAGER
-  MEMBER
-}
-
-enum ProjectStatus {
-  ACTIVE
-  INACTIVE
-  ARCHIVED
-}
-
-enum TaskStatus {
-  TODO
-  IN_PROGRESS
-  REVIEW
-  DONE
-  CANCELLED
-}
-
-enum TaskPriority {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
-}
-
-enum LogLevel {
-  DEBUG
-  INFO
-  WARN
-  ERROR
-  FATAL
-}
-
-model User {
-  id           String    @id @default(uuid())
-  email        String    @unique
-  passwordHash String    @map("password_hash")
-  role         UserRole  @default(EMPLOYEE)
-  status       UserStatus @default(ACTIVE)
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
-  deletedAt    DateTime? @map("deleted_at")
-
-  // Relations
-  sessions           Session[]
-  apiKeys           ApiKey[]
-  organizationMembers OrganizationMember[]
-  teamMembers       TeamMember[]
-  ownedOrganizations Organization[] @relation("OrganizationOwner")
-  assignedTasks     Task[]
-  auditLogs         AuditLog[]
-  accessLogs        AccessLog[]
-  notifications     Notification[]
-  files             File[]
-  sentMessages      Message[] @relation("MessageSender")
-  receivedMessages  Message[] @relation("MessageReceiver")
-  settings          Settings[]
-  userRoles         UserRoleMap[]
-  gdprRequests      GdprRequest[]
-  consents          Consent[]
-
-  @@map("User")
-}
-
-model Organization {
-  id        String   @id @default(uuid())
-  name      String
-  slug      String   @unique
-  ownerId   String   @map("owner_id")
-  settings  Json     @default("{}")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
-
-  // Relations
-  owner      User                 @relation("OrganizationOwner", fields: [ownerId], references: [id])
-  members    OrganizationMember[]
-  teams      Team[]
-  projects   Project[]
-  auditLogs  AuditLog[]
-
-  @@map("Organization")
-}
-
-// ... Additional models
-```
-
-### Client Configuration
+### Entity Definition
 
 ```typescript
-// lib/prisma.ts
-import { PrismaClient } from '@prisma/client';
+// src/entities/User.ts
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany } from 'typeorm';
+import { Session } from './Session';
+import { ApiKey } from './ApiKey';
+import { CompanyMember } from './CompanyMember';
+import { Company } from './Company';
+import { Task } from './Task';
+import { AuditLog } from './AuditLog';
+import { AccessLog } from './AccessLog';
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
-
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  log: ['query', 'error', 'warn'],
-  errorFormat: 'pretty',
-});
-
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma;
+export enum UserRole {
+  ADMIN = 'ADMIN',
+  MANAGER = 'MANAGER',
+  EMPLOYEE = 'EMPLOYEE',
+  SYSTEM = 'SYSTEM',
 }
 
-// Connection pooling configuration
-export const prismaWithPool = new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL + '?connection_limit=20&pool_timeout=20',
-    },
-  },
+export enum UserStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  SUSPENDED = 'SUSPENDED',
+  PENDING = 'PENDING',
+}
+
+@Entity('User')
+export class User {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ unique: true })
+  email!: string;
+
+  @Column({ name: 'password_hash' })
+  passwordHash!: string;
+
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.EMPLOYEE })
+  role!: UserRole;
+
+  @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE })
+  status!: UserStatus;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt!: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt!: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
+  deletedAt?: Date;
+
+  // Relations
+  @OneToMany(() => Session, session => session.user)
+  sessions!: Session[];
+
+  @OneToMany(() => ApiKey, apiKey => apiKey.user)
+  apiKeys!: ApiKey[];
+
+  @OneToMany(() => CompanyMember, member => member.user)
+  CompanyMembers!: CompanyMember[];
+
+  @OneToMany(() => Company, Company => Company.owner)
+  ownedCompanys!: Company[];
+
+  @OneToMany(() => Task, task => task.assignee)
+  assignedTasks!: Task[];
+
+  @OneToMany(() => AuditLog, log => log.user)
+  auditLogs!: AuditLog[];
+
+  @OneToMany(() => AccessLog, log => log.user)
+  accessLogs!: AccessLog[];
+
+  // ... other relations as needed
+}
+
+// ... Additional entities
+```
+
+### Data Source Configuration
+
+```typescript
+// src/data-source.ts
+import 'reflect-metadata';
+import { DataSource } from 'typeorm';
+import { User } from './entities/User';
+import { Company } from './entities/Company';
+// ... import other entities
+
+export const AppDataSource = new DataSource({
+  type: 'postgres',
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT || '5432'),
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+  synchronize: false, // Never use synchronize in production
+  logging: ['error', 'warn'],
+  entities: [User, Company /* ... other entities */],
+  migrations: [],
+  subscribers: [],
 });
+
+// Initialize data source
+export const initializeDataSource = async () => {
+  if (!AppDataSource.isInitialized) {
+    await AppDataSource.initialize();
+    console.log('Data Source has been initialized!');
+  }
+};
 ```
 
 ## Migration Strategy
@@ -362,10 +329,10 @@ export const prismaWithPool = new PrismaClient({
 
 ```bash
 # Development workflow
-pnpm db:generate    # Generate Prisma client
-pnpm db:migrate     # Apply migrations
+pnpm typeorm migration:run # Apply migrations
+pnpm typeorm migration:generate -n MyMigration # Generate a new migration
+pnpm typeorm migration:revert # Revert last migration
 pnpm db:seed        # Seed development data
-pnpm db:reset       # Reset database (development only)
 ```
 
 ### Migration Best Practices
@@ -399,27 +366,22 @@ CREATE INDEX "UserPreferences_user_id_idx" ON "UserPreferences"("user_id");
 
 ```typescript
 // scripts/migrate.ts
-import { PrismaClient } from '@prisma/client';
+import { AppDataSource } from '../src/data-source';
 import { execSync } from 'child_process';
-
-const prisma = new PrismaClient();
 
 async function migrate() {
   try {
     console.log('Running database migrations...');
-    
-    // Generate Prisma client
-    execSync('npx prisma generate', { stdio: 'inherit' });
-    
-    // Apply migrations
-    execSync('npx prisma migrate deploy', { stdio: 'inherit' });
-    
+    await AppDataSource.initialize();
+    await AppDataSource.runMigrations();
     console.log('Migrations completed successfully');
   } catch (error) {
     console.error('Migration failed:', error);
     process.exit(1);
   } finally {
-    await prisma.$disconnect();
+    if (AppDataSource.isInitialized) {
+      await AppDataSource.destroy();
+    }
   }
 }
 
@@ -436,9 +398,9 @@ CREATE INDEX "User_email_idx" ON "User"("email") WHERE "deleted_at" IS NULL;
 CREATE INDEX "User_status_idx" ON "User"("status") WHERE "deleted_at" IS NULL;
 CREATE INDEX "User_created_at_idx" ON "User"("created_at");
 
--- Organization queries
-CREATE INDEX "Organization_slug_idx" ON "Organization"("slug") WHERE "deleted_at" IS NULL;
-CREATE INDEX "Organization_owner_id_idx" ON "Organization"("owner_id");
+-- Company queries
+CREATE INDEX "Company_slug_idx" ON "Company"("slug") WHERE "deleted_at" IS NULL;
+CREATE INDEX "Company_owner_id_idx" ON "Company"("owner_id");
 
 -- Task queries
 CREATE INDEX "Task_project_id_idx" ON "Task"("project_id") WHERE "deleted_at" IS NULL;
@@ -453,43 +415,40 @@ CREATE INDEX "AuditLog_created_at_idx" ON "AuditLog"("created_at");
 
 -- Composite indexes for common queries
 CREATE INDEX "Task_project_status_idx" ON "Task"("project_id", "status") WHERE "deleted_at" IS NULL;
-CREATE INDEX "OrganizationMember_org_user_idx" ON "OrganizationMember"("organization_id", "user_id") WHERE "deleted_at" IS NULL;
+CREATE INDEX "CompanyMember_org_user_idx" ON "CompanyMember"("Company_id", "user_id") WHERE "deleted_at" IS NULL;
 ```
 \
 ### Query Optimization
 
 ```typescript
 // Optimized queries with proper indexing
+import { AppDataSource } from '../src/data-source';
+import { User } from '../src/entities/User';
+import { CompanyMember } from '../src/entities/CompanyMember';
+import { UserStatus } from '../src/entities/User';
+
 export class UserService {
-  async findUsersByOrganization(orgId: string, options: {
+  async findUsersByCompany(orgId: string, options: {
     page?: number;
     limit?: number;
     status?: UserStatus;
   }) {
-    return prisma.user.findMany({
+    const userRepository = AppDataSource.getRepository(User);
+    return userRepository.find({
       where: {
-        organizationMembers: {
-          some: {
-            organizationId: orgId,
-            deletedAt: null,
-          },
+        CompanyMembers: {
+          CompanyId: orgId,
+          deletedAt: null,
         },
         status: options.status,
         deletedAt: null,
       },
-      include: {
-        organizationMembers: {
-          where: {
-            organizationId: orgId,
-            deletedAt: null,
-          },
-        },
-      },
       skip: (options.page || 0) * (options.limit || 20),
       take: options.limit || 20,
-      orderBy: {
-        createdAt: 'desc',
+      order: {
+        createdAt: 'DESC',
       },
+      relations: ['CompanyMembers'], // Eager load relations if needed
     });
   }
 }
@@ -582,82 +541,72 @@ systemctl start postgresql
 ### Development Seeds
 
 ```typescript
-// prisma/seed.ts
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcrypt';
+// src/seeds/initial.seed.ts
+import { DataSource } from 'typeorm';
+import { User, UserRole, UserStatus } from '../entities/User';
+import { Company } from '../entities/Company';
+import { CompanyMember, OrgRole } from '../entities/CompanyMember';
+import * as bcrypt from 'bcrypt';
 
-const prisma = new PrismaClient();
+export class InitialSeed {
+  public async run(dataSource: DataSource): Promise<void> {
+    const userRepository = dataSource.getRepository(User);
+    const CompanyRepository = dataSource.getRepository(Company);
+    const CompanyMemberRepository = dataSource.getRepository(CompanyMember);
 
-async function main() {
-  // Create admin user
-  const adminPassword = await bcrypt.hash('admin123', 12);
-  const admin = await prisma.user.create({
-    data: {
+    // Create admin user
+    const adminPassword = await bcrypt.hash('admin123', 12);
+    const admin = userRepository.create({
       email: 'admin@ncy-8.com',
       passwordHash: adminPassword,
-      role: 'ADMIN',
-      status: 'ACTIVE',
-    },
-  });
+      role: UserRole.ADMIN,
+      status: UserStatus.ACTIVE,
+    });
+    await userRepository.save(admin);
 
-  // Create test organization
-  const organization = await prisma.organization.create({
-    data: {
-      name: 'Test Organization',
+    // Create test Company
+    const Company = CompanyRepository.create({
+      name: 'Test Company',
       slug: 'test-org',
-      ownerId: admin.id,
-    },
-  });
+      owner: admin,
+    });
+    await CompanyRepository.save(Company);
 
-  // Create test users
-  const users = await Promise.all([
-    prisma.user.create({
-      data: {
-        email: 'manager@test-org.com',
-        passwordHash: await bcrypt.hash('manager123', 12),
-        role: 'MANAGER',
-        status: 'ACTIVE',
-      },
-    }),
-    prisma.user.create({
-      data: {
-        email: 'employee@test-org.com',
-        passwordHash: await bcrypt.hash('employee123', 12),
-        role: 'EMPLOYEE',
-        status: 'ACTIVE',
-      },
-    }),
-  ]);
+    // Create test users
+    const managerUser = userRepository.create({
+      email: 'manager@test-org.com',
+      passwordHash: await bcrypt.hash('manager123', 12),
+      role: UserRole.MANAGER,
+      status: UserStatus.ACTIVE,
+    });
+    await userRepository.save(managerUser);
 
-  // Add users to organization
-  await Promise.all([
-    prisma.organizationMember.create({
-      data: {
-        organizationId: organization.id,
-        userId: users[0].id,
-        role: 'MANAGER',
-      },
-    }),
-    prisma.organizationMember.create({
-      data: {
-        organizationId: organization.id,
-        userId: users[1].id,
-        role: 'MEMBER',
-      },
-    }),
-  ]);
+    const employeeUser = userRepository.create({
+      email: 'employee@test-org.com',
+      passwordHash: await bcrypt.hash('employee123', 12),
+      role: UserRole.EMPLOYEE,
+      status: UserStatus.ACTIVE,
+    });
+    await userRepository.save(employeeUser);
 
-  console.log('Seed data created successfully');
+    // Add users to Company
+    const managerMember = CompanyMemberRepository.create({
+      Company: Company,
+      user: managerUser,
+      role: OrgRole.MANAGER,
+    });
+    await CompanyMemberRepository.save(managerMember);
+
+    const employeeMember = CompanyMemberRepository.create({
+      Company: Company,
+      user: employeeUser,
+      role: OrgRole.MEMBER,
+    });
+    await CompanyMemberRepository.save(employeeMember);
+
+    console.log('Seed data created successfully');
+  }
 }
-
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
 ```
 
 ## Performance Monitoring
@@ -687,6 +636,7 @@ LIMIT 10;
 ```typescript
 // Database monitoring
 import { prometheus } from 'prom-client';
+import { AppDataSource } from '../src/data-source';
 
 const dbConnections = new prometheus.Gauge({
   name: 'database_connections_active',
@@ -701,12 +651,17 @@ const queryDuration = new prometheus.Histogram({
 
 // Monitor connection pool
 setInterval(async () => {
-  const result = await prisma.$queryRaw`
-    SELECT count(*) as active_connections 
-    FROM pg_stat_activity 
-    WHERE state = 'active'
-  `;
-  dbConnections.set(Number(result[0].active_connections));
+  if (AppDataSource.isInitialized) {
+    const queryRunner = AppDataSource.createQueryRunner();
+    try {
+      const result = await queryRunner.query(
+        `SELECT count(*) as active_connections FROM pg_stat_activity WHERE state = 'active'`
+      );
+      dbConnections.set(Number(result[0].active_connections));
+    } finally {
+      await queryRunner.release();
+    }
+  }
 }, 5000);
 ```
 
@@ -745,48 +700,46 @@ $$ LANGUAGE plpgsql;
 
 ```typescript
 // GDPR data export
+import { AppDataSource } from '../src/data-source';
+import { User } from '../src/entities/User';
+import { GdprRequest } from '../src/entities/GdprRequest';
+import { GdprRequestType, GdprRequestStatus } from '../src/entities/GdprRequest';
+
 export class GdprService {
   async exportUserData(userId: string) {
-    const userData = await prisma.user.findUnique({
+    const userRepository = AppDataSource.getRepository(User);
+    const gdprRequestRepository = AppDataSource.getRepository(GdprRequest);
+
+    const userData = await userRepository.findOne({
       where: { id: userId },
-      include: {
-        organizationMembers: {
-          include: {
-            organization: true,
-          },
-        },
-        auditLogs: true,
-        accessLogs: true,
-      },
+      relations: ['CompanyMembers.Company', 'auditLogs', 'accessLogs'],
     });
 
     // Create export request
-    await prisma.gdprRequest.create({
-      data: {
-        userId,
-        type: 'EXPORT',
-        status: 'PENDING',
-      },
+    const exportRequest = gdprRequestRepository.create({
+      userId,
+      type: GdprRequestType.EXPORT,
+      status: GdprRequestStatus.PENDING,
     });
+    await gdprRequestRepository.save(exportRequest);
 
     return userData;
   }
 
   async deleteUserData(userId: string) {
+    const userRepository = AppDataSource.getRepository(User);
+    const gdprRequestRepository = AppDataSource.getRepository(GdprRequest);
+
     // Soft delete user data
-    await prisma.user.update({
-      where: { id: userId },
-      data: { deletedAt: new Date() },
-    });
+    await userRepository.update({ id: userId }, { deletedAt: new Date() });
 
     // Log deletion request
-    await prisma.gdprRequest.create({
-      data: {
-        userId,
-        type: 'DELETE',
-        status: 'PENDING',
-      },
+    const deleteRequest = gdprRequestRepository.create({
+      userId,
+      type: GdprRequestType.DELETE,
+      status: GdprRequestStatus.PENDING,
     });
+    await gdprRequestRepository.save(deleteRequest);
   }
 }
 ```

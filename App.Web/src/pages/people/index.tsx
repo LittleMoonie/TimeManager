@@ -47,7 +47,7 @@ const PeoplePage = () => {
           People
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Overview of teammates, their roles, and status across the organization.
+          Overview of teammates, their roles, and status across the Company.
         </Typography>
       </Box>
 

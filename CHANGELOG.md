@@ -5,7 +5,7 @@
 ### Added
 
 - Initial implementation of real, authenticated, user-scoped data end-to-end.
-- New database entities: `Organization`, `Team`, `TeamMember`, `ActionCode`, `TimesheetEntry`, `Approval`, `AuditLog`.
+- New database entities: `Company`, `Team`, `TeamMember`, `ActionCode`, `TimesheetEntry`, `Approval`, `AuditLog`.
 - Database migrations for all new and modified tables.
 - Seed script for development data.
 - Frontend API client generation.
