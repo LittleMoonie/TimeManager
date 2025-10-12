@@ -14,12 +14,18 @@ import {
 import { Request as ExpressRequest } from "express";
 import { UserService } from "../../Services/User/UserService";
 import { AuthenticationError } from "../../Errors/HttpErrors";
-import { UserResponseDto } from "../../Dtos/Users/UserDto";
+import { UserDto } from "../../Dtos/Users/UserDto";
 import { CreateUserDto } from "../../Dtos/Users/CreateUserDto";
 import { UpdateUserDto } from "../../Dtos/Users/UpdateUserDto";
 import { RolePermissionService } from "../../Services/User/RolePermissionService";
 import { Service } from "typedi";
+import User from "../../Entities/Users/User";
 
+/**
+ * @summary Controller for managing user accounts.
+ * @tags Users
+ * @security jwt
+ */
 @Route("users")
 @Tags("Users")
 @Security("jwt")
@@ -32,73 +38,108 @@ export class UserController extends Controller {
     super();
   }
 
+  /**
+   * @summary Retrieves all users within the authenticated user's company.
+   * @param {ExpressRequest} request - The Express request object, containing user information.
+   * @returns {Promise<UserResponseDto[]>} An array of user details.
+   * @throws {AuthenticationError} If the user is not authenticated.
+   */
   @Get("/")
   public async getAllUsers(
     @Request() request: ExpressRequest,
-  ): Promise<UserResponseDto[]> {
+  ): Promise<UserDto[]> {
     if (!request.user) {
       throw new AuthenticationError("User not authenticated");
     }
-    const { companyId } = request.user;
+    const { companyId } = request.user as UserDto;
     return this.userService.getAllUsers(companyId);
   }
 
+  /**
+   * @summary Retrieves a single user by their ID.
+   * @param {string} id - The ID of the user to retrieve.
+   * @param {ExpressRequest} request - The Express request object, containing user information.
+   * @returns {Promise<UserResponseDto>} The user details.
+   * @throws {AuthenticationError} If the user is not authenticated.
+   */
   @Get("{id}")
   public async getUserById(
     @Path() id: string,
     @Request() request: ExpressRequest,
-  ): Promise<UserResponseDto> {
+  ): Promise<UserDto> {
     if (!request.user) {
       throw new AuthenticationError("User not authenticated");
     }
-    const { companyId } = request.user;
+    const { companyId } = request.user as UserDto;
     return this.userService.getUserById(companyId, id);
   }
 
+  /**
+   * @summary Creates a new user account.
+   * @param {CreateUserDto} createUserDto - The data for creating the user.
+   * @param {ExpressRequest} request - The Express request object, containing user information.
+   * @returns {Promise<UserResponseDto>} The newly created user's details.
+   * @throws {AuthenticationError} If the user is not authenticated.
+   */
   @Post("/")
   @Security("jwt", ["admin"])
   public async createUser(
     @Body() createUserDto: CreateUserDto,
     @Request() request: ExpressRequest,
-  ): Promise<UserResponseDto> {
+  ): Promise<UserDto> {
     if (!request.user) {
       throw new AuthenticationError("User not authenticated");
     }
-    const { companyId } = request.user;
+    const { companyId } = request.user as UserDto;
 
     // Check if the user has permission to create users
     await this.rolePermissionService.checkPermission(
-      request.user,
+      request.user as User,
       "create_user",
     );
     const user = await this.userService.createUser(
       companyId,
-      request.user,
+      request.user as User,
       createUserDto,
     );
     return user;
   }
 
+  /**
+   * @summary Updates an existing user account.
+   * @param {string} id - The ID of the user to update.
+   * @param {UpdateUserDto} updateUserDto - The data for updating the user.
+   * @param {ExpressRequest} request - The Express request object, containing user information.
+   * @returns {Promise<UserResponseDto>} The updated user details.
+   * @throws {AuthenticationError} If the user is not authenticated.
+   */
   @Put("{id}")
   @Security("jwt", ["admin"])
   public async updateUser(
     @Path() id: string,
     @Body() updateUserDto: UpdateUserDto,
     @Request() request: ExpressRequest,
-  ): Promise<UserResponseDto> {
+  ): Promise<UserDto> {
     if (!request.user) {
       throw new AuthenticationError("User not authenticated");
     }
-    const { companyId } = request.user;
+    const { companyId } = request.user as UserDto;
     const updatedUser = await this.userService.updateUser(
       companyId,
       id,
-      request.user,
+      request.user as User,
       updateUserDto,
     );
     return updatedUser;
   }
 
+  /**
+   * @summary Deletes a user account by its ID.
+   * @param {string} id - The ID of the user to delete.
+   * @param {ExpressRequest} request - The Express request object, containing user information.
+   * @returns {Promise<void>} Nothing is returned upon successful deletion.
+   * @throws {AuthenticationError} If the user is not authenticated.
+   */
   @Delete("{id}")
   @Security("jwt", ["admin"])
   public async deleteUser(
@@ -108,7 +149,7 @@ export class UserController extends Controller {
     if (!request.user) {
       throw new AuthenticationError("User not authenticated");
     }
-    const { companyId } = request.user;
-    await this.userService.deleteUser(companyId, id, request.user);
+    const { companyId } = request.user as UserDto;
+    await this.userService.deleteUser(companyId, id, request.user as User);
   }
 }

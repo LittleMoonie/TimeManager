@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { v4 as uuidv4 } from "uuid";
 import logger from "../Utils/Logger";
+import User from "../Entities/Users/User";
 
 export const loggingMiddleware = (
   req: Request,
@@ -11,16 +12,16 @@ export const loggingMiddleware = (
   let userId: string | undefined;
   let companyId: string | undefined;
 
-  const authUser = req.user;
+  const authUser = req.user as User;
   if (authUser) {
     userId = authUser.id;
     companyId = authUser.companyId;
   }
 
-  // Attach metadata to the request object
-  req.requestId = requestId;
-  req.userId = userId;
-  req.companyId = companyId;
+  // Attach metadata to the request object, allowing undefined for userId and companyId
+  (req as Request & { requestId: string; userId?: string; companyId?: string }).requestId = requestId;
+  (req as Request & { requestId: string; userId?: string; companyId?: string }).userId = userId;
+  (req as Request & { requestId: string; userId?: string; companyId?: string }).companyId = companyId;
 
   // Set default metadata for the logger
   const defaultMeta = { requestId, userId, companyId, ip: req.ip };

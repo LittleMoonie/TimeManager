@@ -27,12 +27,17 @@ interface GenerateResponse {
   generatedAt?: string;
 }
 
+/**
+ * @summary Controller for system-related operations, including health checks and OpenAPI specification management.
+ */
 @Route("system")
 @Tags("System")
 @Service()
 export class SystemController extends Controller {
   /**
-   * Enhanced health check with OpenAPI status
+   * @summary Provides an enhanced health check for the API, including its uptime and the status of OpenAPI specification generation.
+   * @param {boolean} [autoGen] - If true, triggers OpenAPI specification regeneration if needed.
+   * @returns {Promise<HealthResponse>} The current health status of the system.
    */
   @Get("/health")
   @SuccessResponse("200", "System is healthy")
@@ -74,7 +79,9 @@ export class SystemController extends Controller {
   }
 
   /**
-   * Manually trigger OpenAPI spec generation
+   * @summary Manually triggers the generation of the OpenAPI specification.
+   * @param {boolean} [frontend] - If true, also generates the frontend API client.
+   * @returns {Promise<GenerateResponse>} The result of the generation attempt.
    */
   @Post("/generate-openapi")
   @SuccessResponse("200", "OpenAPI generation triggered")
@@ -99,7 +106,8 @@ export class SystemController extends Controller {
   }
 
   /**
-   * Get OpenAPI generation status
+   * @summary Retrieves the current status of the OpenAPI specification generation.
+   * @returns {Promise<object>} An object containing information about the generation status, including whether it's currently generating, when it was last generated, and if it needs regeneration.
    */
   @Get("/openapi-status")
   @SuccessResponse("200", "OpenAPI status retrieved")

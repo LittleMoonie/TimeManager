@@ -21,7 +21,13 @@ import {
 import { AuthenticationError } from "../../Errors/HttpErrors";
 import { UserService } from "../../Services/User/UserService";
 import { Service } from "typedi";
+import { UserDto } from "../../Dtos/Users/UserDto";
 
+/**
+ * @summary Controller for managing teams within a company.
+ * @tags Teams
+ * @security jwt
+ */
 @Route("teams")
 @Tags("Teams")
 @Security("jwt")
@@ -34,6 +40,13 @@ export class TeamController extends Controller {
     super();
   }
 
+  /**
+   * @summary Creates a new team.
+   * @param {CreateTeamDto} createTeamDto - The data for creating the team.
+   * @param {ExpressRequest} request - The Express request object, containing user information.
+   * @returns {Promise<TeamResponseDto>} The newly created team.
+   * @throws {AuthenticationError} If the user is not authenticated.
+   */
   @Post("/")
   @Security("jwt", ["admin", "manager"])
   public async createTeam(
@@ -43,7 +56,7 @@ export class TeamController extends Controller {
     if (!request.user) {
       throw new AuthenticationError("User not authenticated");
     }
-    const { id: userId, companyId } = request.user;
+    const { id: userId, companyId } = request.user as UserDto;
     const actingUser = await this.userService.getUserById(companyId, userId);
 
     const team = await this.teamService.createTeam(
@@ -54,6 +67,13 @@ export class TeamController extends Controller {
     return team;
   }
 
+  /**
+   * @summary Retrieves a single team by its ID.
+   * @param {string} id - The ID of the team to retrieve.
+   * @param {ExpressRequest} request - The Express request object, containing user information.
+   * @returns {Promise<TeamResponseDto>} The team details.
+   * @throws {AuthenticationError} If the user is not authenticated.
+   */
   @Get("/{id}")
   public async getTeam(
     @Path() id: string,
@@ -62,10 +82,16 @@ export class TeamController extends Controller {
     if (!request.user) {
       throw new AuthenticationError("User not authenticated");
     }
-    const { companyId } = request.user;
+    const { companyId } = request.user as UserDto;
     return this.teamService.getTeamById(companyId, id);
   }
 
+  /**
+   * @summary Retrieves all teams for the authenticated user's company.
+   * @param {ExpressRequest} request - The Express request object, containing user information.
+   * @returns {Promise<TeamResponseDto[]>} An array of teams.
+   * @throws {AuthenticationError} If the user is not authenticated.
+   */
   @Get("/")
   public async getAllTeams(
     @Request() request: ExpressRequest,
@@ -73,10 +99,18 @@ export class TeamController extends Controller {
     if (!request.user) {
       throw new AuthenticationError("User not authenticated");
     }
-    const { companyId } = request.user;
+    const { companyId } = request.user as UserDto;
     return this.teamService.getAllTeams(companyId);
   }
 
+  /**
+   * @summary Updates an existing team.
+   * @param {string} id - The ID of the team to update.
+   * @param {UpdateTeamDto} updateTeamDto - The data for updating the team.
+   * @param {ExpressRequest} request - The Express request object, containing user information.
+   * @returns {Promise<TeamResponseDto>} The updated team details.
+   * @throws {AuthenticationError} If the user is not authenticated.
+   */
   @Put("/{id}")
   @Security("jwt", ["admin", "manager"])
   public async updateTeam(
@@ -87,7 +121,7 @@ export class TeamController extends Controller {
     if (!request.user) {
       throw new AuthenticationError("User not authenticated");
     }
-    const { id: userId, companyId } = request.user;
+    const { id: userId, companyId } = request.user as UserDto;
     const actingUser = await this.userService.getUserById(companyId, userId);
 
     const updatedTeam = await this.teamService.updateTeam(
@@ -99,6 +133,13 @@ export class TeamController extends Controller {
     return updatedTeam;
   }
 
+  /**
+   * @summary Deletes a team by its ID.
+   * @param {string} id - The ID of the team to delete.
+   * @param {ExpressRequest} request - The Express request object, containing user information.
+   * @returns {Promise<void>} Nothing is returned upon successful deletion.
+   * @throws {AuthenticationError} If the user is not authenticated.
+   */
   @Delete("/{id}")
   @Security("jwt", ["admin", "manager"])
   public async deleteTeam(
@@ -108,7 +149,7 @@ export class TeamController extends Controller {
     if (!request.user) {
       throw new AuthenticationError("User not authenticated");
     }
-    const { id: userId, companyId } = request.user;
+    const { id: userId, companyId } = request.user as UserDto;
     const actingUser = await this.userService.getUserById(companyId, userId);
 
     await this.teamService.deleteTeam(actingUser, companyId, id);

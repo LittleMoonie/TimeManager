@@ -1,50 +1,56 @@
-import {
-  Body,
-  Controller,
-  Post,
-  Route,
-  Tags,
-  Response,
-  SuccessResponse,
-  Security,
-  Request,
-  Get,
-} from "tsoa";
-import { validate } from "class-validator";
 import { Request as ExpressRequest } from "express";
 import { LoginDto } from "../../Dtos/Authentication/LoginDto";
 import { RegisterDto } from "../../Dtos/Authentication/RegisterDto";
 import { AuthenticationService } from "../../Services/AuthenticationService/AuthenticationService";
-import { AuthResponse, UserResponseDto } from "../../Dtos/Users/UserDto";
-import User from "../../Entities/Users/User";
+import { AuthResponse, UserDto } from "../../Dtos/Users/UserDto";
 import { Service } from "typedi";
 import {
   ForbiddenError,
   NotFoundError,
   UnprocessableEntityError,
 } from "../../Errors/HttpErrors";
+import { validate } from "class-validator";
+import {
+  Body,
+  Controller,
+  Post,
+  Route,
+  Tags,
+  SuccessResponse,
+  Response,
+  Get,
+  Security,
+  Request, // Import Request decorator
+} from "tsoa";
 
+/**
+ * @summary Handles user authentication and authorization.
+ * @tags Authentication
+ */
 @Route("auth")
 @Tags("Authentication")
 @Service()
+// @Service()
 export class AuthenticationController extends Controller {
   constructor(private authenticationService: AuthenticationService) {
     super();
   }
 
   /**
-   * Register a new user
-   * @param requestBody User registration data
-   * @returns Registration result
+   * @summary Registers a new user with the provided details.
+   * @param {RegisterDto} requestBody - The registration data for the new user.
+   * @returns {Promise<UserDto>} The newly registered user's details.
+   * @throws {UnprocessableEntityError} If validation fails.
+   * @throws {Error} If email already exists or other internal server error.
    */
-  @Post("register")
+  @Post("/register")
   @SuccessResponse("201", "User registered successfully")
-  @Response<AuthResponse>("422", "Validation error")
-  @Response<AuthResponse>("400", "Email already exists")
-  @Response<AuthResponse>("500", "Internal server error")
+  @Response("400", "Email already exists")
+  @Response("422", "Validation error")
+  @Response("500", "Internal server error")
   public async register(
     @Body() requestBody: RegisterDto,
-  ): Promise<UserResponseDto> {
+  ): Promise<UserDto> {
     const errors = await validate(requestBody);
     if (errors.length > 0) {
       throw new UnprocessableEntityError(
@@ -53,7 +59,7 @@ export class AuthenticationController extends Controller {
     }
 
     const user = await this.authenticationService.register(requestBody);
-    this.setStatus(201);
+    this.setStatus(201); // tsoa specific
     return {
       id: user.id,
       email: user.email,
@@ -69,18 +75,21 @@ export class AuthenticationController extends Controller {
   }
 
   /**
-   * Login user and get JWT token
-   * @param requestBody User login credentials
-   * @returns Authentication result with JWT token
+   * @summary Logs in a user and provides a JWT token.
+   * @param {LoginDto} requestBody - The login credentials (email and password).
+   * @param {ExpressRequest} request - The Express request object, used for IP and user-agent.
+   * @returns {Promise<AuthResponse>} An object containing the JWT token and user details.
+   * @throws {UnprocessableEntityError} If validation fails.
+   * @throws {Error} If wrong credentials or other internal server error.
    */
-  @Post("login")
+  @Post("/login")
   @SuccessResponse("200", "User logged in successfully")
-  @Response<AuthResponse>("422", "Validation error")
-  @Response<AuthResponse>("401", "Wrong credentials")
-  @Response<AuthResponse>("500", "Internal server error")
+  @Response("401", "Wrong credentials")
+  @Response("422", "Validation error")
+  @Response("500", "Internal server error")
   public async login(
     @Body() requestBody: LoginDto,
-    @Request() request: ExpressRequest,
+    @Request() request: ExpressRequest, // Added @Request() decorator
   ): Promise<AuthResponse> {
     const errors = await validate(requestBody);
     if (errors.length > 0) {
@@ -139,17 +148,19 @@ export class AuthenticationController extends Controller {
   }
 
   /**
-   * Logout user and invalidate token
-   * @param request Express request object containing headers
-   * @returns Logout result
+   * @summary Logs out the current user and invalidates their token.
+   * @param {ExpressRequest} request - The Express request object, used to clear the JWT cookie.
+   * @returns {Promise<AuthResponse>} An empty AuthResponse after successful logout.
+   * @throws {NotFoundError} If no token is provided.
+   * @throws {Error} If internal server error.
    */
-  @Post("logout")
+  @Post("/logout")
   @Security("jwt")
   @SuccessResponse("200", "User logged out successfully")
-  @Response<AuthResponse>("401", "Authentication required")
-  @Response<AuthResponse>("500", "Internal server error")
+  @Response("401", "Authentication required")
+  @Response("500", "Internal server error")
   public async logout(
-    @Request() request: ExpressRequest,
+    @Request() request: ExpressRequest, // Added @Request() decorator
   ): Promise<AuthResponse> {
     const token =
       request.cookies?.jwt || request.headers?.authorization?.split(" ")[1];
@@ -158,7 +169,7 @@ export class AuthenticationController extends Controller {
       throw new NotFoundError("No token provided");
     }
 
-    await this.authenticationService.logout(request.user);
+    await this.authenticationService.logout(request.user as string);
 
     // Clear HttpOnly cookie
     if (request.res) {
@@ -185,23 +196,27 @@ export class AuthenticationController extends Controller {
       },
     };
   }
+
   /**
-   * Get current user
-   * @param request Express request object containing headers
-   * @returns Current user
+   * @summary Retrieves the details of the currently authenticated user.
+   * @param {ExpressRequest} request - The Express request object, containing user information.
+   * @returns {Promise<UserDto>} The details of the current user.
+   * @throws {ForbiddenError} If the user is not authenticated.
+   * @throws {Error} If internal server error.
    */
-  @Get("current")
+  @Get("/current")
   @Security("jwt")
   @SuccessResponse("200", "Current user retrieved successfully")
-  @Response<AuthResponse>("401", "Authentication required")
-  @Response<AuthResponse>("500", "Internal server error")
+  @Response("401", "Authentication required")
+  @Response("403", "Forbidden: User not authenticated")
+  @Response("500", "Internal server error")
   public async getCurrentUser(
-    @Request() request: ExpressRequest,
-  ): Promise<UserResponseDto> {
+    @Request() request: ExpressRequest, // Added @Request() decorator
+  ): Promise<UserDto> {
     if (!request.user) {
       throw new ForbiddenError("User not authenticated");
     }
-    const user = request.user as User;
+    const user = request.user as UserDto;
     return {
       id: user.id,
       email: user.email,
@@ -211,7 +226,7 @@ export class AuthenticationController extends Controller {
       roleId: user.roleId,
       statusId: user.statusId,
       createdAt: user.createdAt,
-      phone: user.phoneNumber,
+      phone: user.phone,
       lastLogin: user.lastLogin,
       company: user.company
         ? {

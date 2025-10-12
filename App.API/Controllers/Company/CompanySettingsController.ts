@@ -17,7 +17,13 @@ import {
 import { AuthenticationError } from "../../Errors/HttpErrors";
 import { UserService } from "../../Services/User/UserService";
 import { Service } from "typedi";
+import { UserDto } from "../../Dtos/Users/UserDto";
 
+/**
+ * @summary Controller for managing company-specific settings.
+ * @tags Company Settings
+ * @security jwt
+ */
 @Route("company-settings")
 @Tags("Company Settings")
 @Security("jwt")
@@ -30,6 +36,12 @@ export class CompanySettingsController extends Controller {
     super();
   }
 
+  /**
+   * @summary Retrieves the company settings for the authenticated user's company.
+   * @param {ExpressRequest} request - The Express request object, containing user information.
+   * @returns {Promise<CompanySettingsResponseDto>} The company settings.
+   * @throws {AuthenticationError} If the user is not authenticated.
+   */
   @Get("/")
   public async getCompanySettings(
     @Request() request: ExpressRequest,
@@ -37,10 +49,17 @@ export class CompanySettingsController extends Controller {
     if (!request.user) {
       throw new AuthenticationError("User not authenticated");
     }
-    const { companyId } = request.user;
+    const { companyId } = request.user as UserDto;
     return this.companySettingsService.getCompanySettings(companyId);
   }
 
+  /**
+   * @summary Updates the company settings for the authenticated user's company.
+   * @param {UpdateCompanySettingsDto} updateCompanySettingsDto - The data for updating company settings.
+   * @param {ExpressRequest} request - The Express request object, containing user information.
+   * @returns {Promise<CompanySettingsResponseDto>} The updated company settings.
+   * @throws {AuthenticationError} If the user is not authenticated.
+   */
   @Put("/")
   @Security("jwt", ["admin"])
   public async updateCompanySettings(
@@ -50,7 +69,7 @@ export class CompanySettingsController extends Controller {
     if (!request.user) {
       throw new AuthenticationError("User not authenticated");
     }
-    const { id: userId, companyId } = request.user;
+    const { id: userId, companyId } = request.user as UserDto;
     const actingUser = await this.userService.getUserById(companyId, userId);
 
     const updatedSettings =

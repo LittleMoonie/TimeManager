@@ -3,7 +3,7 @@ import { Repository } from "typeorm";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { RegisterDto } from "../../Dtos/Authentication/RegisterDto";
 import { LoginDto } from "../../Dtos/Authentication/LoginDto";
-import { AuthResponse, UserResponseDto } from "../../Dtos/Users/UserDto";
+import { AuthResponse, UserDto } from "../../Dtos/Users/UserDto";
 import User from "../../Entities/Users/User";
 import { AuthenticationError, NotFoundError } from "../../Errors/HttpErrors";
 import * as argon2 from "argon2";
@@ -94,7 +94,7 @@ export class AuthenticationService {
     user.lastLogin = new Date();
     await this.userRepository.save(user);
 
-    const userResponse: UserResponseDto = {
+    const userResponse: UserDto = {
       id: user.id,
       email: user.email,
       firstName: user.firstName,

@@ -21,7 +21,13 @@ import {
 import { AuthenticationError } from "../../Errors/HttpErrors";
 import { UserService } from "../../Services/User/UserService";
 import { Service } from "typedi";
+import { UserDto } from "../../Dtos/Users/UserDto";
 
+/**
+ * @summary Controller for managing leave requests within a company.
+ * @tags Leave Requests
+ * @security jwt
+ */
 @Route("leave-requests")
 @Tags("Leave Requests")
 @Security("jwt")
@@ -34,6 +40,13 @@ export class LeaveRequestController extends Controller {
     super();
   }
 
+  /**
+   * @summary Creates a new leave request.
+   * @param {CreateLeaveRequestDto} createLeaveRequestDto - The data for creating the leave request.
+   * @param {ExpressRequest} request - The Express request object, containing user information.
+   * @returns {Promise<LeaveRequestResponseDto>} The newly created leave request.
+   * @throws {AuthenticationError} If the user is not authenticated.
+   */
   @Post("/")
   public async createLeaveRequest(
     @Body() createLeaveRequestDto: CreateLeaveRequestDto,
@@ -42,7 +55,7 @@ export class LeaveRequestController extends Controller {
     if (!request.user) {
       throw new AuthenticationError("User not authenticated");
     }
-    const { id: userId, companyId } = request.user;
+    const { id: userId, companyId } = request.user as UserDto;
     const actingUser = await this.userService.getUserById(companyId, userId);
 
     const leaveRequest = await this.leaveRequestService.createLeaveRequest(
@@ -53,6 +66,13 @@ export class LeaveRequestController extends Controller {
     return leaveRequest;
   }
 
+  /**
+   * @summary Retrieves a single leave request by its ID.
+   * @param {string} id - The ID of the leave request to retrieve.
+   * @param {ExpressRequest} request - The Express request object, containing user information.
+   * @returns {Promise<LeaveRequestResponseDto>} The leave request details.
+   * @throws {AuthenticationError} If the user is not authenticated.
+   */
   @Get("/{id}")
   public async getLeaveRequest(
     @Path() id: string,
@@ -61,10 +81,16 @@ export class LeaveRequestController extends Controller {
     if (!request.user) {
       throw new AuthenticationError("User not authenticated");
     }
-    const { companyId } = request.user;
+    const { companyId } = request.user as UserDto;
     return this.leaveRequestService.getLeaveRequestById(companyId, id);
   }
 
+  /**
+   * @summary Retrieves all leave requests for the authenticated user's company.
+   * @param {ExpressRequest} request - The Express request object, containing user information.
+   * @returns {Promise<LeaveRequestResponseDto[]>} An array of leave requests.
+   * @throws {AuthenticationError} If the user is not authenticated.
+   */
   @Get("/")
   public async getAllLeaveRequests(
     @Request() request: ExpressRequest,
@@ -72,10 +98,18 @@ export class LeaveRequestController extends Controller {
     if (!request.user) {
       throw new AuthenticationError("User not authenticated");
     }
-    const { companyId } = request.user;
+    const { companyId } = request.user as UserDto;
     return this.leaveRequestService.getAllLeaveRequests(companyId);
   }
 
+  /**
+   * @summary Updates an existing leave request.
+   * @param {string} id - The ID of the leave request to update.
+   * @param {UpdateLeaveRequestDto} updateLeaveRequestDto - The data for updating the leave request.
+   * @param {ExpressRequest} request - The Express request object, containing user information.
+   * @returns {Promise<LeaveRequestResponseDto>} The updated leave request details.
+   * @throws {AuthenticationError} If the user is not authenticated.
+   */
   @Put("/{id}")
   public async updateLeaveRequest(
     @Path() id: string,
@@ -85,7 +119,7 @@ export class LeaveRequestController extends Controller {
     if (!request.user) {
       throw new AuthenticationError("User not authenticated");
     }
-    const { id: userId, companyId } = request.user;
+    const { id: userId, companyId } = request.user as UserDto;
     const actingUser = await this.userService.getUserById(companyId, userId);
 
     const updatedLeaveRequest =
@@ -98,6 +132,13 @@ export class LeaveRequestController extends Controller {
     return updatedLeaveRequest;
   }
 
+  /**
+   * @summary Deletes a leave request by its ID.
+   * @param {string} id - The ID of the leave request to delete.
+   * @param {ExpressRequest} request - The Express request object, containing user information.
+   * @returns {Promise<void>} Nothing is returned upon successful deletion.
+   * @throws {AuthenticationError} If the user is not authenticated.
+   */
   @Delete("/{id}")
   public async deleteLeaveRequest(
     @Path() id: string,
@@ -106,7 +147,7 @@ export class LeaveRequestController extends Controller {
     if (!request.user) {
       throw new AuthenticationError("User not authenticated");
     }
-    const { id: userId, companyId } = request.user;
+    const { id: userId, companyId } = request.user as UserDto;
     const actingUser = await this.userService.getUserById(companyId, userId);
 
     await this.leaveRequestService.deleteLeaveRequest(

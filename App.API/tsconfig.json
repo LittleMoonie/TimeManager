@@ -16,7 +16,13 @@
     "sourceMap": true,
     "declaration": false,
     "types": ["node"],
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@/*": ["./*"],
+      "@Controllers/*": ["./Controllers/*"],
+      "@Routes/*": ["./Routes/Generated/*"],
+      "@Services/*": ["./Services/*"]
+    }
   },
   "include": ["**/*.ts", "Types/**/*.d.ts", "index.ts"],
   "exclude": ["node_modules", "build", "**/*.test.ts", "**/*.spec.ts"]

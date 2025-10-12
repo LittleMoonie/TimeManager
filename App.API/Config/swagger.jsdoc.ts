@@ -26,6 +26,113 @@ const swaggerDefinition = {
         description: 'JWT Authorization header using the Bearer scheme.',
       },
     },
+    schemas: {
+      AuthResponse: {
+        type: 'object',
+        properties: {
+          token: {
+            type: 'string',
+            description: 'JWT authentication token',
+          },
+          user: {
+            $ref: '#/components/schemas/UserResponseDto',
+          },
+        },
+        required: ['token', 'user'],
+      },
+      UserResponseDto: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            format: 'uuid',
+          },
+          email: {
+            type: 'string',
+            format: 'email',
+          },
+          firstName: {
+            type: 'string',
+          },
+          lastName: {
+            type: 'string',
+          },
+          companyId: {
+            type: 'string',
+            format: 'uuid',
+          },
+          roleId: {
+            type: 'string',
+            format: 'uuid',
+          },
+          statusId: {
+            type: 'string',
+            format: 'uuid',
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+          },
+          phone: {
+            type: 'string',
+          },
+          lastLogin: {
+            type: 'string',
+            format: 'date-time',
+          },
+        },
+        required: ['id', 'email', 'firstName', 'lastName', 'companyId', 'roleId', 'statusId', 'createdAt'],
+      },
+      RegisterDto: {
+        type: 'object',
+        properties: {
+          email: {
+            type: 'string',
+            format: 'email',
+          },
+          password: {
+            type: 'string',
+            format: 'password',
+          },
+          firstName: {
+            type: 'string',
+          },
+          lastName: {
+            type: 'string',
+          },
+          companyId: {
+            type: 'string',
+            format: 'uuid',
+          },
+          roleId: {
+            type: 'string',
+            format: 'uuid',
+          },
+          statusId: {
+            type: 'string',
+            format: 'uuid',
+          },
+          phoneNumber: {
+            type: 'string',
+          },
+        },
+        required: ['email', 'password', 'firstName', 'lastName', 'companyId', 'roleId', 'statusId', 'phoneNumber'],
+      },
+      LoginDto: {
+        type: 'object',
+        properties: {
+          email: {
+            type: 'string',
+            format: 'email',
+          },
+          password: {
+            type: 'string',
+            format: 'password',
+          },
+        },
+        required: ['email', 'password'],
+      },
+    },
   },
   security: [
     {

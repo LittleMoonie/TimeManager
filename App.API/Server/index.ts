@@ -7,10 +7,10 @@ import swaggerUi from "swagger-ui-express";
 import * as fs from "fs";
 import * as path from "path";
 
-import { RegisterRoutes } from "../Routes/generated/routes";
 import { connectDB } from "./Database";
 import { errorHandler } from "../Middlewares/ErrorHandler";
 import logger from "../Utils/Logger";
+import { RegisterRoutes } from "../Routes/generated/routes"; // Import the generated routes
 
 // Instantiate express
 const server: Application = express();
@@ -68,8 +68,9 @@ server.get("/api/docs", (req: Request, res: Response, next: NextFunction) => {
 
 // Mount all API routes under /api prefix
 const apiApp = express();
-RegisterRoutes(apiApp);
 server.use("/api", apiApp);
+
+RegisterRoutes(apiApp); // Register tsoa-generated routes with apiApp
 
 server.use(errorHandler(logger));
 
