@@ -1,7 +1,7 @@
-import type { ReactNode } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { AppThemeProvider } from '@/themes';
+import type { ReactNode } from 'react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { AppThemeProvider } from '@/themes'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -10,10 +10,10 @@ const queryClient = new QueryClient({
       staleTime: 5 * 60 * 1000,
     },
   },
-});
+})
 
 interface AppProvidersProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export const AppProviders = ({ children }: AppProvidersProps) => {
@@ -22,7 +22,7 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
       <AppThemeProvider>{children}</AppThemeProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
-  );
-};
+  )
+}
 
-export default AppProviders;
+export default AppProviders

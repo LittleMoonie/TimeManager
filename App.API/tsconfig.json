@@ -3,7 +3,7 @@
     "target": "ES2022",
     "module": "CommonJS",
     "moduleResolution": "node",
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": "build",
     "strict": true,
     "esModuleInterop": true,
@@ -15,9 +15,17 @@
     "noImplicitAny": false,
     "sourceMap": true,
     "declaration": false,
-    "types": ["node"],
-    "forceConsistentCasingInFileNames": true
+    "types": ["node", "jest"],
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@Controllers/*": ["Controllers/*"],
+      "@Routes/*": ["Routes/*"],
+      "@Services/*": ["Services/*"],
+      "@Entities/*": ["Entities/*"],
+      "@/*": ["*"]
+    }
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "build", "**/*.test.ts", "**/*.spec.ts"]
+  "include": ["**/*.ts", "Types/**/*.d.ts", "index.ts"],
+  "exclude": ["node_modules", "build"]
 }

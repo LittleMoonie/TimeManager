@@ -1,81 +1,117 @@
-import { Box, Card, CardContent, Chip, Divider, List, ListItem, ListItemText, Stack, Typography } from '@mui/material';
-import { useTasks } from '@/hooks/useTasks';
-import type { Task, TaskPriority, TaskStatus } from '@/types';
+import {
+  Box,
+  Card,
+  CardContent,
+  Chip,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  Stack,
+  Typography,
+} from '@mui/material'
+// import { useTasks } from '@/hooks/useTasks'
+// import type { Task, TaskPriority, TaskStatus } from '@/types'
 
-const statusColors: Record<TaskStatus, 'default' | 'success' | 'warning' | 'info' | 'error'> = {
-  TODO: 'default',
-  IN_PROGRESS: 'warning',
-  REVIEW: 'info',
-  DONE: 'success',
-  CANCELLED: 'error',
-};
+// const statusColors: Record<TaskStatus, 'default' | 'success' | 'warning' | 'info' | 'error'> = {
+//   TODO: 'default',
+//   IN_PROGRESS: 'warning',
+//   REVIEW: 'info',
+//   DONE: 'success',
+//   CANCELLED: 'error',
+// }
 
-const priorityColors: Record<TaskPriority, 'default' | 'success' | 'warning' | 'error'> = {
-  LOW: 'success',
-  MEDIUM: 'warning',
-  HIGH: 'error',
-  URGENT: 'error',
-};
+// const priorityColors: Record<TaskPriority, 'default' | 'success' | 'warning' | 'error'> = {
+//   LOW: 'success',
+//   MEDIUM: 'warning',
+//   HIGH: 'error',
+//   URGENT: 'error',
+// }
 
 const timesheetEntries = [
   { id: 'ts-1', date: '2024-10-14', project: 'GoGoTime Web', hours: 6.25, status: 'Approved' },
   { id: 'ts-2', date: '2024-10-15', project: 'GoGoTime API', hours: 7.5, status: 'Pending' },
   { id: 'ts-3', date: '2024-10-16', project: 'Product discovery', hours: 5, status: 'Approved' },
   { id: 'ts-4', date: '2024-10-17', project: 'Design sync', hours: 4, status: 'Pending' },
-];
+]
 
 const reportSummaries = [
-  { id: 'r1', title: 'Weekly performance summary', description: 'Snapshot of team productivity and velocity.' },
-  { id: 'r2', title: 'Time tracking compliance', description: 'Highlights missing timesheets and overtime alerts.' },
-  { id: 'r3', title: 'Project health', description: 'Shows progress, blockers, and upcoming milestones.' },
-  { id: 'r4', title: 'Billing preview', description: 'Forecasts billable hours and cost allocations.' },
-];
+  {
+    id: 'r1',
+    title: 'Weekly performance summary',
+    description: 'Snapshot of team productivity and velocity.',
+  },
+  {
+    id: 'r2',
+    title: 'Time tracking compliance',
+    description: 'Highlights missing timesheets and overtime alerts.',
+  },
+  {
+    id: 'r3',
+    title: 'Project health',
+    description: 'Shows progress, blockers, and upcoming milestones.',
+  },
+  {
+    id: 'r4',
+    title: 'Billing preview',
+    description: 'Forecasts billable hours and cost allocations.',
+  },
+]
 
 const settingsShortcuts = [
-  { id: 's1', label: 'Profile', description: 'Update contact details and notification preferences.' },
+  {
+    id: 's1',
+    label: 'Profile',
+    description: 'Update contact details and notification preferences.',
+  },
   { id: 's2', label: 'Teams', description: 'Manage assignments and approval routing.' },
   { id: 's3', label: 'Integrations', description: 'Connect Slack, Jira, or payroll exports.' },
-];
+]
 
-const renderTask = (task: Task) => (
-  <Box
-    key={task.id}
-    sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 1,
-      bgcolor: 'background.paper',
-      borderRadius: 2,
-      border: '1px solid',
-      borderColor: 'divider',
-      p: 2,
-    }}
-  >
-    <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
-      <Typography variant="subtitle1" fontWeight={600} noWrap>
-        {task.title}
-      </Typography>
-      <Chip label={task.status} size="small" color={statusColors[task.status]} />
-    </Stack>
-    {task.description && (
-      <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-word' }}>
-        {task.description}
-      </Typography>
-    )}
-    <Stack direction="row" spacing={1} alignItems="center">
-      <Chip label={`Priority: ${task.priority}`} size="small" color={priorityColors[task.priority]} variant="outlined" />
-      {task.dueDate && (
-        <Typography variant="caption" color="text.secondary">
-          Due {new Date(task.dueDate).toLocaleDateString()}
-        </Typography>
-      )}
-    </Stack>
-  </Box>
-);
+// const renderTask = (task: Task) => (
+//   <Box
+//     key={task.id}
+//     sx={{
+//       display: 'flex',
+//       flexDirection: 'column',
+//       gap: 1,
+//       bgcolor: 'background.paper',
+//       borderRadius: 2,
+//       border: '1px solid',
+//       borderColor: 'divider',
+//       p: 2,
+//     }}
+//   >
+//     <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
+//       <Typography variant="subtitle1" fontWeight={600} noWrap>
+//         {task.title}
+//       </Typography>
+//       <Chip label={task.status} size="small" color={statusColors[task.status]} />
+//     </Stack>
+//     {task.description && (
+//       <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-word' }}>
+//         {task.description}
+//       </Typography>
+//     )}
+//     <Stack direction="row" spacing={1} alignItems="center">
+//       <Chip
+//         label={`Priority: ${task.priority}`}
+//         size="small"
+//         color={priorityColors[task.priority]}
+//         variant="outlined"
+//       />
+//       {task.dueDate && (
+//         <Typography variant="caption" color="text.secondary">
+//           Due {new Date(task.dueDate).toLocaleDateString()}
+//         </Typography>
+//       )}
+//     </Stack>
+//   </Box>
+// )
 
 export const DashboardPage = () => {
-  const { data: taskResponse, isLoading: tasksLoading, error: tasksError } = useTasks({ limit: 10 });
-  const tasks = taskResponse?.data ?? [];
+  // const { data: taskResponse, isLoading: tasksLoading, error: tasksError } = useTasks({ limit: 10 })
+  // const tasks = taskResponse?.data ?? []
 
   return (
     <Box sx={{ px: { xs: 2, md: 3 }, py: 2 }}>
@@ -83,7 +119,11 @@ export const DashboardPage = () => {
         sx={{
           display: 'grid',
           gap: 3,
-          gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))', lg: '2.1fr 1.3fr 0.8fr' },
+          gridTemplateColumns: {
+            xs: '1fr',
+            md: 'repeat(2, minmax(0, 1fr))',
+            lg: '2.1fr 1.3fr 0.8fr',
+          },
           gridTemplateRows: { xs: 'auto', lg: 'auto auto auto' },
         }}
       >
@@ -128,7 +168,7 @@ export const DashboardPage = () => {
                 gap: 1.5,
               }}
             >
-              {tasksLoading && (
+              {/* {tasksLoading && (
                 <Typography variant="body2" color="text.secondary">
                   Loading tasks...
                 </Typography>
@@ -143,7 +183,7 @@ export const DashboardPage = () => {
                   No tasks yet. Create one from the Tasks workspace to get started.
                 </Typography>
               )}
-              {!tasksLoading && !tasksError && tasks.map((task) => renderTask(task))}
+              {!tasksLoading && !tasksError && tasks.map(task => renderTask(task))} */}
             </Box>
           </CardContent>
         </Card>
@@ -195,7 +235,12 @@ export const DashboardPage = () => {
                   >
                     <ListItemText
                       primary={
-                        <Stack direction="row" justifyContent="space-between" alignItems="baseline" spacing={2}>
+                        <Stack
+                          direction="row"
+                          justifyContent="space-between"
+                          alignItems="baseline"
+                          spacing={2}
+                        >
                           <Typography variant="subtitle1" fontWeight={600}>
                             {new Date(entry.date).toLocaleDateString()}
                           </Typography>
@@ -212,7 +257,13 @@ export const DashboardPage = () => {
                           <Chip
                             label={entry.status}
                             size="small"
-                            color={entry.status === 'Approved' ? 'success' : entry.status === 'Pending' ? 'warning' : 'default'}
+                            color={
+                              entry.status === 'Approved'
+                                ? 'success'
+                                : entry.status === 'Pending'
+                                  ? 'warning'
+                                  : 'default'
+                            }
                             sx={{ alignSelf: 'flex-start' }}
                           />
                         </Stack>
@@ -258,7 +309,7 @@ export const DashboardPage = () => {
             </Box>
             <Divider />
             <Stack spacing={1.5} sx={{ flex: 1, overflowY: 'auto', pr: 0.5 }}>
-              {settingsShortcuts.map((item) => (
+              {settingsShortcuts.map(item => (
                 <Box
                   key={item.id}
                   sx={{
@@ -319,8 +370,15 @@ export const DashboardPage = () => {
                 pr: 1,
               }}
             >
-              <List disablePadding sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: { xs: 1.5, md: 2 } }}>
-                {reportSummaries.map((report) => (
+              <List
+                disablePadding
+                sx={{
+                  display: 'flex',
+                  flexDirection: { xs: 'column', md: 'row' },
+                  gap: { xs: 1.5, md: 2 },
+                }}
+              >
+                {reportSummaries.map(report => (
                   <ListItem
                     key={report.id}
                     sx={{
@@ -354,5 +412,5 @@ export const DashboardPage = () => {
         </Card>
       </Box>
     </Box>
-  );
-};
+  )
+}

@@ -406,7 +406,7 @@ describe('Users API', () => {
   beforeEach(async () => {
     // Clean up database
     await prisma.user.deleteMany();
-    await prisma.organization.deleteMany();
+    await prisma.Company.deleteMany();
   });
 
   describe('GET /api/v1/users', () => {
@@ -1419,8 +1419,8 @@ export const cleanupTestDatabase = async (db: PrismaClient) => {
   await db.auditLog.deleteMany();
   await db.task.deleteMany();
   await db.project.deleteMany();
-  await db.organizationMember.deleteMany();
-  await db.organization.deleteMany();
+  await db.CompanyMember.deleteMany();
+  await db.Company.deleteMany();
   await db.session.deleteMany();
   await db.user.deleteMany();
   
@@ -1433,7 +1433,7 @@ export const generateTestToken = async (role: string = 'EMPLOYEE') => {
       userId: 'test-user-id',
       email: 'test@example.com',
       role,
-      organizationId: 'test-org-id',
+      CompanyId: 'test-org-id',
     },
     process.env.JWT_SECRET!,
     { expiresIn: '1h' }
@@ -1464,10 +1464,10 @@ export const createTestUser = async (overrides: any = {}) => {
   });
 };
 
-export const createTestOrganization = async (overrides: any = {}) => {
-  return prisma.organization.create({
+export const createTestCompany = async (overrides: any = {}) => {
+  return prisma.Company.create({
     data: {
-      name: 'Test Organization',
+      name: 'Test Company',
       slug: 'test-org',
       ownerId: 'test-user-id',
       ...overrides,

@@ -1,4 +1,8 @@
-import { useState } from 'react';
+import { useState } from 'react'
+import { Link as RouterLink } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import {
   Alert,
   Box,
@@ -8,32 +12,42 @@ import {
   Container,
   TextField,
   Typography,
-} from '@mui/material';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { useAuth } from '@/hooks/useAuth';
+  InputAdornment,
+  IconButton,
+  Checkbox,
+  FormControlLabel,
+} from '@mui/material'
+import { Visibility, VisibilityOff } from '@mui/icons-material'
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { useAuth } from '@/hooks/useAuth'
+
+const loginSchema = z.object({
+  identifier: z.string().min(1, 'Email address or username is required'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+})
+
+type LoginFormInputs = z.infer<typeof loginSchema>
 
 const LoginPage = () => {
-  const [credentials, setCredentials] = useState({
-    email: '',
-    password: '',
-  });
-  const { login, isLoggingIn, loginError } = useAuth();
+  const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
+  const { login, isLoggingIn, loginError } = useAuth()
 
-  const handleChange = (field: 'email' | 'password') => (event: React.ChangeEvent<HTMLInputElement>) => {
-    setCredentials((prev) => ({ ...prev, [field]: event.target.value }));
-  };
+  const { register, handleSubmit, formState: { errors, isValid } } = useForm<LoginFormInputs>({
+    resolver: zodResolver(loginSchema),
+    mode: 'onChange',
+  })
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const onSubmit = async (data: LoginFormInputs) => {
     try {
-      await login(credentials);
+      await login({ identifier: data.identifier, password: data.password, rememberMe })
     } catch {
       // Errors surfaced via loginError state
     }
-  };
+  }
 
   if (isLoggingIn) {
-    return <LoadingSpinner message="Signing you in..." />;
+    return <LoadingSpinner message="Signing you in..." />
   }
 
   return (
@@ -46,66 +60,98 @@ const LoginPage = () => {
           alignItems: 'center',
         }}
       >
-        <Card sx={{ width: '100%', maxWidth: 420 }}>
+        <Card sx={{ width: '100%', maxWidth: 480, borderRadius: 3, boxShadow: 3 }}>
           <CardContent sx={{ p: 4 }}>
-            <Typography component="h1" variant="h4" align="center" gutterBottom>
-              GoGoTime
-            </Typography>
-            <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
-              Sign in to your account to access your workspace.
-            </Typography>
+            <Box sx={{ textAlign: 'center', mb: 3 }}>
+              {/* GoGoTime Logo Placeholder */}
+              <Typography variant="h4" component="h1" fontWeight={700} color="primary.main" gutterBottom>
+                GoGoTime
+              </Typography>
+              <Typography variant="h6" component="h2" gutterBottom>
+                Hi, Welcome Back
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Enter your credentials to continue.
+              </Typography>
+            </Box>
 
             {loginError && (
               <Alert severity="error" sx={{ mb: 2 }}>
-                {loginError.message ?? 'Login failed. Please verify your credentials.'}
+                {loginError.message ?? 'Invalid credentials. Please try again.'}
               </Alert>
             )}
 
-            <Box component="form" onSubmit={handleSubmit} display="flex" flexDirection="column" gap={2}>
+            <Box
+              component="form"
+              onSubmit={handleSubmit(onSubmit)}
+              display="flex"
+              flexDirection="column"
+              gap={2}
+            >
               <TextField
-                label="Email address"
-                type="email"
-                value={credentials.email}
-                onChange={handleChange('email')}
+                label="Email Address / Username"
+                type="text"
+                {...register('identifier')}
+                error={!!errors.identifier}
+                helperText={errors.identifier?.message}
                 autoFocus
                 required
                 fullWidth
               />
               <TextField
                 label="Password"
-                type="password"
-                value={credentials.password}
-                onChange={handleChange('password')}
+                type={showPassword ? 'text' : 'password'}
+                {...register('password')}
+                error={!!errors.password}
+                helperText={errors.password?.message || 'Minimum 8 characters'}
                 required
                 fullWidth
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => setShowPassword(prev => !prev)}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
-              <Button type="submit" variant="contained" disabled={!credentials.email || !credentials.password}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={rememberMe}
+                    onChange={event => setRememberMe(event.target.checked)}
+                    name="rememberMe"
+                    color="primary"
+                  />
+                }
+                label="Keep me logged in"
+              />
+              <Button type="submit" variant="contained" fullWidth disabled={isLoggingIn || !isValid}>
                 Sign In
               </Button>
             </Box>
 
-            <Box
-              sx={{
-                mt: 3,
-                p: 2,
-                borderRadius: 2,
-                backgroundColor: (theme) => (theme.palette.mode === 'light' ? 'grey.100' : 'grey.900'),
-              }}
-            >
-              <Typography variant="caption" color="text.secondary">
-                Demo credentials
-              </Typography>
+            <Box sx={{ mt: 2, textAlign: 'center' }}>
               <Typography variant="body2">
-                Email: admin@gogotime.com
-                <br />
-                Password: admin123
+                <RouterLink to="/forgot-password" style={{ textDecoration: 'none', color: 'inherit' }}>
+                  Forgot Password?
+                </RouterLink>
               </Typography>
             </Box>
+
+            <Typography variant="caption" color="text.secondary" align="center" display="block" sx={{ mt: 4 }}>
+              Account creation is disabled. Contact your administrator.
+            </Typography>
           </CardContent>
         </Card>
       </Box>
     </Container>
-  );
-};
+  )
+}
 
-export default LoginPage;
+export default LoginPage

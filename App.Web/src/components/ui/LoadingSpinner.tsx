@@ -1,8 +1,8 @@
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { Box, CircularProgress, Typography } from '@mui/material'
 
 interface LoadingSpinnerProps {
-  message?: string;
-  size?: number;
+  message?: string
+  size?: number
 }
 
 export const LoadingSpinner = ({ message = 'Loading...', size = 40 }: LoadingSpinnerProps) => {
@@ -22,6 +22,5 @@ export const LoadingSpinner = ({ message = 'Loading...', size = 40 }: LoadingSpi
         </Typography>
       )}
     </Box>
-  );
-};
-
+  )
+}

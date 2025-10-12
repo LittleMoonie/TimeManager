@@ -4,14 +4,14 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'App.API/src/**'
+      - 'App.API/**'
       - 'App.API/tsoa.json'
       - 'App.API/package.json'
       - '.github/workflows/api-spec-sync.yml'
   pull_request:
     branches: [main, develop]
     paths:
-      - 'App.API/src/**'
+      - 'App.API/**'
       - 'App.API/tsoa.json'
       - 'App.API/package.json'
 
@@ -59,7 +59,7 @@ jobs:
       - name: Check for changes
         id: verify-changed-files
         run: |
-          if git diff --quiet HEAD -- App.API/swagger.json App.Web/src/lib/api/client.ts; then
+          if git diff --quiet HEAD -- App.API/swagger.json App.Web/lib/api/client.ts; then
             echo "changed=false" >> $GITHUB_OUTPUT
           else
             echo "changed=true" >> $GITHUB_OUTPUT
@@ -69,7 +69,7 @@ jobs:
         if: steps.verify-changed-files.outputs.changed == 'true'
         run: |
           echo "The following files have been updated:"
-          git diff --name-only HEAD -- App.API/swagger.json App.Web/src/lib/api/client.ts
+          git diff --name-only HEAD -- App.API/swagger.json App.Web/lib/api/client.ts
 
       - name: Validate generated files
         run: |
@@ -80,7 +80,7 @@ jobs:
           fi
           
           # Check if client.ts is valid
-          if [ ! -f App.Web/src/lib/api/client.ts ]; then
+          if [ ! -f App.Web/lib/api/client.ts ]; then
             echo "❌ client.ts was not generated"
             exit 1
           fi
@@ -100,7 +100,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          git add App.API/swagger.json App.Web/src/lib/api/client.ts
+          git add App.API/swagger.json App.Web/lib/api/client.ts
           
           git commit -m "chore(api): auto-update OpenAPI spec and TypeScript client
 
@@ -121,7 +121,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '🤖 **API Spec and SDK Update**\n\nThe OpenAPI specification and TypeScript client have been automatically updated based on your API changes.\n\n**Updated files:**\n- `App.API/swagger.json`\n- `App.Web/src/lib/api/client.ts`\n\n✅ All generated files have been validated successfully.'
+              body: '🤖 **API Spec and SDK Update**\n\nThe OpenAPI specification and TypeScript client have been automatically updated based on your API changes.\n\n**Updated files:**\n- `App.API/swagger.json`\n- `App.Web/lib/api/client.ts`\n\n✅ All generated files have been validated successfully.'
             })
 
   # Optional: Deploy updated docs to GitHub Pages or other hosting

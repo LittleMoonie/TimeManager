@@ -109,12 +109,12 @@ export class CacheKeys {
     return `user_sessions:${userId}`;
   }
 
-  // Organization data
-  static organization(id: string): string {
+  // Company data
+  static Company(id: string): string {
     return `org:${id}`;
   }
 
-  static organizationMembers(orgId: string): string {
+  static CompanyMembers(orgId: string): string {
     return `org_members:${orgId}`;
   }
 
@@ -183,11 +183,11 @@ export class CacheInvalidationService {
     await Promise.all(patterns.map(pattern => this.invalidatePattern(pattern)));
   }
 
-  // Organization data invalidation
-  async invalidateOrganization(orgId: string): Promise<void> {
+  // Company data invalidation
+  async invalidateCompany(orgId: string): Promise<void> {
     const patterns = [
-      CacheKeys.organization(orgId),
-      CacheKeys.organizationMembers(orgId),
+      CacheKeys.Company(orgId),
+      CacheKeys.CompanyMembers(orgId),
       `project:${orgId}:*`,
       `project_tasks:*`,
     ];
@@ -226,7 +226,7 @@ export class CacheInvalidationService {
       // Refresh user data
     } else if (key.startsWith('org:')) {
       const orgId = key.split(':')[1];
-      // Refresh organization data
+      // Refresh Company data
     }
   }
 }
@@ -585,7 +585,7 @@ export class RealtimeService {
           if (user) {
             socket.userId = user.id;
             socket.join(`user:${user.id}`);
-            socket.join(`org:${user.organizationId}`);
+            socket.join(`org:${user.CompanyId}`);
             
             socket.emit('authenticated', { userId: user.id });
           } else {
@@ -645,8 +645,8 @@ export class RealtimeService {
     this.io.to(`user:${userId}`).emit('message', message);
   }
 
-  // Send message to organization
-  async sendToOrganization(orgId: string, message: any): Promise<void> {
+  // Send message to Company
+  async sendToCompany(orgId: string, message: any): Promise<void> {
     this.io.to(`org:${orgId}`).emit('message', message);
   }
 
@@ -719,9 +719,10 @@ export class RealtimeEventHandler {
 
   // Handle task updates
   async handleTaskUpdate(taskId: string, update: any): Promise<void> {
-    const task = await prisma.task.findUnique({
+    const taskRepository = AppDataSource.getRepository(Task);
+    const task = await taskRepository.findOne({
       where: { id: taskId },
-      include: { project: true },
+      relations: ['project'],
     });
 
     if (task) {
@@ -751,14 +752,15 @@ export class RealtimeEventHandler {
 
   // Handle user status changes
   async handleUserStatusChange(userId: string, status: string): Promise<void> {
-    const user = await prisma.user.findUnique({
+    const userRepository = AppDataSource.getRepository(User);
+    const user = await userRepository.findOne({
       where: { id: userId },
-      include: { organizationMembers: true },
+      relations: ['CompanyMembers'],
     });
 
     if (user) {
-      // Notify organization members
-      for (const member of user.organizationMembers) {
+      // Notify Company members
+      for (const member of user.CompanyMembers) {
         await this.realtimeService.publishToRedis('realtime:users', {
           userId: member.userId,
           update: {
@@ -773,13 +775,14 @@ export class RealtimeEventHandler {
 
   // Handle project creation
   async handleProjectCreated(projectId: string): Promise<void> {
-    const project = await prisma.project.findUnique({
+    const projectRepository = AppDataSource.getRepository(Project);
+    const project = await projectRepository.findOne({
       where: { id: projectId },
-      include: { organization: { include: { members: true } } },
+      relations: ['Company.members'],
     });
 
     if (project) {
-      // Notify organization members
+      // Notify Company members
       await this.realtimeService.publishToRedis('realtime:projects', {
         projectId,
         update: {

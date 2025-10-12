@@ -1,51 +1,67 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { authService } from '@/lib/api/auth';
-import type { LoginForm } from '@/types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { AuthenticationService, LoginDto, UserResponse } from '@/lib/api'
+
+interface AuthResult {
+  success: boolean;
+  token?: string;
+  user?: UserResponse;
+}
 
 export const useAuth = () => {
-  const queryClient = useQueryClient();
-  const token =
-    typeof window !== 'undefined' ? window.localStorage.getItem('auth_token') : null;
+  const queryClient = useQueryClient()
+  // const token = typeof window !== 'undefined' ? window.localStorage.getItem('auth_token') : null
 
-  const { data: user, isLoading, error } = useQuery({
+  const {
+    data: user,
+    isLoading,
+    error,
+  } = useQuery<UserResponse | undefined>({ // Explicitly type user as UserResponse
     queryKey: ['auth', 'user'],
-    queryFn: authService.getCurrentUser,
+    queryFn: async () => {
+      const response = await AuthenticationService.getCurrentUser() as AuthResult // Cast response to AuthResult
+      return response.user
+    },
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    enabled: Boolean(token),
-  });
+    enabled: true, // Always enabled, as token is now in HttpOnly cookie
+  })
 
   const loginMutation = useMutation({
-    mutationFn: authService.login,
-    onSuccess: (data) => {
-      window.localStorage.setItem('auth_token', data.token);
-      queryClient.setQueryData(['auth', 'user'], data.user);
-      queryClient.invalidateQueries({ queryKey: ['auth'] });
+    mutationFn: async (credentials: { requestBody: LoginDto }) => {
+      const response = await AuthenticationService.login(credentials);
+      return response as AuthResult;
     },
-  });
+    onSuccess: (data: AuthResult) => {
+      if (data.user) {
+        // Token is now in HttpOnly cookie, no need to store in localStorage
+        queryClient.setQueryData(['auth', 'user'], data.user)
+        queryClient.invalidateQueries({ queryKey: ['auth'] })
+      }
+    },
+  })
 
   const logoutMutation = useMutation({
-    mutationFn: authService.logout,
+    mutationFn: AuthenticationService.logout,
     onSuccess: () => {
-      window.localStorage.removeItem('auth_token');
-      queryClient.clear();
-      window.location.replace('/login');
+      // Token is now in HttpOnly cookie, no need to remove from localStorage
+      queryClient.clear()
+      window.location.replace('/login')
     },
-  });
+  })
 
-  const login = (credentials: LoginForm) => {
-    return loginMutation.mutateAsync(credentials);
-  };
+  const login = (credentials: LoginDto) => {
+    return loginMutation.mutateAsync({ requestBody: credentials })
+  }
 
   const logout = () => {
-    return logoutMutation.mutateAsync();
-  };
+    return logoutMutation.mutateAsync()
+  }
 
-  const isAuthenticated = Boolean(user && token);
+  const isAuthenticated = Boolean(user) // Authenticated if user data is present
 
   return {
     user,
-    isLoading,
+    isLoading: loginMutation.isPending || logoutMutation.isPending,
     error,
     isAuthenticated,
     login,
@@ -53,5 +69,5 @@ export const useAuth = () => {
     isLoggingIn: loginMutation.isPending,
     isLoggingOut: logoutMutation.isPending,
     loginError: loginMutation.error,
-  };
-};
+  }
+}

@@ -1,0 +1,64 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`<KpiCard /> > matches snapshot for gradient variant 1`] = `
+<div
+  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiCard-root css-16h0503-MuiPaper-root-MuiCard-root"
+  style="--Paper-shadow: none;"
+>
+  <div
+    class="MuiCardContent-root css-1sj1s6e-MuiCardContent-root"
+  >
+    <div
+      class="MuiStack-root css-1aua8yd-MuiStack-root"
+    >
+      <div
+        class="MuiStack-root css-18tmxe7-MuiStack-root"
+      >
+        <span
+          class="MuiTypography-root MuiTypography-caption css-75l0i-MuiTypography-root"
+        >
+          Total Earning
+        </span>
+        <h2
+          class="MuiTypography-root MuiTypography-h2 css-v5wmvy-MuiTypography-root"
+        >
+          $559.25K
+        </h2>
+        <p
+          class="MuiTypography-root MuiTypography-body2 css-1vr8rvc-MuiTypography-root"
+        >
+          Compared to last week
+        </p>
+      </div>
+      <div
+        class="MuiStack-root css-1hyf038-MuiStack-root"
+      >
+        <div
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorSuccess MuiChip-filledSuccess css-f3k0v3-MuiChip-root"
+        >
+          <span
+            class="MuiChip-label MuiChip-labelSmall css-qmwq9b-MuiChip-label"
+          >
+            +2.56%
+          </span>
+        </div>
+        <div
+          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-8proiw-MuiAvatar-root"
+        >
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
+            data-testid="AccountBalanceWalletRoundedIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M10 16V8c0-1.1.89-2 2-2h9V5c0-1.1-.9-2-2-2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-1h-9c-1.11 0-2-.9-2-2m3-8c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h9V8zm3 5.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

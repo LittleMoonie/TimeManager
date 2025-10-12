@@ -296,7 +296,7 @@ The frontend is containerized with:
 
 ## Best Practices
 
-### Code Organization
+### Code Company
 - **Feature-based** folder structure
 - **Barrel exports** for clean imports
 - **Consistent naming** conventions

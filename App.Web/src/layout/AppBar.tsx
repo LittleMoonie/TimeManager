@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from 'react'
 import {
   AppBar,
   Avatar,
@@ -11,7 +11,7 @@ import {
   TextField,
   Toolbar,
   Typography,
-} from '@mui/material';
+} from '@mui/material'
 import {
   MenuRounded,
   NotificationsRounded,
@@ -19,21 +19,21 @@ import {
   SearchRounded,
   LogoutRounded,
   PersonRounded,
-} from '@mui/icons-material';
+} from '@mui/icons-material'
+import { useAuth } from '@/hooks/useAuth'
 
 type LayoutAppBarProps = {
-  onMenuClick: () => void;
-  isDesktop: boolean;
-};
+  onMenuClick: () => void
+}
 
-export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
+export const LayoutAppBar = ({ onMenuClick }: LayoutAppBarProps) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const { user } = useAuth()
   const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+    setAnchorEl(event.currentTarget)
+  }
 
-  const handleMenuClose = () => setAnchorEl(null);
+  const handleMenuClose = () => setAnchorEl(null)
 
   return (
     <AppBar
@@ -43,7 +43,7 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
         backgroundColor: 'background.default',
         borderRadius: 0,
         width: '100%',
-        zIndex: (theme) => theme.zIndex.drawer + 1,
+        zIndex: theme => theme.zIndex.drawer + 1,
         '& .MuiToolbar-root': {
           borderRadius: 0,
         },
@@ -59,15 +59,15 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
           justifyContent: 'space-between',
         }}
       >
-        {/* Left side - Company info */}
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        {/* Left side - Company info, Hamburger and Search */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, ml: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Box
               sx={{
                 width: 32,
                 height: 32,
                 borderRadius: 1,
-                background: (theme) => theme.app.gradients.brand,
+                background: theme => theme.app.gradients.brand,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -77,28 +77,30 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
                 A
               </Typography>
             </Box>
-            <Typography variant="h6" fontWeight={600} color="text.primary" sx={{ fontSize: '1.25rem' }}>
-              Acme Corporation
+            <Typography
+              variant="h6"
+              fontWeight={600}
+              color="text.primary"
+              sx={{ fontSize: '1.25rem' }}
+            >
+              {/* Connected User's company name */}
+              {user?.companyName}
             </Typography>
           </Box>
-        </Box>
 
-        {/* Center - Hamburger and Search */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', flexGrow: 1, alignItems: 'center', gap: 3 }}>
-          {!isDesktop && (
-            <IconButton
-              aria-label="Toggle navigation menu"
-              onClick={onMenuClick}
-              sx={{
-                border: '1px solid',
-                borderColor: 'divider',
-                borderRadius: 1,
-                p: 0.75,
-              }}
-            >
-              <MenuRounded fontSize="small" />
-            </IconButton>
-          )}
+          <IconButton
+            aria-label="Toggle navigation menu"
+            onClick={onMenuClick}
+            sx={{
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: '4px',
+              backgroundColor: 'background.default',
+              p: 0.75,
+            }}
+          >
+            <MenuRounded fontSize="small" />
+          </IconButton>
 
           <TextField
             placeholder="Search"
@@ -111,11 +113,7 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
               ),
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton
-                    aria-label="Notifications"
-                    size="small"
-                    sx={{ mr: -1 }}
-                  >
+                  <IconButton aria-label="Notifications" size="small" sx={{ mr: -1 }}>
                     <TuneRounded />
                   </IconButton>
                 </InputAdornment>
@@ -138,8 +136,8 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
               },
             }}
             sx={{
-              width: { xs: '100%', md: 420, lg: 520 },
-              maxWidth: 520,
+              width: { xs: 200, md: 300, lg: 400 },
+              maxWidth: 400,
             }}
             aria-label="Search"
           />
@@ -179,7 +177,7 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
             mt: 1,
             minWidth: 180,
             borderRadius: 2,
-            boxShadow: (theme) => theme.shadows[4],
+            boxShadow: theme => theme.shadows[4],
           },
         }}
       >
@@ -201,5 +199,5 @@ export const LayoutAppBar = ({ onMenuClick, isDesktop }: LayoutAppBarProps) => {
         </MenuItem>
       </Menu>
     </AppBar>
-  );
-};
+  )
+}

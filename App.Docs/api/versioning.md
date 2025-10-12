@@ -110,7 +110,7 @@ v1.0 (Stable)     v1.1 (Stable)     v2.0 (Stable)
 3. **Changing Endpoint Behavior**:
    ```typescript
    // v1.0: GET /users returns all users
-   // v2.0: GET /users requires organization filter
+   // v2.0: GET /users requires Company filter
    ```
 
 4. **Removing Endpoints**:
@@ -189,12 +189,12 @@ GET /api/versions HTTP/1.1
       "version": "v1.0",
       "status": "deprecated",
       "sunset_date": "2024-12-31",
-      "endpoints": ["/users", "/organizations"]
+      "endpoints": ["/users", "/Companys"]
     },
     {
       "version": "v2.0",
       "status": "stable",
-      "endpoints": ["/users", "/organizations", "/projects"]
+      "endpoints": ["/users", "/Companys", "/projects"]
     }
   ]
 }
@@ -259,7 +259,7 @@ jobs:
 - Bulk operations for user management
 
 ### Changed
-- User creation now requires organization context
+- User creation now requires Company context
 - Response format updated for consistency
 
 ### Deprecated
@@ -296,7 +296,7 @@ POST /api/v2/users
 {
   "name": "John Doe",
   "email": "john@example.com",
-  "organization_id": "org_123" // Required
+  "Company_id": "org_123" // Required
 }
 ```
 
@@ -323,7 +323,7 @@ POST /api/v2/users
 ## Migration Steps
 
 1. Update SDK to v2.0 compatible version
-2. Update authentication to include organization context
+2. Update authentication to include Company context
 3. Update response parsing to handle new format
 4. Test thoroughly in staging environment
 5. Deploy with feature flags for gradual rollout
@@ -343,9 +343,9 @@ class APIMigrator {
   }
   
   async createUserV2(userData: UserData): Promise<User> {
-    // Ensure organization_id is present
-    if (!userData.organization_id) {
-      throw new Error('organization_id required in v2.0');
+    // Ensure Company_id is present
+    if (!userData.Company_id) {
+      throw new Error('Company_id required in v2.0');
     }
     return this.api.post('/api/v2/users', userData);
   }
@@ -411,12 +411,12 @@ const versionMetrics: Record<string, VersionMetrics> = {
   'v1.0': {
     requests: 15000,
     users: 500,
-    endpoints: ['/users', '/organizations']
+    endpoints: ['/users', '/Companys']
   },
   'v2.0': {
     requests: 25000,
     users: 800,
-    endpoints: ['/users', '/organizations', '/projects']
+    endpoints: ['/users', '/Companys', '/projects']
   }
 };
 ```

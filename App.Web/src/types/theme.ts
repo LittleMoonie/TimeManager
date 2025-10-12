@@ -35,7 +35,7 @@ export const defaultThemeConfig: Required<ThemeCustomization> = {
  */
 export enum ThemeActionTypes {
   MENU_OPEN = 'MENU_OPEN',
-  SET_MENU = 'SET_MENU', 
+  SET_MENU = 'SET_MENU',
   SET_FONT_FAMILY = 'SET_FONT_FAMILY',
   SET_BORDER_RADIUS = 'SET_BORDER_RADIUS',
   SET_NAV_TYPE = 'SET_NAV_TYPE',
@@ -69,10 +69,9 @@ export interface SetNavTypeAction {
   navType: 'light' | 'dark'
 }
 
-export type ThemeAction = 
+export type ThemeAction =
   | MenuOpenAction
   | SetMenuAction
   | SetFontFamilyAction
   | SetBorderRadiusAction
   | SetNavTypeAction
-

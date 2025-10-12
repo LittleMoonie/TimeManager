@@ -1,4 +1,4 @@
-export { AppThemeProvider, useThemeController, useAppTheme } from '@/theme';
+export { AppThemeProvider, useThemeController, useAppTheme } from '@/theme'
 export {
   themePresetList,
   themePresets,
@@ -8,4 +8,4 @@ export {
   type ThemeId,
   type ThemePreset,
   type ThemeGroup,
-} from '@/theme';
+} from '@/theme'

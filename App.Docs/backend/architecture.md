@@ -22,10 +22,10 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
     │ (Express) │
     └─────┬─────┘
           │
-    ┌─────▼─────┐    ┌─────────────────┐    ┌─────────────────┐
-    │ Database  │    │     Cache       │    │   Job Queue     │
+    ┌─────▼──────┐    ┌─────────────────┐    ┌─────────────────┐
+    │ Database   │    │     Cache       │    │   Job Queue     │
     │(PostgreSQL)│    │    (Redis)      │    │   (BullMQ)      │
-    └───────────┘    └─────────────────┘    └─────────────────┘
+    └────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
 ## Architecture Layers
@@ -70,7 +70,7 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
 - **Controllers**: Request/response handling
 - **Services**: Business logic implementation
 - **Middleware**: Cross-cutting concerns (auth, validation, logging)
-- **Models**: Data access layer with Prisma
+- **Models**: Data access layer with TypeORM
 
 **Design Patterns**:
 - Layered architecture (Controller → Service → Repository)
@@ -80,7 +80,7 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
 
 ### 3. Data Layer
 
-**Technology**: PostgreSQL 15+, Prisma ORM
+**Technology**: PostgreSQL 15+, TypeORM
 
 **Responsibilities**:
 - Data persistence and retrieval
@@ -90,7 +90,7 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
 - Audit trails and compliance
 
 **Key Components**:
-- **Schema**: Database schema definition with Prisma
+- **Schema**: Database schema definition with TypeORM
 - **Migrations**: Version-controlled schema changes
 - **Seeds**: Development and test data
 - **Indexes**: Performance optimization
@@ -143,14 +143,14 @@ Permission (id, key, description)
 RolePermission (role_id, permission_id)
 UserRoleMap (user_id, role_id)
 
--- Organization Structure
-Organization (id, name, slug, owner_id, created_at, updated_at)
-OrganizationMember (id, organization_id, user_id, role, joined_at)
-Team (id, organization_id, name, description)
+-- Company Structure
+Company (id, name, slug, owner_id, created_at, updated_at)
+CompanyMember (id, Company_id, user_id, role, joined_at)
+Team (id, Company_id, name, description)
 TeamMember (team_id, user_id)
 
 -- Business Entities
-Project (id, organization_id, name, description, status, created_at)
+Project (id, Company_id, name, description, status, created_at)
 Task (id, project_id, assignee_id, title, description, status, due_date, priority)
 
 -- System Tables
@@ -195,7 +195,7 @@ TagAssignment (tag_id, entity_type, entity_id)
 2. **Soft Deletes**: Critical tables support soft deletion for audit trails
 3. **Audit Logging**: Comprehensive audit trail for compliance requirements
 4. **RBAC System**: Flexible role-based access control with permissions
-5. **Multi-tenancy**: Organization-based data isolation
+5. **Multi-tenancy**: Company-based data isolation
 6. **Indexing Strategy**: Optimized indexes for common query patterns
 
 ## API Architecture
@@ -211,11 +211,11 @@ GET    /api/v1/users/:id          # Get user
 PUT    /api/v1/users/:id          # Update user
 DELETE /api/v1/users/:id          # Delete user
 
-GET    /api/v1/organizations      # List organizations
-POST   /api/v1/organizations      # Create organization
-GET    /api/v1/organizations/:id  # Get organization
-PUT    /api/v1/organizations/:id  # Update organization
-DELETE /api/v1/organizations/:id  # Delete organization
+GET    /api/v1/Companys      # List Companys
+POST   /api/v1/Companys      # Create Company
+GET    /api/v1/Companys/:id  # Get Company
+PUT    /api/v1/Companys/:id  # Update Company
+DELETE /api/v1/Companys/:id  # Delete Company
 ```
 
 ### Authentication Flow
@@ -287,7 +287,7 @@ Consistent error response format:
 ### Horizontal Scaling
 
 - **Stateless API**: No server-side session storage
-- **Database Sharding**: Organization-based data partitioning
+- **Database Sharding**: Company-based data partitioning
 - **Cache Distribution**: Redis cluster for high availability
 - **Load Balancing**: Nginx with health checks
 
@@ -351,7 +351,7 @@ CMD ["npm", "start"]
 
 - **Node.js**: TypeScript ecosystem consistency
 - **Express**: Mature and flexible web framework
-- **Prisma**: Type-safe database access and migrations
+- **TypeORM**: Type-safe database access and migrations
 - **Redis**: High-performance caching and session storage
 
 ### Infrastructure Choices
