@@ -19,17 +19,6 @@ export class RoleRepository extends BaseRepository<Role> {
     await this.repository.delete({ companyId, id });
   }
 
-  async findByIdWithRelations(
-    companyId: string,
-    roleId: string,
-  ): Promise<Role | null> {
-    const options: FindOneOptions<Role> = {
-      where: { companyId, id: roleId },
-      relations: ["rolePermissions", "rolePermissions.permission"],
-    };
-    return this.repository.findOne(options);
-  }
-
   async findByNameWithRelations(
     companyId: string,
     name: string,

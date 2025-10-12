@@ -51,8 +51,8 @@ export class LeaveRequestService {
     return leaveRequest;
   }
 
-  public async getAllLeaveRequests(companyId: string): Promise<LeaveRequest[]> {
-    return this.leaveRequestRepository.findAll(companyId);
+  public async getAllLeaveRequests(): Promise<LeaveRequest[]> {
+    return this.leaveRequestRepository.findAll();
   }
 
   public async updateLeaveRequest(

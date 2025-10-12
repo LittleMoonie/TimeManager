@@ -16,14 +16,4 @@ export class RolePermissionRepository extends BaseRepository<RolePermission> {
   async findAllForRole(roleId: string): Promise<RolePermission[]> {
     return this.repository.find({ where: { roleId } });
   }
-
-  async findByIdWithRelations(
-    companyId: string,
-    id: string,
-  ): Promise<RolePermission | null> {
-    return this.repository.findOne({
-      where: { companyId, id },
-      relations: ["role", "permission"],
-    });
-  }
 }

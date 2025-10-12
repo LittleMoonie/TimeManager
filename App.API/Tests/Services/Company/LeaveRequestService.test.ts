@@ -104,15 +104,14 @@ describe("LeaveRequestService", () => {
   // ------------------- getAllLeaveRequests -------------------
   describe("getAllLeaveRequests", () => {
     it("returns all leave requests for a company", async () => {
-      const companyId = "company-id";
       const leaveRequests = [{ id: "lr-1" }, { id: "lr-2" }];
 
       (leaveRequestRepository.findAll as jest.Mock).mockResolvedValue(leaveRequests as any);
 
-      const result = await service.getAllLeaveRequests(companyId);
+      const result = await service.getAllLeaveRequests();
 
       expect(result).toEqual(leaveRequests);
-      expect(leaveRequestRepository.findAll).toHaveBeenCalledWith(companyId);
+      expect(leaveRequestRepository.findAll).toHaveBeenCalledWith();
     });
   });
 

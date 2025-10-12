@@ -7,17 +7,6 @@ export class TimesheetRepository extends BaseRepository<Timesheet> {
     super(Timesheet);
   }
 
-  async findByIdWithRelations(
-    companyId: string,
-    timesheetId: string,
-  ): Promise<Timesheet | null> {
-    const options: FindOneOptions<Timesheet> = {
-      where: { companyId, id: timesheetId },
-      relations: ["entries", "entries.actionCode"],
-    };
-    return this.repository.findOne(options);
-  }
-
   async findByPeriod(
     companyId: string,
     userId: string,

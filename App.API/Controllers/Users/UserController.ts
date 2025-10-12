@@ -61,8 +61,8 @@ export class UserController extends Controller {
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<UserDto> {
-    const { companyId } = request.user as UserDto;
-    return this.userService.getUserById(companyId, id);
+    const { id: userId } = request.user as UserDto;;
+    return this.userService.getUserById(userId);
   }
 
   /**

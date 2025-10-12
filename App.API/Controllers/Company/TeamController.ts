@@ -51,12 +51,12 @@ export class TeamController extends Controller {
     @Body() createTeamDto: CreateTeamDto,
     @Request() request: ExpressRequest,
   ): Promise<TeamResponseDto> {
-    const { id: userId, companyId } = request.user as UserDto;
-    const actingUser = await this.userService.getUserById(companyId, userId);
+    const { id: userId } = request.user as UserDto;
+    const actingUser = await this.userService.getUserById(userId);
 
     const team = await this.teamService.createTeam(
       actingUser,
-      companyId,
+      actingUser.companyId,
       createTeamDto,
     );
     return team;
@@ -73,8 +73,9 @@ export class TeamController extends Controller {
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<TeamResponseDto> {
-    const { companyId } = request.user as UserDto;
-    return this.teamService.getTeamById(companyId, id);
+    const { id: userId } = request.user as UserDto;
+    const actingUser = await this.userService.getUserById(userId);
+    return this.teamService.getTeamById(actingUser.companyId, id);
   }
 
   /**
@@ -86,8 +87,9 @@ export class TeamController extends Controller {
   public async getAllTeams(
     @Request() request: ExpressRequest,
   ): Promise<TeamResponseDto[]> {
-    const { companyId } = request.user as UserDto;
-    return this.teamService.getAllTeams(companyId);
+    const { id: userId } = request.user as UserDto;
+    const actingUser = await this.userService.getUserById(userId);
+    return this.teamService.getAllTeams(actingUser.companyId);
   }
 
   /**
@@ -104,12 +106,12 @@ export class TeamController extends Controller {
     @Body() updateTeamDto: UpdateTeamDto,
     @Request() request: ExpressRequest,
   ): Promise<TeamResponseDto> {
-    const { id: userId, companyId } = request.user as UserDto;
-    const actingUser = await this.userService.getUserById(companyId, userId);
+    const { id: userId } = request.user as UserDto;
+    const actingUser = await this.userService.getUserById(userId);
 
     const updatedTeam = await this.teamService.updateTeam(
       actingUser,
-      companyId,
+      actingUser.companyId,
       id,
       updateTeamDto,
     );
@@ -128,9 +130,9 @@ export class TeamController extends Controller {
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
-    const { id: userId, companyId } = request.user as UserDto;
-    const actingUser = await this.userService.getUserById(companyId, userId);
+    const { id: userId } = request.user as UserDto;
+    const actingUser = await this.userService.getUserById(userId);
 
-    await this.teamService.deleteTeam(actingUser, companyId, id);
+    await this.teamService.deleteTeam(actingUser, actingUser.companyId, id);
   }
 }

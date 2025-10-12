@@ -16,7 +16,7 @@ export class AnonymizationService {
   ) {}
 
   public async anonymizeUserData(userId: string, companyId: string): Promise<void> {
-    const user = await this.userRepository.findByIdWithRelations(userId, companyId);
+    const user = await this.userRepository.findById(userId);
 
     if (!user) {
       throw new NotFoundError("User not found");

@@ -39,11 +39,10 @@ export class RolePermissionService {
   }
 
   public async getRolePermissionById(
-    companyId: string,
     id: string,
   ): Promise<RolePermission> {
     const rolePermission =
-      await this.rolePermissionRepository.findByIdWithRelations(companyId, id);
+      await this.rolePermissionRepository.findById(id);
     if (!rolePermission) {
       throw new NotFoundError("RolePermission not found");
     }
@@ -52,7 +51,6 @@ export class RolePermissionService {
 
   public async deleteRolePermission(
     currentUser: User,
-    companyId: string,
     id: string,
   ): Promise<void> {
     if (!(await this.checkPermission(currentUser, "delete_role_permission"))) {
@@ -60,7 +58,7 @@ export class RolePermissionService {
         "User does not have permission to delete role permissions.",
       );
     }
-    await this.getRolePermissionById(companyId, id);
+    await this.getRolePermissionById(id);
     await this.rolePermissionRepository.delete(id);
   }
 }

@@ -13,8 +13,8 @@ export class CompanySettingsService {
     private rolePermissionService: RolePermissionService,
   ) {}
 
-  public async getCompanySettings(companyId: string): Promise<CompanySettings> {
-    const settings = await this.companySettingsRepository.findById(companyId);
+  public async getCompanySettings(actingUser: User): Promise<CompanySettings> {
+    const settings = await this.companySettingsRepository.findById(actingUser.companyId);
     if (!settings) {
       throw new NotFoundError("Company settings not found");
     }
@@ -23,7 +23,6 @@ export class CompanySettingsService {
 
   public async updateCompanySettings(
     actingUser: User,
-    companyId: string,
     updateCompanySettingsDto: UpdateCompanySettingsDto,
   ): Promise<CompanySettings> {
     // Permission check: Only users with 'update_company_settings' permission can update company settings
@@ -37,9 +36,9 @@ export class CompanySettingsService {
         "User does not have permission to update company settings.",
       );
     }
-    await this.getCompanySettings(companyId);
+    await this.getCompanySettings(actingUser);
     const updatedSettings = await this.companySettingsRepository.update(
-      companyId,
+      actingUser.companyId,
       updateCompanySettingsDto,
     );
     return updatedSettings!;

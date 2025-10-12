@@ -16,9 +16,9 @@ module.exports = {
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
+    '^.+\.(ts|tsx)$': 'ts-jest',
   },
-  transformIgnorePatterns: ['/node_modules/(?!uuid)/'], // if you import 'uuid'
+  transformIgnorePatterns: ['/node_modules/(?!uuid|tsoa)/'], // if you import 'uuid' or 'tsoa'
   collectCoverage: true,
   coverageDirectory: 'coverage',
   coverageReporters: ['json', 'lcov', 'text', 'clover'],

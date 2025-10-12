@@ -55,13 +55,9 @@ export class TimesheetService {
   }
 
   public async getTimesheet(
-    companyId: string,
     timesheetId: string,
   ): Promise<Timesheet> {
-    const timesheet = await this.timesheetRepository.findByIdWithRelations(
-      companyId,
-      timesheetId,
-    );
+    const timesheet = await this.timesheetRepository.findById(timesheetId);
     if (!timesheet) {
       throw new NotFoundError("Timesheet not found");
     }
@@ -74,7 +70,7 @@ export class TimesheetService {
     timesheetId: string,
     createTimesheetEntryDto: CreateTimesheetEntryDto,
   ): Promise<Timesheet> {
-    const timesheet = await this.getTimesheet(companyId, timesheetId);
+    const timesheet = await this.getTimesheet(timesheetId);
 
     const newEntry = await this.timesheetEntryRepository.create({
       companyId,
@@ -96,7 +92,7 @@ export class TimesheetService {
       metadata: { timesheetId },
     });
 
-    return this.getTimesheet(companyId, timesheetId);
+    return this.getTimesheet(timesheetId);
   }
 
   public async submitTimesheet(
@@ -104,7 +100,7 @@ export class TimesheetService {
     userId: string,
     timesheetId: string,
   ): Promise<Timesheet> {
-    const timesheet = await this.getTimesheet(companyId, timesheetId);
+    const timesheet = await this.getTimesheet(timesheetId);
 
     if (timesheet.status !== TimesheetStatus.DRAFT) {
       throw new UnprocessableEntityError("Timesheet is not in draft status");
@@ -134,7 +130,7 @@ export class TimesheetService {
     approverId: string,
     timesheetId: string,
   ): Promise<Timesheet> {
-    const timesheet = await this.getTimesheet(companyId, timesheetId);
+    const timesheet = await this.getTimesheet(timesheetId);
 
     if (timesheet.status !== TimesheetStatus.SUBMITTED) {
       throw new UnprocessableEntityError(
@@ -164,7 +160,7 @@ export class TimesheetService {
     timesheetId: string,
     reason: string,
   ): Promise<Timesheet> {
-    const timesheet = await this.getTimesheet(companyId, timesheetId);
+    const timesheet = await this.getTimesheet(timesheetId);
 
     if (timesheet.status !== TimesheetStatus.SUBMITTED) {
       throw new UnprocessableEntityError(

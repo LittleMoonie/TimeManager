@@ -54,18 +54,17 @@ describe("RoleService", () => {
       const role = { id: roleId, companyId };
       (roleRepository.findById as jest.Mock).mockResolvedValue(role as any);
 
-      const result = await service.getRoleById(companyId, roleId);
+      const result = await service.getRoleById(roleId);
 
       expect(result).toEqual(role);
-      expect(roleRepository.findById).toHaveBeenCalledWith(companyId, roleId);
+      expect(roleRepository.findById).toHaveBeenCalledWith(roleId);
     });
 
     it("throws NotFoundError if not found", async () => {
-      const companyId = "company-id";
       const roleId = "missing-role";
       (roleRepository.findById as jest.Mock).mockResolvedValue(null);
 
-      await expect(service.getRoleById(companyId, roleId)).rejects.toThrow(
+      await expect(service.getRoleById(roleId)).rejects.toThrow(
         NotFoundError
       );
     });

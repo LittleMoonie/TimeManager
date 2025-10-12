@@ -73,8 +73,9 @@ export class RoleController extends Controller {
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<RoleResponse> {
-    const { companyId } = request.user as UserDto;
-    return this.roleService.getRoleById(companyId, id);
+    const { id: userId } = request.user as UserDto;
+    await this.userService.getUserById(userId);
+    return this.roleService.getRoleById(id);
   }
 
   /**
@@ -87,8 +88,9 @@ export class RoleController extends Controller {
   public async getAllRoles(
     @Request() request: ExpressRequest,
   ): Promise<RoleResponse[]> {
-    const { companyId } = request.user as UserDto;
-    return this.roleService.getAllRoles(companyId);
+    const { id: userId } = request.user as UserDto;
+    const user = await this.userService.getUserById(userId);
+    return this.roleService.getAllRoles(user.companyId);
   }
 
   /**
@@ -105,8 +107,9 @@ export class RoleController extends Controller {
     @Body() requestBody: UpdateRoleDto,
     @Request() request: ExpressRequest,
   ): Promise<RoleResponse> {
-    const { id: userId, companyId } = request.user as UserDto;
-    return this.roleService.updateRole(companyId, userId, id, requestBody);
+    const { id: userId } = request.user as UserDto;
+    const user = await this.userService.getUserById(userId);
+    return this.roleService.updateRole(user.companyId, userId, id, requestBody);
   }
 
   /**
@@ -122,8 +125,9 @@ export class RoleController extends Controller {
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
-    const { id: userId, companyId } = request.user as UserDto;
-    await this.roleService.deleteRole(companyId, userId, id);
+    const { id: userId } = request.user as UserDto;
+    const user = await this.userService.getUserById(userId);
+    await this.roleService.deleteRole(user.companyId, userId, id);
   }
 
   /**
@@ -141,9 +145,10 @@ export class RoleController extends Controller {
     @Path() permissionId: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
-    const { id: userId, companyId } = request.user as UserDto;
+    const { id: userId } = request.user as UserDto;
+    const user = await this.userService.getUserById(userId);
     await this.roleService.addPermissionToRole(
-      companyId,
+      user.companyId,
       userId,
       roleId,
       permissionId,
@@ -165,9 +170,10 @@ export class RoleController extends Controller {
     @Path() permissionId: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
-    const { id: userId, companyId } = request.user as UserDto;
+    const { id: userId } = request.user as UserDto;
+    const user = await this.userService.getUserById(userId);
     await this.roleService.removePermissionFromRole(
-      companyId,
+      user.companyId,
       userId,
       roleId,
       permissionId,

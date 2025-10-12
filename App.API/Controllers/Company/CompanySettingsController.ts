@@ -44,8 +44,9 @@ export class CompanySettingsController extends Controller {
   public async getCompanySettings(
     @Request() request: ExpressRequest,
   ): Promise<CompanySettingsResponseDto> {
-    const { companyId } = request.user as UserDto;
-    return this.companySettingsService.getCompanySettings(companyId);
+    const { id: userId } = request.user as UserDto;
+    const actingUser = await this.userService.getUserById(userId);
+    return this.companySettingsService.getCompanySettings(actingUser);
   }
 
   /**
@@ -60,13 +61,12 @@ export class CompanySettingsController extends Controller {
     @Body() updateCompanySettingsDto: UpdateCompanySettingsDto,
     @Request() request: ExpressRequest,
   ): Promise<CompanySettingsResponseDto> {
-    const { id: userId, companyId } = request.user as UserDto;
-    const actingUser = await this.userService.getUserById(companyId, userId);
+    const { id: userId } = request.user as UserDto;
+    const actingUser = await this.userService.getUserById(userId);
 
     const updatedSettings =
       await this.companySettingsService.updateCompanySettings(
         actingUser,
-        companyId,
         updateCompanySettingsDto,
       );
     return updatedSettings;

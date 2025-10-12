@@ -25,8 +25,6 @@ describe("UserService", () => {
   beforeEach(() => {
     userRepository = {
       create: jest.fn(),
-      findByIdWithRelations: jest.fn(),
-      findByEmailWithRelations: jest.fn(),
       findAll: jest.fn(),
       save: jest.fn(),
       update: jest.fn(),
@@ -85,7 +83,7 @@ describe("UserService", () => {
       const result = await service.createUser(companyId, currentUser, createDto);
 
       expect(rolePermissionService.checkPermission).toHaveBeenCalledWith(currentUser, "create_user");
-      expect(roleService.getRoleById).toHaveBeenCalledWith(companyId, createDto.roleId);
+      expect(roleService.getRoleById).toHaveBeenCalledWith(createDto.roleId);
       expect(argon2.hash).toHaveBeenCalledWith(createDto.password);
       expect(userRepository.create).toHaveBeenCalledWith(expect.objectContaining({
         email: createDto.email,
@@ -121,22 +119,21 @@ describe("UserService", () => {
   describe("getUserById", () => {
     it("returns an existing user", async () => {
       const user = { id: "user-id" } as User;
-      (userRepository.findByIdWithRelations as jest.Mock).mockResolvedValue(user);
+      (userRepository.findById as jest.Mock).mockResolvedValue(user);
 
-      const result = await service.getUserById("company-id", "user-id");
+      const result = await service.getUserById("user-id");
       expect(result).toEqual(user);
     });
 
     it("throws NotFoundError if user not found", async () => {
-      (userRepository.findByIdWithRelations as jest.Mock).mockResolvedValue(null);
-      await expect(service.getUserById("company-id", "x")).rejects.toThrow(NotFoundError);
+      (userRepository.findById as jest.Mock).mockResolvedValue(null);
+      await expect(service.getUserById("x")).rejects.toThrow(NotFoundError);
     });
   });
 
   // ---------------- updateUser ----------------
   describe("updateUser", () => {
     it("updates user, hashes password, changes role/status, logs activity", async () => {
-      const companyId = "c1";
       const userId = "u1";
       const currentUser = { id: "admin" } as User;
       const updateDto = {
@@ -144,17 +141,19 @@ describe("UserService", () => {
         roleId: "r2",
         statusId: "s2",
       };
-      const existingUser = { id: userId, companyId } as User;
+      const existingUser = { id: userId } as User;
       const newRole = { id: "r2" };
       const newStatus = { id: "s2" } as UserStatus;
 
       (rolePermissionService.checkPermission as jest.Mock).mockResolvedValue(true);
-      (userRepository.findByIdWithRelations as jest.Mock).mockResolvedValue(existingUser);
+      (userRepository.findById as jest.Mock).mockResolvedValue(existingUser);
       (argon2.hash as jest.Mock).mockResolvedValue("hashed");
       (roleService.getRoleById as jest.Mock).mockResolvedValue(newRole as any);
       (userStatusRepository.findOne as jest.Mock).mockResolvedValue(newStatus);
       (userRepository.save as jest.Mock).mockResolvedValue({ ...existingUser, ...updateDto });
 
+      const companyId = "company-id";
+      
       const result = await service.updateUser(companyId, userId, currentUser, updateDto);
 
       expect(userRepository.save).toHaveBeenCalledWith(expect.objectContaining({
@@ -200,7 +199,7 @@ describe("UserService", () => {
       const status = { id: statusId } as UserStatus;
 
       (rolePermissionService.checkPermission as jest.Mock).mockResolvedValue(true);
-      (userRepository.findByIdWithRelations as jest.Mock).mockResolvedValue(user);
+      (userRepository.findById as jest.Mock).mockResolvedValue(user);
       (userStatusRepository.findOne as jest.Mock).mockResolvedValue(status);
       (userRepository.update as jest.Mock).mockResolvedValue({ ...user, statusId });
 

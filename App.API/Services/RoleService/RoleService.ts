@@ -37,11 +37,8 @@ export class RoleService {
     return role;
   }
 
-  async getRoleById(companyId: string, roleId: string): Promise<Role> {
-    const role = await this.roleRepository.findByIdWithRelations(
-      companyId,
-      roleId,
-    );
+  async getRoleById(roleId: string): Promise<Role> {
+    const role = await this.roleRepository.findById(roleId);  
     if (!role) {
       throw new NotFoundError("Role not found");
     }
@@ -60,7 +57,7 @@ export class RoleService {
   }
 
   async getAllRoles(companyId: string): Promise<Role[]> {
-    return this.roleRepository.findAll(companyId);
+    return this.roleRepository.findAll();
   }
 
   async updateRole(
@@ -69,7 +66,7 @@ export class RoleService {
     roleId: string,
     updateRoleDto: UpdateRoleDto,
   ): Promise<Role> {
-    const role = await this.getRoleById(companyId, roleId);
+    const role = await this.getRoleById(roleId);
 
     const oldRoleDetails = { ...role } as unknown as Record<string, string>;
 
@@ -93,7 +90,7 @@ export class RoleService {
     userId: string,
     roleId: string,
   ): Promise<void> {
-    const role = await this.getRoleById(companyId, roleId);
+    const role = await this.getRoleById(roleId);
 
     await this.roleRepository.delete(roleId);
 
@@ -111,7 +108,7 @@ export class RoleService {
     roleId: string,
     permissionId: string,
   ): Promise<RolePermission> {
-    await this.getRoleById(companyId, roleId);
+    await this.getRoleById(roleId);
     await this.permissionService.getPermissionById(companyId, permissionId);
 
     const rolePermission = this.rolePermissionRepository.create({
@@ -159,7 +156,7 @@ export class RoleService {
     companyId: string,
     roleId: string,
   ): Promise<Permission[]> {
-    const role = await this.getRoleById(companyId, roleId);
+    const role = await this.getRoleById(roleId);
     return role.rolePermissions.map((rp) => rp.permission);
   }
 }

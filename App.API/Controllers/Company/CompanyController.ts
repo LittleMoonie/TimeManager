@@ -53,8 +53,8 @@ export class CompanyController extends Controller {
     @Body() createCompanyDto: CreateCompanyDto,
     @Request() request: ExpressRequest,
   ): Promise<CompanyResponseDto> {
-    const { id: userId, companyId } = request.user as UserDto;
-    const actingUser = await this.userService.getUserById(companyId, userId);
+    const { id: userId } = request.user as UserDto;
+    const actingUser = await this.userService.getUserById(userId);
     const company = await this.companyService.createCompany(
       actingUser,
       createCompanyDto,
@@ -91,8 +91,8 @@ export class CompanyController extends Controller {
     @Body() updateCompanyDto: UpdateCompanyDto,
     @Request() request: ExpressRequest,
   ): Promise<CompanyResponseDto> {
-    const { id: userId, companyId } = request.user as UserDto;
-    const actingUser = await this.userService.getUserById(companyId, userId);
+    const { id: userId } = request.user as UserDto;
+    const actingUser = await this.userService.getUserById(userId);
 
     const updatedCompany = await this.companyService.updateCompany(
       actingUser,

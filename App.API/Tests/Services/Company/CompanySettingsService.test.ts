@@ -30,21 +30,22 @@ describe("CompanySettingsService", () => {
   // ------------------- getCompanySettings -------------------
   describe("getCompanySettings", () => {
     it("returns company settings when found", async () => {
+      const actingUser = { id: "admin-user" } as User;
       const companyId = "test-company-id";
       const settings = { companyId, timezone: "UTC" };
       (companySettingsRepository.findById as jest.Mock).mockResolvedValue(settings as any);
 
-      const result = await service.getCompanySettings(companyId);
+      const result = await service.getCompanySettings(actingUser);
 
       expect(result).toEqual(settings);
-      expect(companySettingsRepository.findById).toHaveBeenCalledWith(companyId);
+      expect(companySettingsRepository.findById).toHaveBeenCalledWith(actingUser.companyId);
     });
 
     it("throws NotFoundError when settings are not found", async () => {
-      const companyId = "missing-company-id";
+      const actingUser = { id: "admin-user" } as User;  
       (companySettingsRepository.findById as jest.Mock).mockResolvedValue(null);
 
-      await expect(service.getCompanySettings(companyId)).rejects.toThrow(
+      await expect(service.getCompanySettings(actingUser)).rejects.toThrow(
         NotFoundError
       );
     });
@@ -61,27 +62,26 @@ describe("CompanySettingsService", () => {
       (rolePermissionService.checkPermission as jest.Mock).mockResolvedValue(true);
       (companySettingsRepository.findById as jest.Mock).mockResolvedValue(settings as any);
 
-      await service.updateCompanySettings(actingUser, companyId, updateDto);
+      await service.updateCompanySettings(actingUser, updateDto);
 
       expect(rolePermissionService.checkPermission).toHaveBeenCalledWith(
         actingUser,
         "company:update-settings"
       );
       expect(companySettingsRepository.update).toHaveBeenCalledWith(
-        companyId,
+        actingUser.companyId,
         updateDto
       );
     });
 
     it("throws ForbiddenError if user lacks permission", async () => {
       const actingUser = { id: "user" } as User;
-      const companyId = "test-company-id";
       const updateDto = { timezone: "PST" };
 
       (rolePermissionService.checkPermission as jest.Mock).mockResolvedValue(false);
 
       await expect(
-        service.updateCompanySettings(actingUser, companyId, updateDto)
+        service.updateCompanySettings(actingUser, updateDto)
       ).rejects.toThrow(ForbiddenError);
     });
 
@@ -94,7 +94,7 @@ describe("CompanySettingsService", () => {
       (companySettingsRepository.findById as jest.Mock).mockResolvedValue(null);
 
       await expect(
-        service.updateCompanySettings(actingUser, companyId, updateDto)
+        service.updateCompanySettings(actingUser, updateDto)
       ).rejects.toThrow(NotFoundError);
     });
   });

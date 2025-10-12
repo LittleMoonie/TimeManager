@@ -26,7 +26,6 @@ describe("TimesheetService", () => {
   beforeEach(() => {
     timesheetRepository = {
       create: jest.fn(),
-      findByIdWithRelations: jest.fn(),
       update: jest.fn(),
     };
 
@@ -90,13 +89,13 @@ describe("TimesheetService", () => {
       const timesheetId = "ts-id";
       const timesheet = { id: timesheetId, companyId } as Timesheet;
 
-      (timesheetRepository.findByIdWithRelations as jest.Mock).mockResolvedValue(timesheet);
+      (timesheetRepository.findById as jest.Mock).mockResolvedValue(timesheet);
 
-      const result = await service.getTimesheet(companyId, timesheetId);
+      const result = await service.getTimesheet(timesheetId);
 
       expect(result).toEqual(timesheet);
-      expect(timesheetRepository.findByIdWithRelations).toHaveBeenCalledWith(
-        companyId,
+      expect(timesheetRepository.findById).toHaveBeenCalledWith(
+        timesheetId,
         timesheetId
       );
     });
@@ -105,9 +104,9 @@ describe("TimesheetService", () => {
       const companyId = "company-id";
       const timesheetId = "missing-id";
 
-      (timesheetRepository.findByIdWithRelations as jest.Mock).mockResolvedValue(null);
+      (timesheetRepository.findById as jest.Mock).mockResolvedValue(null);
 
-      await expect(service.getTimesheet(companyId, timesheetId)).rejects.toThrow(NotFoundError);
+      await expect(service.getTimesheet(timesheetId)).rejects.toThrow(NotFoundError);
     });
   });
 
@@ -131,7 +130,7 @@ describe("TimesheetService", () => {
       } as Timesheet;
       const newEntry = { id: "entry-id", durationMin: 60 } as any;
 
-      (timesheetRepository.findByIdWithRelations as jest.Mock).mockResolvedValue(timesheet);
+      (timesheetRepository.findById as jest.Mock).mockResolvedValue(timesheet);
       (timesheetEntryRepository.create as jest.Mock).mockResolvedValue(newEntry);
       (timesheetRepository.update as jest.Mock).mockResolvedValue({
         ...timesheet,
@@ -170,7 +169,7 @@ describe("TimesheetService", () => {
         durationMin: 60,
       };
 
-      (timesheetRepository.findByIdWithRelations as jest.Mock).mockResolvedValue(null);
+      (timesheetRepository.findById as jest.Mock).mockResolvedValue(null);
 
       await expect(
         service.addTimesheetEntry(companyId, userId, timesheetId, createEntryDto)
@@ -186,7 +185,7 @@ describe("TimesheetService", () => {
       const timesheetId = "ts-id";
       const timesheet = { id: timesheetId, status: TimesheetStatus.DRAFT } as Timesheet;
 
-      (timesheetRepository.findByIdWithRelations as jest.Mock).mockResolvedValue(timesheet);
+      (timesheetRepository.findById as jest.Mock).mockResolvedValue(timesheet);
       (timesheetRepository.update as jest.Mock).mockResolvedValue({
         ...timesheet,
         status: TimesheetStatus.SUBMITTED,
@@ -216,7 +215,7 @@ describe("TimesheetService", () => {
       const timesheetId = "ts-id";
       const timesheet = { id: timesheetId, status: TimesheetStatus.APPROVED } as Timesheet;
 
-      (timesheetRepository.findByIdWithRelations as jest.Mock).mockResolvedValue(timesheet);
+      (timesheetRepository.findById as jest.Mock).mockResolvedValue(timesheet);
 
       await expect(service.submitTimesheet(companyId, userId, timesheetId)).rejects.toThrow(UnprocessableEntityError);
     });
@@ -230,7 +229,7 @@ describe("TimesheetService", () => {
       const timesheetId = "ts-id";
       const timesheet = { id: timesheetId, status: TimesheetStatus.SUBMITTED, userId: "user-id" } as Timesheet;
 
-      (timesheetRepository.findByIdWithRelations as jest.Mock).mockResolvedValue(timesheet);
+      (timesheetRepository.findById as jest.Mock).mockResolvedValue(timesheet);
       (timesheetRepository.update as jest.Mock).mockResolvedValue({
         ...timesheet,
         status: TimesheetStatus.APPROVED,
@@ -258,7 +257,7 @@ describe("TimesheetService", () => {
       const timesheetId = "ts-id";
       const timesheet = { id: timesheetId, status: TimesheetStatus.DRAFT } as Timesheet;
 
-      (timesheetRepository.findByIdWithRelations as jest.Mock).mockResolvedValue(timesheet);
+      (timesheetRepository.findById as jest.Mock).mockResolvedValue(timesheet);
 
       await expect(
         service.approveTimesheet(companyId, approverId, timesheetId)
@@ -275,7 +274,7 @@ describe("TimesheetService", () => {
       const reason = "Incorrect entries";
       const timesheet = { id: timesheetId, status: TimesheetStatus.SUBMITTED, userId: "user-id" } as Timesheet;
 
-      (timesheetRepository.findByIdWithRelations as jest.Mock).mockResolvedValue(timesheet);
+      (timesheetRepository.findById as jest.Mock).mockResolvedValue(timesheet);
       (timesheetRepository.update as jest.Mock).mockResolvedValue({
         ...timesheet,
         status: TimesheetStatus.REJECTED,
@@ -305,7 +304,7 @@ describe("TimesheetService", () => {
       const reason = "Incorrect entries";
       const timesheet = { id: timesheetId, status: TimesheetStatus.DRAFT } as Timesheet;
 
-      (timesheetRepository.findByIdWithRelations as jest.Mock).mockResolvedValue(timesheet);
+        (timesheetRepository.findById as jest.Mock).mockResolvedValue(timesheet);
 
       await expect(
         service.rejectTimesheet(companyId, approverId, timesheetId, reason)

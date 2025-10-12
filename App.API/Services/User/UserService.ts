@@ -56,10 +56,7 @@ export class UserService {
       );
     }
 
-    const role = await this.roleService.getRoleById(
-      companyId,
-      createUserDto.roleId,
-    );
+    const role = await this.roleService.getRoleById(createUserDto.roleId);
 
     if (
       currentUser &&
@@ -106,22 +103,17 @@ export class UserService {
     return user;
   }
 
-  async getUserById(companyId: string, userId: string): Promise<User> {
-    const user = await this.userRepository.findByIdWithRelations(
-      companyId,
-      userId,
-    );
+  async getUserById(userId: string): Promise<User> {
+    const user = await this.userRepository.findById(userId);
+
     if (!user) {
       throw new NotFoundError("User not found");
     }
     return user;
   }
 
-  async getUserByEmail(companyId: string, email: string): Promise<User> {
-    const user = await this.userRepository.findByEmailWithRelations(
-      companyId,
-      email,
-    );
+  async getUserByEmail(email: string): Promise<User> {
+    const user = await this.userRepository.findByEmail( email );
     if (!user) {
       throw new NotFoundError("User not found");
     }
@@ -129,7 +121,6 @@ export class UserService {
   }
 
   async getUser(
-    companyId: string,
     actingUser: User,
     userId: string,
   ): Promise<User> {
@@ -139,7 +130,7 @@ export class UserService {
       );
     }
 
-    return this.getUserById(companyId, userId);
+    return this.getUserById(userId);
   }
 
   async getAllUsers(companyId: string): Promise<User[]> {
@@ -169,7 +160,7 @@ export class UserService {
       );
     }
 
-    const user = await this.getUserById(companyId, userId);
+    const user = await this.getUserById(userId);
     const oldUserDetails = { ...user };
 
     // Hash password if provided
@@ -179,10 +170,7 @@ export class UserService {
 
     // Update role if provided
     if (updateUserDto.roleId && updateUserDto.roleId !== user.roleId) {
-      const role = await this.roleService.getRoleById(
-        companyId,
-        updateUserDto.roleId,
-      );
+      const role = await this.roleService.getRoleById(updateUserDto.roleId);
       user.role = role;
     }
 
@@ -215,7 +203,7 @@ export class UserService {
       },
     } as CreateUserActivityLogDto);
 
-    const resultUser = await this.getUserById(companyId, userId);
+    const resultUser = await this.getUserById(userId);
     if (!resultUser) {
       throw new NotFoundError('User not found after update');
     }
@@ -268,7 +256,7 @@ export class UserService {
         "User does not have permission to change user status.",
       );
     }
-    const user = await this.getUserById(companyId, userId);
+    const user = await this.getUserById(userId);
 
     const status = await this.userStatusRepository.findOne({
       where: { id: statusId },
