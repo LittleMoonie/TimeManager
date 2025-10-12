@@ -18,7 +18,6 @@ import {
   CompanyResponseDto,
   UpdateCompanyDto,
 } from "../../Dtos/Company/CompanyDto";
-import { AuthenticationError } from "../../Errors/HttpErrors";
 import { UserService } from "../../Services/User/UserService";
 import { Service } from "typedi";
 
@@ -44,7 +43,6 @@ export class CompanyController extends Controller {
    * @param {CreateCompanyDto} createCompanyDto - The data for creating the company.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<CompanyResponseDto>} The newly created company.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Post("/")
   @Security("jwt", ["admin"])
@@ -53,9 +51,6 @@ export class CompanyController extends Controller {
     @Body() createCompanyDto: CreateCompanyDto,
     @Request() request: ExpressRequest,
   ): Promise<CompanyResponseDto> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    } 
     const { id: userId, companyId } = request.user as UserDto;
     const actingUser = await this.userService.getUserById(companyId, userId);
     const company = await this.companyService.createCompany(
@@ -71,16 +66,12 @@ export class CompanyController extends Controller {
    * @param {string} id - The ID of the company to retrieve.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<CompanyResponseDto>} The company details.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Get("/{id}")
   public async getCompany(
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<CompanyResponseDto> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     // In a real application, you would check if the user belongs to this company
     return this.companyService.getCompanyById(request.user as User, id);
   }
@@ -90,7 +81,6 @@ export class CompanyController extends Controller {
    * @param {UpdateCompanyDto} updateCompanyDto - The data for updating the company.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<CompanyResponseDto>} The updated company details.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Put("/{id}")
   @Security("jwt", ["admin"])
@@ -99,9 +89,6 @@ export class CompanyController extends Controller {
     @Body() updateCompanyDto: UpdateCompanyDto,
     @Request() request: ExpressRequest,
   ): Promise<CompanyResponseDto> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: userId, companyId } = request.user as UserDto;
     const actingUser = await this.userService.getUserById(companyId, userId);
 

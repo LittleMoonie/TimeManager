@@ -52,6 +52,9 @@ export default class User extends BaseEntity {
   @Column({ type: "timestamp with time zone", nullable: true })
   lastLogin?: Date;
 
+  @Column({ default: false })
+  isAnonymized!: boolean;
+
   @OneToMany(() => ActiveSession, (s) => s.user)
   activeSessions!: ActiveSession[];
 

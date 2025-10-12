@@ -14,7 +14,6 @@ import {
   CompanySettingsResponseDto,
   UpdateCompanySettingsDto,
 } from "../../Dtos/Company/CompanySettingsDto";
-import { AuthenticationError } from "../../Errors/HttpErrors";
 import { UserService } from "../../Services/User/UserService";
 import { Service } from "typedi";
 import { UserDto } from "../../Dtos/Users/UserDto";
@@ -40,15 +39,11 @@ export class CompanySettingsController extends Controller {
    * @summary Retrieves the company settings for the authenticated user's company.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<CompanySettingsResponseDto>} The company settings.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Get("/")
   public async getCompanySettings(
     @Request() request: ExpressRequest,
   ): Promise<CompanySettingsResponseDto> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { companyId } = request.user as UserDto;
     return this.companySettingsService.getCompanySettings(companyId);
   }
@@ -58,7 +53,6 @@ export class CompanySettingsController extends Controller {
    * @param {UpdateCompanySettingsDto} updateCompanySettingsDto - The data for updating company settings.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<CompanySettingsResponseDto>} The updated company settings.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Put("/")
   @Security("jwt", ["admin"])
@@ -66,9 +60,6 @@ export class CompanySettingsController extends Controller {
     @Body() updateCompanySettingsDto: UpdateCompanySettingsDto,
     @Request() request: ExpressRequest,
   ): Promise<CompanySettingsResponseDto> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: userId, companyId } = request.user as UserDto;
     const actingUser = await this.userService.getUserById(companyId, userId);
 

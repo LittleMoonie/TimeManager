@@ -20,7 +20,6 @@ import {
   UpdateActionCodeDto,
 } from "../../Dtos/Timesheet/ActionCodeDto";
 import { ActionCodeService } from "../../Services/Timesheet/ActionCodeService";
-import { AuthenticationError } from "../../Errors/HttpErrors";
 import { UserDto } from "../../Dtos/Users/UserDto";
 
 /**
@@ -42,16 +41,12 @@ export class ActionCodeController extends Controller {
    * @param {ExRequest} request - The Express request object, containing user information.
    * @param {string} [q] - Optional query string to filter action codes.
    * @returns {Promise<ActionCode[]>} An array of action codes.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Get("/")
   public async listActionCodes(
     @Request() request: ExRequest,
     @Query() q?: string,
   ): Promise<ActionCode[]> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { companyId } = request.user as UserDto;
     return this.actionCodeService.search(companyId, q);
   }
@@ -61,7 +56,6 @@ export class ActionCodeController extends Controller {
    * @param {ExRequest} request - The Express request object, containing user information.
    * @param {CreateActionCodeDto} requestBody - The data for creating the action code.
    * @returns {Promise<ActionCode>} The newly created action code.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Post("/")
   @Security("jwt", ["manager", "admin"])
@@ -69,9 +63,6 @@ export class ActionCodeController extends Controller {
     @Request() request: ExRequest,
     @Body() requestBody: CreateActionCodeDto,
   ): Promise<ActionCode> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: actorUserId, companyId } = request.user as UserDto;
     return this.actionCodeService.create(companyId, actorUserId, requestBody);
   }
@@ -82,7 +73,6 @@ export class ActionCodeController extends Controller {
    * @param {string} id - The ID of the action code to update.
    * @param {UpdateActionCodeDto} requestBody - The data for updating the action code.
    * @returns {Promise<ActionCode>} The updated action code.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Put("/{id}")
   @Security("jwt", ["manager", "admin"])
@@ -91,9 +81,6 @@ export class ActionCodeController extends Controller {
     @Path() id: string,
     @Body() requestBody: UpdateActionCodeDto,
   ): Promise<ActionCode> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: actorUserId, companyId } = request.user as UserDto;
     return this.actionCodeService.update(
       companyId,
@@ -108,7 +95,6 @@ export class ActionCodeController extends Controller {
    * @param {ExRequest} request - The Express request object, containing user information.
    * @param {string} id - The ID of the action code to delete.
    * @returns {Promise<void>} Nothing is returned upon successful deletion.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Delete("/{id}")
   @Security("jwt", ["manager", "admin"])
@@ -116,9 +102,6 @@ export class ActionCodeController extends Controller {
     @Request() request: ExRequest,
     @Path() id: string,
   ): Promise<void> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: actorUserId, companyId } = request.user as UserDto;
     await this.actionCodeService.delete(companyId, actorUserId, id);
   }

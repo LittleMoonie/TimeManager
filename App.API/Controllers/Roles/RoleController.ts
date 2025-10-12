@@ -19,7 +19,6 @@ import {
   RoleResponse,
   UpdateRoleDto,
 } from "../../Dtos/Users/RoleDto";
-import { AuthenticationError } from "../../Errors/HttpErrors";
 import { UserService } from "../../Services/User/UserService";
 import { Service } from "typedi";
 import { UserDto } from "../../Dtos/Users/UserDto";
@@ -44,7 +43,6 @@ export class RoleController extends Controller {
    * @param {CreateRoleDto} requestBody - The data for creating the role.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<RoleResponse>} The newly created role.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Post("/")
   @Security("jwt", ["admin"])
@@ -53,9 +51,6 @@ export class RoleController extends Controller {
     @Body() requestBody: CreateRoleDto,
     @Request() request: ExpressRequest,
   ): Promise<RoleResponse> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: userId, companyId } = request.user as UserDto;
     const role = await this.roleService.createRole(
       companyId,
@@ -71,7 +66,6 @@ export class RoleController extends Controller {
    * @param {string} id - The ID of the role to retrieve.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<RoleResponse>} The role details.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Get("/{id}")
   @Security("jwt", ["admin"])
@@ -79,9 +73,6 @@ export class RoleController extends Controller {
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<RoleResponse> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { companyId } = request.user as UserDto;
     return this.roleService.getRoleById(companyId, id);
   }
@@ -90,16 +81,12 @@ export class RoleController extends Controller {
    * @summary Retrieves all roles for the authenticated user's company.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<RoleResponse[]>} An array of roles.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Get("/")
   @Security("jwt", ["admin"])
   public async getAllRoles(
     @Request() request: ExpressRequest,
   ): Promise<RoleResponse[]> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { companyId } = request.user as UserDto;
     return this.roleService.getAllRoles(companyId);
   }
@@ -110,7 +97,6 @@ export class RoleController extends Controller {
    * @param {UpdateRoleDto} requestBody - The data for updating the role.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<RoleResponse>} The updated role details.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Put("/{id}")
   @Security("jwt", ["admin"])
@@ -119,9 +105,6 @@ export class RoleController extends Controller {
     @Body() requestBody: UpdateRoleDto,
     @Request() request: ExpressRequest,
   ): Promise<RoleResponse> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: userId, companyId } = request.user as UserDto;
     return this.roleService.updateRole(companyId, userId, id, requestBody);
   }
@@ -131,7 +114,6 @@ export class RoleController extends Controller {
    * @param {string} id - The ID of the role to delete.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<void>} Nothing is returned upon successful deletion.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Delete("/{id}")
   @Security("jwt", ["admin"])
@@ -140,9 +122,6 @@ export class RoleController extends Controller {
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: userId, companyId } = request.user as UserDto;
     await this.roleService.deleteRole(companyId, userId, id);
   }
@@ -153,7 +132,6 @@ export class RoleController extends Controller {
    * @param {string} permissionId - The ID of the permission to add.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<void>} Nothing is returned upon successful addition.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Post("/{roleId}/permissions/{permissionId}")
   @Security("jwt", ["admin"])
@@ -163,9 +141,6 @@ export class RoleController extends Controller {
     @Path() permissionId: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: userId, companyId } = request.user as UserDto;
     await this.roleService.addPermissionToRole(
       companyId,
@@ -181,7 +156,6 @@ export class RoleController extends Controller {
    * @param {string} permissionId - The ID of the permission to remove.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<void>} Nothing is returned upon successful removal.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Delete("/{roleId}/permissions/{permissionId}")
   @Security("jwt", ["admin"])
@@ -191,9 +165,6 @@ export class RoleController extends Controller {
     @Path() permissionId: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: userId, companyId } = request.user as UserDto;
     await this.roleService.removePermissionFromRole(
       companyId,

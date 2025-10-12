@@ -105,6 +105,6 @@ export class LeaveRequestService {
         "User does not have permission to delete leave requests for other users.",
       );
     }
-    await this.leaveRequestRepository.delete(leaveRequestId);
+    await this.leaveRequestRepository.softDelete(leaveRequestId);
   }
 }

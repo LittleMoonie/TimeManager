@@ -11,9 +11,7 @@ import {
 import { Request as ExpressRequest } from "express";
 import { ActiveSessionService } from "../../Services/User/ActiveSessionService";
 import { ActiveSessionResponseDto } from "../../Dtos/Users/ActiveSessionDto";
-import { AuthenticationError } from "../../Errors/HttpErrors";
 import { Service } from "typedi";
-import User from "../../Entities/Users/User";
 import { UserDto } from "../../Dtos/Users/UserDto";
 
 /**
@@ -34,15 +32,11 @@ export class ActiveSessionsController extends Controller {
    * @summary Retrieves all active sessions for the authenticated user.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<ActiveSessionResponseDto[]>} An array of active sessions.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Get("/")
   public async getAllUserSessions(
     @Request() request: ExpressRequest,
   ): Promise<ActiveSessionResponseDto[]> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: userId, companyId } = request.user as UserDto;
     return this.activeSessionService.getAllUserSessions(companyId, userId);
   }
@@ -52,16 +46,12 @@ export class ActiveSessionsController extends Controller {
    * @param {string} tokenHash - The hash of the token to revoke.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<void>} Nothing is returned upon successful revocation.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Delete("/{tokenHash}")
   public async revokeActiveSession(
     @Path() tokenHash: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     await this.activeSessionService.revokeActiveSession(tokenHash);
   }
 }

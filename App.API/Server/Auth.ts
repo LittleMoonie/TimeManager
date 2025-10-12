@@ -1,41 +1,72 @@
 import type { Request } from "express";
 import jwt from "jsonwebtoken";
+import {
+  AuthenticationError,
+  ForbiddenError,
+  InternalServerError,
+} from "../Errors/HttpErrors";
+import User from "../Entities/Users/User";
 
-type JwtPayload = { sub: string; companyId: string; role?: string };
+// Define the shape of the JWT payload
+type JwtPayload = {
+  id: string;
+  companyId: string;
+  role: string;
+};
+
+// Define the shape of the user object attached to the request
+export type AuthenticatedUser = {
+  id: string;
+  companyId: string;
+  role: string;
+};
+
+// Extend Express's Request type to include the user property
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Express {
+    export interface Request {
+      user?: User;
+    }
+  }
+}
 
 export async function expressAuthentication(
   request: Request,
   name: string,
-  scopes?: string[]
-): Promise<any> {
-  // name will be "jwt" (from your securityDefinitions)
-  if (name !== "jwt") throw new Error("Unsupported security scheme");
+  scopes?: string[],
+): Promise<AuthenticatedUser> {
+  if (name !== "jwt") {
+    throw new InternalServerError("Unsupported security scheme");
+  }
 
-  const header = request.headers.authorization;
-  const cookie = (request as any).cookies?.jwt;
-  const token = header?.startsWith("Bearer ") ? header.slice(7) : cookie;
+  const token = request.headers.authorization?.startsWith("Bearer ")
+    ? request.headers.authorization.slice(7)
+    : request.cookies?.jwt;
 
   if (!token) {
-    throw Object.assign(new Error("No token"), { status: 401 });
+    throw new AuthenticationError("No token provided");
   }
 
-  // Verify (replace with your secret/opts)
-  const payload = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
+  try {
+    const payload = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string,
+    ) as JwtPayload;
 
-  // Optionally enforce scopes/roles
-  if (scopes?.length) {
-    // simple example: check role in payload
-    if (!payload.role || !scopes.includes(payload.role)) {
-      throw Object.assign(new Error("Forbidden"), { status: 403 });
+    if (scopes?.length && !scopes.includes(payload.role)) {
+      throw new ForbiddenError("Forbidden: Insufficient scope");
     }
+
+    const user: AuthenticatedUser = {
+      id: payload.id,
+      companyId: payload.companyId,
+      role: payload.role,
+    };
+
+    request.user = user;
+    return user;
+  } catch (error) {
+    throw new AuthenticationError("Invalid or expired token");
   }
-
-  // Attach to request if you like (tsoa will also get the value as "user")
-  (request as any).user = {
-    id: payload.sub,
-    companyId: payload.companyId,
-    role: payload.role,
-  };
-
-  return (request as any).user;
 }

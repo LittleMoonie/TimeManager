@@ -18,7 +18,6 @@ import {
   TimesheetEntryResponseDto,
   UpdateTimesheetEntryDto,
 } from "../../Dtos/Timesheet/TimesheetDto";
-import { AuthenticationError } from "../../Errors/HttpErrors";
 import { Service } from "typedi";
 import { UserDto } from "../../Dtos/Users/UserDto";
 
@@ -41,16 +40,12 @@ export class TimesheetEntryController extends Controller {
    * @param {CreateTimesheetEntryDto} createTimesheetEntryDto - The data for creating the timesheet entry.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<TimesheetEntryResponseDto>} The newly created timesheet entry.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Post("/")
   public async createTimesheetEntry(
     @Body() createTimesheetEntryDto: CreateTimesheetEntryDto,
     @Request() request: ExpressRequest,
   ): Promise<TimesheetEntryResponseDto> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: userId, companyId } = request.user as UserDto;
     // In a real application, you would check if the user has permission to create timesheet entries
     const timesheetEntry =
@@ -67,16 +62,12 @@ export class TimesheetEntryController extends Controller {
    * @param {string} id - The ID of the timesheet entry to retrieve.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<TimesheetEntryResponseDto>} The timesheet entry details.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Get("/{id}")
   public async getTimesheetEntry(
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<TimesheetEntryResponseDto> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     return this.timesheetEntryService.getTimesheetEntryById(id);
   }
 
@@ -86,7 +77,6 @@ export class TimesheetEntryController extends Controller {
    * @param {UpdateTimesheetEntryDto} updateTimesheetEntryDto - The data for updating the timesheet entry.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<TimesheetEntryResponseDto>} The updated timesheet entry details.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Put("/{id}")
   public async updateTimesheetEntry(
@@ -94,9 +84,6 @@ export class TimesheetEntryController extends Controller {
     @Body() updateTimesheetEntryDto: UpdateTimesheetEntryDto,
     @Request() request: ExpressRequest,
   ): Promise<TimesheetEntryResponseDto> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     // In a real application, you would check if the user has permission to update timesheet entries
     const updatedTimesheetEntry =
       await this.timesheetEntryService.updateTimesheetEntry(
@@ -111,16 +98,12 @@ export class TimesheetEntryController extends Controller {
    * @param {string} id - The ID of the timesheet entry to delete.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<void>} Nothing is returned upon successful deletion.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Delete("/{id}")
   public async deleteTimesheetEntry(
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     // In a real application, you would check if the user has permission to delete timesheet entries
     await this.timesheetEntryService.deleteTimesheetEntry(id);
   }

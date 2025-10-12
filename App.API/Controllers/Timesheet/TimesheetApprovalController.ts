@@ -18,7 +18,6 @@ import {
   TimesheetApprovalResponseDto,
   UpdateTimesheetApprovalDto,
 } from "../../Dtos/Timesheet/TimesheetApprovalDto";
-import { AuthenticationError } from "../../Errors/HttpErrors";
 import { Service } from "typedi";
 import { UserDto } from "../../Dtos/Users/UserDto";
 
@@ -41,7 +40,6 @@ export class TimesheetApprovalController extends Controller {
    * @param {CreateTimesheetApprovalDto} createTimesheetApprovalDto - The data for creating the timesheet approval.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<TimesheetApprovalResponseDto>} The newly created timesheet approval.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Post("/")
   @Security("jwt", ["admin", "manager"])
@@ -49,9 +47,6 @@ export class TimesheetApprovalController extends Controller {
     @Body() createTimesheetApprovalDto: CreateTimesheetApprovalDto,
     @Request() request: ExpressRequest,
   ): Promise<TimesheetApprovalResponseDto> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { companyId } = request.user as UserDto;
     // In a real application, you would check if the user has permission to create timesheet approvals
     const timesheetApproval =
@@ -67,16 +62,12 @@ export class TimesheetApprovalController extends Controller {
    * @param {string} id - The ID of the timesheet approval to retrieve.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<TimesheetApprovalResponseDto>} The timesheet approval details.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Get("/{id}")
   public async getTimesheetApproval(
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<TimesheetApprovalResponseDto> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     return this.timesheetApprovalService.getTimesheetApprovalById(id);
   }
 
@@ -86,7 +77,6 @@ export class TimesheetApprovalController extends Controller {
    * @param {UpdateTimesheetApprovalDto} updateTimesheetApprovalDto - The data for updating the timesheet approval.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<TimesheetApprovalResponseDto>} The updated timesheet approval details.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Put("/{id}")
   @Security("jwt", ["admin", "manager"])
@@ -95,9 +85,6 @@ export class TimesheetApprovalController extends Controller {
     @Body() updateTimesheetApprovalDto: UpdateTimesheetApprovalDto,
     @Request() request: ExpressRequest,
   ): Promise<TimesheetApprovalResponseDto> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     // In a real application, you would check if the user has permission to update timesheet approvals
     const updatedTimesheetApproval =
       await this.timesheetApprovalService.updateTimesheetApproval(
@@ -112,7 +99,6 @@ export class TimesheetApprovalController extends Controller {
    * @param {string} id - The ID of the timesheet approval to delete.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<void>} Nothing is returned upon successful deletion.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Delete("/{id}")
   @Security("jwt", ["admin", "manager"])
@@ -120,9 +106,6 @@ export class TimesheetApprovalController extends Controller {
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     // In a real application, you would check if the user has permission to delete timesheet approvals
     await this.timesheetApprovalService.deleteTimesheetApproval(id);
   }

@@ -15,7 +15,6 @@ import {
   CreateRolePermissionDto,
   RolePermissionResponseDto,
 } from "../../Dtos/Users/RolePermissionDto";
-import { AuthenticationError } from "../../Errors/HttpErrors";
 import { Service } from "typedi";
 import { UserDto } from "../../Dtos/Users/UserDto";
 import User from "../../Entities/Users/User";
@@ -39,7 +38,6 @@ export class RolePermissionController extends Controller {
    * @param {CreateRolePermissionDto} createRolePermissionDto - The data for creating the role permission.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<RolePermissionResponseDto>} The newly created role permission.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Post("/")
   @Security("jwt", ["admin"])
@@ -47,9 +45,6 @@ export class RolePermissionController extends Controller {
     @Body() createRolePermissionDto: CreateRolePermissionDto,
     @Request() request: ExpressRequest,
   ): Promise<RolePermissionResponseDto> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { companyId } = request.user as UserDto;
     // In a real application, you would check if the user has permission to create role permissions
     const rolePermission =
@@ -66,7 +61,6 @@ export class RolePermissionController extends Controller {
    * @param {string} id - The ID of the role permission to delete.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<void>} Nothing is returned upon successful deletion.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Delete("/{id}")
   @Security("jwt", ["admin"])
@@ -74,9 +68,6 @@ export class RolePermissionController extends Controller {
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { companyId } = request.user as UserDto;
     // In a real application, you would check if the user has permission to delete role permissions
     await this.rolePermissionService.deleteRolePermission(

@@ -15,17 +15,22 @@ import { validate } from "class-validator";
 import * as argon2 from "argon2";
 import { UpdateUserDto } from "../../Dtos/Users/UpdateUserDto";
 import { RolePermissionService } from "./RolePermissionService";
-import { RolePermissionRepository } from "../../Repositories/Users/RolePermissionRepository";
 import { CreateUserActivityLogDto } from "../../Dtos/Logs/User/UserActivityLogDto";
+import { Service } from "typedi";
+import { InjectRepository } from "typeorm-typedi-extensions";
+import { Repository } from "typeorm";
 
+@Service()
 export class UserService {
-  private userRepository = new UserRepository();
-  private userStatusRepository = AppDataSource.getRepository(UserStatus);
-  private userActivityLogService = new UserActivityLogService();
-  private roleService = new RoleService();
-  private rolePermissionService = new RolePermissionService(
-    new RolePermissionRepository(),
-  );
+  constructor(
+    @InjectRepository(User)
+    private userRepository: UserRepository,
+    @InjectRepository(UserStatus)
+    private userStatusRepository: Repository<UserStatus>,
+    private userActivityLogService: UserActivityLogService,
+    private roleService: RoleService,
+    private rolePermissionService: RolePermissionService,
+  ) {}
 
   async createUser(
     companyId: string,
@@ -165,39 +170,40 @@ export class UserService {
     }
 
     const user = await this.getUserById(companyId, userId);
-
     const oldUserDetails = { ...user };
 
+    // Hash password if provided
     if (updateUserDto.password) {
-      updateUserDto.password = await argon2.hash(updateUserDto.password);
+      user.passwordHash = await argon2.hash(updateUserDto.password);
     }
 
-    let role;
-    if (updateUserDto.roleId) {
-      role = await this.roleService.getRoleById(
+    // Update role if provided
+    if (updateUserDto.roleId && updateUserDto.roleId !== user.roleId) {
+      const role = await this.roleService.getRoleById(
         companyId,
         updateUserDto.roleId,
       );
-      if (!role) {
-        throw new NotFoundError("Role not found");
-      }
+      user.role = role;
     }
 
-    let status;
-    if (updateUserDto.statusId) {
-      status = await this.userStatusRepository.findOne({
+    // Update status if provided
+    if (updateUserDto.statusId && updateUserDto.statusId !== user.statusId) {
+      const status = await this.userStatusRepository.findOne({
         where: { id: updateUserDto.statusId },
       });
       if (!status) {
         throw new NotFoundError("UserStatus not found");
       }
+      user.status = status;
     }
 
-    const updatedUser = await this.userRepository.update(userId, {
-      ...updateUserDto,
-      role,
-      status,
-    });
+    // Apply other updates
+    user.email = updateUserDto.email ?? user.email;
+    user.firstName = updateUserDto.firstName ?? user.firstName;
+    user.lastName = updateUserDto.lastName ?? user.lastName;
+    user.phoneNumber = updateUserDto.phoneNumber ?? user.phoneNumber;
+
+    const updatedUser = await this.userRepository.save(user);
 
     await this.userActivityLogService.log(companyId, {
       userId: currentUser.id,
@@ -209,7 +215,7 @@ export class UserService {
       },
     } as unknown as CreateUserActivityLogDto);
 
-    return updatedUser!;
+    return updatedUser;
   }
 
   async deleteUser(
@@ -227,15 +233,18 @@ export class UserService {
         "User does not have permission to delete users.",
       );
     }
-    const user = await this.getUserById(companyId, userId);
 
-    await this.userRepository.delete(userId);
+    const deleteResult = await this.userRepository.softDelete(userId);
+
+    if (deleteResult.affected === 0) {
+      throw new NotFoundError("User not found");
+    }
 
     await this.userActivityLogService.log(companyId, {
       userId: currentUser.id,
       activityType: UserActivityType.DELETE_USER,
       targetId: userId,
-      details: { email: user.email } as unknown as Record<string, string>,
+      details: { softDeletedUserId: userId },
     });
   }
 

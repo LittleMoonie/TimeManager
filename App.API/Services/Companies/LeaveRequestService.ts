@@ -1,93 +1,70 @@
+import { Service } from "typedi";
+import { Repository } from "typeorm";
+import { InjectRepository } from "typeorm-typedi-extensions";
+import { LeaveRequest } from "../../Entities/Companies/LeaveRequest";
 import {
-  LeaveRequest,
-  LeaveRequestStatus,
-  LeaveType,
-} from "../../Entities/Companies/LeaveRequest";
-import { DataLogAction } from "../../Entities/Logs/Data/DataLog";
+  CreateLeaveRequestDto,
+  UpdateLeaveRequestDto,
+} from "../../Dtos/Company/LeaveRequestDto";
+import { NotFoundError } from "../../Errors/HttpErrors";
 import User from "../../Entities/Users/User";
-import { AppDataSource } from "../../Server/Database";
-import { AuditLogService } from "../Logs/AuditLogService";
 
+@Service()
 export class LeaveRequestService {
-  private leaveRequestRepository = AppDataSource.getRepository(LeaveRequest);
-  private userRepository = AppDataSource.getRepository(User);
-  private auditLogService = new AuditLogService();
+  constructor(
+    @InjectRepository(LeaveRequest)
+    private leaveRequestRepository: Repository<LeaveRequest>,
+  ) {}
 
-  public async getUserLeaveRequests(userId: string): Promise<LeaveRequest[]> {
-    return this.leaveRequestRepository.find({
-      where: { user: { id: userId } },
+  public async createLeaveRequest(
+    actingUser: User,
+    companyId: string,
+    createLeaveRequestDto: CreateLeaveRequestDto,
+  ): Promise<LeaveRequest> {
+    const leaveRequest = this.leaveRequestRepository.create({
+      ...createLeaveRequestDto,
+      companyId,
+      userId: actingUser.id,
     });
+    return this.leaveRequestRepository.save(leaveRequest);
   }
 
   public async getLeaveRequestById(
-    id: string,
     companyId: string,
-  ): Promise<LeaveRequest | null> {
-    return this.leaveRequestRepository.findOne({
-      where: { id, user: { company: { id: companyId } } },
-    });
-  }
-
-  public async createLeaveRequest(
-    userId: string,
-    startDate: Date,
-    endDate: Date,
-    leaveType: LeaveType,
-    reason?: string,
+    id: string,
   ): Promise<LeaveRequest> {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new Error("User not found");
+    const leaveRequest = await this.leaveRequestRepository.findOne({
+      where: { id, companyId },
+    });
+    if (!leaveRequest) {
+      throw new NotFoundError("Leave request not found");
     }
-
-    const leaveRequest = new LeaveRequest();
-    leaveRequest.user = user;
-    leaveRequest.startDate = startDate;
-    leaveRequest.endDate = endDate;
-    leaveRequest.leaveType = leaveType;
-    leaveRequest.reason = reason;
-
-    const newLeaveRequest =
-      await this.leaveRequestRepository.save(leaveRequest);
-
-    await this.auditLogService.logEvent(
-      userId,
-      user.companyId,
-      DataLogAction.CREATE,
-      "LeaveRequest",
-      newLeaveRequest.id,
-      newLeaveRequest as unknown as Record<string, string>,
-    );
-
-    return newLeaveRequest;
+    return leaveRequest;
   }
 
-  public async updateLeaveRequestStatus(
-    id: string,
+  public async getAllLeaveRequests(companyId: string): Promise<LeaveRequest[]> {
+    return this.leaveRequestRepository.find({ where: { companyId } });
+  }
+
+  public async updateLeaveRequest(
+    actingUser: User,
     companyId: string,
-    status: LeaveRequestStatus,
-  ): Promise<LeaveRequest | null> {
-    const leaveRequest = await this.leaveRequestRepository.findOne({
-      where: { id, user: { company: { id: companyId } } },
-      relations: ["user"],
-    });
-    if (leaveRequest) {
-      const oldStatus = leaveRequest.status;
-      leaveRequest.status = status;
-      const updatedLeaveRequest =
-        await this.leaveRequestRepository.save(leaveRequest);
+    id: string,
+    updateLeaveRequestDto: UpdateLeaveRequestDto,
+  ): Promise<LeaveRequest> {
+    const leaveRequest = await this.getLeaveRequestById(companyId, id);
+    // Add authorization logic here if needed
+    Object.assign(leaveRequest, updateLeaveRequestDto);
+    return this.leaveRequestRepository.save(leaveRequest);
+  }
 
-      await this.auditLogService.logEvent(
-        leaveRequest.user.id,
-        leaveRequest.user.companyId,
-        DataLogAction.UPDATE,
-        "LeaveRequest",
-        updatedLeaveRequest.id,
-        { oldStatus, newStatus: status },
-      );
-
-      return updatedLeaveRequest;
-    }
-    return null;
+  public async deleteLeaveRequest(
+    actingUser: User,
+    companyId: string,
+    id: string,
+  ): Promise<void> {
+    const leaveRequest = await this.getLeaveRequestById(companyId, id);
+    // Add authorization logic here if needed
+    await this.leaveRequestRepository.remove(leaveRequest);
   }
 }

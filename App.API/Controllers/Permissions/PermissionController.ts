@@ -19,7 +19,6 @@ import {
   PermissionResponse,
   UpdatePermissionDto,
 } from "../../Dtos/Users/PermissionDto";
-import { AuthenticationError } from "../../Errors/HttpErrors";
 import { Service } from "typedi";
 import { UserDto } from "../../Dtos/Users/UserDto";
 
@@ -41,7 +40,6 @@ export class PermissionController extends Controller {
    * @param {CreatePermissionDto} requestBody - The data for creating the permission.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<PermissionResponse>} The newly created permission.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Post("/")
   @Security("jwt", ["admin"])
@@ -50,9 +48,6 @@ export class PermissionController extends Controller {
     @Body() requestBody: CreatePermissionDto,
     @Request() request: ExpressRequest,
   ): Promise<PermissionResponse> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: userId, companyId } = request.user as UserDto;
     const permission = await this.permissionService.createPermission(
       companyId,
@@ -68,7 +63,6 @@ export class PermissionController extends Controller {
    * @param {string} id - The ID of the permission to retrieve.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<PermissionResponse>} The permission details.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Get("/{id}")
   @Security("jwt", ["admin"])
@@ -76,9 +70,6 @@ export class PermissionController extends Controller {
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<PermissionResponse> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { companyId } = request.user as UserDto;
     return this.permissionService.getPermissionById(companyId, id);
   }
@@ -87,16 +78,12 @@ export class PermissionController extends Controller {
    * @summary Retrieves all permissions for the authenticated user's company.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<PermissionResponse[]>} An array of permissions.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Get("/")
   @Security("jwt", ["admin"])
   public async getAllPermissions(
     @Request() request: ExpressRequest,
   ): Promise<PermissionResponse[]> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { companyId } = request.user as UserDto;
     return this.permissionService.getAllPermissions(companyId);
   }
@@ -107,7 +94,6 @@ export class PermissionController extends Controller {
    * @param {UpdatePermissionDto} requestBody - The data for updating the permission.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<PermissionResponse>} The updated permission details.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Put("/{id}")
   @Security("jwt", ["admin"])
@@ -116,9 +102,6 @@ export class PermissionController extends Controller {
     @Body() requestBody: UpdatePermissionDto,
     @Request() request: ExpressRequest,
   ): Promise<PermissionResponse> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: userId, companyId } = request.user as UserDto;
     return this.permissionService.updatePermission(
       companyId,
@@ -133,7 +116,6 @@ export class PermissionController extends Controller {
    * @param {string} id - The ID of the permission to delete.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {void} Nothing is returned upon successful deletion.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Delete("/{id}")
   @Security("jwt", ["admin"])
@@ -142,9 +124,6 @@ export class PermissionController extends Controller {
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: userId, companyId } = request.user as UserDto;
     await this.permissionService.deletePermission(companyId, userId, id);
   }

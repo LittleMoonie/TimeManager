@@ -17,7 +17,6 @@ import {
   CreateTimesheetEntryDto,
 } from "../../Dtos/Timesheet/TimesheetDto";
 import { TimesheetService } from "../../Services/Timesheet/TimesheetService";
-import { AuthenticationError } from "../../Errors/HttpErrors";
 import { Service } from "typedi";
 import { UserDto } from "../../Dtos/Users/UserDto";
 
@@ -40,16 +39,12 @@ export class TimesheetController extends Controller {
    * @param {CreateTimesheetDto} createTimesheetDto - The data for creating the timesheet.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<Timesheet>} The newly created timesheet.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Post("/")
   public async createTimesheet(
     @Body() createTimesheetDto: CreateTimesheetDto,
     @Request() request: ExpressRequest,
   ): Promise<Timesheet> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: userId, companyId } = request.user as UserDto;
     return this.timesheetService.createTimesheet(
       companyId,
@@ -63,16 +58,12 @@ export class TimesheetController extends Controller {
    * @param {string} id - The ID of the timesheet to retrieve.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<Timesheet>} The timesheet details.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Get("/{id}")
   public async getTimesheet(
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<Timesheet> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { companyId } = request.user as UserDto;
     return this.timesheetService.getTimesheet(companyId, id);
   }
@@ -83,7 +74,6 @@ export class TimesheetController extends Controller {
    * @param {CreateTimesheetEntryDto} createTimesheetEntryDto - The data for creating the timesheet entry.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<Timesheet>} The updated timesheet with the new entry.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Post("/{id}/entries")
   public async addTimesheetEntry(
@@ -91,9 +81,6 @@ export class TimesheetController extends Controller {
     @Body() createTimesheetEntryDto: CreateTimesheetEntryDto,
     @Request() request: ExpressRequest,
   ): Promise<Timesheet> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: userId, companyId } = request.user as UserDto;
     return this.timesheetService.addTimesheetEntry(
       companyId,
@@ -108,16 +95,12 @@ export class TimesheetController extends Controller {
    * @param {string} id - The ID of the timesheet to submit.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<Timesheet>} The submitted timesheet.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Put("/{id}/submit")
   public async submitTimesheet(
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<Timesheet> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: userId, companyId } = request.user as UserDto;
     return this.timesheetService.submitTimesheet(companyId, userId, id);
   }
@@ -127,7 +110,6 @@ export class TimesheetController extends Controller {
    * @param {string} id - The ID of the timesheet to approve.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<Timesheet>} The approved timesheet.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Put("/{id}/approve")
   @Security("jwt", ["manager", "admin"])
@@ -135,9 +117,6 @@ export class TimesheetController extends Controller {
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<Timesheet> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: approverId, companyId } = request.user as UserDto;
     return this.timesheetService.approveTimesheet(companyId, approverId, id);
   }
@@ -149,7 +128,6 @@ export class TimesheetController extends Controller {
    * @param {string} body.reason - The reason for rejecting the timesheet.
    * @param {ExpressRequest} request - The Express request object, containing user information.
    * @returns {Promise<Timesheet>} The rejected timesheet.
-   * @throws {AuthenticationError} If the user is not authenticated.
    */
   @Put("/{id}/reject")
   @Security("jwt", ["manager", "admin"])
@@ -158,9 +136,6 @@ export class TimesheetController extends Controller {
     @Body() body: { reason: string },
     @Request() request: ExpressRequest,
   ): Promise<Timesheet> {
-    if (!request.user) {
-      throw new AuthenticationError("User not authenticated");
-    }
     const { id: approverId, companyId } = request.user as UserDto;
     return this.timesheetService.rejectTimesheet(
       companyId,
