@@ -6,7 +6,6 @@ import passport from "passport";
 import swaggerUi from "swagger-ui-express";
 import * as fs from "fs";
 import * as path from "path";
-
 import { connectDB } from "./Database";
 import { errorHandler } from "../Middlewares/ErrorHandler";
 import logger from "../Utils/Logger";
@@ -38,11 +37,12 @@ server.use(express.json());
 // Setup Swagger UI with dynamic loading
 //@ts-expect-error - TypeScript compatibility issue with swaggerUi types
 server.use("/api/docs", ...swaggerUi.serve);
+
 server.get("/api/docs", (req: Request, res: Response, next: NextFunction) => {
   try {
     // Try to load the latest OpenAPI specification
     const swaggerDocument = JSON.parse(
-      fs.readFileSync(path.join(__dirname, "../../swagger.json"), "utf8"),
+      fs.readFileSync(path.join(__dirname, "../dist/swagger.json"), "utf8"),
     );
 
     const setupHandler = swaggerUi.setup(swaggerDocument, {

@@ -5,7 +5,7 @@ services:
     container_name: gogotime-db
     restart: unless-stopped
     env_file:
-      - .env
+      - ./.env
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
@@ -33,7 +33,8 @@ services:
     ports:
       - "${API_PORT}:4000"
     env_file:
-      - .env
+      - ./.env
+      - ../App.API/.env
     environment:
       NODE_ENV: development
       PORT: ${API_PORT}
@@ -76,7 +77,8 @@ services:
     ports:
       - "${WEB_PORT}:3000"
     env_file:
-      - .env
+      - ./.env
+      - ../App.Web/.env
     environment:
       NODE_ENV: development
       CHOKIDAR_USEPOLLING: "true"   # Required for WSL2 hot reload
