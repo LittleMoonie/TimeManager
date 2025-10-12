@@ -15,16 +15,17 @@
     "noImplicitAny": false,
     "sourceMap": true,
     "declaration": false,
-    "types": ["node"],
+    "types": ["node", "jest"],
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@Controllers/*": ["./Controllers/*"],
-      "@Routes/*": ["./Routes/*"],
-      "@Services/*": ["./Services/*"]
+      "@Controllers/*": ["Controllers/*"],
+      "@Routes/*": ["Routes/*"],
+      "@Services/*": ["Services/*"],
+      "@Entities/*": ["Entities/*"],
+      "@/*": ["*"]
     }
   },
   "include": ["**/*.ts", "Types/**/*.d.ts", "index.ts"],
-  "exclude": ["node_modules", "build", "**/*.test.ts", "**/*.spec.ts"]
+  "exclude": ["node_modules", "build"]
 }

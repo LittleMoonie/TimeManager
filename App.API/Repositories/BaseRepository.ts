@@ -33,4 +33,20 @@ export class BaseRepository<T extends BaseEntity> {
   async delete(id: string): Promise<void> {
     await this.repository.delete(id);
   }
+
+  async softDelete(id: string): Promise<void> {
+    await this.repository.softDelete(id);
+  }
+
+  async save(entity: T): Promise<T> {
+    return this.repository.save(entity);
+  }
+
+  async findAll(): Promise<T[]> {
+    return this.repository.find();
+  }
+
+  async findOne(options: FindOneOptions<T>): Promise<T | null> {
+    return this.repository.findOne(options);
+  }
 }

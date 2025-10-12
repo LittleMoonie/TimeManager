@@ -24,5 +24,6 @@ export class SystemLog extends BaseEntity {
 
   @Column("text") message!: string;
 
-  @Column({ type: "jsonb", nullable: true }) metadata?: IStringToStringDictionary;
+  @Column({ type: "jsonb", nullable: true })
+  metadata?: IStringToStringDictionary;
 }

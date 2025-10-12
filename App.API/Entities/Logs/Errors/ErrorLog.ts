@@ -34,5 +34,6 @@ export class ErrorLog extends BaseEntity {
 
   @Column({ type: "text", nullable: true }) stack?: string;
 
-  @Column({ type: "jsonb", nullable: true }) metadata?: IStringToStringDictionary;
+  @Column({ type: "jsonb", nullable: true })
+  metadata?: IStringToStringDictionary;
 }

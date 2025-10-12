@@ -47,9 +47,7 @@ export class AuthenticationController extends Controller {
   @Response("400", "Email already exists")
   @Response("422", "Validation error")
   @Response("500", "Internal server error")
-  public async register(
-    @Body() requestBody: RegisterDto,
-  ): Promise<UserDto> {
+  public async register(@Body() requestBody: RegisterDto): Promise<UserDto> {
     const errors = await validate(requestBody);
     if (errors.length > 0) {
       throw new UnprocessableEntityError(

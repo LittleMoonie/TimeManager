@@ -35,5 +35,6 @@ export class AuthLog extends BaseEntity {
 
   @Column({ type: "text", nullable: true }) userAgent?: string;
 
-  @Column({ type: "jsonb", nullable: true }) metadata?: IStringToStringDictionary;
+  @Column({ type: "jsonb", nullable: true })
+  metadata?: IStringToStringDictionary;
 }

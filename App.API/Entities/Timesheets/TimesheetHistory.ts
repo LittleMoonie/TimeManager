@@ -36,7 +36,8 @@ export class TimesheetHistory extends BaseEntity {
 
   @Column({ type: "text", nullable: true }) reason?: string;
   @Column({ type: "jsonb", nullable: true }) diff?: IStringToStringDictionary;
-  @Column({ type: "jsonb", nullable: true }) metadata?: IStringToStringDictionary;
+  @Column({ type: "jsonb", nullable: true })
+  metadata?: IStringToStringDictionary;
 
   @Column({ type: "timestamp with time zone", default: () => "now()" })
   occurredAt!: Date;

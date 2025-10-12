@@ -19,9 +19,15 @@ export const loggingMiddleware = (
   }
 
   // Attach metadata to the request object, allowing undefined for userId and companyId
-  (req as Request & { requestId: string; userId?: string; companyId?: string }).requestId = requestId;
-  (req as Request & { requestId: string; userId?: string; companyId?: string }).userId = userId;
-  (req as Request & { requestId: string; userId?: string; companyId?: string }).companyId = companyId;
+  (
+    req as Request & { requestId: string; userId?: string; companyId?: string }
+  ).requestId = requestId;
+  (
+    req as Request & { requestId: string; userId?: string; companyId?: string }
+  ).userId = userId;
+  (
+    req as Request & { requestId: string; userId?: string; companyId?: string }
+  ).companyId = companyId;
 
   // Set default metadata for the logger
   const defaultMeta = { requestId, userId, companyId, ip: req.ip };

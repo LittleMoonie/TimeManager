@@ -32,5 +32,6 @@ export class ActionLog extends BaseEntity {
 
   @Column({ type: "text" }) description!: string;
 
-  @Column({ type: "jsonb", nullable: true }) metadata?: IStringToStringDictionary;
+  @Column({ type: "jsonb", nullable: true })
+  metadata?: IStringToStringDictionary;
 }

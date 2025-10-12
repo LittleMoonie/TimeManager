@@ -24,9 +24,11 @@ export class WebhookLog extends BaseEntity {
 
   @Column({ type: "text" }) event!: string;
 
-  @Column({ type: "jsonb", nullable: true }) payload?: IStringToStringDictionary;
+  @Column({ type: "jsonb", nullable: true })
+  payload?: IStringToStringDictionary;
 
-  @Column({ type: "jsonb", nullable: true }) response?: IStringToStringDictionary;
+  @Column({ type: "jsonb", nullable: true })
+  response?: IStringToStringDictionary;
 
   @Column({ type: "int", nullable: true }) statusCode?: number;
 

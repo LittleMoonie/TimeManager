@@ -30,8 +30,7 @@ import { UserDto } from "../../Dtos/Users/UserDto";
 @Tags("Permissions")
 @Service()
 export class PermissionController extends Controller {
-
-  constructor(private permissionService: PermissionService  ) {
+  constructor(private permissionService: PermissionService) {
     super();
   }
 

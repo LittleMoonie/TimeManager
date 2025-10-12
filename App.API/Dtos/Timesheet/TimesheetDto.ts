@@ -144,5 +144,3 @@ export class TimesheetEntryResponseDto {
    */
   note?: string;
 }
-
-

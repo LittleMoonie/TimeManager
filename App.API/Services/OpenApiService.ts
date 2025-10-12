@@ -35,9 +35,7 @@ export class OpenApiService {
         exec(command, (err, stdout, stderr) => {
           if (err) {
             return reject(
-              new InternalServerError(
-                `API generation failed: ${stderr}`,
-              ),
+              new InternalServerError(`API generation failed: ${stderr}`),
             );
           }
           resolve(stdout);
@@ -45,7 +43,11 @@ export class OpenApiService {
       });
 
       lastGeneratedAt = new Date();
-      return { success: true, message: "Generated successfully", generatedAt: lastGeneratedAt };
+      return {
+        success: true,
+        message: "Generated successfully",
+        generatedAt: lastGeneratedAt,
+      };
     } catch (error: any) {
       throw new InternalServerError(`API generation failed: ${error.message}`);
     } finally {

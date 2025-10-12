@@ -143,7 +143,7 @@ export class UserService {
   }
 
   async getAllUsers(companyId: string): Promise<User[]> {
-    return this.userRepository.findAll(companyId);
+    return this.userRepository.findAllByCompanyId(companyId);
   }
 
   async updateUser(
@@ -203,19 +203,23 @@ export class UserService {
     user.lastName = updateUserDto.lastName ?? user.lastName;
     user.phoneNumber = updateUserDto.phoneNumber ?? user.phoneNumber;
 
-    const updatedUser = await this.userRepository.save(user);
+    const updatedUser = await this.userRepository.update(user.id, user);
 
     await this.userActivityLogService.log(companyId, {
       userId: currentUser.id,
       activityType: UserActivityType.UPDATE_USER,
       targetId: userId,
       details: {
-        old: oldUserDetails as unknown as Record<string, string>,
-        new: updateUserDto as unknown as Record<string, string>,
+        ...oldUserDetails as unknown as Record<string, string>,
+        ...updateUserDto as unknown as Record<string, string>,
       },
-    } as unknown as CreateUserActivityLogDto);
+    } as CreateUserActivityLogDto);
 
-    return updatedUser;
+    const resultUser = await this.getUserById(companyId, userId);
+    if (!resultUser) {
+      throw new NotFoundError('User not found after update');
+    }
+    return resultUser;
   }
 
   async deleteUser(
@@ -233,12 +237,12 @@ export class UserService {
         "User does not have permission to delete users.",
       );
     }
-
-    const deleteResult = await this.userRepository.softDelete(userId);
-
-    if (deleteResult.affected === 0) {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
       throw new NotFoundError("User not found");
     }
+
+    await this.userRepository.softDelete(userId);
 
     await this.userActivityLogService.log(companyId, {
       userId: currentUser.id,

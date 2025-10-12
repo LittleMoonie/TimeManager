@@ -39,10 +39,14 @@ export class UserRepository extends BaseRepository<User> {
     return this.repository.findOne(options);
   }
 
-  async findAll(companyId: string): Promise<User[]> {
+  async findAllByCompanyId(companyId: string): Promise<User[]> {
     return this.repository.find({
       where: { companyId },
       relations: ["role", "status"],
     });
+  }
+
+  async hardDelete(userId: string): Promise<void> {
+    await this.repository.delete(userId);
   }
 }

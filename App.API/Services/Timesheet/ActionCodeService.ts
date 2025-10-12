@@ -69,7 +69,7 @@ export class ActionCodeService {
       userId: actorUserId,
       targetType: "ActionCode",
       targetId: updatedActionCode ? updatedActionCode.id : id,
-      action: 'updated',
+      action: "updated",
       diff: {
         old: oldActionCode ? oldActionCode.id : "",
         new: updatedActionCode ? updatedActionCode.id : "",

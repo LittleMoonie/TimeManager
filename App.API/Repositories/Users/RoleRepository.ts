@@ -7,6 +7,18 @@ export class RoleRepository extends BaseRepository<Role> {
     super(Role);
   }
 
+  async addPermission(companyId: string, roleId: string, permissionId: string): Promise<void> {
+    await this.repository.save({
+      companyId,
+      roleId,
+      permissionId
+    });
+  }
+
+  async removePermission(companyId: string, id: string): Promise<void> {
+    await this.repository.delete({ companyId, id });
+  }
+
   async findByIdWithRelations(
     companyId: string,
     roleId: string,
@@ -27,12 +39,5 @@ export class RoleRepository extends BaseRepository<Role> {
       relations: ["rolePermissions", "rolePermissions.permission"],
     };
     return this.repository.findOne(options);
-  }
-
-  async findAll(companyId: string): Promise<Role[]> {
-    return this.repository.find({
-      where: { companyId },
-      relations: ["rolePermissions", "rolePermissions.permission"],
-    });
   }
 }

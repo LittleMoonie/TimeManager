@@ -33,10 +33,12 @@ import User from "../../Entities/Users/User";
 @Security("jwt")
 @Service()
 export class CompanyController extends Controller {
-
-  constructor(private companyService: CompanyService, private userService: UserService) {
+  constructor(
+    private companyService: CompanyService,
+    private userService: UserService,
+  ) {
     super();
-    }
+  }
 
   /**
    * @summary Creates a new company.

@@ -69,4 +69,12 @@ export class UpdateUserDto {
   @IsUUID()
   @IsOptional()
   public companyId?: string;
+
+  /**
+   * @description Optional: The user's updated phone number.
+   * @example "+15551234567"
+   */
+  @IsString()
+  @IsOptional()
+  public phoneNumber?: string;
 }
