@@ -1,0 +1,189 @@
+name: Discord Notifications • Pull Requests
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+      - converted_to_draft
+      - closed
+      - labeled
+      - unlabeled
+      - review_requested
+      - review_request_removed
+  pull_request_review:
+    types:
+      - submitted
+      - dismissed
+  pull_request_review_comment:
+    types:
+      - created
+      - edited
+      - deleted
+  pull_request_review_thread:
+    types:
+      - resolved
+      - unresolved
+
+jobs:
+  notify-discord:
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Pull request activity
+        if: github.event_name == 'pull_request' && (github.event.action != 'closed' || github.event.pull_request.merged != true)
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_PR_URL }}
+          username: 'GitHub • Pull Requests'
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          noprefix: true
+          timestamp: true
+          title: ${{ (github.event.action == 'opened' && '✨ Pull request opened')
+            || (github.event.action == 'reopened' && '🔄 Pull request reopened')
+            || (github.event.action == 'synchronize' && '🔁 Pull request updated')
+            || (github.event.action == 'ready_for_review' && '✅ Ready for review')
+            || (github.event.action == 'converted_to_draft' && '📝 Marked as draft')
+            || (github.event.action == 'labeled' && '🏷️ Label added')
+            || (github.event.action == 'unlabeled' && '🏷️ Label removed')
+            || (github.event.action == 'review_requested' && '👀 Review requested')
+            || (github.event.action == 'review_request_removed' && '🙅 Review request removed')
+            || '📦 Pull request updated' }}
+          url: ${{ github.event.pull_request.html_url }}
+          color: ${{ (github.event.action == 'opened' && '0x5865F2')
+            || (github.event.action == 'reopened' && '0xFEE75C')
+            || (github.event.action == 'synchronize' && '0xFEE75C')
+            || (github.event.action == 'ready_for_review' && '0x57F287')
+            || (github.event.action == 'converted_to_draft' && '0x2B2D31')
+            || (github.event.action == 'labeled' && '0x5865F2')
+            || (github.event.action == 'unlabeled' && '0x5865F2')
+            || (github.event.action == 'review_requested' && '0x57F287')
+            || (github.event.action == 'review_request_removed' && '0xED4245')
+            || '0x2B2D31' }}
+          description: |
+            **#${{ github.event.pull_request.number }} — ${{ github.event.pull_request.title }}**
+
+            ${{ github.event.pull_request.body && format('> {0}', replace(replace(github.event.pull_request.body, '\r', ' '), '\n', ' ')) || '' }}
+          author: ${{ github.actor }}, https://github.com/${{ github.actor }}, https://github.com/${{ github.actor }}.png?size=64
+          fields: |
+            Repository, `${{ github.repository }}`, true
+            Action, `${{ github.event.action }}`, true
+            Status, `${{ github.event.pull_request.draft && 'Draft' || (github.event.pull_request.state == 'open' && 'Open' || github.event.pull_request.state == 'closed' && 'Closed' || github.event.pull_request.state) }}`, true
+            Base ← Head, `${{ github.event.pull_request.base.ref }} ← ${{ github.event.pull_request.head.ref }}`, true
+            Commits, `${{ github.event.pull_request.commits }}`, true
+            Changes, `+${{ github.event.pull_request.additions }} / -${{ github.event.pull_request.deletions }} • ${{ github.event.pull_request.changed_files }} files`, true
+            Author, `${{ github.event.pull_request.user.login }}`, true
+            Labels, `${{ join(github.event.pull_request.labels.*.name, ', ') || 'None' }}`, true
+            Reviewers, `${{ join(github.event.pull_request.requested_reviewers.*.login, ', ') || 'None requested' }}`, true
+            Latest SHA, `${{ github.event.pull_request.head.sha }}`, false
+          footer: Pull Request Notifications • GitHub Actions
+
+      - name: Pull request closed (not merged)
+        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged != true
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_PR_URL }}
+          username: 'GitHub • Pull Requests'
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          noprefix: true
+          timestamp: true
+          title: '🗑️ Pull request closed'
+          url: ${{ github.event.pull_request.html_url }}
+          color: 0xED4245
+          description: |
+            **#${{ github.event.pull_request.number }} — ${{ github.event.pull_request.title }}**
+
+            Marked closed without merge by **${{ github.actor }}**.
+          author: ${{ github.actor }}, https://github.com/${{ github.actor }}, https://github.com/${{ github.actor }}.png?size=64
+          fields: |
+            Repository, `${{ github.repository }}`, true
+            Base ← Head, `${{ github.event.pull_request.base.ref }} ← ${{ github.event.pull_request.head.ref }}`, true
+            Author, `${{ github.event.pull_request.user.login }}`, true
+          footer: Pull Request Notifications • GitHub Actions
+
+      - name: Pull request reviews
+        if: github.event_name == 'pull_request_review'
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_PR_URL }}
+          username: 'GitHub • PR Reviews'
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          noprefix: true
+          timestamp: true
+          title: ${{ (github.event.review.state == 'approved' && '✅ Review approved')
+            || (github.event.review.state == 'changes_requested' && '❗ Changes requested')
+            || (github.event.review.state == 'commented' && '💬 Review comment')
+            || '👀 Pull request review' }}
+          url: ${{ github.event.review.html_url || github.event.pull_request.html_url }}
+          color: ${{ (github.event.review.state == 'approved' && '0x57F287')
+            || (github.event.review.state == 'changes_requested' && '0xED4245')
+            || (github.event.review.state == 'commented' && '0x5865F2')
+            || '0x2B2D31' }}
+          description: |
+            **#${{ github.event.pull_request.number }} — ${{ github.event.pull_request.title }}**
+
+            ${{ github.event.review.body && format('> {0}', replace(replace(github.event.review.body, '\r', ' '), '\n', ' ')) || '' }}
+          author: ${{ github.actor }}, https://github.com/${{ github.actor }}, https://github.com/${{ github.actor }}.png?size=64
+          fields: |
+            Repository, `${{ github.repository }}`, true
+            Reviewer, `${{ github.actor }}`, true
+            State, `${{ github.event.review.state }}`, true
+            Base ← Head, `${{ github.event.pull_request.base.ref }} ← ${{ github.event.pull_request.head.ref }}`, true
+            Permalink, [Open review](${{ github.event.review.html_url || github.event.pull_request.html_url }}), false
+          footer: Pull Request Notifications • GitHub Actions
+
+      - name: Review comments
+        if: github.event_name == 'pull_request_review_comment'
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_PR_URL }}
+          username: 'GitHub • PR Comments'
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          noprefix: true
+          timestamp: true
+          title: ${{ (github.event.action == 'created' && '💬 New review comment')
+            || (github.event.action == 'edited' && '✏️ Review comment edited')
+            || '🗑️ Review comment deleted' }}
+          url: ${{ github.event.comment.html_url }}
+          color: ${{ (github.event.action == 'created' && '0x5865F2')
+            || (github.event.action == 'edited' && '0xFEE75C')
+            || '0xED4245' }}
+          description: |
+            **#${{ github.event.pull_request.number }} — ${{ github.event.pull_request.title }}**
+
+            ${{ github.event.comment.body && format('> {0}', replace(replace(github.event.comment.body, '\r', ' '), '\n', ' ')) || '' }}
+          author: ${{ github.actor }}, https://github.com/${{ github.actor }}, https://github.com/${{ github.actor }}.png?size=64
+          fields: |
+            Repository, `${{ github.repository }}`, true
+            Action, `${{ github.event.action }}`, true
+            File, `${{ github.event.comment.path }}`, true
+            Line, `${{ github.event.comment.position || github.event.comment.original_position }}`, true
+            Permalink, [Open in GitHub](${{ github.event.comment.html_url }}), false
+          footer: Pull Request Notifications • GitHub Actions
+
+      - name: Review threads
+        if: github.event_name == 'pull_request_review_thread'
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_PR_URL }}
+          username: 'GitHub • PR Threads'
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          noprefix: true
+          timestamp: true
+          title: ${{ (github.event.action == 'resolved' && '✅ Thread resolved')
+            || '🔄 Thread reopened' }}
+          url: ${{ github.event.pull_request.html_url }}
+          color: ${{ (github.event.action == 'resolved' && '0x57F287') || '0xED4245' }}
+          description: |
+            **#${{ github.event.pull_request.number }} — ${{ github.event.pull_request.title }}**
+
+            Thread handled by **${{ github.actor }}**.
+          author: ${{ github.actor }}, https://github.com/${{ github.actor }}, https://github.com/${{ github.actor }}.png?size=64
+          fields: |
+            Repository, `${{ github.repository }}`, true
+            Action, `${{ github.event.action }}`, true
+            Thread ID, `${{ github.event.thread.id }}`, true
+            Permalink, [Open pull request](${{ github.event.pull_request.html_url }}), false
+          footer: Pull Request Notifications • GitHub Actions

@@ -6,10 +6,10 @@ interface ErrorMessageProps {
   severity?: 'error' | 'warning' | 'info' | 'success';
 }
 
-export const ErrorMessage = ({ 
-  title = 'Error', 
-  message, 
-  severity = 'error' 
+export const ErrorMessage = ({
+  title = 'Error',
+  message,
+  severity = 'error',
 }: ErrorMessageProps) => {
   return (
     <Box py={2}>
@@ -20,4 +20,3 @@ export const ErrorMessage = ({
     </Box>
   );
 };
-

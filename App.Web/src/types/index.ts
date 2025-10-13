@@ -1,126 +1,26 @@
-// User and Authentication Types
-export type Role = 'CEO' | 'MANAGER' | 'USER';
+export type PersonStatus = 'Active' | 'On leave' | 'Inactive';
 
-export interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: Role;
-  teamId?: string;
-  status: 'ACTIVE' | 'INACTIVE';
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Team {
+export interface Person {
   id: string;
   name: string;
-  managerId: string;
-  memberIds: string[];
-  createdAt: string;
-  updatedAt: string;
+  role: string;
+  team: string;
+  status: PersonStatus;
+  initials: string;
 }
 
-export interface Organization {
+export interface ActiveSession {
   id: string;
   name: string;
-  settings: {
-    workingHours: {
-      start: string;
-      end: string;
-    };
-    timezone: string;
-  };
+  location: string;
+  current: boolean;
+  deviceType: 'desktop' | 'mobile' | 'tablet';
 }
 
-// Task Management Types
-export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE' | 'CANCELLED';
-export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-
-export interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  status: TaskStatus;
-  priority: TaskPriority;
-  assigneeId?: string;
-  projectId?: string;
-  dueDate?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Project {
+export interface RecognizedDevice {
   id: string;
   name: string;
-  description?: string;
-  ownerId: string;
-  teamId: string;
-  status: 'ACTIVE' | 'COMPLETED' | 'ON_HOLD';
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Time Tracking Types
-export interface ClockEvent {
-  id: string;
-  userId: string;
-  type: 'CLOCK_IN' | 'CLOCK_OUT';
-  timestamp: string;
-  note?: string;
-}
-
-export interface TimesheetEntry {
-  id: string;
-  userId: string;
-  date: string;
-  clockIn?: string;
-  clockOut?: string;
-  totalHours: number;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
-}
-
-// API Response Types
-export interface ApiResponse<T> {
-  data: T;
-  message?: string;
-  success: boolean;
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-}
-
-// Form Types
-export interface LoginForm {
-  email: string;
-  password: string;
-}
-
-export interface TaskForm {
-  title: string;
-  description?: string;
-  status: TaskStatus;
-  priority: TaskPriority;
-  assigneeId?: string;
-  projectId?: string;
-  dueDate?: string;
-}
-
-// UI Types
-export interface MenuItem {
-  id: string;
-  title: string;
-  path: string;
-  icon?: React.ComponentType;
-  children?: MenuItem[];
-}
-
-export interface Theme {
-  mode: 'light' | 'dark';
-  primaryColor: string;
+  location: string;
+  lastActive: string;
+  deviceType: 'desktop' | 'mobile' | 'tablet';
 }

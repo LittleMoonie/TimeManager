@@ -9,6 +9,7 @@ This document outlines the caching strategy, background job processing, and real
 ### Redis Architecture
 
 **Technology Stack**:
+
 - **Redis**: 7+ with clustering support
 - **Connection Pooling**: ioredis with connection management
 - **Serialization**: JSON with compression for large objects
@@ -75,17 +76,17 @@ export class CacheService {
 
     // Fetch from database
     const data = await fetcher();
-    
+
     // Store in both caches
     await this.set(key, data, ttl);
-    
+
     return data;
   }
 
   async set(key: string, data: any, ttl: number = 300): Promise<void> {
     // Store in Redis
     await this.redis.setex(key, ttl, JSON.stringify(data));
-    
+
     // Store in local cache
     this.localCache.set(key, {
       data,
@@ -109,13 +110,13 @@ export class CacheKeys {
     return `user_sessions:${userId}`;
   }
 
-  // Organization data
-  static organization(id: string): string {
-    return `org:${id}`;
+  // Company data
+  static company(id: string): string {
+    return `company:${id}`;
   }
 
-  static organizationMembers(orgId: string): string {
-    return `org_members:${orgId}`;
+  static companyMembers(companyId: string): string {
+    return `company_members:${companyId}`;
   }
 
   // Project data
@@ -176,42 +177,39 @@ export class CacheInvalidationService {
     const patterns = [
       CacheKeys.user(userId),
       CacheKeys.userSessions(userId),
-      `org_members:*`, // Invalidate all org member caches
+      `company_members:*`, // Invalidate all company member caches
       `project_tasks:*`, // Invalidate all project task caches
     ];
 
-    await Promise.all(patterns.map(pattern => this.invalidatePattern(pattern)));
+    await Promise.all(patterns.map((pattern) => this.invalidatePattern(pattern)));
   }
 
-  // Organization data invalidation
-  async invalidateOrganization(orgId: string): Promise<void> {
+  // Company data invalidation
+  async invalidateCompany(companyId: string): Promise<void> {
     const patterns = [
-      CacheKeys.organization(orgId),
-      CacheKeys.organizationMembers(orgId),
-      `project:${orgId}:*`,
+      CacheKeys.company(companyId),
+      CacheKeys.companyMembers(companyId),
+      `project:${companyId}:*`,
       `project_tasks:*`,
     ];
 
-    await Promise.all(patterns.map(pattern => this.invalidatePattern(pattern)));
+    await Promise.all(patterns.map((pattern) => this.invalidatePattern(pattern)));
   }
 
   // Project data invalidation
   async invalidateProject(projectId: string): Promise<void> {
-    const patterns = [
-      CacheKeys.project(projectId),
-      CacheKeys.projectTasks(projectId),
-    ];
+    const patterns = [CacheKeys.project(projectId), CacheKeys.projectTasks(projectId)];
 
-    await Promise.all(patterns.map(pattern => this.invalidatePattern(pattern)));
+    await Promise.all(patterns.map((pattern) => this.invalidatePattern(pattern)));
   }
 
   // TTL-based refresh
   async refreshExpiringKeys(): Promise<void> {
     const keys = await this.redis.keys('*');
-    
+
     for (const key of keys) {
       const ttl = await this.redis.ttl(key);
-      
+
       // Refresh keys that expire in less than 60 seconds
       if (ttl > 0 && ttl < 60) {
         await this.refreshKey(key);
@@ -224,9 +222,9 @@ export class CacheInvalidationService {
     if (key.startsWith('user:')) {
       const userId = key.split(':')[1];
       // Refresh user data
-    } else if (key.startsWith('org:')) {
-      const orgId = key.split(':')[1];
-      // Refresh organization data
+    } else if (key.startsWith('company:')) {
+      const companyId = key.split(':')[1];
+      // Refresh Company data
     }
   }
 }
@@ -293,7 +291,7 @@ export interface ReportJobData {
 export class JobProcessor {
   static async processEmail(job: Job<EmailJobData>): Promise<void> {
     const { to, subject, template, data } = job.data;
-    
+
     try {
       await emailService.sendEmail({
         to,
@@ -301,7 +299,7 @@ export class JobProcessor {
         template,
         data,
       });
-      
+
       await job.updateProgress(100);
     } catch (error) {
       throw new Error(`Email sending failed: ${error.message}`);
@@ -310,7 +308,7 @@ export class JobProcessor {
 
   static async processNotification(job: Job<NotificationJobData>): Promise<void> {
     const { userId, type, message, metadata } = job.data;
-    
+
     try {
       await notificationService.createNotification({
         userId,
@@ -318,13 +316,13 @@ export class JobProcessor {
         message,
         metadata,
       });
-      
+
       // Send real-time notification
       await realtimeService.sendToUser(userId, {
         type: 'notification',
         data: { type, message, metadata },
       });
-      
+
       await job.updateProgress(100);
     } catch (error) {
       throw new Error(`Notification processing failed: ${error.message}`);
@@ -333,16 +331,16 @@ export class JobProcessor {
 
   static async processReport(job: Job<ReportJobData>): Promise<void> {
     const { userId, reportType, parameters, format } = job.data;
-    
+
     try {
       await job.updateProgress(10);
-      
+
       const data = await reportService.generateReport(reportType, parameters);
       await job.updateProgress(50);
-      
+
       const file = await reportService.exportReport(data, format);
       await job.updateProgress(80);
-      
+
       await reportService.sendReportToUser(userId, file);
       await job.updateProgress(100);
     } catch (error) {
@@ -389,7 +387,7 @@ export class WorkerManager {
     this.workers = [emailWorker, notificationWorker, reportWorker];
 
     // Error handling
-    this.workers.forEach(worker => {
+    this.workers.forEach((worker) => {
       worker.on('failed', (job, err) => {
         console.error(`Job ${job?.id} failed:`, err);
       });
@@ -401,7 +399,7 @@ export class WorkerManager {
   }
 
   async stopWorkers(): Promise<void> {
-    await Promise.all(this.workers.map(worker => worker.close()));
+    await Promise.all(this.workers.map((worker) => worker.close()));
   }
 }
 ```
@@ -433,7 +431,7 @@ export class JobScheduler {
         type: 'exponential' | 'fixed';
         delay: number;
       };
-    }
+    },
   ): Promise<Job<T>> {
     const queue = this.queues.get(queueName);
     if (!queue) {
@@ -456,7 +454,7 @@ export class JobScheduler {
     queueName: string,
     jobType: string,
     data: T,
-    cronExpression: string
+    cronExpression: string,
   ): Promise<void> {
     const queue = this.queues.get(queueName);
     if (!queue) {
@@ -477,7 +475,7 @@ export class JobScheduler {
       'cleanup',
       JobType.CLEANUP_OLD_DATA,
       { type: 'daily' },
-      '0 2 * * *'
+      '0 2 * * *',
     );
 
     // Weekly backup on Sunday at 3 AM
@@ -485,7 +483,7 @@ export class JobScheduler {
       'cleanup',
       JobType.BACKUP_DATABASE,
       { type: 'weekly' },
-      '0 3 * * 0'
+      '0 3 * * 0',
     );
   }
 }
@@ -527,17 +525,12 @@ export class DeadLetterQueueService {
 
   async retryFailedJob(jobData: any): Promise<void> {
     const { originalQueue, originalJobType, originalData } = jobData;
-    
+
     // Retry the original job
-    await jobScheduler.scheduleJob(
-      originalQueue,
-      originalJobType,
-      originalData,
-      {
-        attempts: 1, // Single retry attempt
-        priority: 10, // High priority for retries
-      }
-    );
+    await jobScheduler.scheduleJob(originalQueue, originalJobType, originalData, {
+      attempts: 1, // Single retry attempt
+      priority: 10, // High priority for retries
+    });
   }
 }
 ```
@@ -585,8 +578,8 @@ export class RealtimeService {
           if (user) {
             socket.userId = user.id;
             socket.join(`user:${user.id}`);
-            socket.join(`org:${user.organizationId}`);
-            
+            socket.join(`company:${user.companyId}`);
+
             socket.emit('authenticated', { userId: user.id });
           } else {
             socket.emit('authentication_failed');
@@ -625,7 +618,7 @@ export class RealtimeService {
 
     this.redisSubscriber.on('message', (channel, message) => {
       const data = JSON.parse(message);
-      
+
       switch (channel) {
         case 'realtime:notifications':
           this.handleNotificationBroadcast(data);
@@ -645,9 +638,9 @@ export class RealtimeService {
     this.io.to(`user:${userId}`).emit('message', message);
   }
 
-  // Send message to organization
-  async sendToOrganization(orgId: string, message: any): Promise<void> {
-    this.io.to(`org:${orgId}`).emit('message', message);
+  // Send message to Company
+  async sendToCompany(companyId: string, message: any): Promise<void> {
+    this.io.to(`company:${companyId}`).emit('message', message);
   }
 
   // Send message to project
@@ -694,11 +687,11 @@ export class RealtimeService {
     // Implement JWT token validation
     const authService = new AuthService();
     const payload = await authService.validateAccessToken(token);
-    
+
     if (payload) {
       return await authService.getUserById(payload.userId);
     }
-    
+
     return null;
   }
 }
@@ -708,20 +701,22 @@ export class RealtimeService {
 
 ```typescript
 // Real-time event handlers
-export class RealtimeEventHandler {
-  private realtimeService: RealtimeService;
-  private redis: Redis;
+import { Service } from 'typedi';
+import { AppDataSource } from '../../Server/Database';
+import { Task } from '../../Entities/Timesheets/Task'; // Assuming Task entity exists
+import User from '../../Entities/Users/User';
+import { RealtimeService } from './RealtimeService'; // Assuming RealtimeService is in the same directory
 
-  constructor(realtimeService: RealtimeService) {
-    this.realtimeService = realtimeService;
-    this.redis = new Redis(process.env.REDIS_URL!);
-  }
+@Service()
+export class RealtimeEventHandler {
+  constructor(private readonly realtimeService: RealtimeService) {}
 
   // Handle task updates
   async handleTaskUpdate(taskId: string, update: any): Promise<void> {
-    const task = await prisma.task.findUnique({
+    const taskRepository = AppDataSource.getRepository(Task);
+    const task = await taskRepository.findOne({
       where: { id: taskId },
-      include: { project: true },
+      relations: ['project'],
     });
 
     if (task) {
@@ -751,14 +746,15 @@ export class RealtimeEventHandler {
 
   // Handle user status changes
   async handleUserStatusChange(userId: string, status: string): Promise<void> {
-    const user = await prisma.user.findUnique({
+    const userRepository = AppDataSource.getRepository(User);
+    const user = await userRepository.findOne({
       where: { id: userId },
-      include: { organizationMembers: true },
+      relations: ['companyMembers'], // Assuming this relation exists on User entity
     });
 
     if (user) {
-      // Notify organization members
-      for (const member of user.organizationMembers) {
+      // Notify company members
+      for (const member of user.companyMembers) {
         await this.realtimeService.publishToRedis('realtime:users', {
           userId: member.userId,
           update: {
@@ -773,13 +769,14 @@ export class RealtimeEventHandler {
 
   // Handle project creation
   async handleProjectCreated(projectId: string): Promise<void> {
-    const project = await prisma.project.findUnique({
+    const projectRepository = AppDataSource.getRepository(Project); // Assuming Project entity exists
+    const project = await projectRepository.findOne({
       where: { id: projectId },
-      include: { organization: { include: { members: true } } },
+      relations: ['company.members'], // Assuming company relation with members exists
     });
 
     if (project) {
-      // Notify organization members
+      // Notify company members
       await this.realtimeService.publishToRedis('realtime:projects', {
         projectId,
         update: {
@@ -876,4 +873,4 @@ export class QueueMetrics {
 
 ---
 
-*This caching, queuing, and real-time strategy provides scalable, performant, and responsive user experiences while maintaining system reliability.*
+_This caching, queuing, and real-time strategy provides scalable, performant, and responsive user experiences while maintaining system reliability._

@@ -16,6 +16,7 @@ https://api.ncy-8.com/api/v2/users
 ```
 
 **Advantages**:
+
 - Clear and explicit version identification
 - Easy to implement and understand
 - Supports multiple concurrent versions
@@ -57,18 +58,21 @@ v1.0 (Stable)     v1.1 (Stable)     v2.0 (Stable)
 ### Compatibility Levels
 
 **Full Compatibility**:
+
 - No breaking changes
 - All existing functionality preserved
 - New optional fields only
 - Response format unchanged
 
 **Partial Compatibility**:
+
 - Some breaking changes with migration path
 - Deprecated fields marked but functional
 - New required fields with defaults
 - Response format evolution
 
 **No Compatibility**:
+
 - Major breaking changes
 - Complete API redesign
 - New major version required
@@ -78,6 +82,7 @@ v1.0 (Stable)     v1.1 (Stable)     v2.0 (Stable)
 **What Constitutes Breaking Changes**:
 
 1. **Removing Fields**:
+
    ```json
    // v1.0
    {
@@ -85,7 +90,7 @@ v1.0 (Stable)     v1.1 (Stable)     v2.0 (Stable)
      "name": "John",
      "email": "john@example.com"
    }
-   
+
    // v2.0 (Breaking)
    {
      "id": "123",
@@ -95,12 +100,13 @@ v1.0 (Stable)     v1.1 (Stable)     v2.0 (Stable)
    ```
 
 2. **Changing Field Types**:
+
    ```json
    // v1.0
    {
      "age": "25"
    }
-   
+
    // v2.0 (Breaking)
    {
      "age": 25
@@ -108,9 +114,10 @@ v1.0 (Stable)     v1.1 (Stable)     v2.0 (Stable)
    ```
 
 3. **Changing Endpoint Behavior**:
+
    ```typescript
-   // v1.0: GET /users returns all users
-   // v2.0: GET /users requires organization filter
+   // v1.0: DELETE /users returns all users
+   // v2.0: DELETE /users requires Company filter
    ```
 
 4. **Removing Endpoints**:
@@ -124,12 +131,13 @@ v1.0 (Stable)     v1.1 (Stable)     v2.0 (Stable)
 ### Deprecation Process
 
 1. **Announcement** (6 months before removal):
+
    ```http
    HTTP/1.1 200 OK
    Content-Type: application/json
    X-API-Deprecation: v1.0
    X-API-Sunset: 2024-12-31
-   
+
    {
      "data": {...},
      "deprecation": {
@@ -141,6 +149,7 @@ v1.0 (Stable)     v1.1 (Stable)     v2.0 (Stable)
    ```
 
 2. **Warning Headers**:
+
    ```http
    X-API-Warning: 299 - "v1.0 is deprecated, migrate to v2.0"
    ```
@@ -156,12 +165,12 @@ v1.0 (Stable)     v1.1 (Stable)     v2.0 (Stable)
 
 ### Deprecation Timeline
 
-| Phase | Duration | Actions |
-|-------|----------|---------|
+| Phase        | Duration | Actions                              |
+| ------------ | -------- | ------------------------------------ |
 | Announcement | 6 months | Add deprecation headers, update docs |
-| Warning | 3 months | Increase warning frequency |
-| Final Notice | 1 month | Final migration reminders |
-| Removal | - | Endpoint disabled, 410 response |
+| Warning      | 3 months | Increase warning frequency           |
+| Final Notice | 1 month  | Final migration reminders            |
+| Removal      | -        | Endpoint disabled, 410 response      |
 
 ## Version Negotiation
 
@@ -189,12 +198,12 @@ GET /api/versions HTTP/1.1
       "version": "v1.0",
       "status": "deprecated",
       "sunset_date": "2024-12-31",
-      "endpoints": ["/users", "/organizations"]
+      "endpoints": ["/users", "/companies"]
     },
     {
       "version": "v2.0",
       "status": "stable",
-      "endpoints": ["/users", "/organizations", "/projects"]
+      "endpoints": ["/users", "/companies", "/projects"]
     }
   ]
 }
@@ -206,25 +215,25 @@ GET /api/versions HTTP/1.1
 
 ```typescript
 // SDK versioning
-const client = new NCY8Client({
+const client = new GoGoTimeClient({
   apiVersion: 'v2.0',
-  baseUrl: 'https://api.ncy-8.com'
+  baseUrl: 'https://api.gogotime.com',
 });
 
 // Automatic version negotiation
-const client = new NCY8Client({
+const client = new GoGoTimeClient({
   apiVersion: 'auto', // Uses latest stable
-  baseUrl: 'https://api.ncy-8.com'
+  baseUrl: 'https://api.gogotime.com',
 });
 ```
 
 ### SDK Compatibility Matrix
 
 | SDK Version | API v1.0 | API v1.1 | API v2.0 |
-|-------------|----------|----------|----------|
-| 1.x | ✅ | ✅ | ❌ |
-| 2.x | ✅ | ✅ | ✅ |
-| 3.x | ❌ | ✅ | ✅ |
+| ----------- | -------- | -------- | -------- |
+| 1.x         | ✅       | ✅       | ❌       |
+| 2.x         | ✅       | ✅       | ✅       |
+| 3.x         | ❌       | ✅       | ✅       |
 
 ## Changelog Management
 
@@ -254,21 +263,26 @@ jobs:
 ## [2.0.0] - 2024-01-15
 
 ### Added
+
 - New project management endpoints
 - Webhook support for real-time updates
 - Bulk operations for user management
 
 ### Changed
-- User creation now requires organization context
+
+- User creation now requires Company context
 - Response format updated for consistency
 
 ### Deprecated
+
 - Legacy authentication endpoints (removed in v3.0)
 
 ### Removed
+
 - Support for API v1.0 (end of life)
 
 ### Fixed
+
 - Pagination cursor handling
 - Timezone handling in date fields
 ```
@@ -277,12 +291,13 @@ jobs:
 
 ### Client Migration Guide
 
-```markdown
+````markdown
 # Migrating from v1.0 to v2.0
 
 ## Breaking Changes
 
 ### User Creation
+
 ```typescript
 // v1.0
 POST /api/v1/users
@@ -296,11 +311,13 @@ POST /api/v2/users
 {
   "name": "John Doe",
   "email": "john@example.com",
-  "organization_id": "org_123" // Required
+  "companyId": "org_123" // Required
 }
 ```
+````
 
 ### Response Format
+
 ```typescript
 // v1.0
 {
@@ -323,17 +340,18 @@ POST /api/v2/users
 ## Migration Steps
 
 1. Update SDK to v2.0 compatible version
-2. Update authentication to include organization context
+2. Update authentication to include Company context
 3. Update response parsing to handle new format
 4. Test thoroughly in staging environment
 5. Deploy with feature flags for gradual rollout
-```
+
+````
 
 ### Automated Migration Tools
 
 ```typescript
 // Migration helper
-class APIMigrator {
+class GoGoTimeAPIMigrator {
   async migrateUser(userData: UserData): Promise<User> {
     if (this.apiVersion === 'v1.0') {
       return this.createUserV1(userData);
@@ -341,16 +359,16 @@ class APIMigrator {
       return this.createUserV2(userData);
     }
   }
-  
+
   async createUserV2(userData: UserData): Promise<User> {
-    // Ensure organization_id is present
-    if (!userData.organization_id) {
-      throw new Error('organization_id required in v2.0');
+    // Ensure companyId is present
+    if (!userData.companyId) {
+      throw new Error('companyId required in v2.0');
     }
     return this.api.post('/api/v2/users', userData);
   }
 }
-```
+````
 
 ## Testing Strategy
 
@@ -364,7 +382,7 @@ describe('API Version Compatibility', () => {
     const users = await client.users.list();
     expect(users).toBeDefined();
   });
-  
+
   test('should handle deprecated version warnings', async () => {
     const client = new NCY8Client({ apiVersion: 'v1.0' });
     const response = await client.users.list();
@@ -379,23 +397,21 @@ describe('API Version Compatibility', () => {
 // API contract tests
 describe('API Contracts', () => {
   test('v2.0 user response contract', async () => {
-    const response = await request(app)
-      .get('/api/v2/users/user_123')
-      .expect(200);
-      
+    const response = await request(app).get('/api/v2/users/user_123').expect(200);
+
     expect(response.body).toMatchSchema({
       type: 'object',
       required: ['data', 'meta'],
       properties: {
         data: {
           type: 'object',
-          required: ['id', 'name', 'email']
+          required: ['id', 'name', 'email'],
         },
         meta: {
           type: 'object',
-          required: ['created_at']
-        }
-      }
+          required: ['created_at'],
+        },
+      },
     });
   });
 });
@@ -411,13 +427,13 @@ const versionMetrics: Record<string, VersionMetrics> = {
   'v1.0': {
     requests: 15000,
     users: 500,
-    endpoints: ['/users', '/organizations']
+    endpoints: ['/users', '/companies'],
   },
   'v2.0': {
     requests: 25000,
     users: 800,
-    endpoints: ['/users', '/organizations', '/projects']
-  }
+    endpoints: ['/users', '/companies', '/projects'],
+  },
 };
 ```
 
@@ -430,7 +446,7 @@ const migrationStatus: MigrationStatus = {
   migrated_to_v2: 750,
   still_on_v1: 250,
   migration_deadline: '2024-12-31',
-  progress_percentage: 75
+  progress_percentage: 75,
 };
 ```
 
@@ -468,18 +484,25 @@ The GoGoTime API uses **tsoa** for automated OpenAPI specification generation di
 
 ```typescript
 // Example: Controller with tsoa decorators
-@Route('users')
-@Tags('Users')
-export class UserController extends Controller {
+// App.API/Controllers/Authentication/AuthenticationController.ts (Simplified)
+import { Body, Controller, Post, Route, Tags, SuccessResponse } from 'tsoa';
+import { RegisterDto } from '../../Dtos/Authentication/AuthenticationDto';
+import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
+
+@Route('auth')
+@Tags('Authentication')
+export class AuthenticationController extends Controller {
   @Post('/register')
-  @SuccessResponse('200', 'User registered successfully')
-  public async registerUser(@Body() requestBody: RegisterUserRequest): Promise<RegisterResponse> {
+  @SuccessResponse('201', 'User registered successfully')
+  public async register(@Body() requestBody: RegisterDto): Promise<UserResponseDto> {
     // Implementation
+    return {} as UserResponseDto;
   }
 }
 ```
 
 **Benefits**:
+
 - Single source of truth between code and documentation
 - Automatic schema generation from TypeScript DTOs
 - No manual YAML/JSON maintenance
@@ -497,10 +520,8 @@ jobs:
   generate-api-spec:
     runs-on: ubuntu-latest
     steps:
-      - name: Generate OpenAPI Spec
-        run: cd App.API && yarn api:generate
-      - name: Generate Frontend SDK
-        run: cd App.Web && yarn api:client
+      - name: Generate OpenAPI Spec and Frontend SDK
+        run: cd App.API && yarn api:sync
       - name: Commit Updates
         run: git commit -m "chore(api): auto-update OpenAPI spec and SDK"
 ```
@@ -517,26 +538,25 @@ import { apiClient } from '@/lib/api/apiClient';
 // Type-safe API calls
 const result = await apiClient.register({
   email: 'user@example.com',
-  password: 'secure123'
+  password: 'secure123',
 });
 ```
 
 ### Documentation Endpoints
 
-| Endpoint | Purpose | Environment |
-|----------|---------|-------------|
-| `/api/docs` | Interactive Swagger UI | Development |
-| `/api/health` | Health check endpoint | All |
-| `App.API/swagger.json` | Generated OpenAPI spec | All |
+| Endpoint                        | Purpose                     | Environment |
+| ------------------------------- | --------------------------- | ----------- |
+| `/api/docs`                     | Interactive Swagger UI      | Development |
+| `/api/health`                   | Health check endpoint       | All         |
+| `App.API/swagger.json`          | Generated OpenAPI spec      | All         |
 | `App.Web/src/lib/api/client.ts` | Generated TypeScript client | Development |
 
 ### Development Workflow
 
 1. **Update API Routes**: Modify controllers with tsoa decorators
-2. **Generate Spec**: Run `yarn api:generate` in App.API
-3. **Generate Client**: Run `yarn api:client` in App.Web
-4. **Validate**: Check TypeScript compilation and tests
-5. **Commit**: Changes trigger CI/CD auto-generation
+2. **Generate Spec and Client**: Run `yarn api:sync` in App.API
+3. **Validate**: Check TypeScript compilation and tests
+4. **Commit**: Changes trigger CI/CD auto-generation
 
 ### Validation and Quality Assurance
 
@@ -547,4 +567,4 @@ const result = await apiClient.register({
 
 ---
 
-*This versioning strategy ensures smooth API evolution while maintaining backward compatibility and providing clear migration paths for API consumers. The automated OpenAPI generation system maintains documentation accuracy and provides type-safe client SDKs.*
+_This versioning strategy ensures smooth API evolution while maintaining backward compatibility and providing clear migration paths for API consumers. The automated OpenAPI generation system maintains documentation accuracy and provides type-safe client SDKs._

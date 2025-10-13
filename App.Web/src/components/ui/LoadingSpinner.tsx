@@ -24,4 +24,3 @@ export const LoadingSpinner = ({ message = 'Loading...', size = 40 }: LoadingSpi
     </Box>
   );
 };
-
