@@ -84,12 +84,12 @@ const createRowFromEntry = (code: ActionCode['id'], entry: TimesheetEntry): DayE
   country: entry.location.country,
   note: entry.note ?? '',
   intervals:
-    entry.intervals?.map((interval: TimesheetEntry['intervals'][number]) => ({
-      start: ensureMeridianTime(interval.start),
-      end: ensureMeridianTime(interval.end),
-    })) ?? [],
+    entry.startedAt && entry.endedAt ? [{
+      start: ensureMeridianTime(entry.startedAt),
+      end: ensureMeridianTime(entry.endedAt),
+    }] : [],
   existing: true,
-  sent: entry.sent,
+    sent: entry.,
   deficitReason: entry.deficitReason,
 });
 

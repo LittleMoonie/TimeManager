@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { AuthenticationService, LoginDto, UserResponse } from '@/lib/api';
 
 interface AuthResult {
@@ -62,7 +63,7 @@ export const useAuth = () => {
 
   return {
     user,
-    isLoading: loginMutation.isPending || logoutMutation.isPending,
+    isLoading: isLoading || loginMutation.isPending || logoutMutation.isPending,
     error,
     isAuthenticated,
     login,

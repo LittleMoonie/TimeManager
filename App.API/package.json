@@ -4,7 +4,6 @@
   "private": true,
   "author": "Lazaro, Alexy, Massi, Lounis",
   "description": "API for T-DEV-700 Project for Epitech",
-  "main": "build/index.js",
   "scripts": {
     "eslint": "...",
     "eslint-*": "...",
@@ -13,7 +12,7 @@
     "@typescript-eslint/*": "...",
     "husky": "...",
     "test": "jest --coverage --runInBand --detectOpenHandles",
-    "dev": "ts-node-dev --respawn --transpile-only index.ts",
+    "dev": "ts-node-dev --respawn --transpile-only ./index.ts",
     "seed": "ts-node server/seed.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "pm2 start ecosystem.config.cjs --only GoGoTime-API",
@@ -23,10 +22,12 @@
     "migrate:show": "yarn typeorm migration:show -d ./Server/Database.ts",
     "migrate:up": "yarn typeorm migration:run -d ./Server/Database.ts",
     "migrate:down": "yarn typeorm migration:revert -d ./Server/Database.ts",
+    "api:client": "yarn dlx openapi-typescript-codegen --input swagger.json --output ../App.Web/src/lib/api --client axios --useOptions",
     "api:generate": "ts-node -r tsconfig-paths/register ./node_modules/.bin/tsoa routes && ts-node -r tsconfig-paths/register ./node_modules/.bin/tsoa spec",
     "api:sync": "yarn api:generate && cd ../App.Web && yarn api:client"
   },
   "dependencies": {
+    "@tsoa/runtime": "^6.6.0",
     "@types/uuid": "^11.0.0",
     "argon2": "^0.44.0",
     "bcryptjs": "^3.0.2",
@@ -82,6 +83,5 @@
   },
   "eslintConfig": {
     "extends": "../../eslint.config.js"
-  },
-  "prettier": "../../.prettierrc.json"
+  }
 }

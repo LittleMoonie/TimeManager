@@ -1,33 +1,35 @@
 {
-  "name": "gogotime-monorepo",
+  "name": "gogotime",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "App.API",
-    "App.Web"
-  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "husky install",
     "format": "prettier --write \"{App.API,App.Web}/**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\" \"./*.{js,json,md,yml,yaml}\" --ignore-path .gitignore --config ./.prettierrc.json --ignore-unknown --exclude '**/package.json'",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
-    "typecheck": "tsc --noEmit"
+  "typecheck:web": "yarn tsc -p App.Web/tsconfig.json --noEmit --skipLibCheck",
+  "typecheck:api": "yarn tsc -p App.API/tsconfig.json --noEmit --skipLibCheck",
+  "typecheck": "yarn typecheck:web && yarn typecheck:api"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
+    "@eslint/compat": "^1.4.0",
     "@typescript-eslint/eslint-plugin": "^8.3.0",
     "@typescript-eslint/parser": "^8.3.0",
-    "eslint": "^9.7.0",
-    "eslint-config-prettier": "^9.1.0",
+    "eslint": "9",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-promise": "^7.0.0",
     "eslint-plugin-react": "^7.34.3",
     "eslint-plugin-react-hooks": "^4.6.2",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.7",
     "pinst": "^3.0.0",
-    "prettier": "^3.3.3"
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0"
   },
   "packageManager": "yarn@4.10.3",
   "engines": {
