@@ -539,33 +539,6 @@ export default {
 };
 ```
 
-## SonarQube Integration
-
-SonarQube is integrated into our CI/CD pipeline to perform static code analysis, identify bugs, vulnerabilities, and code smells, and ensure adherence to coding standards.
-
-### Configuration
-
-- **`sonar-project.properties`**: Located at the root of the monorepo, this file defines the project's properties for SonarQube, including source directories, exclusions, and language.
-- **GitHub Actions**: The `pr-validation.yml` workflow triggers a SonarQube analysis on every pull request.
-
-### Analysis Process
-
-1.  **Code Checkout**: The GitHub Actions workflow checks out the full Git history.
-2.  **Dependency Installation**: Project dependencies are installed.
-3.  **Testing & Coverage**: Unit and integration tests are run, generating `lcov.info` coverage reports for both `App.API` and `App.Web`.
-4.  **SonarQube Scan**: The SonarScanner CLI is executed, analyzing the codebase and sending the results to the configured SonarQube server.
-5.  **Quality Gate**: SonarQube's Quality Gate evaluates the analysis results. If the Quality Gate fails (e.g., new critical issues, low coverage), the GitHub Actions workflow will fail, blocking the pull request from being merged.
-
-### Key Benefits
-
-- **Early Detection**: Identifies issues early in the development cycle.
-- **Improved Code Quality**: Enforces coding standards and best practices.
-- **Enhanced Security**: Detects potential security vulnerabilities.
-- **Technical Debt Management**: Helps track and manage technical debt.
-- **Automated Feedback**: Provides automated feedback on code changes directly in pull requests.
-
-
-
 ## Code Review Guidelines
 
 ### Review Checklist
