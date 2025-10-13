@@ -3,7 +3,8 @@ import { validate } from "class-validator";
 
 import { TeamRepository } from "../../Repositories/Companies/TeamRepository";
 import { TeamMemberRepository } from "../../Repositories/Companies/TeamMemberRepository";
-import { Team, TeamMember } from "../../Entities/Companies/Team";
+import { Team } from "../../Entities/Companies/Team";
+import { TeamMember } from "../../Entities/Companies/TeamMember";
 import {
   ForbiddenError,
   NotFoundError,

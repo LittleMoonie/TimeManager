@@ -27,6 +27,10 @@ import {
 
 @Route("auth")
 @Tags("Authentication")
+/**
+ * @summary Controller for handling user authentication, including registration, login, and logout.
+ * @tags Authentication
+ */
 @Service()
 export class AuthenticationController extends Controller {
   constructor(private authenticationService: AuthenticationService) {

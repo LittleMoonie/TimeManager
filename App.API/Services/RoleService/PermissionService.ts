@@ -182,8 +182,15 @@ export class PermissionService {
     currentUser: User,
     permissionId: string,
   ): Promise<void> {
-    if (!(await this.rolePermissionService.checkPermission(currentUser, "delete_permission"))) {
-      throw new ForbiddenError("User does not have permission to delete permissions.");
+    if (
+      !(await this.rolePermissionService.checkPermission(
+        currentUser,
+        "delete_permission",
+      ))
+    ) {
+      throw new ForbiddenError(
+        "User does not have permission to delete permissions.",
+      );
     }
 
     const permission = await this.getPermissionById(companyId, permissionId);

@@ -133,10 +133,11 @@ docker compose up --watch
 **Problem**: API calls return 401 Unauthorized
 
 **Solutions**:
-1. **Check JWT secret**:
+1. **Check JWT secrets**:
    ```bash
-   # Ensure SECRET is set in .env
-   grep SECRET .env
+   # Ensure JWT_SECRET and JWT_REFRESH_SECRET are set in .env
+   grep JWT_SECRET .env
+   grep JWT_REFRESH_SECRET .env
    ```
 
 2. **Token format**:
@@ -151,7 +152,7 @@ docker compose up --watch
    ```bash
    # Check token in database
    docker exec -it gogotime-db psql -U postgres -d gogotime_dev
-   SELECT * FROM active_session;
+   SELECT * FROM active_sessions;
    ```
 
 ## 🌐 Frontend Issues
@@ -217,7 +218,7 @@ docker compose up --watch
 2. **Check entity definitions**:
    ```typescript
    // Ensure entities are properly exported
-   // App.API/src/models/user.ts
+   // App.API/src/entities/Users/User.ts
    export default class User extends BaseEntity { ... }
    ```
 

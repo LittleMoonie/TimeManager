@@ -222,7 +222,7 @@ export class UserService {
    * @throws {ForbiddenError} If the current user does not have 'view_user' permission and is not the target user.
    * @throws {NotFoundError} If the user is not found within the specified company.
    */
-  async getUser(
+  async getUserById(
     companyId: string,
     userId: string,
     currentUser: User,

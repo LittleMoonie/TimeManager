@@ -6,15 +6,26 @@ This document defines the code quality standards, development practices, and too
 
 ## Monorepo Structure
 
-### pnpm Workspace Configuration
+### Yarn Workspace Configuration
 
-```yaml
-# pnpm-workspace.yaml
-packages:
-  - 'App.Web'
-  - 'App.API'
-  - 'shared'
-  - 'packages/*'
+Our project utilizes Yarn workspaces for managing multiple packages within a single repository. This allows for shared dependencies, simplified development, and consistent tooling across `App.API` and `App.Web`.
+
+```json
+// package.json (root)
+{
+  "private": true,
+  "workspaces": [
+    "App.API",
+    "App.Web"
+  ],
+  "scripts": {
+    "dev": "concurrently \"yarn workspace App.Web dev\" \"yarn workspace App.API dev\"",
+    "build": "yarn workspaces run build",
+    "test": "yarn workspaces run test",
+    "lint": "yarn workspaces run lint",
+    "typecheck": "yarn workspaces run typecheck"
+  }
+}
 ```
 
 ### Package Management
@@ -28,24 +39,29 @@ packages:
 
 ### ESLint Configuration
 
+Our ESLint configuration is defined in `eslint.config.js` files at the root of `App.API` and `App.Web` directories. This allows for tailored linting rules for each part of the monorepo.
+
 ```javascript
-// .eslintrc.js
-module.exports = {
-  extends: [
-    'react-hooks/recommended',
-    '@typescript-eslint/recommended',
-    'prettier'
-  ],
-  plugins: ['@typescript-eslint', 'import'],
-  rules: {
-    '@typescript-eslint/no-unused-vars': 'error',
-    '@typescript-eslint/explicit-function-return-type': 'warn',
-    'import/order': ['error', {
-      'groups': ['builtin', 'external', 'internal', 'parent', 'sibling'],
-      'newlines-between': 'always'
-    }]
-  }
-};
+// App.API/eslint.config.js (Simplified)
+import globals from "globals";
+import pluginJs from "@eslint/js";
+import tseslint from "typescript-eslint";
+import prettierConfig from "eslint-config-prettier";
+
+export default [
+  { files: ["**/*.{js,ts}"] },
+  { languageOptions: { globals: globals.node } },
+  pluginJs.configs.recommended,
+  ...tseslint.configs.recommended,
+  prettierConfig,
+  {
+    rules: {
+      // Custom rules or overrides
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/explicit-function-return-type": "off", // Often inferred
+    },
+  },
+];
 ```
 
 ### Prettier Configuration
@@ -247,15 +263,13 @@ describe('POST /api/v1/users', () => {
 ```typescript
 /**
  * Creates a new user account with the provided data
- * @param userData - User registration data
- * @param options - Additional options for user creation
+ * @param userData - User registration data (CreateUserDto)
  * @returns Promise resolving to the created user
- * @throws {ValidationError} When user data is invalid
- * @throws {ConflictError} When user already exists
+ * @throws {UnprocessableEntityError} When user data is invalid or email already exists
+ * @throws {NotFoundError} If related entities (e.g., default status) are not found
  */
 async function createUser(
-  userData: CreateUserData,
-  options?: CreateUserOptions
+  userData: CreateUserDto,
 ): Promise<User> {
   // Implementation
 }
@@ -343,17 +357,34 @@ getTTFB(console.log);
 
 ### Code Security
 
-```typescript
-// Input validation with Zod
-const userSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/),
-  name: z.string().min(1).max(100)
-});
+Input validation is critical for security. We use `class-validator` decorators on our DTOs to ensure incoming data adheres to expected formats and constraints.
 
-// Sanitization
-import DOMPurify from 'dompurify';
-const sanitizedHtml = DOMPurify.sanitize(userInput);
+```typescript
+// Input validation with class-validator (example from DTO)
+import { IsEmail, IsString, MinLength, IsNotEmpty } from "class-validator";
+
+export class CreateUserDto {
+  @IsEmail()
+  email!: string;
+
+  @IsString()
+  @MinLength(6)
+  password!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  firstName!: string;
+}
+```
+
+Sanitization is applied where user-generated content might be rendered to prevent XSS attacks.
+
+```typescript
+// Sanitization (conceptual example)
+import { sanitize } from 'dompurify';
+
+const userInput = "<script>alert('xss')</script>";
+const sanitizedHtml = sanitize(userInput);
 ```
 
 ## Automation & CI/CD

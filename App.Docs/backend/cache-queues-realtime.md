@@ -110,12 +110,12 @@ export class CacheKeys {
   }
 
   // Company data
-  static Company(id: string): string {
-    return `org:${id}`;
+  static company(id: string): string {
+    return `company:${id}`;
   }
 
-  static CompanyMembers(orgId: string): string {
-    return `org_members:${orgId}`;
+  static companyMembers(companyId: string): string {
+    return `company_members:${companyId}`;
   }
 
   // Project data
@@ -176,7 +176,7 @@ export class CacheInvalidationService {
     const patterns = [
       CacheKeys.user(userId),
       CacheKeys.userSessions(userId),
-      `org_members:*`, // Invalidate all org member caches
+      `company_members:*`, // Invalidate all company member caches
       `project_tasks:*`, // Invalidate all project task caches
     ];
 
@@ -184,11 +184,11 @@ export class CacheInvalidationService {
   }
 
   // Company data invalidation
-  async invalidateCompany(orgId: string): Promise<void> {
+  async invalidateCompany(companyId: string): Promise<void> {
     const patterns = [
-      CacheKeys.Company(orgId),
-      CacheKeys.CompanyMembers(orgId),
-      `project:${orgId}:*`,
+      CacheKeys.company(companyId),
+      CacheKeys.companyMembers(companyId),
+      `project:${companyId}:*`,
       `project_tasks:*`,
     ];
 
@@ -224,8 +224,8 @@ export class CacheInvalidationService {
     if (key.startsWith('user:')) {
       const userId = key.split(':')[1];
       // Refresh user data
-    } else if (key.startsWith('org:')) {
-      const orgId = key.split(':')[1];
+    } else if (key.startsWith('company:')) {
+      const companyId = key.split(':')[1];
       // Refresh Company data
     }
   }
@@ -585,7 +585,7 @@ export class RealtimeService {
           if (user) {
             socket.userId = user.id;
             socket.join(`user:${user.id}`);
-            socket.join(`org:${user.CompanyId}`);
+            socket.join(`company:${user.companyId}`);
             
             socket.emit('authenticated', { userId: user.id });
           } else {
@@ -646,8 +646,8 @@ export class RealtimeService {
   }
 
   // Send message to Company
-  async sendToCompany(orgId: string, message: any): Promise<void> {
-    this.io.to(`org:${orgId}`).emit('message', message);
+  async sendToCompany(companyId: string, message: any): Promise<void> {
+    this.io.to(`company:${companyId}`).emit('message', message);
   }
 
   // Send message to project
@@ -708,14 +708,15 @@ export class RealtimeService {
 
 ```typescript
 // Real-time event handlers
-export class RealtimeEventHandler {
-  private realtimeService: RealtimeService;
-  private redis: Redis;
+import { Service } from "typedi";
+import { AppDataSource } from "../../Server/Database";
+import { Task } from "../../Entities/Timesheets/Task"; // Assuming Task entity exists
+import User from "../../Entities/Users/User";
+import { RealtimeService } from "./RealtimeService"; // Assuming RealtimeService is in the same directory
 
-  constructor(realtimeService: RealtimeService) {
-    this.realtimeService = realtimeService;
-    this.redis = new Redis(process.env.REDIS_URL!);
-  }
+@Service()
+export class RealtimeEventHandler {
+  constructor(private readonly realtimeService: RealtimeService) {}
 
   // Handle task updates
   async handleTaskUpdate(taskId: string, update: any): Promise<void> {
@@ -755,12 +756,12 @@ export class RealtimeEventHandler {
     const userRepository = AppDataSource.getRepository(User);
     const user = await userRepository.findOne({
       where: { id: userId },
-      relations: ['CompanyMembers'],
+      relations: ['companyMembers'], // Assuming this relation exists on User entity
     });
 
     if (user) {
-      // Notify Company members
-      for (const member of user.CompanyMembers) {
+      // Notify company members
+      for (const member of user.companyMembers) {
         await this.realtimeService.publishToRedis('realtime:users', {
           userId: member.userId,
           update: {
@@ -775,14 +776,14 @@ export class RealtimeEventHandler {
 
   // Handle project creation
   async handleProjectCreated(projectId: string): Promise<void> {
-    const projectRepository = AppDataSource.getRepository(Project);
+    const projectRepository = AppDataSource.getRepository(Project); // Assuming Project entity exists
     const project = await projectRepository.findOne({
       where: { id: projectId },
-      relations: ['Company.members'],
+      relations: ['company.members'], // Assuming company relation with members exists
     });
 
     if (project) {
-      // Notify Company members
+      // Notify company members
       await this.realtimeService.publishToRedis('realtime:projects', {
         projectId,
         update: {

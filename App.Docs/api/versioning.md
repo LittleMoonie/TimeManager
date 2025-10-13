@@ -110,7 +110,7 @@ v1.0 (Stable)     v1.1 (Stable)     v2.0 (Stable)
 3. **Changing Endpoint Behavior**:
    ```typescript
    // v1.0: DELETE /users returns all users
-   // v2.0: DELETE /users requires Organization filter
+   // v2.0: DELETE /users requires Company filter
    ```
 
 4. **Removing Endpoints**:
@@ -189,12 +189,12 @@ GET /api/versions HTTP/1.1
       "version": "v1.0",
       "status": "deprecated",
       "sunset_date": "2024-12-31",
-      "endpoints": ["/users", "/Companys"]
+      "endpoints": ["/users", "/companies"]
     },
     {
       "version": "v2.0",
       "status": "stable",
-      "endpoints": ["/users", "/Companys", "/projects"]
+      "endpoints": ["/users", "/companies", "/projects"]
     }
   ]
 }
@@ -206,15 +206,15 @@ GET /api/versions HTTP/1.1
 
 ```typescript
 // SDK versioning
-const client = new NCY8Client({
+const client = new GoGoTimeClient({
   apiVersion: 'v2.0',
-  baseUrl: 'https://api.ncy-8.com'
+  baseUrl: 'https://api.gogotime.com'
 });
 
 // Automatic version negotiation
-const client = new NCY8Client({
+const client = new GoGoTimeClient({
   apiVersion: 'auto', // Uses latest stable
-  baseUrl: 'https://api.ncy-8.com'
+  baseUrl: 'https://api.gogotime.com'
 });
 ```
 
@@ -296,7 +296,7 @@ POST /api/v2/users
 {
   "name": "John Doe",
   "email": "john@example.com",
-  "organization_id": "org_123" // Required
+  "companyId": "org_123" // Required
 }
 ```
 
@@ -333,7 +333,7 @@ POST /api/v2/users
 
 ```typescript
 // Migration helper
-class APIMigrator {
+class GoGoTimeAPIMigrator {
   async migrateUser(userData: UserData): Promise<User> {
     if (this.apiVersion === 'v1.0') {
       return this.createUserV1(userData);
@@ -343,9 +343,9 @@ class APIMigrator {
   }
   
   async createUserV2(userData: UserData): Promise<User> {
-    // Ensure Company_id is present
-    if (!userData.organization_id) {
-      throw new Error('organization_id required in v2.0');
+    // Ensure companyId is present
+    if (!userData.companyId) {
+      throw new Error('companyId required in v2.0');
     }
     return this.api.post('/api/v2/users', userData);
   }
@@ -411,12 +411,12 @@ const versionMetrics: Record<string, VersionMetrics> = {
   'v1.0': {
     requests: 15000,
     users: 500,
-    endpoints: ['/users', '/Companys']
+    endpoints: ['/users', '/companies']
   },
   'v2.0': {
     requests: 25000,
     users: 800,
-    endpoints: ['/users', '/Companys', '/projects']
+    endpoints: ['/users', '/companies', '/projects']
   }
 };
 ```
@@ -468,13 +468,21 @@ The GoGoTime API uses **tsoa** for automated OpenAPI specification generation di
 
 ```typescript
 // Example: Controller with tsoa decorators
-@Route('users')
-@Tags('Users')
-export class UserController extends Controller {
-  @Post('/register')
-  @SuccessResponse('200', 'User registered successfully')
-  public async registerUser(@Body() requestBody: RegisterUserRequest): Promise<RegisterResponse> {
+// App.API/Controllers/Authentication/AuthenticationController.ts (Simplified)
+import { Body, Controller, Post, Route, Tags, SuccessResponse } from "tsoa";
+import { RegisterDto } from "../../Dtos/Authentication/AuthenticationDto";
+import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
+
+@Route("auth")
+@Tags("Authentication")
+export class AuthenticationController extends Controller {
+  @Post("/register")
+  @SuccessResponse("201", "User registered successfully")
+  public async register(
+    @Body() requestBody: RegisterDto,
+  ): Promise<UserResponseDto> {
     // Implementation
+    return {} as UserResponseDto;
   }
 }
 ```

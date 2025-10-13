@@ -88,7 +88,7 @@ export class ActionCodeService {
    * @description Searches for action codes within a specific company based on a query string.
    * @param companyId The unique identifier of the company.
    * @param q Optional: The query string to search for in action code names or codes.
-   * @returns A Promise that resolves to an array of matching ActionCode entities.
+   * @returns {Promise<ActionCode[]>} A Promise that resolves to an array of matching ActionCode entities.
    */
   public async search(companyId: string, q?: string): Promise<ActionCode[]> {
     return this.actionCodeRepository.search(companyId, q);

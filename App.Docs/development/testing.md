@@ -34,175 +34,143 @@ This document outlines the comprehensive testing strategy for the NCY_8 platform
 
 ### Jest Configuration
 
+Our backend unit and integration tests are configured using Jest. The `jest.config.js` file in `App.API` defines how tests are discovered, run, and how coverage is collected.
+
 ```javascript
-// jest.config.js
+// App.API/jest.config.js
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  roots: ['<rootDir>/src', '<rootDir>/tests'],
-  testMatch: [
-    '**/__tests__/**/*.+(ts|tsx|js)',
-    '**/*.(test|spec).+(ts|tsx|js)'
-  ],
+  preset: "ts-jest",
+  testEnvironment: "node",
+  moduleFileExtensions: ["js", "json", "ts"],
+  rootDir: "src",
+  testRegex: ".*\\.spec\\.ts$",
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest'
+    "^.+\\.(ts)$": "ts-jest",
   },
-  collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/index.ts'
+  collectCoverageFrom: ["**/*.(t|j)s"],
+  coverageDirectory: "../coverage",
+  coveragePathIgnorePatterns: [
+    ".interface.ts",
+    ".enum.ts",
+    ".dto.ts",
+    ".module.ts",
+    ".mock.ts",
+    ".config.ts",
+    ".entity.ts",
+    ".factory.ts",
+    ".schema.ts",
+    ".spec.ts",
+    ".e2e-spec.ts",
+    "main.ts",
+    "index.ts",
+    "Server/Database.ts",
+    "Server/IoC.ts",
+    "Server/Auth.ts",
+    "Server/Seed.ts",
+    "Config/",
+    "Errors/",
+    "Middlewares/",
+    "Migrations/",
+    "Repositories/",
+    "Routes/",
+    "Seeds/",
+    "Utils/Logger.ts",
   ],
-  coverageThreshold: {
-    global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80
-    }
-  },
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   testTimeout: 10000,
-  verbose: true
+  verbose: true,
+  setupFilesAfterEnv: ["../jest.setup.ts"],
+  moduleNameMapper: {
+    "^@App.API/(.*)$": "<rootDir>/$1",
+  },
 };
 ```
 
 ### Service Layer Tests
 
+Service layer tests focus on the business logic in isolation from controllers and repositories. We use Jest for these tests.
+
 ```typescript
-// tests/services/user.service.test.ts
-import { UserService } from '@/services/user.service';
-import { AppDataSource } from '@/data-source';
-import { User } from '@/entities/User';
-import { hashPassword } from '@/utils/auth';
+// App.API/Services/AuthenticationService/AuthenticationService.spec.ts (Simplified)
+import { AuthenticationService } from "@App.API/Services/AuthenticationService/AuthenticationService";
+import { AuthenticationRepository } from "@App.API/Repositories/Authentication/AuthenticationRepository";
+import { UserStatusService } from "@App.API/Services/Users/UserStatusService";
+import { ActiveSessionService } from "@App.API/Services/Users/ActiveSessionService";
+import { LoginDto, RegisterDto } from "@App.API/Dtos/Authentication/AuthenticationDto";
+import User from "@App.API/Entities/Users/User";
+import { AuthenticationError, NotFoundError } from "@App.API/Errors/HttpErrors";
+import * as argon2 from "argon2";
 
-jest.mock('@/data-source');
-jest.mock('@/utils/auth');
+// Mock dependencies
+jest.mock("@App.API/Repositories/Authentication/AuthenticationRepository");
+jest.mock("@App.API/Services/Users/UserStatusService");
+jest.mock("@App.API/Services/Users/ActiveSessionService");
+jest.mock("argon2");
 
-const mockUserRepository = AppDataSource.getRepository(User);
-const mockHashPassword = hashPassword as jest.MockedFunction<typeof hashPassword>;
-
-describe('UserService', () => {
-  let userService: UserService;
+describe("AuthenticationService", () => {
+  let authenticationService: AuthenticationService;
+  let authRepo: jest.Mocked<AuthenticationRepository>;
+  let userStatusService: jest.Mocked<UserStatusService>;
+  let activeSessionService: jest.Mocked<ActiveSessionService>;
 
   beforeEach(() => {
-    userService = new UserService();
-    jest.clearAllMocks();
+    authRepo = new AuthenticationRepository(null as any, null as any) as jest.Mocked<AuthenticationRepository>;
+    userStatusService = new UserStatusService(null as any) as jest.Mocked<UserStatusService>;
+    activeSessionService = new ActiveSessionService(null as any) as jest.Mocked<ActiveSessionService>;
+
+    authenticationService = new AuthenticationService(
+      authRepo,
+      userStatusService,
+      activeSessionService,
+    );
+
+    // Mock argon2.verify
+    (argon2.verify as jest.Mock).mockResolvedValue(true);
   });
 
-  describe('createUser', () => {
-    it('should create user with valid data', async () => {
-      // Arrange
-      const userData = {
-        email: 'test@example.com',
-        password: 'SecurePass123!',
-        name: 'Test User',
-        role: 'EMPLOYEE' as const,
+  describe("register", () => {
+    it("should register a new user successfully", async () => {
+      const registerDto: RegisterDto = {
+        email: "test@example.com",
+        password: "password123",
+        firstName: "Test",
+        lastName: "User",
+        companyId: "company-uuid",
+        roleId: "role-uuid",
+        statusId: "status-uuid",
+        phoneNumber: "+1234567890",
       };
 
-      mockHashPassword.mockResolvedValue('hashedPassword');
-      (mockUserRepository.save as jest.Mock).mockResolvedValue({
-        id: 'user-123',
-        email: userData.email,
-        passwordHash: 'hashedPassword',
-        name: userData.name,
-        role: userData.role,
-        status: 'ACTIVE',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        deletedAt: null,
-      });
+      authRepo.findUserByEmailWithAuthRelations.mockResolvedValue(null);
+      userStatusService.getUserStatusByCode.mockResolvedValue({ id: "status-uuid", code: "ACTIVE", name: "Active", canLogin: true, isTerminal: false });
+      authRepo.saveUser.mockImplementation(async (user: User) => user);
 
-      // Act
-      const result = await userService.createUser(userData);
+      const user = await authenticationService.register(registerDto);
 
-      // Assert
-      expect(mockHashPassword).toHaveBeenCalledWith(userData.password);
-      expect(mockUserRepository.save).toHaveBeenCalledWith({
-        email: userData.email,
-        passwordHash: 'hashedPassword',
-        name: userData.name,
-        role: userData.role,
-        status: 'ACTIVE',
-      });
-      expect(result.email).toBe(userData.email);
-      expect(result.passwordHash).toBe('hashedPassword');
+      expect(user.email).toBe(registerDto.email);
+      expect(authRepo.saveUser).toHaveBeenCalled();
     });
 
-    it('should throw error for duplicate email', async () => {
-      // Arrange
-      const userData = {
-        email: 'existing@example.com',
-        password: 'SecurePass123!',
-        name: 'Test User',
-        role: 'EMPLOYEE' as const,
+    it("should throw AuthenticationError if email already exists", async () => {
+      const registerDto: RegisterDto = {
+        email: "test@example.com",
+        password: "password123",
+        firstName: "Test",
+        lastName: "User",
+        companyId: "company-uuid",
+        roleId: "role-uuid",
+        statusId: "status-uuid",
+        phoneNumber: "+1234567890",
       };
 
-      (mockUserRepository.save as jest.Mock).mockRejectedValue({
-        code: '23505', // PostgreSQL unique violation error code
-        detail: 'Key (email)=(existing@example.com) already exists.',
-      });
+      authRepo.findUserByEmailWithAuthRelations.mockResolvedValue(new User());
 
-      // Act & Assert
-      await expect(userService.createUser(userData)).rejects.toThrow(
-        'User with this email already exists'
-      );
-    });
-
-    it('should validate email format', async () => {
-      // Arrange
-      const userData = {
-        email: 'invalid-email',
-        password: 'SecurePass123!',
-        name: 'Test User',
-        role: 'EMPLOYEE' as const,
-      };
-
-      // Act & Assert
-      await expect(userService.createUser(userData)).rejects.toThrow(
-        'Invalid email format'
+      await expect(authenticationService.register(registerDto)).rejects.toThrow(
+        AuthenticationError,
       );
     });
   });
 
-  describe('getUserById', () => {
-    it('should return user when found', async () => {
-      // Arrange
-      const userId = 'user-123';
-      const mockUser = {
-        id: userId,
-        email: 'test@example.com',
-        name: 'Test User',
-        role: 'EMPLOYEE' as const,
-        status: 'ACTIVE' as const,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        deletedAt: null,
-      };
-
-      (mockUserRepository.findOne as jest.Mock).mockResolvedValue(mockUser);
-
-      // Act
-      const result = await userService.getUserById(userId);
-
-      // Assert
-      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
-        where: { id: userId },
-      });
-      expect(result).toEqual(mockUser);
-    });
-
-    it('should return null when user not found', async () => {
-      // Arrange
-      const userId = 'non-existent';
-      (mockUserRepository.findOne as jest.Mock).mockResolvedValue(null);
-
-      // Act
-      const result = await userService.getUserById(userId);
-
-      // Assert
-      expect(result).toBeNull();
-    });
-  });
+  // ... other tests for login, logout, etc.
 });
 ```
 
@@ -386,355 +354,212 @@ describe('Validation Utils', () => {
 
 ### API Endpoint Tests
 
-```typescript
-// tests/integration/api/users.test.ts
-import request from 'supertest';
-import { app } from '@/app';
-import { AppDataSource } from '@/data-source';
-import { User } from '@/entities/User';
-import { Organization } from '@/entities/Organization';
-import { generateTestToken } from '@/tests/utils/auth';
+API endpoint tests verify the integration between controllers, services, and repositories. We use `supertest` with Jest to simulate HTTP requests.
 
-describe('Users API', () => {
-  let adminToken: string;
-  let employeeToken: string;
+```typescript
+// App.API/Tests/Controllers/Authentication/AuthenticationController.test.ts (Simplified)
+import request from "supertest";
+import { app } from "../../Server/index"; // Assuming 'app' is your Express app instance
+import { AppDataSource } from "../../Server/Database";
+import User from "../../Entities/Users/User";
+import { UserStatus } from "../../Entities/Users/UserStatus";
+import { Role } from "../../Entities/Roles/Role";
+import { Company } from "../../Entities/Companies/Company";
+import * as argon2 from "argon2";
+
+describe("AuthenticationController", () => {
+  let testUser: User;
+  let testCompany: Company;
+  let testRole: Role;
+  let testStatus: UserStatus;
 
   beforeAll(async () => {
-    adminToken = await generateTestToken('ADMIN');
-    employeeToken = await generateTestToken('EMPLOYEE');
+    await AppDataSource.initialize();
+
+    // Create a test company
+    testCompany = await AppDataSource.getRepository(Company).save({
+      name: "Test Company",
+    });
+
+    // Create a test role
+    testRole = await AppDataSource.getRepository(Role).save({
+      name: "Employee",
+      companyId: testCompany.id,
+    });
+
+    // Create a test user status
+    testStatus = await AppDataSource.getRepository(UserStatus).save({
+      code: "ACTIVE",
+      name: "Active",
+      canLogin: true,
+    });
+  });
+
+  afterAll(async () => {
+    await AppDataSource.destroy();
   });
 
   beforeEach(async () => {
-    // Clean up database
+    // Clear user data before each test
     await AppDataSource.getRepository(User).clear();
-    await AppDataSource.getRepository(Organization).clear();
   });
 
-  describe('GET /api/v1/users', () => {
-    it('should return users for admin', async () => {
-      // Arrange
-      const userRepository = AppDataSource.getRepository(User);
-      const testUser = await userRepository.save({
-        email: 'test@example.com',
-        passwordHash: 'hashedPassword',
-        name: 'Test User',
-        role: 'EMPLOYEE',
+  describe("POST /auth/register", () => {
+    it("should register a new user", async () => {
+      const res = await request(app).post("/auth/register").send({
+        email: "test@example.com",
+        password: "password123",
+        firstName: "Test",
+        lastName: "User",
+        companyId: testCompany.id,
+        roleId: testRole.id,
+        statusId: testStatus.id,
+        phoneNumber: "+1234567890",
       });
 
-      // Act
-      const response = await request(app)
-        .get('/api/v1/users')
-        .set('Authorization', `Bearer ${adminToken}`)
-        .expect(200);
-
-      // Assert
-      expect(response.body.data).toHaveLength(1);
-      expect(response.body.data[0].email).toBe(testUser.email);
-      expect(response.body.data[0].passwordHash).toBeUndefined();
+      expect(res.statusCode).toEqual(201);
+      expect(res.body).toHaveProperty("id");
+      expect(res.body.email).toEqual("test@example.com");
     });
 
-    it('should return 403 for non-admin users', async () => {
-      await request(app)
-        .get('/api/v1/users')
-        .set('Authorization', `Bearer ${employeeToken}`)
-        .expect(403);
-    });
+    it("should return 422 if email already exists", async () => {
+      await AppDataSource.getRepository(User).save({
+        email: "test@example.com",
+        passwordHash: await argon2.hash("password123"),
+        firstName: "Existing",
+        lastName: "User",
+        companyId: testCompany.id,
+        roleId: testRole.id,
+        statusId: testStatus.id,
+        phoneNumber: "+1234567890",
+      });
 
-    it('should return 401 without authentication', async () => {
-      await request(app)
-        .get('/api/v1/users')
-        .expect(401);
-    });
+      const res = await request(app).post("/auth/register").send({
+        email: "test@example.com",
+        password: "newpassword",
+        firstName: "New",
+        lastName: "User",
+        companyId: testCompany.id,
+        roleId: testRole.id,
+        statusId: testStatus.id,
+        phoneNumber: "+1234567890",
+      });
 
-    it('should support pagination', async () => {
-      // Arrange - create multiple users
-      const userRepository = AppDataSource.getRepository(User);
-      for (let i = 0; i < 25; i++) {
-        await userRepository.save({
-          email: `user${i}@example.com`,
-          passwordHash: 'hashedPassword',
-          name: `User ${i}`,
-          role: 'EMPLOYEE',
-        });
-      }
-
-      // Act
-      const response = await request(app)
-        .get('/api/v1/users?page=1&limit=10')
-        .set('Authorization', `Bearer ${adminToken}`)
-        .expect(200);
-
-      // Assert
-      expect(response.body.data).toHaveLength(10);
-      expect(response.body.pagination.page).toBe(1);
-      expect(response.body.pagination.limit).toBe(10);
-      expect(response.body.pagination.total).toBe(25);
+      expect(res.statusCode).toEqual(422);
+      expect(res.body.message).toContain("Validation error");
     });
   });
 
-  describe('POST /api/v1/users', () => {
-    it('should create user with valid data', async () => {
-      const userData = {
-        email: 'newuser@example.com',
-        password: 'SecurePass123!',
-        name: 'New User',
-        role: 'EMPLOYEE',
-      };
-
-      const response = await request(app)
-        .post('/api/v1/users')
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send(userData)
-        .expect(201);
-
-      expect(response.body.data.email).toBe(userData.email);
-      expect(response.body.data.name).toBe(userData.name);
-      expect(response.body.data.passwordHash).toBeUndefined();
-
-      // Verify user was created in database
-      const userRepository = AppDataSource.getRepository(User);
-      const createdUser = await userRepository.findOne({
-        where: { email: userData.email },
-      });
-      expect(createdUser).toBeTruthy();
-      expect(createdUser?.name).toBe(userData.name);
-    });
-
-    it('should return 400 for invalid data', async () => {
-      const invalidData = {
-        email: 'invalid-email',
-        password: 'weak',
-        name: '',
-        role: 'INVALID',
-      };
-
-      const response = await request(app)
-        .post('/api/v1/users')
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send(invalidData)
-        .expect(400);
-
-      expect(response.body.error).toBe('Validation failed');
-      expect(response.body.details).toContainEqual(
-        expect.objectContaining({
-          field: 'email',
-          message: expect.stringContaining('Invalid email format'),
-        })
-      );
-    });
-
-    it('should return 409 for duplicate email', async () => {
-      // Arrange
-      const userRepository = AppDataSource.getRepository(User);
-      await userRepository.save({
-        email: 'existing@example.com',
-        passwordHash: 'hashedPassword',
-        name: 'Existing User',
-        role: 'EMPLOYEE',
-      });
-
-      const userData = {
-        email: 'existing@example.com',
-        password: 'SecurePass123!',
-        name: 'New User',
-        role: 'EMPLOYEE',
-      };
-
-      // Act & Assert
-      await request(app)
-        .post('/api/v1/users')
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send(userData)
-        .expect(409);
-    });
-  });
-
-  describe('PUT /api/v1/users/:id', () => {
-    it('should update user with valid data', async () => {
-      // Arrange
-      const userRepository = AppDataSource.getRepository(User);
-      const user = await userRepository.save({
-        email: 'test@example.com',
-        passwordHash: 'hashedPassword',
-        name: 'Test User',
-        role: 'EMPLOYEE',
-      });
-
-      const updateData = {
-        name: 'Updated Name',
-        role: 'MANAGER',
-      };
-
-      // Act
-      const response = await request(app)
-        .put(`/api/v1/users/${user.id}`)
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send(updateData)
-        .expect(200);
-
-      // Assert
-      expect(response.body.data.name).toBe(updateData.name);
-      expect(response.body.data.role).toBe(updateData.role);
-
-      // Verify database was updated
-      const updatedUser = await userRepository.findOne({
-        where: { id: user.id },
-      });
-      expect(updatedUser?.name).toBe(updateData.name);
-      expect(updatedUser?.role).toBe(updateData.role);
-    });
-
-    it('should return 404 for non-existent user', async () => {
-      const updateData = {
-        name: 'Updated Name',
-      };
-
-      await request(app)
-        .put('/api/v1/users/non-existent-id')
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send(updateData)
-        .expect(404);
-    });
-  });
-
-  describe('DELETE /api/v1/users/:id', () => {
-    it('should soft delete user', async () => {
-      // Arrange
-      const userRepository = AppDataSource.getRepository(User);
-      const user = await userRepository.save({
-        email: 'test@example.com',
-        passwordHash: 'hashedPassword',
-        name: 'Test User',
-        role: 'EMPLOYEE',
-      });
-
-      // Act
-      await request(app)
-        .delete(`/api/v1/users/${user.id}`)
-        .set('Authorization', `Bearer ${adminToken}`)
-        .expect(204);
-
-      // Assert - user should be soft deleted
-      const deletedUser = await userRepository.findOne({
-        where: { id: user.id },
-        withDeleted: true, // Include soft deleted records
-      });
-      expect(deletedUser?.deletedAt).toBeTruthy();
-
-      // User should not appear in regular queries
-      const users = await userRepository.find();
-      expect(users).toHaveLength(0);
-    });
-  });
+  // ... other tests for login, logout, etc.
 });
 ```
 
 ### Database Integration Tests
 
-```typescript
-// tests/integration/database/user.repository.test.ts
-import { UserRepository } from '@/repositories/user.repository';
-import { AppDataSource } from '@/data-source';
-import { User } from '@/entities/User';
-import { createTestDatabase, cleanupTestDatabase } from '@/tests/utils/database';
+Database integration tests verify the interaction between repositories and the database. We use Jest and TypeORM's `AppDataSource` for these tests.
 
-describe('UserRepository', () => {
+```typescript
+// App.API/Repositories/Users/UserRepository.test.ts (Simplified)
+import { UserRepository } from "@App.API/Repositories/Users/UserRepository";
+import { AppDataSource } from "../../Server/Database";
+import User from "@App.API/Entities/Users/User";
+import { Company } from "@App.API/Entities/Companies/Company";
+import { Role } from "@App.API/Entities/Roles/Role";
+import { UserStatus } from "@App.API/Entities/Users/UserStatus";
+import * as argon2 from "argon2";
+
+describe("UserRepository", () => {
   let userRepository: UserRepository;
-  let dataSource: AppDataSource;
+  let testCompany: Company;
+  let testRole: Role;
+  let testStatus: UserStatus;
 
   beforeAll(async () => {
-    dataSource = await createTestDatabase();
-    userRepository = new UserRepository(dataSource.getRepository(User));
+    await AppDataSource.initialize();
+
+    testCompany = await AppDataSource.getRepository(Company).save({
+      name: "Test Company",
+    });
+    testRole = await AppDataSource.getRepository(Role).save({
+      name: "Employee",
+      companyId: testCompany.id,
+    });
+    testStatus = await AppDataSource.getRepository(UserStatus).save({
+      code: "ACTIVE",
+      name: "Active",
+      canLogin: true,
+    });
+
+    userRepository = new UserRepository(AppDataSource.getRepository(User));
   });
 
   afterAll(async () => {
-    await cleanupTestDatabase(dataSource);
+    await AppDataSource.destroy();
   });
 
   beforeEach(async () => {
-    await dataSource.getRepository(User).clear();
+    await AppDataSource.getRepository(User).clear();
   });
 
-  describe('findByEmail', () => {
-    it('should find user by email', async () => {
-      // Arrange
-      const user = await dataSource.getRepository(User).save({
-        email: 'test@example.com',
-        passwordHash: 'hashedPassword',
-        name: 'Test User',
-        role: 'EMPLOYEE',
+  describe("findByEmailInCompany", () => {
+    it("should find user by email and company ID", async () => {
+      const user = await AppDataSource.getRepository(User).save({
+        email: "test@example.com",
+        passwordHash: await argon2.hash("password123"),
+        firstName: "Test",
+        lastName: "User",
+        companyId: testCompany.id,
+        roleId: testRole.id,
+        statusId: testStatus.id,
+        phoneNumber: "+1234567890",
       });
 
-      // Act
-      const result = await userRepository.findByEmail('test@example.com');
+      const foundUser = await userRepository.findByEmailInCompany(
+        "test@example.com",
+        testCompany.id,
+      );
 
-      // Assert
-      expect(result).toBeTruthy();
-      expect(result?.email).toBe(user.email);
+      expect(foundUser).toBeDefined();
+      expect(foundUser?.email).toEqual(user.email);
     });
 
-    it('should return null for non-existent email', async () => {
-      const result = await userRepository.findByEmail('nonexistent@example.com');
-      expect(result).toBeNull();
-    });
-  });
-
-  describe('findActiveUsers', () => {
-    it('should return only active users', async () => {
-      // Arrange
-      await dataSource.getRepository(User).save([
-          {
-            email: 'active1@example.com',
-            passwordHash: 'hashedPassword',
-            name: 'Active User 1',
-            role: 'EMPLOYEE',
-            status: 'ACTIVE',
-          },
-          {
-            email: 'active2@example.com',
-            passwordHash: 'hashedPassword',
-            name: 'Active User 2',
-            role: 'EMPLOYEE',
-            status: 'ACTIVE',
-          },
-          {
-            email: 'inactive@example.com',
-            passwordHash: 'hashedPassword',
-            name: 'Inactive User',
-            role: 'EMPLOYEE',
-            status: 'INACTIVE',
-          },
-        ]);
-
-      // Act
-      const result = await userRepository.findActiveUsers();
-
-      // Assert
-      expect(result).toHaveLength(2);
-      expect(result.every(user => user.status === 'ACTIVE')).toBe(true);
+    it("should return null if user not found in company", async () => {
+      const foundUser = await userRepository.findByEmailInCompany(
+        "nonexistent@example.com",
+        testCompany.id,
+      );
+      expect(foundUser).toBeNull();
     });
   });
 
-  describe('updateLastLogin', () => {
-    it('should update last login timestamp', async () => {
-      // Arrange
-      const user = await dataSource.getRepository(User).save({
-        email: 'test@example.com',
-        passwordHash: 'hashedPassword',
-        name: 'Test User',
-        role: 'EMPLOYEE',
-      });
+  describe("findAllByCompanyId", () => {
+    it("should return all users for a given company ID", async () => {
+      await AppDataSource.getRepository(User).save([
+        {
+          email: "user1@example.com",
+          passwordHash: await argon2.hash("password123"),
+          firstName: "User",
+          lastName: "One",
+          companyId: testCompany.id,
+          roleId: testRole.id,
+          statusId: testStatus.id,
+          phoneNumber: "+1234567890",
+        },
+        {
+          email: "user2@example.com",
+          passwordHash: await argon2.hash("password123"),
+          firstName: "User",
+          lastName: "Two",
+          companyId: testCompany.id,
+          roleId: testRole.id,
+          statusId: testStatus.id,
+          phoneNumber: "+1234567890",
+        },
+      ]);
 
-      const loginTime = new Date();
-
-      // Act
-      await userRepository.updateLastLogin(user.id, loginTime);
-
-      // Assert
-      const updatedUser = await dataSource.getRepository(User).findOne({
-        where: { id: user.id },
-      });
-      expect(updatedUser?.lastLoginAt).toEqual(loginTime);
+      const users = await userRepository.findAllByCompanyId(testCompany.id);
+      expect(users).toHaveLength(2);
+      expect(users[0].companyId).toEqual(testCompany.id);
     });
   });
 });
@@ -1386,119 +1211,200 @@ describe('Authentication Security', () => {
 });
 ```
 
-## Test Utilities
-
 ### Test Helpers
 
-```typescript
-// tests/utils/test-helpers.ts
-import { DataSource } from 'typeorm';
-import { User } from '@/entities/User';
-import { Organization } from '@/entities/Organization';
-import jwt from 'jsonwebtoken';
+Test helpers provide utility functions for setting up and tearing down test environments, and generating test data.
 
-export const createTestDatabase = async (): Promise<DataSource> => {
+```typescript
+// App.API/Tests/TestHelper.ts (Simplified)
+import { DataSource } from "typeorm";
+import User from "../Entities/Users/User";
+import { Company } from "../Entities/Companies/Company";
+import { Role } from "../Entities/Roles/Role";
+import { UserStatus } from "../Entities/Users/UserStatus";
+import * as jwt from "jsonwebtoken";
+
+export const createTestDataSource = async (): Promise<DataSource> => {
   const dataSource = new DataSource({
-    type: 'postgres',
-    host: process.env.TEST_DB_HOST || 'localhost',
-    port: parseInt(process.env.TEST_DB_PORT || '5432'),
-    username: process.env.TEST_DB_USERNAME || 'postgres',
-    password: process.env.TEST_DB_PASSWORD || 'postgres',
-    database: process.env.TEST_DB_DATABASE || 'ncy8_test',
-    synchronize: true,
+    type: "postgres",
+    host: process.env.DB_HOST || "localhost",
+    port: parseInt(process.env.DB_PORT || "5432"),
+    username: process.env.DB_USER || "postgres",
+    password: process.env.DB_PASS || "postgres",
+    database: process.env.DB_NAME || "gogotime_test",
+    synchronize: true, // Use synchronize for test databases
     logging: false,
-    entities: [User, Organization /* ... other entities */],
+    entities: [User, Company, Role, UserStatus], // Include all relevant entities
   });
 
   await dataSource.initialize();
   return dataSource;
 };
 
-export const cleanupTestDatabase = async (dataSource: DataSource) => {
-  // Clear all data from tables
-  await dataSource.getRepository(User).clear();
-  await dataSource.getRepository(Organization).clear();
-  // ... clear other entities
-
+export const cleanupTestDataSource = async (dataSource: DataSource) => {
+  await dataSource.dropDatabase();
   await dataSource.destroy();
 };
 
-export const generateTestToken = async (role: string = 'EMPLOYEE') => {
+export const generateTestToken = (userId: string, companyId: string, roleName: string) => {
   return jwt.sign(
     {
-      userId: 'test-user-id',
-      email: 'test@example.com',
-      role,
-      organizationId: 'test-org-id',
+      id: userId,
+      companyId: companyId,
+      role: roleName,
     },
     process.env.JWT_SECRET!,
-    { expiresIn: '1h' }
+    { expiresIn: "1h" },
   );
 };
 
-export const generateExpiredToken = () => {
+export const generateExpiredToken = (userId: string, companyId: string, roleName: string) => {
   return jwt.sign(
     {
-      userId: 'test-user-id',
-      email: 'test@example.com',
-      role: 'EMPLOYEE',
+      id: userId,
+      companyId: companyId,
+      role: roleName,
     },
     process.env.JWT_SECRET!,
-    { expiresIn: '-1h' } // Expired token
+    { expiresIn: "-1h" }, // Expired token
   );
 };
 
-export const createTestUser = async (dataSource: DataSource, overrides: any = {}) => {
+export const createTestUser = async (dataSource: DataSource, company: Company, role: Role, status: UserStatus, overrides: Partial<User> = {}) => {
   const userRepository = dataSource.getRepository(User);
-  return userRepository.save({
-    email: 'test@example.com',
-    passwordHash: 'hashedPassword',
-    name: 'Test User',
-    role: 'EMPLOYEE',
+  const user = userRepository.create({
+    email: `testuser-${Date.now()}@example.com`,
+    passwordHash: await argon2.hash("password123"),
+    firstName: "Test",
+    lastName: "User",
+    companyId: company.id,
+    roleId: role.id,
+    statusId: status.id,
+    phoneNumber: "+1234567890",
     ...overrides,
   });
+  return userRepository.save(user);
 };
 
-export const createTestOrganization = async (dataSource: DataSource, overrides: any = {}) => {
-  const organizationRepository = dataSource.getRepository(Organization);
-  return organizationRepository.save({
-    name: 'Test Organization',
-    slug: 'test-org',
-    ownerId: 'test-user-id',
+export const createTestCompany = async (dataSource: DataSource, overrides: Partial<Company> = {}) => {
+  const companyRepository = dataSource.getRepository(Company);
+  const company = companyRepository.create({
+    name: `Test Company ${Date.now()}`,
     ...overrides,
   });
+  return companyRepository.save(company);
+};
+
+export const createTestRole = async (dataSource: DataSource, company: Company, overrides: Partial<Role> = {}) => {
+  const roleRepository = dataSource.getRepository(Role);
+  const role = roleRepository.create({
+    name: `Test Role ${Date.now()}`,
+    companyId: company.id,
+    ...overrides,
+  });
+  return roleRepository.save(role);
+};
+
+export const createTestUserStatus = async (dataSource: DataSource, overrides: Partial<UserStatus> = {}) => {
+  const userStatusRepository = dataSource.getRepository(UserStatus);
+  const status = userStatusRepository.create({
+    code: `STATUS_${Date.now()}`,
+    name: `Test Status ${Date.now()}`,
+    canLogin: true,
+    ...overrides,
+  });
+  return userStatusRepository.save(status);
 };
 ```
 
 ### Mock Data
 
+Mock data is used to provide consistent and predictable data for tests. These mocks should reflect the structure of our TypeORM entities.
+
 ```typescript
-// tests/mocks/user.ts
-export const mockUser = {
-  id: 'user-123',
-  email: 'test@example.com',
-  name: 'Test User',
-  role: 'EMPLOYEE',
-  status: 'ACTIVE',
+// tests/mocks/user.ts (Simplified)
+import User from "@App.API/Entities/Users/User";
+import { Company } from "@App.API/Entities/Companies/Company";
+import { Role } from "@App.API/Entities/Roles/Role";
+import { UserStatus } from "@App.API/Entities/Users/UserStatus";
+
+export const mockCompany: Company = {
+  id: "company-123",
+  name: "Mock Company",
+  timezone: "UTC",
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  version: 1,
+  users: [],
+  teams: [],
+  actionCodes: [],
+  timesheetEntries: [],
+  teamMembers: [],
+  timesheetHistory: [],
+  companySettings: {} as any, // Mock as needed
+};
+
+export const mockRole: Role = {
+  id: "role-123",
+  name: "Employee",
+  companyId: mockCompany.id,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  version: 1,
+  company: mockCompany,
+  description: "",
+  rolePermissions: [],
+  users: [],
+};
+
+export const mockUserStatus: UserStatus = {
+  id: "status-123",
+  code: "ACTIVE",
+  name: "Active",
+  canLogin: true,
+  isTerminal: false,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  version: 1,
+  users: [],
+};
+
+export const mockUser: User = {
+  id: "user-123",
+  email: "test@example.com",
+  firstName: "Test",
+  lastName: "User",
+  passwordHash: "hashedPassword",
+  companyId: mockCompany.id,
+  company: mockCompany,
+  roleId: mockRole.id,
+  role: mockRole,
+  statusId: mockUserStatus.id,
+  status: mockUserStatus,
   createdAt: new Date('2024-01-01T00:00:00Z'),
   updatedAt: new Date('2024-01-01T00:00:00Z'),
-  deletedAt: null,
+  version: 1,
+  mustChangePasswordAtNextLogin: false,
+  isAnonymized: false,
+  activeSessions: [],
 };
 
-export const mockAdminUser = {
+export const mockAdminUser: User = {
   ...mockUser,
-  id: 'admin-123',
-  email: 'admin@example.com',
-  name: 'Admin User',
-  role: 'ADMIN',
+  id: "admin-123",
+  email: "admin@example.com",
+  firstName: "Admin",
+  lastName: "User",
+  role: { ...mockRole, id: "role-admin", name: "Admin" },
 };
 
-export const mockManagerUser = {
+export const mockManagerUser: User = {
   ...mockUser,
-  id: 'manager-123',
-  email: 'manager@example.com',
-  name: 'Manager User',
-  role: 'MANAGER',
+  id: "manager-123",
+  email: "manager@example.com",
+  firstName: "Manager",
+  lastName: "User",
+  role: { ...mockRole, id: "role-manager", name: "Manager" },
 };
 ```
 
@@ -1540,22 +1446,29 @@ export const mockManagerUser = {
 
 ### Test Scripts
 
+Our `package.json` in `App.API` defines various scripts for running tests:
+
 ```json
+// App.API/package.json (Simplified)
 {
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:unit": "jest --testPathPattern=tests/unit",
-    "test:integration": "jest --testPathPattern=tests/integration",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
+    "test:e2e": "jest --config ./jest-e2e.json",
     "test:load": "k6 run tests/load/api-load.test.js",
-    "test:security": "jest --testPathPattern=tests/security",
-    "test:all": "yarn test:unit && yarn test:integration && yarn test:e2e"
+    "test:security": "jest --testPathPattern=tests/security"
   }
 }
 ```
+
+To run all tests for the backend:
+
+```bash
+cd App.API && yarn test
+```
+
+For frontend tests, navigate to `App.Web` and run `yarn test`.
 
 ---
 

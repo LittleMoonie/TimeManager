@@ -56,8 +56,8 @@ DB_NAME=gogotime_prod
 DB_SSL=true
 
 # Security
-SECRET=your-very-long-secure-jwt-secret-key-64-characters-minimum
-BCRYPT_ROUNDS=12
+JWT_SECRET=your-very-long-secure-jwt-secret-key-64-characters-minimum
+JWT_REFRESH_SECRET=your-very-long-secure-jwt-refresh-secret-key-64-characters-minimum
 
 # API
 API_PORT=4000
@@ -74,7 +74,8 @@ CORS_ORIGIN=https://gogotime.com,https://www.gogotime.com
 ### Security Considerations
 ```bash
 # Strong JWT secret (64+ characters)
-SECRET=$(openssl rand -base64 64)
+JWT_SECRET=$(openssl rand -base64 64)
+JWT_REFRESH_SECRET=$(openssl rand -base64 64)
 
 # Strong database password
 DB_PASS=$(openssl rand -base64 32)
@@ -264,24 +265,41 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: production # Use GitHub Environments for secrets
     
     steps:
     - uses: actions/checkout@v3
     
-    - name: Build and Deploy
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and Push API Image
       run: |
-        # Build images
-        docker build -t gogotime-api ./App.API
-        docker build -t gogotime-web ./App.Web
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/gogotime-api:${{ github.sha }} ./App.API
+        docker push ${{ secrets.DOCKER_USERNAME }}/gogotime-api:${{ github.sha }}
+
+    - name: Build and Push Web Image
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/gogotime-web:${{ github.sha }} ./App.Web
+        docker push ${{ secrets.DOCKER_USERNAME }}/gogotime-web:${{ github.sha }}
         
-        # Push to registry
-        docker tag gogotime-api ${{ secrets.REGISTRY }}/gogotime-api:${{ github.sha }}
-        docker push ${{ secrets.REGISTRY }}/gogotime-api:${{ github.sha }}
-        
-        # Deploy to server
-        ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
-          "docker pull ${{ secrets.REGISTRY }}/gogotime-api:${{ github.sha }} && \
-           docker compose -f docker-compose.prod.yml up -d"
+    - name: Deploy to Server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.DEPLOY_HOST }}
+        username: ${{ secrets.DEPLOY_USER }}
+        key: ${{ secrets.DEPLOY_KEY }}
+        script: |
+          cd /path/to/your/app/T-DEV-700-project-NCY_8/App.Infra # Adjust path as needed
+          docker compose -f docker-compose.prod.yml pull
+          docker compose -f docker-compose.prod.yml up -d --remove-orphans
+          docker image prune -f
 ```
 
 ## 🚀 Performance Optimization

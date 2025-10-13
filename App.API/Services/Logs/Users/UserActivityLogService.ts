@@ -1,7 +1,7 @@
 import { Service } from "typedi";
 import { AppDataSource } from "../../../Server/Database";
 import { UserActivityLog } from "../../../Entities/Logs/Users/UserActivityLog";
-import { CreateUserActivityLogDto } from "../../../Dtos/Logs/User/UserActivityLogDto";
+import { CreateUserActivityLogDto } from "Dtos/Logs/Users/UserActivityLogDto";
 
 @Service()
 export class UserActivityLogService {

@@ -17,8 +17,9 @@ import { Service } from "typedi";
 import { TeamService } from "../../Services/Companies/TeamService";
 import { CreateTeamDto, UpdateTeamDto } from "../../Dtos/Companies/CompanyDto";
 import { Team } from "../../Entities/Companies/Team";
-import { UserService } from "../../Services/User/UserService";
+import { UserService } from "../../Services/Users/UserService";
 import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
+import User from "Entities/Users/User";
 
 /**
  * @summary Controller for managing teams.
@@ -52,10 +53,14 @@ export class TeamController extends Controller {
     @Request() request: ExpressRequest,
   ): Promise<Team> {
     const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(userId);
+    const actingUser = await this.userService.getUserById(
+      userId,
+      userId,
+      request.user as User,
+    );
     return this.teamService.createTeam(
       actingUser.companyId,
-      actingUser,
+      actingUser as User,
       createTeamDto,
     );
   }
@@ -73,7 +78,11 @@ export class TeamController extends Controller {
     @Request() request: ExpressRequest,
   ): Promise<Team> {
     const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(userId);
+    const actingUser = await this.userService.getUserById(
+      userId,
+      userId,
+      request.user as User,
+    );
     return this.teamService.getTeamById(actingUser.companyId, id);
   }
 
@@ -87,7 +96,11 @@ export class TeamController extends Controller {
     @Request() request: ExpressRequest,
   ): Promise<Team[]> {
     const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(userId);
+    const actingUser = await this.userService.getUserById(
+      userId,
+      userId,
+      request.user as User,
+    );
     return this.teamService.listTeams(actingUser.companyId);
   }
 
@@ -109,10 +122,14 @@ export class TeamController extends Controller {
     @Request() request: ExpressRequest,
   ): Promise<Team> {
     const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(userId);
+    const actingUser = await this.userService.getUserById(
+      userId,
+      userId,
+      request.user as User,
+    );
     return this.teamService.updateTeam(
       actingUser.companyId,
-      actingUser,
+      actingUser as User,
       id,
       updateTeamDto,
     );
@@ -133,7 +150,15 @@ export class TeamController extends Controller {
     @Request() request: ExpressRequest,
   ): Promise<void> {
     const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(userId);
-    await this.teamService.deleteTeam(actingUser.companyId, actingUser, id);
+    const actingUser = await this.userService.getUserById(
+      userId,
+      userId,
+      request.user as User,
+    );
+    await this.teamService.deleteTeam(
+      actingUser.companyId,
+      actingUser as User,
+      id,
+    );
   }
 }

@@ -6,7 +6,7 @@ Welcome to GoGoTime! This guide will get you up and running with the development
 
 Before starting, ensure you have:
 
-- **Node.js 24.9.0+** and **Yarn 4.10.3+**
+- **Node.js** and **Yarn** (refer to `App.API/.nvmrc` and `App.API/.yarnrc.yml` for specific versions)
 - **Docker** and **Docker Compose**
 - **Git** for version control
 
@@ -68,7 +68,10 @@ open http://localhost:4000/api/docs
 
 # Use the generated client:
 import { apiClient } from '@/lib/api/apiClient';
-const result = await apiClient.login({ email: '...', password: '...' });
+import { LoginDto } from "../../App.API/Dtos/Authentication/AuthenticationDto";
+
+const loginData: LoginDto = { email: '...', password: '...' };
+const result = await apiClient.authenticationLogin(loginData);
 ```
 
 ## 📚 Key Features You Should Know
@@ -87,7 +90,7 @@ const result = await apiClient.login({ email: '...', password: '...' });
 ### 🎯 Type Safety
 - **API Contracts**: TypeScript DTOs define request/response shapes
 - **Frontend Client**: Auto-generated, type-safe API client
-- **Validation**: Runtime validation with Zod schemas
+- **Validation**: Runtime validation with `class-validator` on DTOs
 
 ## 🗂️ Project Structure Overview
 

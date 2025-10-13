@@ -32,7 +32,7 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
 
 ### 1. Presentation Layer (Frontend)
 
-**Technology**: React 19 & Vite App Router, TypeScript
+**Technology**: React 19 + Vite, TypeScript
 
 **Responsibilities**:
 - User interface and user experience
@@ -129,65 +129,17 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
 
 ### Schema Design
 
-The database follows a normalized design with clear relationships and constraints:
+The database schema is defined using **TypeORM Entities**, which provide an object-relational mapping (ORM) layer over PostgreSQL. This approach ensures type-safety, simplifies database interactions, and allows for version-controlled schema evolution through migrations.
 
-```sql
--- Core Identity Tables
-User (id, email, password_hash, role, status, created_at, updated_at)
-Session (id, user_id, refresh_token, ip_address, user_agent, expires_at)
-ApiKey (id, key_hash, user_id, scopes, last_used_at, expires_at)
+Key principles guiding our schema design include:
 
--- RBAC System
-Role (id, name, description)
-Permission (id, key, description)
-RolePermission (role_id, permission_id)
-UserRoleMap (user_id, role_id)
+*   **Normalized Design**: Primarily follows third normal form with strategic denormalization for performance.
+*   **UUID Primary Keys**: All entities use UUIDs for better distribution and security.
+*   **Soft Deletes**: Critical entities support soft deletion for audit trails and data recovery.
+*   **Multi-tenancy**: Data is isolated per company, ensuring tenant data separation.
+*   **Audit Logging**: Comprehensive audit trails are implemented for compliance requirements.
 
--- Company Structure
-Company (id, name, slug, owner_id, created_at, updated_at)
-CompanyMember (id, Company_id, user_id, role, joined_at)
-Team (id, Company_id, name, description)
-TeamMember (team_id, user_id)
-
--- Business Entities
-Project (id, Company_id, name, description, status, created_at)
-Task (id, project_id, assignee_id, title, description, status, due_date, priority)
-
--- System Tables
-Settings (id, user_id, preferences, timezone, locale)
-FeatureFlag (id, key, description, enabled, rollout_percentage)
-Config (key, value, updated_at)
-ApiRateLimit (id, user_id, endpoint, window_start, count)
-
--- Audit & Logging
-AuditLog (id, user_id, action, target_table, target_id, old_value, new_value, ip_address, created_at)
-ErrorLog (id, service, level, message, stack, context, created_at)
-JobLog (id, job_name, status, attempts, payload, created_at)
-AccessLog (id, user_id, method, endpoint, status_code, latency_ms, timestamp)
-LoginAttempt (id, email, ip_address, success, created_at)
-
--- Communication
-Notification (id, user_id, type, message, metadata, read, created_at)
-File (id, user_id, url, mime_type, size, storage_provider, created_at)
-Message (id, sender_id, recipient_id, content, attachments, created_at)
-EmailLog (id, to, subject, template, status, sent_at)
-
--- System Operations
-SystemMetric (id, service, metric_name, value, timestamp)
-BackupSnapshot (id, path, created_at, size, verified)
-DeploymentLog (id, version, environment, status, commit_sha, deployed_by, created_at)
-Environment (id, name, url, created_at, active)
-
--- Compliance
-GdprRequest (id, user_id, type, status, requested_at, resolved_at)
-Consent (id, user_id, consent_type, granted, timestamp)
-
--- Utility Tables
-MigrationHistory (id, name, applied_at, checksum)
-SeedHistory (id, name, applied_at)
-Tag (id, name, color, created_at)
-TagAssignment (tag_id, entity_type, entity_id)
-```
+For detailed entity definitions and their relationships, refer to the [[DATABASE.md#Schema Design]] document.
 
 ### Key Design Decisions
 
@@ -211,11 +163,11 @@ GET    /api/v1/users/:id          # Get user
 PUT    /api/v1/users/:id          # Update user
 DELETE /api/v1/users/:id          # Delete user
 
-GET    /api/v1/Companys      # List Companys
-POST   /api/v1/Companys      # Create Company
-GET    /api/v1/Companys/:id  # Get Company
-PUT    /api/v1/Companys/:id  # Update Company
-DELETE /api/v1/Companys/:id  # Delete Company
+GET    /api/v1/companies      # List companies
+POST   /api/v1/companies      # Create company
+GET    /api/v1/companies/:id  # Get company
+PUT    /api/v1/companies/:id  # Update company
+DELETE /api/v1/companies/:id  # Delete company
 ```
 
 ### Authentication Flow

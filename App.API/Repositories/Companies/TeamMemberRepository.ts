@@ -1,5 +1,5 @@
 import { Service } from "typedi";
-import { TeamMember } from "../../Entities/Companies/Team";
+import { TeamMember } from "../../Entities/Companies/TeamMember";
 import { BaseRepository } from "../../Repositories/BaseRepository";
 
 /**

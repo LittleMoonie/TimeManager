@@ -17,14 +17,21 @@ This document provides a comprehensive overview of the GoGoTime API specificatio
 The API specification is automatically generated using **tsoa** from TypeScript controller decorators:
 
 ```typescript
-@Route('users')
-@Tags('Users')
-export class UserController extends Controller {
-  @Post('/register')
-  @SuccessResponse('200', 'User registered successfully')
-  @Response<ApiResponse>('422', 'Validation error')
-  public async registerUser(@Body() requestBody: RegisterUserRequest): Promise<RegisterResponse> {
+// App.API/Controllers/Authentication/AuthenticationController.ts (Simplified)
+import { Body, Controller, Post, Route, Tags, SuccessResponse } from "tsoa";
+import { RegisterDto } from "../../Dtos/Authentication/AuthenticationDto";
+import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
+
+@Route("auth")
+@Tags("Authentication")
+export class AuthenticationController extends Controller {
+  @Post("/register")
+  @SuccessResponse("201", "User registered successfully")
+  public async register(
+    @Body() requestBody: RegisterDto,
+  ): Promise<UserResponseDto> {
     // Implementation with automatic OpenAPI generation
+    return {} as UserResponseDto;
   }
 }
 ```
@@ -63,47 +70,63 @@ Authorization: Bearer <jwt_token>
 ### User Management (`/users`)
 
 #### Register User
-- **Endpoint**: `POST /users/register`
+- **Endpoint**: `POST /auth/register`
 - **Authentication**: None required
-- **Request Body**:
+- **Request Body**: `RegisterDto`
   ```typescript
-  {
-    email: string;           // User's email address
-    username?: string;       // Optional username (4-15 alphanumeric)
-    password: string;        // User's password
+  // App.API/Dtos/Authentication/AuthenticationDto.ts (RegisterDto)
+  export class RegisterDto {
+    email!: string;
+    password!: string;
+    firstName!: string;
+    lastName!: string;
+    companyId!: string;
+    roleId!: string;
+    statusId!: string;
+    phoneNumber!: string;
   }
   ```
-- **Response**: `RegisterResponse`
+- **Response**: `UserResponseDto`
   ```typescript
-  {
-    success: boolean;        // Operation success status
-    userID?: string;         // ID of newly created user
-    msg: string;             // Response message
+  // App.API/Dtos/Users/UserResponseDto.ts (UserResponseDto)
+  export class UserResponseDto {
+    id!: string;
+    email!: string;
+    firstName!: string;
+    lastName!: string;
+    companyId!: string;
+    roleId!: string;
+    statusId!: string;
+    createdAt!: Date;
+    phoneNumber?: string;
+    lastLogin?: Date;
+    deletedAt?: Date | null;
   }
   ```
 
 #### Login User
-- **Endpoint**: `POST /users/login`
+- **Endpoint**: `POST /auth/login`
 - **Authentication**: None required
-- **Request Body**:
+- **Request Body**: `LoginDto`
   ```typescript
-  {
-    email: string;           // User's email address
-    password: string;        // User's password
+  // App.API/Dtos/Authentication/AuthenticationDto.ts (LoginDto)
+  export class LoginDto {
+    email!: string;
+    password!: string;
   }
   ```
-- **Response**: `AuthResponse`
+- **Response**: `AuthResponseDto`
   ```typescript
-  {
-    success: boolean;        // Operation success status
-    token?: string;          // JWT authentication token
-    user?: UserResponse;     // User information
-    msg?: string;            // Response message
+  // App.API/Dtos/Authentication/AuthenticationDto.ts (AuthResponseDto)
+  export class AuthResponseDto {
+    token!: string;
+    refreshToken!: string;
+    user!: UserResponseDto;
   }
   ```
 
 #### Logout User
-- **Endpoint**: `POST /users/logout`
+- **Endpoint**: `POST /auth/logout`
 - **Authentication**: JWT Bearer token required
 - **Request Body**: None
 - **Response**: `ApiResponse`
@@ -131,41 +154,105 @@ Authorization: Bearer <jwt_token>
 
 ### User DTOs
 
+Our API uses Data Transfer Objects (DTOs) defined with `class-validator` for request validation and `tsoa` for OpenAPI schema generation. Below are the key DTOs for user-related operations.
+
 ```typescript
-export interface RegisterUserRequest {
-  email: string;
-  username?: string;
-  password: string;
+// App.API/Dtos/Authentication/AuthenticationDto.ts (LoginDto)
+import { IsEmail, IsString, MinLength } from "class-validator";
+
+/**
+ * @description Data transfer object for user login requests.
+ */
+export class LoginDto {
+  @IsEmail()
+  public email!: string;
+
+  @IsString()
+  @MinLength(6)
+  public password!: string;
 }
 
-export interface LoginUserRequest {
-  email: string;
-  password: string;
+// App.API/Dtos/Authentication/AuthenticationDto.ts (RegisterDto)
+import { IsEmail, IsString, MinLength, IsNotEmpty, IsUUID, Matches } from "class-validator";
+
+/**
+ * @description Data transfer object for user registration requests.
+ */
+export class RegisterDto {
+  @IsEmail()
+  public email!: string;
+
+  @IsString()
+  @MinLength(6)
+  public password!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public firstName!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public lastName!: string;
+
+  @IsUUID()
+  @IsNotEmpty()
+  public companyId!: string;
+
+  @IsUUID()
+  @IsNotEmpty()
+  public roleId!: string;
+
+  @IsUUID()
+  @IsNotEmpty()
+  public statusId!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^\+?[1-9]\d{1,14}$/, { message: "phoneNumber must be E.164" })
+  public phoneNumber!: string;
 }
 
-export interface UserResponse {
-  id: string;
-  username: string;
-  email: string;
-  createdAt: Date;
+// App.API/Dtos/Users/UserResponseDto.ts (UserResponseDto)
+import { RoleResponse } from "../../Dtos/Roles/RoleDto";
+import { CompanyResponseDto } from "../../Dtos/Companies/CompanyDto";
+import { UserStatusResponseDto } from "../../Dtos/Users/UserStatusDto";
+
+/**
+ * @description Data transfer object for a user response. This DTO should be used when returning user information to clients, never return the entity directly.
+ */
+export class UserResponseDto {
+  id!: string;
+  email!: string;
+  firstName!: string;
+  lastName!: string;
+  companyId!: string;
+  company?: CompanyResponseDto;
+  roleId!: string;
+  role?: RoleResponse;
+  statusId!: string;
+  status?: UserStatusResponseDto;
+  createdAt!: Date;
+  phoneNumber?: string;
+  lastLogin?: Date;
+  deletedAt?: Date | null;
 }
 
-export interface AuthResponse {
-  success: boolean;
-  token?: string;
-  user?: UserResponse;
-  msg?: string;
+// App.API/Dtos/Authentication/AuthenticationDto.ts (AuthResponseDto)
+/**
+ * @description Data transfer object for authentication responses, used after successful login, registration, or token refresh.
+ */
+export class AuthResponseDto {
+  token!: string;
+  refreshToken!: string;
+  user!: UserResponseDto;
 }
 
-export interface RegisterResponse {
-  success: boolean;
-  userID?: string;
-  msg: string;
-}
-
-export interface ApiResponse {
-  success: boolean;
-  msg: string;
+// App.API/Dtos/Common/ApiResponseDto.ts (ApiResponseDto)
+/**
+ * @description Data transfer object for a generic successful API response, typically containing a human-readable message.
+ */
+export class ApiResponseDto {
+  message!: string;
 }
 ```
 
@@ -173,26 +260,31 @@ export interface ApiResponse {
 
 ### Type-Safe API Client
 
-The auto-generated TypeScript client provides full type safety:
+The auto-generated TypeScript client provides full type safety and is used as follows:
 
 ```typescript
 import { apiClient } from '@/lib/api/apiClient';
 
 // Register a new user
-const registerResult = await apiClient.register({
+const registerResult = await apiClient.authenticationRegister({
   email: 'user@example.com',
-  username: 'johndoe',
-  password: 'securepassword'
+  firstName: 'John',
+  lastName: 'Doe',
+  password: 'securepassword',
+  companyId: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
+  roleId: 'r1o2l3e4-i5d6-7890-1234-567890abcdef',
+  statusId: 's1t2a3t4-u5s6-7890-1234-567890abcdef',
+  phoneNumber: '+15551234567',
 });
 
 // Login user (automatically stores JWT token)
-const loginResult = await apiClient.login({
+const loginResult = await apiClient.authenticationLogin({
   email: 'user@example.com',
   password: 'securepassword'
 });
 
 // Logout user (automatically clears JWT token)
-const logoutResult = await apiClient.logout();
+const logoutResult = await apiClient.authenticationLogout();
 ```
 
 ### Error Handling
@@ -217,10 +309,17 @@ try {
 ### 1. Update API Routes
 ```typescript
 // Add new endpoint in controller
-@Get('/api/users/{userId}')
-@Security('jwt')
-public async getUser(@Path() userId: string): Promise<UserResponse> {
+// App.API/Controllers/Users/UserController.ts (Simplified)
+import { Body, Controller, Get, Post, Security, Request, Path, Put, Delete, Query } from "tsoa";
+import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
+
+@Get("/api/users/{userId}")
+@Security("jwt")
+public async getUser(
+  @Path() userId: string,
+): Promise<UserResponseDto> {
   // Implementation
+  return {} as UserResponseDto;
 }
 ```
 

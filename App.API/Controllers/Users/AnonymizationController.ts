@@ -12,6 +12,11 @@ import { AnonymizationService } from "../../Services/Users/AnonymizationService"
 import { Service } from "typedi";
 import { Request as ExpressRequest } from "express";
 
+/**
+ * @summary Controller for managing user anonymization.
+ * @tags Anonymization
+ * @security jwt
+ */
 @Service()
 @Route("anonymization")
 @Tags("Anonymization")

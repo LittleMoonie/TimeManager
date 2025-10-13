@@ -42,8 +42,12 @@ export default Loadable;
 #### Breadcrumbs Navigation  
 ```typescript
 // components/common/Breadcrumbs.tsx
+import { useTheme } from '@mui/material/styles';
+import { Box, Card, Divider, Typography } from '@mui/material';
+import { Link } from 'react-router-dom';
+
 interface BreadcrumbsProps {
-  navigation: any;
+  navigation: { id: string; title: string; type: string; url?: string; children?: any[] };
   title?: boolean;
   titleBottom?: boolean;
   card?: boolean;
@@ -56,15 +60,65 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   card = true,
   divider = true
 }) => {
-  // Breadcrumb implementation with MUI
+  const theme = useTheme();
+
+  const list = navigation.children?.map((item) => {
+    switch (item.type) {
+      case 'group':
+        return (
+          <Link key={item.id} to={item.url || '#'}>
+            <Typography variant="subtitle1" color="text.primary">
+              {item.title}
+            </Typography>
+          </Link>
+        );
+      default:
+        return (
+          <Link key={item.id} to={item.url || '#'}>
+            <Typography variant="subtitle1" color="text.primary">
+              {item.title}
+            </Typography>
+          </Link>
+        );
+    }
+  });
+
+  return (
+    <Card
+      sx={{
+        marginBottom: theme.spacing(3),
+        border: !card ? 'none' : '1px solid',
+        borderColor: theme.palette.divider,
+        borderRadius: theme.shape.borderRadius,
+        bgcolor: card ? theme.palette.background.paper : 'transparent',
+      }}
+    >
+      <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box>
+          {title && (
+            <Typography variant="h3" color="text.primary">
+              {navigation.title}
+            </Typography>
+          )}
+          <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+            {list}
+          </Box>
+        </Box>
+      </Box>
+      {divider && <Divider />}
+    </Card>
+  );
 };
 ```
 
 ### Logo Component
 ```typescript
 // components/common/Logo.tsx  
+import { ButtonBase } from '@mui/material';
+import { Link } from 'react-router-dom'; // Using react-router-dom Link
+
 interface LogoProps {
-  sx?: SxProps;
+  sx?: object; // Use object for general SxProps
   to?: string;
 }
 
@@ -72,11 +126,12 @@ export const Logo: React.FC<LogoProps> = ({ sx, to }) => {
   return (
     <ButtonBase 
       disableRipple
-      component={RouterLink}
+      component={Link} // Use Link from react-router-dom
       to={to || '/'}
       sx={sx}
     >
-      {/* Logo implementation */}
+      {/* Your SVG or image logo here */}
+      <img src="/path/to/your/logo.svg" alt="GoGoTime Logo" style={{ height: 32 }} />
     </ButtonBase>
   );
 };
@@ -283,9 +338,22 @@ export const Header = () => {
 ### Sidebar Navigation
 ```typescript
 // components/layout/Sidebar.tsx
-export const Sidebar = ({ drawerOpen, drawerToggle }) => {
+import { useTheme } from '@mui/material/styles';
+import { Box, Drawer, useMediaQuery } from '@mui/material';
+import PerfectScrollbar from 'react-perfect-scrollbar';
+import { BrowserView, MobileView } from 'react-device-detect';
+import { MenuList } from './MenuList';
+import { LogoSection } from './LogoSection'; // Assuming LogoSection is a component
+import { useAppStore } from '@/lib/store';
+
+export const Sidebar = () => {
   const theme = useTheme();
-  const matchUp = useMediaQuery(theme.breakpoints.up('md'));
+  const matchUpMd = useMediaQuery(theme.breakpoints.up('md'));
+
+  const { opened, toggleDrawer } = useAppStore((state) => ({
+    opened: state.opened,
+    toggleDrawer: state.toggleDrawer, // Assuming a toggleDrawer action exists in your store
+  }));
   
   const drawer = (
     <>
@@ -306,12 +374,12 @@ export const Sidebar = ({ drawerOpen, drawerToggle }) => {
   );
   
   return (
-    <Box component="nav" sx={{ flexShrink: { md: 0 }, width: matchUp ? 260 : 'auto' }}>
+    <Box component="nav" sx={{ flexShrink: { md: 0 }, width: matchUpMd ? 260 : 'auto' }}>
       <Drawer
-        variant={matchUp ? 'persistent' : 'temporary'}
+        variant={matchUpMd ? 'persistent' : 'temporary'}
         anchor="left"
-        open={drawerOpen}
-        onClose={drawerToggle}
+        open={opened}
+        onClose={toggleDrawer} // Use toggleDrawer from store
       >
         {drawer}
       </Drawer>
@@ -326,11 +394,14 @@ export const Sidebar = ({ drawerOpen, drawerToggle }) => {
 ```typescript
 // components/layout/MenuList.tsx
 import { useAppStore } from '@/lib/store';
+import { NavGroup } from './NavGroup'; // Assuming these components exist
+import { NavCollapse } from './NavCollapse';
+import { NavItem } from './NavItem';
 
 export const MenuList = () => {
-  const menuItems = useAppStore((state) => state.menu);
+  const menuItems = useAppStore((state) => state.menuItems); // Assuming menuItems is part of the store state
   
-  const renderNavItems = (items) => {
+  const renderNavItems = (items: any[]) => {
     return items.map((item) => {
       switch (item.type) {
         case 'group':
@@ -343,7 +414,7 @@ export const MenuList = () => {
     });
   };
   
-  return <>{renderNavItems(menuItems.items)}</>;
+  return <>{renderNavItems(menuItems)}</>;
 };
 ```
 
@@ -351,9 +422,13 @@ export const MenuList = () => {
 ```typescript
 // Navigation Item
 export const NavItem = ({ item, level = 0 }) => {
+  const theme = useTheme();
+  const { pathname } = useLocation();
+  const isSelected = pathname === item.url;
+
   return (
     <ListItemButton
-      component={RouterLink}
+      component={Link} // Use Link from react-router-dom
       to={item.url}
       selected={isSelected}
       sx={{ borderRadius: 1, mb: 0.5 }}
@@ -378,7 +453,7 @@ export const NavCollapse = ({ item }) => {
       <ListItemButton onClick={() => setOpen(!open)}>
         <ListItemIcon>{item.icon}</ListItemIcon>
         <ListItemText primary={item.title} />
-        {open ? <ExpandLess /> : <ExpandMore />}
+        {open ? <ExpandLessIcon /> : <ExpandMoreIcon />} {/* Use generic icons */}
       </ListItemButton>
       <Collapse in={open} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
@@ -389,29 +464,32 @@ export const NavCollapse = ({ item }) => {
       </Collapse>
     </>
   );
-};
-```
+};```
 
 ## Guard Components
 
 ### Authentication Guard
 ```typescript
 // components/guards/AuthGuard.tsx
+import { ReactNode, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth'; // Assuming a custom auth hook
+
 interface AuthGuardProps {
   children: ReactNode;
 }
 
 export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
-  const { isLoggedIn } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!isAuthenticated) {
       navigate('/login', { replace: true });
     }
-  }, [isLoggedIn, navigate]);
+  }, [isAuthenticated, navigate]);
   
-  if (!isLoggedIn) {
+  if (!isAuthenticated) {
     return null; // or loading spinner
   }
   
@@ -422,17 +500,21 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
 ### Guest Guard (Prevent logged-in users from accessing auth pages)
 ```typescript
 // components/guards/GuestGuard.tsx
+import { ReactNode, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth'; // Assuming a custom auth hook
+
 export const GuestGuard: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { isLoggedIn } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   
   useEffect(() => {
-    if (isLoggedIn) {
+    if (isAuthenticated) {
       navigate('/dashboard', { replace: true });
     }
-  }, [isLoggedIn, navigate]);
+  }, [isAuthenticated, navigate]);
   
-  if (isLoggedIn) {
+  if (isAuthenticated) {
     return null;
   }
   

@@ -7,7 +7,7 @@ The GoGoTime frontend is built with React 19, TypeScript, and Material-UI, follo
 ## Technology Stack
 
 ### Core Framework
-- **React 19.2.0** with Vite for development
+- **React 19** with Vite for development
 - **TypeScript 5.9+** for type safety
 - **Material-UI (MUI) v7** for UI components
 - **Zustand** for global state management
@@ -71,12 +71,14 @@ The frontend uses an **auto-generated, type-safe API client**:
 ```typescript
 // lib/api/apiClient.ts
 import { apiClient } from '@/lib/api/apiClient';
+import { LoginDto } from "../../App.API/Dtos/Authentication/AuthenticationDto";
+import { ApiError } from "./apiClient"; // Assuming ApiError is defined in apiClient.ts
 
 // Type-safe API calls with auto-completion
-const loginUser = async (credentials: LoginRequest) => {
+const loginUser = async (credentials: LoginDto) => {
   try {
-    const result = await apiClient.login(credentials);
-    if (result.success && result.token) {
+    const result = await apiClient.authenticationLogin(credentials);
+    if (result.token) {
       // Token automatically stored
       return result;
     }
@@ -122,8 +124,11 @@ App.tsx
 ### Route Protection
 ```typescript
 // components/guards/AuthGuard.tsx
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth'; // Assuming a custom auth hook
+
 export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = useSelector(/* auth state */);
+  const { isAuthenticated } = useAuth();
   
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -137,42 +142,57 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
 
 ### Route Structure
 ```typescript
-// src/app/router.tsx
+// src/app/router.tsx (Simplified)
+import { createBrowserRouter, Navigate, Outlet, RouteObject } from "react-router-dom";
+import { AuthGuard } from "../components/guards/AuthGuard";
+import { GuestGuard } from "../components/guards/GuestGuard";
+
+// Example Layouts and Pages
+const LoginPage = () => <div>Login Page</div>;
+const ForgotPasswordPage = () => <div>Forgot Password Page</div>;
+const AppLayout = () => <Outlet />;
+const HomePage = () => <div>Home Page</div>;
+const TimesheetPage = () => <div>Timesheet Page</div>;
+const PeoplePage = () => <div>People Page</div>;
+const ReportsPage = () => <div>Reports Page</div>;
+const ProfilePage = () => <div>Profile Page</div>;
+
 const routeConfig: RouteObject[] = [
   {
-    path: '/login',
+    path: "/login",
     element: (
-      <PublicRoute>
+      <GuestGuard>
         <LoginPage />
-      </PublicRoute>
+      </GuestGuard>
     ),
   },
   {
-    path: '/forgot-password',
+    path: "/forgot-password",
     element: (
-      <PublicRoute>
+      <GuestGuard>
         <ForgotPasswordPage />
-      </PublicRoute>
+      </GuestGuard>
     ),
   },
   {
-    path: '/',
+    path: "/",
     element: (
-      <ProtectedRoute>
+      <AuthGuard>
         <AppLayout />
-      </ProtectedRoute>
+      </AuthGuard>
     ),
     children: [
       { index: true, element: <HomePage /> },
-      // { path: 'tasks', element: <TasksPage /> },
-      { path: 'timesheet', element: <TimesheetPage /> },
-      { path: 'people', element: <PeoplePage /> },
-      { path: 'reports', element: <ReportsPage /> },
-      { path: 'profile', element: <ProfilePage /> },
+      { path: "timesheet", element: <TimesheetPage /> },
+      { path: "people", element: <PeoplePage /> },
+      { path: "reports", element: <ReportsPage /> },
+      { path: "profile", element: <ProfilePage /> },
     ],
   },
-  { path: '*', element: <Navigate to="/" replace /> },
+  { path: "*", element: <Navigate to="/" replace /> },
 ];
+
+export const router = createBrowserRouter(routeConfig);
 ```
 
 ### Navigation Configuration

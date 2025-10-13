@@ -22,8 +22,8 @@ export class RolePermissionService {
   /**
    * @description Checks if a given user has a specific permission.
    * @param user The user object to check permissions for.
-   * @param permissionName The name of the permission to check.
-   * @returns A Promise that resolves to `true` if the user has the permission, `false` otherwise.
+   * @param permissionName The name of the permission to check for.
+   * @returns {Promise<boolean>} A Promise that resolves to `true` if the user has the permission, `false` otherwise.
    */
   public async checkPermission(
     user: User,

@@ -13,7 +13,7 @@
 ### API Design
 - **Versioning**: `/api/v1` with deprecation policy and backward compatibility
 - **Documentation**: ✨ **Auto-generated OpenAPI specs** from TypeScript decorators
-- **Validation**: Joi schemas for request validation, TypeScript DTOs for responses
+- **Validation**: `class-validator` for DTO validation, TypeScript DTOs for responses
 - **Error Handling**: Unified error shape with global Express error handler
 - **Time Management**: Store UTC, display per user timezone, handle DST with Luxon
 
@@ -28,21 +28,124 @@
 
 ### Data Modeling
 ```typescript
-// Example: User entity with TypeORM
-@Entity()
-export class User extends BaseEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
+// App.API/Entities/Users/User.ts
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from "typeorm";
+import { BaseEntity } from "../BaseEntity";
+import { Company } from "../Companies/Company";
+import { Role } from "../Roles/Role";
+import { UserStatus } from "./UserStatus";
+import ActiveSession from "./ActiveSessions";
 
-  @Column({ unique: true })
-  email!: string;
+/**
+ * @description Represents a user in the system.
+ */
+@Entity("users")
+@Index(["companyId", "id"])
+@Index(["companyId", "email"], { unique: true })
+@Index(["companyId", "roleId"])
+@Index(["companyId", "statusId"])
+export default class User extends BaseEntity {
+  /**
+   * @description The unique identifier of the company to which this user belongs.
+   * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+   */
+  @Column({ type: "uuid" }) companyId!: string;
 
-  @Column()
-  @Index() // Optimized for queries
-  username!: string;
+  /**
+   * @description The company associated with this user.
+   */
+  @ManyToOne(() => Company, (company) => company.users, {
+    onDelete: "RESTRICT",
+  })
+  @JoinColumn({ name: "companyId" })
+  company!: Company;
 
-  @CreateDateColumn()
-  createdAt!: Date;
+  /**
+   * @description The user's email address, unique within the company.
+   * @example "john.doe@example.com"
+   */
+  @Column({ type: "citext", nullable: false }) email!: string;
+
+  /**
+   * @description The first name of the user.
+   * @example "John"
+   */
+  @Column({ type: "varchar", length: 255, nullable: false }) firstName!: string;
+  /**
+   * @description The last name of the user.
+   * @example "Doe"
+   */
+  @Column({ type: "varchar", length: 255, nullable: false }) lastName!: string;
+
+  /**
+   * @description The hashed password of the user.
+   */
+  @Column({ type: "varchar", length: 255, nullable: false })
+  passwordHash!: string;
+  /**
+   * @description Indicates if the user must change their password at the next login.
+   * @example false
+   */
+  @Column({ type: "boolean", default: false })
+  mustChangePasswordAtNextLogin!: boolean;
+
+  /**
+   * @description The unique identifier of the role assigned to the user.
+   * @example "r1o2l3e4-i5d6-7890-1234-567890abcdef"
+   */
+  @Column({ type: "uuid", nullable: false }) roleId!: string;
+  /**
+   * @description The role assigned to the user.
+   */
+  @ManyToOne(() => Role, (role) => role.users, { onDelete: "RESTRICT" })
+  @JoinColumn([
+    { name: "roleId", referencedColumnName: "id" },
+    { name: "companyId", referencedColumnName: "companyId" },
+  ])
+  role!: Role;
+
+  /**
+   * @description Optional: The user's phone number in E.164 format.
+   * @example "+15551234567"
+   */
+  @Column({ type: "varchar", length: 32, nullable: true }) phoneNumber?: string;
+
+  /**
+   * @description Optional: The timestamp of the user's last successful login.
+   * @example "2023-10-27T11:30:00Z"
+   */
+  @Column({ type: "timestamp with time zone", nullable: true })
+  lastLogin?: Date;
+  /**
+   * @description Indicates if the user's data has been anonymized.
+   * @example false
+   */
+  @Column({ default: false }) isAnonymized!: boolean;
+
+  /**
+   * @description List of active sessions for this user.
+   */
+  @OneToMany(() => ActiveSession, (s) => s.user)
+  activeSessions!: ActiveSession[];
+
+  /**
+   * @description The unique identifier of the user's current status.
+   * @example "s1t2a3t4-u5s6-7890-1234-567890abcdef"
+   */
+  @Column({ type: "uuid", nullable: false }) statusId!: string;
+  /**
+   * @description The user's current status.
+   */
+  @ManyToOne(() => UserStatus, (s) => s.users, { onDelete: "RESTRICT" })
+  @JoinColumn({ name: "statusId" })
+  status!: UserStatus;
 }
 ```
 
@@ -50,25 +153,56 @@ export class User extends BaseEntity {
 
 ### Current Implementation
 - **JWT Authentication**: Custom implementation with bcrypt password hashing
-- **Session Management**: Active session tracking in PostgreSQL
+- **Session Management**: Active session tracking in `ActiveSession` entity (PostgreSQL)
 - **Token Storage**: Database-backed session validation
 - **Security Headers**: Helmet, CORS, CSP with nonces, HSTS
 
 ### Authorization Patterns
-- **RBAC/ABAC**: Per-route middleware with policy-based access control
+- **RBAC**: Role-Based Access Control implemented via `Role` and `Permission` entities, managed by `RolePermissionService`.
 - **Scoped Queries**: "Manager vs employee" data access patterns
-- **Input Hardening**: Joi validation, rate limiting with Redis storage
+- **Input Hardening**: `class-validator` for DTO validation, rate limiting with Redis storage
 
 ### Security Best Practices
 ```typescript
 // Example: Secure route with authentication
-@Route('users')
-@Tags('Users')
-export class UserController extends Controller {
-  @Post('/logout')
-  @Security('jwt') // Requires valid JWT token
-  public async logout(@Request() request: ExpressRequest): Promise<ApiResponse> {
-    // Secure logout implementation
+// App.API/Controllers/Authentication/AuthenticationController.ts (Logout Simplified)
+import { Controller, Post, Route, Security, Request, SuccessResponse } from "tsoa";
+import { Request as ExpressRequest } from "express";
+import { NotFoundError } from "../../Errors/HttpErrors";
+import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
+import { AuthenticationService } from "../../Services/AuthenticationService/AuthenticationService";
+import { Service } from "typedi";
+
+@Route("auth")
+@Service()
+export class AuthenticationController extends Controller {
+  constructor(private authenticationService: AuthenticationService) {
+    super();
+  }
+
+  /**
+   * @summary Logs out the current user by revoking their refresh token.
+   */
+  @Post("/logout")
+  @Security("jwt")
+  @SuccessResponse("204", "User logged out successfully")
+  public async logout(@Request() request: ExpressRequest): Promise<void> {
+    const refreshToken =
+      request.cookies?.refreshToken ||
+      (request.headers["x-refresh-token"] as string | undefined);
+
+    if (!refreshToken) {
+      throw new NotFoundError("No refresh token provided");
+    }
+
+    const companyId = (request.user as UserResponseDto)?.companyId;
+    await this.authenticationService.logout(companyId, refreshToken);
+
+    // Clear cookies
+    request.res?.clearCookie("jwt", { /* ...options */ });
+    request.res?.clearCookie("refreshToken", { /* ...options */ });
+
+    this.setStatus(204);
   }
 }
 ```
@@ -150,24 +284,24 @@ public async getHealth(@Query() autoGen?: boolean): Promise<HealthResponse> {
 ```typescript
 // Example: API contract test using generated types
 import { paths } from '../generated/api-types';
+import { LoginDto } from "../../App.API/Dtos/Authentication/AuthenticationDto";
+import { AuthResponseDto } from "../../App.API/Dtos/Authentication/AuthenticationDto";
 
-type LoginEndpoint = paths['/users/login']['post'];
-type LoginRequest = LoginEndpoint['requestBody']['content']['application/json'];
-type LoginResponse = LoginEndpoint['responses']['200']['content']['application/json'];
+type LoginEndpoint = paths['/auth/login']['post'];
 
-describe('POST /users/login', () => {
+describe('POST /auth/login', () => {
   it('should return valid login response', async () => {
-    const request: LoginRequest = {
+    const request: LoginDto = {
       email: 'test@example.com',
       password: 'password123'
     };
     
-    const response = await api.post('/users/login').send(request);
+    const response = await api.post('/auth/login').send(request);
     
     // Type-safe assertions based on OpenAPI spec
-    expect(response.body).toMatchObject<LoginResponse>({
-      success: true,
+    expect(response.body).toMatchObject<AuthResponseDto>({
       token: expect.any(String),
+      refreshToken: expect.any(String),
       user: expect.objectContaining({
         id: expect.any(String),
         email: 'test@example.com'
@@ -181,7 +315,7 @@ describe('POST /users/login', () => {
 
 ### Technology Stack
 - **Framework**: React 19 with Vite for fast development
-- **State Management**: Redux Toolkit with React Redux
+- **State Management**: Zustand for global state management
 - **UI Framework**: Material-UI (MUI) v7 with custom theming
 - **Type Safety**: ✨ **Auto-generated API client** from OpenAPI specs
 - **Testing**: Vitest + React Testing Library + Playwright
@@ -190,11 +324,12 @@ describe('POST /users/login', () => {
 ```typescript
 // Type-safe API calls with auto-completion
 import { apiClient } from '@/lib/api/apiClient';
+import { LoginDto } from "../../App.API/Dtos/Authentication/AuthenticationDto";
 
-const handleLogin = async (credentials: LoginRequest) => {
+const handleLogin = async (credentials: LoginDto) => {
   try {
-    const result = await apiClient.login(credentials);
-    if (result.success) {
+    const result = await apiClient.authenticationLogin(credentials);
+    if (result.token) {
       // JWT token automatically stored and managed
       navigate('/dashboard');
     }

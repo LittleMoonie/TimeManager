@@ -11,10 +11,11 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 | **[README.md](#readme)** | Executive summary, stack overview, quick start guide | Project overview, technology stack, getting started, development setup |
 | **[ARCHITECTURE.md](#architecture)** | System design, layers, and architectural decisions | Frontend/backend separation, database design, infrastructure components, design patterns |
 | **[CODE_QUALITY.md](#code-quality)** | Monorepo hygiene and development standards | yarn workspaces, conventional commits, linting, code formatting, quality gates |
-| **[API_VERSIONING.md](#api-versioning)** | API versioning strategy and compatibility | Versioning scheme, deprecation policy, backward compatibility, changelog management |
+| **[API_VERSIONING.md](#api-versioning)** | API versioning strategy and compatibility | URL path versioning, deprecation policy, backward compatibility, changelog management |
 | **[DATABASE.md](#database)** | Database design, migrations, and operations | TypeORM entities, migration strategy, indexing, backups, audit trails, GDPR compliance |
-| **[AUTH_SECURITY.md](#auth-security)** | Authentication, authorization, and security policies | JWT/OIDC implementation, RBAC/ABAC, input validation, secrets management, security headers |
+| **[AUTH_SECURITY.md](#auth-security)** | Authentication, authorization, and security policies | JWT authentication, RBAC, class-validator, security headers, rate limiting, secrets management |
 | **[CACHE_QUEUES_REALTIME.md](#cache-queues)** | Caching, background jobs, and real-time features | Redis strategy, BullMQ configuration, cache invalidation, job processing, WebSocket setup |
+| **[`timesheet-history.md`](./backend/Database/timesheet-history.md)** | Timesheet history and audit logging | Auditable log of timesheet events, database table, API routes, service integration |
 | **[OBSERVABILITY.md](#observability)** | Monitoring, logging, and alerting | Prometheus metrics, Grafana dashboards, structured logging, health checks, SLO monitoring |
 | **[CI_CD.md](#ci-cd)** | Continuous integration and deployment | GitHub Actions, Jenkins pipelines, containerization, deployment strategies, environment management |
 | **[TESTING.md](#testing)** | Comprehensive testing strategy | Unit, integration, E2E, load, and security testing with Jest, Playwright, and k6 |
@@ -109,13 +110,12 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 **Purpose**: Authentication, authorization, and comprehensive security policies.
 
 **Key Topics**:
-- JWT authentication with bcrypt password hashing
-- Role-based access control (RBAC) and attribute-based access control (ABAC)
-- Password hashing with bcrypt and security policies
-- Input validation and sanitization with Zod
+- JWT authentication with `argon2` password hashing
+- Role-based access control (RBAC) with `RolePermissionService`
+- Input validation and sanitization with `class-validator`
 - Security headers (Helmet, CSP, HSTS, CORS)
 - Rate limiting and DDoS protection
-- Secrets management with SOPS/Doppler/Vault
+- Secrets management with environment variables and rotation policies
 - Security scanning and vulnerability management
 - Incident response and security monitoring
 

@@ -25,6 +25,7 @@ Backend architecture, database, security, and system design.
 | [`database.md`](./backend/database.md) | Database design, migrations, and operations |
 | [`auth-security.md`](./backend/auth-security.md) | Authentication, authorization, and security |
 | [`cache-queues-realtime.md`](./backend/cache-queues-realtime.md) | Caching, queues, and real-time features |
+| [`timesheet-history.md`](./backend/Database/timesheet-history.md) | Timesheet history and audit logging |
 
 ### 💻 Frontend Documentation (`frontend/`)
 Frontend architecture, components, and development guidelines.
@@ -65,7 +66,7 @@ Step-by-step guides and troubleshooting.
 
 ### For Developers
 1. Start with [`guides/getting-started.md`](./guides/getting-started.md)
-2. Review [`backend/architecture.md`](./backend/architecture.md)
+2. Review [`backend/architecture.md`](./backend/architecture.md) for system design and layers
 3. Check out the [`api/openapi-automation.md`](./api/openapi-automation.md) for the awesome auto-documentation system!
 
 ### For DevOps/Infrastructure
@@ -74,9 +75,9 @@ Step-by-step guides and troubleshooting.
 3. Set up monitoring with [`infrastructure/observability.md`](./infrastructure/observability.md)
 
 ### For API Consumers
-1. Start with [`api/specification.md`](./api/specification.md)
-2. Understand versioning in [`api/versioning.md`](./api/versioning.md)
-3. Use the interactive docs at `http://localhost:4000/api/docs`
+1. Start with [`api/specification.md`](./api/specification.md) for detailed endpoint definitions and DTOs.
+2. Understand versioning in [`api/versioning.md`](./api/versioning.md).
+3. Use the interactive docs at `http://localhost:4000/api/docs`.
 
 ## 🎯 Key Features
 
@@ -112,11 +113,17 @@ open http://localhost:4000/api/docs
 # Generate OpenAPI spec and frontend client
 cd App.API && yarn api:sync
 
-# Run tests
-yarn test
+# Run backend tests
+cd App.API && yarn test
 
-# Check code quality
-yarn lint && yarn typecheck
+# Run frontend tests
+cd App.Web && yarn test
+
+# Check backend code quality
+cd App.API && yarn lint && yarn typecheck
+
+# Check frontend code quality
+cd App.Web && yarn lint && yarn typecheck
 ```
 
 ## 📞 Getting Help

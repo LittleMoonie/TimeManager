@@ -15,7 +15,7 @@ import {
 import { Request as ExpressRequest } from "express";
 import { Service } from "typedi";
 
-import { UserService } from "../../Services/User/UserService";
+import { UserService } from "../../Services/Users/UserService";
 import { CreateUserDto, UpdateUserDto } from "../../Dtos/Users/UserDto";
 import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
 import User from "../../Entities/Users/User";
@@ -73,7 +73,7 @@ export class UserController extends Controller {
     @Request() request: ExpressRequest,
   ): Promise<UserResponseDto> {
     const me = request.user as User;
-    return this.userService.getUser(me.companyId, id, me);
+    return this.userService.getUserById(me.companyId, id, me);
   }
 
   /**

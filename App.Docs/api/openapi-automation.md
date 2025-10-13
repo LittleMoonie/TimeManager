@@ -81,7 +81,7 @@ App.Web/
 
 ### Technology Stack
 - **Backend**: Express.js + TypeORM + tsoa + Swagger UI
-- **Frontend**: React 19.2.0 + TypeScript + openapi-typescript
+- **Frontend**: React 19 + TypeScript + openapi-typescript
 - **CI/CD**: GitHub Actions + Automatic validation
 - **Documentation**: OpenAPI 3.0 + Swagger UI
 
@@ -93,13 +93,21 @@ App.Web/
 
 1. **Update API Routes**:
    ```typescript
-   @Route('users')
-   @Tags('Users')
-   export class UserController extends Controller {
-     @Post('/register')
-     @SuccessResponse('200', 'User registered successfully')
-     public async registerUser(@Body() requestBody: RegisterUserRequest): Promise<RegisterResponse> {
+   // App.API/Controllers/Authentication/AuthenticationController.ts (Simplified)
+   import { Body, Controller, Post, Route, Tags, SuccessResponse } from "tsoa";
+   import { RegisterDto } from "../../Dtos/Authentication/AuthenticationDto";
+   import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
+
+   @Route("auth")
+   @Tags("Authentication")
+   export class AuthenticationController extends Controller {
+     @Post("/register")
+     @SuccessResponse("201", "User registered successfully")
+     public async register(
+       @Body() requestBody: RegisterDto,
+     ): Promise<UserResponseDto> {
        // Implementation
+       return {} as UserResponseDto;
      }
    }
    ```
@@ -116,10 +124,15 @@ App.Web/
    import { apiClient } from '@/lib/api/apiClient';
 
    // Type-safe API calls with automatic JWT handling
-   const result = await apiClient.register({
+   const result = await apiClient.authenticationRegister({
      email: 'user@example.com',
-     username: 'johndoe',
-     password: 'secure123'
+     firstName: 'John',
+     lastName: 'Doe',
+     password: 'secure123',
+     companyId: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
+     roleId: 'r1o2l3e4-i5d6-7890-1234-567890abcdef',
+     statusId: 's1t2a3t4-u5s6-7890-1234-567890abcdef',
+     phoneNumber: '+15551234567',
    });
    ```
 

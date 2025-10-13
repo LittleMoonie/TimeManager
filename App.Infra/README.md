@@ -15,7 +15,7 @@ Modern Docker setup with hot reloading, health checks, and production-ready conf
 ### Development Mode (Recommended)
 
 ```bash
-cd infrastructure
+cd App.Infra
 ./scripts/dev.sh
 ```
 
@@ -28,14 +28,14 @@ This will:
 ### Manual Development Start
 
 ```bash
-cd infrastructure
+cd App.Infra
 docker compose up --build --watch
 ```
 
 ### Production Mode
 
 ```bash
-cd infrastructure
+cd App.Infra
 ./scripts/prod.sh
 ```
 
@@ -43,7 +43,7 @@ cd infrastructure
 
 | Service | Port | Description | Health Check |
 |---------|------|-------------|--------------|
-| **Web** | 3000 | React 19.2 frontend with Vite | ✅ HTTP check |
+| **Web** | 3000 | React 19 frontend with Vite | ✅ HTTP check |
 | **API** | 4000 | Node.js Express API | ✅ HTTP check |
 | **DB** | 5432 | PostgreSQL 16 database | ✅ pg_isready |
 
@@ -93,7 +93,7 @@ docker stats
 
 Create your environment file:
 ```bash
-cp .env.example ../env
+cp .env.example .env
 ```
 
 ### Environment Variables
@@ -105,14 +105,15 @@ cp .env.example ../env
 | `DB_USER` | postgres | Database username |
 | `DB_PASS` | password | Database password |
 | `DB_NAME` | gogotime | Database name |
-| `SECRET` | - | JWT secret key |
+| `JWT_SECRET` | - | JWT secret key |
+| `JWT_REFRESH_SECRET` | - | JWT refresh secret key |
 | `API_PORT` | 4000 | API service port |
 | `WEB_PORT` | 3000 | Web service port |
 
 ## 📁 File Structure
 
 ```
-infrastructure/
+App.Infra/
 ├── docker-compose.yml          # Development compose
 ├── docker-compose.prod.yml     # Production compose
 ├── scripts/
@@ -120,11 +121,10 @@ infrastructure/
 │   └── prod.sh                # Production startup script
 └── README.md                  # This file
 
-apps/
-├── api/
+../App.API/
 │   ├── Dockerfile             # Multi-stage API container
 │   └── ...
-└── web/
+../App.Web/
     ├── Dockerfile             # Multi-stage web container
     ├── nginx.conf             # Production nginx config
     └── ...
@@ -135,15 +135,15 @@ apps/
 The new Docker Compose watch feature provides:
 
 ### API Watch
-- **Sync**: `src/` directory changes instantly sync
-- **Sync**: `package.json` changes sync
-- **Rebuild**: `yarn.lock` changes trigger rebuild
+- **Sync**: `../App.API/src/` directory changes instantly sync
+- **Sync**: `../App.API/package.json` changes sync
+- **Rebuild**: `../App.API/yarn.lock` changes trigger rebuild
 
 ### Web Watch  
-- **Sync**: `src/` directory changes instantly sync
-- **Sync**: `public/` directory changes sync
-- **Sync**: `package.json` changes sync
-- **Rebuild**: `yarn.lock` changes trigger rebuild
+- **Sync**: `../App.Web/src/` directory changes instantly sync
+- **Sync**: `../App.Web/public/` directory changes sync
+- **Sync**: `../App.Web/package.json` changes sync
+- **Rebuild**: `../App.Web/yarn.lock` changes trigger rebuild
 
 ## 🏥 Health Checks
 

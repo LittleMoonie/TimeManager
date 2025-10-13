@@ -15,50 +15,72 @@ GoGoTime is a modern, full-stack application built with **TypeScript-first** app
 - **🔄 Auto-Generated API Documentation** - OpenAPI specs generated directly from TypeScript code
 - **⚡ Type-Safe API Client** - Auto-generated frontend SDK with full TypeScript support  
 - **🐳 Docker-First Development** - Complete containerized environment with hot reloading
-- **🔒 Secure Authentication** - JWT-based auth with session management
+- **🔒 Secure Authentication** - JWT-based auth with `argon2` password hashing and session management
 - **📊 Interactive API Docs** - Live Swagger UI for API exploration and testing
 - **🎯 Modern Stack** - React 19, Express.js, TypeORM, and PostgreSQL
 - **⚙️ Smart Auto-Generation** - Detects changes and updates docs when API is healthy
 
 ## 🛠️ Technology Stack
 
-├── 📁 App.API/                  # 🔌 Express.js + TypeORM Backend
-│   ├── controllers/         # 🎯 API endpoints with tsoa decorators
-│   ├── dto/                 # 📋 TypeScript data transfer objects
-│   ├── entities/              # 🗄️ TypeORM database entities
-│   │   ├── services/            # ⚙️ Business logic services
-│   │   └── routes/generated/    # ✨ Auto-generated tsoa routes
+```
+├── 📁 App.API/                  # 🔌 Node.js + Express.js + TypeORM Backend
+│   ├── src/
+│   │   ├── Config/              # ⚙️ Application configuration
+│   │   ├── Controllers/         # 🎯 API endpoints with tsoa decorators
+│   │   ├── Dtos/                # 📋 TypeScript data transfer objects
+│   │   ├── Entities/            # 🗄️ TypeORM database entities
+│   │   ├── Middlewares/         # 🔗 Express middleware
+│   │   ├── Migrations/          # ⬆️ TypeORM database migrations
+│   │   ├── Repositories/        # 📦 Data access layer
+│   │   ├── Routes/Generated/    # ✨ Auto-generated tsoa routes
+│   │   ├── Seeds/               # 🌱 Database seeders
+│   │   └── Services/            # ⚙️ Business logic services
+│   ├── package.json
 │   ├── swagger.json             # ✨ Auto-generated OpenAPI spec
 │   └── tsoa.json                # 🔧 OpenAPI generation config
 │
 ├── 📁 App.Web/                  # ⚛️ React 19 + Vite Frontend
 │   ├── src/
-│   │   ├── components/          # 🧩 React components
-│   │   ├── features/            # 📦 Feature-based modules
+│   │   ├── app/                 # 🚀 Main application logic
+│   │   ├── assets/              # 🖼️ Static assets
+│   │   ├── components/          # 🧩 Reusable React components
+│   │   ├── constants/           # 💡 Application constants
+│   │   ├── hooks/               # 🎣 Custom React hooks
+│   │   ├── layout/              # 📐 Layout components
 │   │   ├── lib/api/             # ✨ Auto-generated API client
 │   │   │   ├── client.ts        # 📡 Generated TypeScript types
 │   │   │   └── apiClient.ts     # 🛠️ Utility wrapper with error handling
+│   │   ├── pages/               # 📄 Page-level components
+│   │   ├── test/                # 🧪 Frontend tests
+│   │   ├── theme/               # 🎨 MUI theme configuration
 │   │   └── types/               # 🏷️ TypeScript type definitions
+│   └── package.json
 │
 ├── 📁 App.Infra/               # 🐳 Docker Infrastructure
 │   ├── docker-compose.yml      # 🔧 Development environment
+│   ├── docker-compose.prod.yml # 🚀 Production environment
+│   ├── .env.example             # 📝 Environment variables template
 │   └── README.md                # 📖 Docker setup guide
 │
 ├── 📁 App.Docs/                # 📚 Organized Documentation
 │   ├── api/                     # 🔌 API documentation
+│   │   ├── openapi-automation.md # ✨ Auto-generation system
 │   │   ├── specification.md     # 📋 Complete API reference
-│   │   ├── versioning.md        # 🔄 API versioning strategy
-│   │   └── openapi-automation.md # ✨ Auto-generation system
+│   │   └── versioning.md        # 🔄 API versioning strategy
 │   ├── backend/                 # ⚙️ Backend documentation
-│   ├── frontend/                # 🎨 Frontend documentation
-│   ├── infrastructure/          # 🚀 Infrastructure & deployment
+│   │   ├── Database/            # 🗄️ Database-specific documentation
+│   │   │   └── timesheet-history.md # 🕰️ Timesheet History Module
+│   │   ├── architecture.md      # 🏗️ System architecture and design patterns
+│   │   ├── auth-security.md     # 🔐 Authentication, authorization, and security
+│   │   ├── cache-queues-realtime.md # 🚀 Caching, queues, and real-time features
+│   │   └── database.md          # 🗄️ Database design, migrations, and operations
 │   ├── development/             # 🛠️ Development processes
-│   └── guides/                  # 📖 Step-by-step guides
-│       ├── getting-started.md   # 🎯 Quick start guide
-│       ├── troubleshooting.md   # 🔧 Common issues & solutions
-│       └── deployment.md        # 🚀 Production deployment
+│   ├── frontend/                # 🎨 Frontend documentation
+│   ├── guides/                  # 📖 Step-by-step guides
+│   ├── infrastructure/          # 🚀 Infrastructure & deployment
+│   └── TECHNICAL_OVERVIEW.md    # 🏗️ High-level technical overview
 │
-└── 📄 .env                     # 🔐 Environment configuration
+└── 📄 .env.example             # 🔐 Environment configuration template
 ```
 
 ## ✨ OpenAPI Auto-Generation System
@@ -84,13 +106,21 @@ GoGoTime is a modern, full-stack application built with **TypeScript-first** app
 
 #### 1. **Backend Controllers with Annotations**
 ```typescript
-@Route('users')
-@Tags('Users')  
-export class UserController extends Controller {
-  @Post('/api/register')
-  @SuccessResponse('200', 'User registered successfully')
-  public async registerUser(@Body() requestBody: RegisterUserRequest): Promise<RegisterResponse> {
+// App.API/Controllers/Authentication/AuthenticationController.ts (Simplified)
+import { Body, Controller, Post, Route, Tags, SuccessResponse } from "tsoa";
+import { RegisterDto } from "@App.API/Dtos/Authentication/AuthenticationDto";
+import { UserResponseDto } from "@App.API/Dtos/Users/UserResponseDto";
+
+@Route("auth")
+@Tags("Authentication")
+export class AuthenticationController extends Controller {
+  @Post("/register")
+  @SuccessResponse("201", "User registered successfully")
+  public async register(
+    @Body() requestBody: RegisterDto,
+  ): Promise<UserResponseDto> {
     // Implementation - generates OpenAPI automatically! ✨
+    return {} as UserResponseDto;
   }
 }
 ```
@@ -98,12 +128,11 @@ export class UserController extends Controller {
 #### 2. **Auto-Generated Frontend Client**
 ```typescript
 import { apiClient } from '@/lib/api/apiClient';
+import { LoginDto } from "./App.API/Dtos/Authentication/AuthenticationDto";
 
 // Type-safe API calls with auto-completion! 🎯
-const result = await apiClient.register({
-  email: 'user@example.com',
-  password: 'secure123'
-});
+const loginData: LoginDto = { email: 'user@example.com', password: 'secure123' };
+const result = await apiClient.authenticationLogin(loginData);
 ```
 
 #### 3. **Smart Endpoints**
@@ -179,9 +208,9 @@ Authorization: Bearer <jwt_token>
 ```
 
 ### 🎯 Key Endpoints
-- `POST /users/register` - User registration
-- `POST /users/login` - User authentication (returns JWT)
-- `POST /users/logout` - User logout (invalidates token)
+- `POST /auth/register` - User registration
+- `POST /auth/login` - User authentication (returns JWT)
+- `POST /auth/logout` - User logout (invalidates token)
 - `GET /system/health` - System health with OpenAPI status
 - `POST /system/generate-openapi` - Manual OpenAPI generation
 
@@ -218,8 +247,9 @@ docker push your-registry/gogotime-web
 | **✨ OpenAPI System** | Auto-generation details | [`App.Docs/api/openapi-automation.md`](App.Docs/api/openapi-automation.md) |
 | **🔧 Troubleshooting** | Common issues & fixes | [`App.Docs/guides/troubleshooting.md`](App.Docs/guides/troubleshooting.md) |
 | **🏗️ Architecture** | System design & patterns | [`App.Docs/backend/architecture.md`](App.Docs/backend/architecture.md) |
+| **🗄️ Database** | Database design, migrations, and operations | [`App.Docs/backend/database.md`](App.Docs/backend/database.md) |
+| **🕰️ Timesheet History** | Auditable log of timesheet events | [`App.Docs/backend/Database/timesheet-history.md`](App.Docs/backend/Database/timesheet-history.md) |
 | **🚀 Deployment** | Production deployment | [`App.Docs/guides/deployment.md`](App.Docs/guides/deployment.md) |
-| **🐳 Docker Setup** | Container configuration | [`App.Docs/infrastructure/docker.md`](App.Docs/infrastructure/docker.md) |
 
 ### 📂 Full Documentation Index
 ```bash
@@ -257,9 +287,9 @@ App.Docs/
 ## 🔒 Security & Privacy
 
 - **🔐 JWT Authentication**: Secure token-based auth
-- **🛡️ Password Hashing**: bcrypt with salt rounds
+- **🛡️ Password Hashing**: `argon2` with secure salt rounds
 - **⚡ Rate Limiting**: Protection against abuse
-- **🔍 Input Validation**: Zod schemas for request validation
+- **🔍 Input Validation**: `class-validator` for DTO validation
 - **🚨 Security Headers**: CORS, CSP, and security middleware
 
 ## 📞 Support & Community
