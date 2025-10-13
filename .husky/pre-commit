@@ -54,14 +54,46 @@ if echo "$STAGED_FILES" | grep -E "$BANNED" -q; then
 fi
 ok "No banned files."
 
-# --- 3) Secret scan in diff ---
-DIFF_CACHED="$(git diff --cached -U0 || true)"
-SECRET_RE='(AWS_SECRET_ACCESS_KEY|BEGIN RSA PRIVATE KEY|BEGIN PRIVATE KEY|xox[baprs]-[0-9A-Za-z-]{10,}|ghp_[0-9A-Za-z]{36,}|password\s*=|secret\s*=|token\s*=)'
-if printf "%s" "$DIFF_CACHED" | grep -Eqi "$SECRET_RE"; then
-  printf "%s" "$DIFF_CACHED" | grep -Ein "$SECRET_RE" -i | sed 's/^/   ⚠ /'
-  abort "Potential secret detected in diff."
+# --- 3) Secret scan in diff (show file + line + snippet) ---
+note "Scanning staged diff for secrets…"
+
+DIFF_CACHED="$(git diff --cached --unified=0 || true)"
+SECRET_RE='(AWS_SECRET_ACCESS_KEY|AWS_ACCESS_KEY_ID|BEGIN RSA PRIVATE KEY|BEGIN PRIVATE KEY|xox[baprs]-[0-9A-Za-z-]{10,}|ghp_[0-9A-Za-z]{36,}|gho_[0-9A-Za-z]{36,}|password\s*[:=]\s*["'\''A-Za-z0-9!@#\$%^&*()_+=-]+|secret\s*[:=]\s*["'\''A-Za-z0-9!@#\$%^&*()_+=-]+|token\s*[:=]\s*["'\''A-Za-z0-9!@#\$%^&*()_+=-]+)'
+
+# whitelist obvious safe paths (examples, docs)
+SAFE_ENV='(^|/)(\.env\.example$|\.env\.sample$|example\.env$|README|docs/)'
+
+# build list of staged files once
+FILES=$(echo "$FILES" | grep -vE '^\.husky/pre-commit$' || true)
+
+FOUND=0
+for f in $FILES; do
+  # only scan textual files
+  if [ ! -f "$f" ] || file --mime "$f" | grep -q binary; then
+    continue
+  fi
+
+  # scan diff for this file
+  # use grep to catch pattern, showing line and context
+  if git diff --cached -U0 -- "$f" | grep -Ein --color=never "$SECRET_RE" > /tmp/secret_hits.txt 2>/dev/null; then
+    if [ $FOUND -eq 0 ]; then
+      echo ""
+      red "❌ Potential secrets detected!"
+      FOUND=1
+    fi
+    echo ""
+    ylw "File: $f"
+    cat /tmp/secret_hits.txt | sed 's/^/   ⚠ /'
+    rm -f /tmp/secret_hits.txt
+  fi
+done
+
+if [ $FOUND -eq 1 ]; then
+  echo ""
+  abort "Remove or mask these secrets before committing."
 fi
-ok "No secrets found."
+
+ok "No secrets found (or only in safe example files)."
 
 # --- 4) Large non-asset files (>1MB) ---
 MAX=$((1024*1024))
