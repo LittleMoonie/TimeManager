@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 # 🧱 Husky pre-push hook — GoGoTime Monorepo
-# Blocks pushes to or from protected branches unless ALLOW_PROTECTED_PUSH=1
+# Blocks pushes *to* or *from* protected branches (main, develop)
+# unless ALLOW_PROTECTED_PUSH=1
 
 # ──────────────────────────────────────────────
-# Force bash, exit on any error
+# Ensure Bash and safe error handling
 # ──────────────────────────────────────────────
 [ -z "${BASH_VERSION:-}" ] && exec /usr/bin/env bash "$0" "$@"
 set -Eeuo pipefail
 
 # ──────────────────────────────────────────────
-# Pretty print helpers
+# Pretty output helpers
 # ──────────────────────────────────────────────
 red()  { printf "\033[31m%s\033[0m\n" "$*"; }
 grn()  { printf "\033[32m%s\033[0m\n" "$*"; }
 ylw()  { printf "\033[33m%s\033[0m\n" "$*"; }
 blu()  { printf "\033[34m%s\033[0m\n" "$*"; }
-
 abort(){ red "❌ $*"; exit 1; }
 note() { blu "ℹ️  $*"; }
 ok()   { grn "✅ $*"; }
@@ -24,7 +24,7 @@ warn() { ylw "⚠️  $*"; }
 # ──────────────────────────────────────────────
 # Config
 # ──────────────────────────────────────────────
-PROTECTED=("origin/main" "origin/develop" "main" "develop")
+PROTECTED=("main" "develop")
 BYPASS="${ALLOW_PROTECTED_PUSH:-0}"
 REMOTE="${1:-origin}"
 shift || true
@@ -40,17 +40,21 @@ note "Checking push target for protected branches..."
 BLOCK=0
 CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo HEAD)"
 
-# 1️⃣ Check explicit CLI args (e.g. `git push origin main`)
-for arg in "$@"; do
-  for BR in "${PROTECTED[@]}"; do
-    if [[ "$arg" == "$BR" || "$arg" == "refs/heads/$BR" ]]; then
-      red "❌ Push blocked: attempting to push to protected branch '$BR'"
-      BLOCK=1
-    fi
-  done
+# ──────────────────────────────────────────────
+# 1️⃣ Block pushes *from* protected branches
+# ──────────────────────────────────────────────
+for BR in "${PROTECTED[@]}"; do
+  if [[ "$CURRENT_BRANCH" == "$BR" ]]; then
+    red "❌ Push blocked: you are on protected branch '$BR'"
+    echo "   Please push from a feature branch via Pull Request instead."
+    BLOCK=1
+  fi
 done
 
-# 2️⃣ Check stdin refs (normal pushes)
+# ──────────────────────────────────────────────
+# 2️⃣ Block pushes *to* protected branches
+# ──────────────────────────────────────────────
+# Git sends refs as: local_ref local_sha remote_ref remote_sha
 while read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
   [ -z "${REMOTE_REF:-}" ] && continue
   for BR in "${PROTECTED[@]}"; do
@@ -61,39 +65,21 @@ while read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
   done
 done
 
-# 3️⃣ Check current branch fallback
-for BR in "${PROTECTED[@]}"; do
-  if [[ "$CURRENT_BRANCH" == "$BR" ]]; then
-    red "❌ Push blocked: you are on protected branch '$BR'"
-    BLOCK=1
-  fi
-done
-
-# also block pushing from protected branches
-CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo HEAD)"
-for BR in "${PROTECTED[@]}"; do
-  if [[ "$CURRENT_BRANCH" == "$BR" ]]; then
-    echo "❌ Push blocked: you are on protected branch '$BR'"
-    echo "   Please push from a feature branch via PR instead."
-    exit 1
-  fi
-done
-
-# detect destination branch (arg form like `git push origin main`)
+# ──────────────────────────────────────────────
+# 3️⃣ Fallback: block even if nothing to push
+# ──────────────────────────────────────────────
 for arg in "$@"; do
   for BR in "${PROTECTED[@]}"; do
     if [[ "$arg" == "$BR" || "$arg" == "refs/heads/$BR" ]]; then
-      echo ""
-      echo "❌ Push blocked: destination '$BR' is protected."
-      echo "🛑 Push cancelled — use Pull Request instead."
-      echo ""
-      exit 1
+      red "❌ Push blocked: destination '$BR' is protected."
+      BLOCK=1
     fi
   done
 done
 
-
+# ──────────────────────────────────────────────
 # 4️⃣ Decide outcome
+# ──────────────────────────────────────────────
 if [[ "$BLOCK" -eq 1 ]]; then
   if [[ "$BYPASS" == "1" ]]; then
     ylw "⚠️  Bypass enabled (ALLOW_PROTECTED_PUSH=1). Proceeding anyway."
