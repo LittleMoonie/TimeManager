@@ -177,9 +177,27 @@ Our Prettier configuration is defined at the root of the monorepo in `.prettierr
 
 ## Git Workflow & Commit Standards
 
-### Conventional Commits
+### Branch Naming Conventions
 
-All commits must follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
+To maintain a clean and organized Git history, please adhere to the following branch naming conventions:
+
+*   **Prefixes**: Start your branch name with a type that indicates its purpose.
+    *   `feat/`: For new features (e.g., `feat/user-profile-page`)
+    *   `fix/`: For bug fixes (e.g., `fix/login-button-not-working`)
+    *   `docs/`: For documentation updates (e.g., `docs/update-api-endpoints`)
+    *   `refactor/`: For code refactoring (e.g., `refactor/extract-auth-service`)
+    *   `chore/`: For maintenance tasks or minor changes (e.g., `chore/update-dependencies`)
+    *   `hotfix/`: For urgent bug fixes in production (e.g., `hotfix/critical-security-patch`)
+    *   `release/`: For release preparation (e.g., `release/v1.0.0`)
+*   **Descriptive**: Be clear and concise about the branch's purpose.
+*   **Kebab-case**: Use hyphens (`-`) to separate words (e.g., `feat/add-user-settings`).
+*   **Issue Numbers (Optional but Recommended)**: If applicable, include the issue number (e.g., `feat/issue-123-implement-dark-mode`).
+
+### Commit Messages (Conventional Commits)
+
+All commits must follow the [Conventional Commits](https://www.conventionalcommits.org/) specification. This project also enforces a detailed commit body structure to ensure clarity and context.
+
+**Structure**:
 
 ```
 <type>[optional scope]: <description>
@@ -189,23 +207,57 @@ All commits must follow the [Conventional Commits](https://www.conventionalcommi
 [optional footer(s)]
 ```
 
-**Types**:
+**1. Type (Mandatory)**:
+This describes the kind of change. Common types include:
+- `feat`: A new feature
+- `fix`: A bug fix
+- `docs`: Documentation only changes
+- `style`: Changes that do not affect the meaning of the code (white-space, formatting, missing semicolons, etc.)
+- `refactor`: A code change that neither fixes a bug nor adds a feature
+- `perf`: A code change that improves performance
+- `test`: Adding missing tests or correcting existing tests
+- `build`: Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)
+- `ci`: Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)
+- `chore`: Other changes that don't modify src or test files
+- `revert`: Reverts a previous commit
 
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `style`: Code style changes (formatting, etc.)
-- `refactor`: Code refactoring
-- `test`: Adding or updating tests
-- `chore`: Maintenance tasks
+**2. Scope (Optional)**:
+Provides additional contextual information (e.g., `feat(authentication)` or `fix(api-gateway)`).
+
+**3. Description (Mandatory)**:
+A short, imperative, present tense summary of the change (max 50-72 characters). No period at the end.
+
+**4. Body (Mandatory - Enforced by Commitlint)**:
+A longer explanation of the commit message, structured into "What", "Why", "How", and "Impact" sections. This is enforced by `commitlint`.
+
+*   **What**: Describe *what* specifically changed in this commit.
+*   **Why**: Explain the *motivation* for the change, linking to issues if applicable.
+*   **How**: Summarize *how* the change was implemented (high-level technical details).
+*   **Impact**: Mention any side effects, breaking changes, or important implications.
+
+**5. Footer (Optional)**:
+Used for referencing issues (e.g., `Closes #123`, `Fixes #456`) or indicating breaking changes (e.g., `BREAKING CHANGE: <description>`).
 
 **Examples**:
 
 ```bash
 feat(auth): add OIDC authentication support
-fix(api): resolve user creation validation error
-docs(readme): update installation instructions
-refactor(database): optimize user query performance
+
+What:
+- Integrated OIDC provider for single sign-on.
+- Added new configuration options for client ID and secret.
+
+Why:
+- To allow users to log in using their corporate identities.
+- Improves security and user experience by reducing password fatigue.
+
+How:
+- Used 'passport-openidconnect' strategy.
+- Created new authentication flow in AuthenticationService.
+
+Impact:
+- New environment variables required for OIDC configuration.
+- Users can now choose OIDC login option.
 ```
 
 **Example of a full commit command:**
