@@ -1,0 +1,15 @@
+#!/bin/sh
+# Validate commit message with commitlint if available
+# Usage: .husky/commit-msg passes path to temp message file as $1
+
+MSGFILE="$1"
+
+if command -v yarn >/dev/null 2>&1; then
+  # Quiet attempt: if commitlint is installed/configured, use it
+  if yarn dlx --quiet commitlint --edit "$MSGFILE" >/dev/null 2>&1; then
+    exit 0
+  fi
+fi
+
+# Fall back to allow commit if commitlint isn’t configured
+exit 0

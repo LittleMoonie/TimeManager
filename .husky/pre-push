@@ -1,0 +1,67 @@
+#!/bin/sh
+# bootstrap: re-exec in bash if Git uses /bin/sh
+[ -z "${BASH_VERSION:-}" ] && exec /usr/bin/env bash "$0" "$@"
+
+# --------------------------------------------
+# 🧱 Husky pre-push hook — block protected branches (local or remote)
+# --------------------------------------------
+
+set -euo pipefail
+
+PROTECTED=("main" "develop")
+BYPASS="${ALLOW_PROTECTED_PUSH:-0}"
+
+REMOTE_NAME="${1:-origin}"
+shift || true
+
+echo ""
+echo "🚧  Checking push target for protected branches..."
+
+BLOCK=0
+
+# 1️⃣ Check explicit args (e.g., git push origin main)
+for arg in "$@"; do
+  for BR in "${PROTECTED[@]}"; do
+    if [ "$arg" = "$BR" ] || [ "$arg" = "refs/heads/$BR" ]; then
+      echo "❌  Push blocked: attempting to push to protected branch '$BR'"
+      BLOCK=1
+    fi
+  done
+done
+
+# 2️⃣ Check stdin refs (normal pushes)
+while read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
+  for BR in "${PROTECTED[@]}"; do
+    if [ "$REMOTE_REF" = "refs/heads/$BR" ]; then
+      echo "❌  Push blocked: remote target '$BR' is protected"
+      BLOCK=1
+    fi
+  done
+done
+
+# 3️⃣ Check current branch fallback
+CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD || echo HEAD)"
+for BR in "${PROTECTED[@]}"; do
+  if [ "$CURRENT_BRANCH" = "$BR" ]; then
+    echo "❌  Push blocked: you are on protected branch '$BR'"
+    BLOCK=1
+  fi
+done
+
+# 4️⃣ Decide outcome
+if [ "$BLOCK" -eq 1 ]; then
+  if [ "$BYPASS" = "1" ]; then
+    echo "⚠️  Bypass enabled (ALLOW_PROTECTED_PUSH=1). Proceeding anyway."
+    exit 0
+  fi
+  echo ""
+  echo "🛑  Push cancelled — protected branch."
+  echo "   Use a Pull Request instead."
+  echo "   (set ALLOW_PROTECTED_PUSH=1 to override — not recommended)"
+  echo ""
+  exit 1
+fi
+
+echo "✅  No protected branches targeted. Safe to push."
+echo ""
+exit 0

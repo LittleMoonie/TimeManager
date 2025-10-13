@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+# bootstrap: re-exec in bash if we’re not already there
+[ -z "${BASH_VERSION:-}" ] && exec /usr/bin/env bash "$0" "$@"
+
+# ------------------------------------------
+# 🧩 Husky pre-commit hook — GoGoTime Monorepo
+# Runs staged checks, blocks secrets, enforces branch policy,
+# formats & lints code, typechecks & optional tests
+# ------------------------------------------
+
+# make sure we’re in bash (dash chokes on pipefail)
+if [ -z "${BASH_VERSION:-}" ]; then
+  echo "❌ Please run this hook with bash (not sh)."
+  exit 1
+fi
+
+set -Eeuo pipefail
+
+# --- Pretty helpers ---
+red()  { printf "\033[31m%s\033[0m\n" "$*"; }
+grn()  { printf "\033[32m%s\033[0m\n" "$*"; }
+ylw()  { printf "\033[33m%s\033[0m\n" "$*"; }
+blu()  { printf "\033[34m%s\033[0m\n" "$*"; }
+abort(){ red "❌ $*"; exit 1; }
+note() { blu "ℹ️  $*"; }
+ok()   { grn "✅ $*"; }
+warn() { ylw "⚠️  $*"; }
+
+# --- Detect staged files ---
+STAGED_FILES="$(git diff --cached --name-only --diff-filter=ACMR)"
+[ -z "$STAGED_FILES" ] && { note "No staged files. Skipping."; exit 0; }
+
+echo ""
+blu "───────────────────────────────────────────────"
+blu "🔍  GoGoTime Pre-commit Checks"
+blu "───────────────────────────────────────────────"
+echo ""
+
+# --- 1) Branch policy ---
+BRANCH="$(git rev-parse --abbrev-ref HEAD || echo 'HEAD')"
+case "$BRANCH" in
+  main|master|develop|release/*|hotfix/*|feat/*|fix/*|chore/*) : ;;
+  *) warn "Branch '$BRANCH' violates naming policy."
+     [ "${SKIP_BRANCH_CHECK:-0}" = "1" ] || abort "Rename your branch or set SKIP_BRANCH_CHECK=1"
+     ;;
+esac
+ok "Branch ok → $BRANCH"
+
+# --- 2) Banned files (secrets, keys, dumps) ---
+BANNED='(^|/)(\.env(\..*)?$|.*\.pem$|.*\.p12$|.*\.key$|.*\.crt$|id_rsa$|id_ed25519$|.*\.kdbx$|.*\.sqlite$|.*\.db$|.*\.dump$)'
+if echo "$STAGED_FILES" | grep -E "$BANNED" -q; then
+  echo "$STAGED_FILES" | grep -E "$BANNED" | sed 's/^/   • /'
+  abort "Sensitive or binary file detected."
+fi
+ok "No banned files."
+
+# --- 3) Secret scan in diff ---
+DIFF_CACHED="$(git diff --cached -U0 || true)"
+SECRET_RE='(AWS_SECRET_ACCESS_KEY|BEGIN RSA PRIVATE KEY|BEGIN PRIVATE KEY|xox[baprs]-[0-9A-Za-z-]{10,}|ghp_[0-9A-Za-z]{36,}|password\s*=|secret\s*=|token\s*=)'
+if printf "%s" "$DIFF_CACHED" | grep -Eqi "$SECRET_RE"; then
+  printf "%s" "$DIFF_CACHED" | grep -Ein "$SECRET_RE" -i | sed 's/^/   ⚠ /'
+  abort "Potential secret detected in diff."
+fi
+ok "No secrets found."
+
+# --- 4) Large non-asset files (>1MB) ---
+MAX=$((1024*1024))
+ALLOW_ASSET='\.(png|jpg|jpeg|gif|svg|webp|mp4|mov|pdf)$'
+while IFS= read -r f; do
+  [ -f "$f" ] || continue
+  echo "$f" | grep -Eiq "$ALLOW_ASSET" && continue
+  size=$(stat -c%s "$f" 2>/dev/null || echo 0)
+  if [ "$size" -gt "$MAX" ]; then
+    warn "File too large: $f ($size bytes)"
+    abort "Use Git LFS or compress before committing."
+  fi
+done <<<"$STAGED_FILES"
+ok "No oversized files."
+
+# --- 5) Block TODO!/FIXME!/HACK! markers ---
+if printf "%s" "$DIFF_CACHED" | grep -E '(\bTODO!\b|\bFIXME!\b|\bHACK!\b)' -q; then
+  printf "%s" "$DIFF_CACHED" | grep -En '(\bTODO!\b|\bFIXME!\b|\bHACK!\b)' | sed 's/^/   • /'
+  abort "Remove TODO!/FIXME!/HACK! markers."
+fi
+ok "No blocking markers."
+
+# --- 6) Lint + Format (Yarn 4 PnP safe) ---
+note "Running lint-staged (format + lint)…"
+yarn dlx lint-staged --concurrent false || abort "Lint/format failed."
+ok "Lint/format passed."
+
+# --- 7) Type-check staged TS files ---
+run_ts() {
+  local cfg="$1"
+  [ -f "$cfg" ] || return 0
+  note "Type-checking: $cfg"
+  yarn dlx tsc -p "$cfg" --noEmit || abort "Type errors detected → $cfg"
+}
+if echo "$STAGED_FILES" | grep -E '^App\.Web/.*\.(ts|tsx)$' -q; then
+  run_ts "App.Web/tsconfig.json"
+fi
+if echo "$STAGED_FILES" | grep -E '^App\.API/.*\.(ts|tsx)$' -q; then
+  [ -f "App.API/tsconfig.json" ] && run_ts "App.API/tsconfig.json" || run_ts "App.API/tsconfig.build.json"
+fi
+ok "Typecheck OK (or not needed)."
+
+# --- 8) Optional tests ---
+if [ "${SKIP_TESTS:-0}" != "1" ]; then
+  if echo "$STAGED_FILES" | grep -E '^App\.Web/(src|test)/' -q && (cd App.Web && yarn -s test --help >/dev/null 2>&1); then
+    note "Running App.Web tests…"
+    (cd App.Web && yarn -s test --run || yarn -s test) || abort "App.Web tests failed."
+  fi
+  if echo "$STAGED_FILES" | grep -E '^App\.API/' -q && (cd App.API && yarn -s test --help >/dev/null 2>&1); then
+    note "Running App.API tests…"
+    (cd App.API && yarn -s test) || abort "App.API tests failed."
+  fi
+else
+  warn "Skipping tests (SKIP_TESTS=1)."
+fi
+
+echo ""
+grn "✨ All pre-commit checks passed. Great job!"
+echo ""
