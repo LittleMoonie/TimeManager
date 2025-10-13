@@ -79,6 +79,19 @@ for BR in "${PROTECTED[@]}"; do
   fi
 done
 
+# detect destination branch (arg form like `git push origin main`)
+for arg in "$@"; do
+  for BR in "${PROTECTED[@]}"; do
+    if [[ "$arg" == "$BR" || "$arg" == "refs/heads/$BR" ]]; then
+      echo ""
+      echo "❌ Push blocked: destination '$BR' is protected."
+      echo "🛑 Push cancelled — use Pull Request instead."
+      echo ""
+      exit 1
+    fi
+  done
+done
+
 
 # 4️⃣ Decide outcome
 if [[ "$BLOCK" -eq 1 ]]; then
