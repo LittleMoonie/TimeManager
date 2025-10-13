@@ -6,6 +6,13 @@
   "description": "API for T-DEV-700 Project for Epitech",
   "main": "build/index.js",
   "scripts": {
+    "eslint": "...",
+    "eslint-*": "...",
+    "prettier": "...",
+    "lint-staged": "...",
+    "@typescript-eslint/*": "...",
+    "husky": "...",
+    "eslintConfig": { "extends": "../../.eslintrc.cjs" },
     "test": "jest --coverage --runInBand --detectOpenHandles",
     "dev": "ts-node-dev --respawn --transpile-only index.ts",
     "seed": "ts-node server/seed.ts",
