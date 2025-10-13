@@ -1,0 +1,8 @@
+FROM sonarsource/sonar-scanner-cli
+
+# Install Node.js and Yarn using apt-get
+RUN apt-get update && apt-get install -y nodejs npm curl gnupg
+RUN npm install -g yarn
+
+# Set working directory
+WORKDIR /usr/src

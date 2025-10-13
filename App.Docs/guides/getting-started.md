@@ -6,7 +6,7 @@ Welcome to GoGoTime! This guide will get you up and running with the development
 
 Before starting, ensure you have:
 
-- **Node.js** and **Yarn** (refer to `App.API/.nvmrc` and `App.API/.yarnrc.yml` for specific versions)
+- **Node.js** and **Yarn** (refer to the root `.nvmrc` and `.yarnrc.yml` for specific versions)
 - **Docker** and **Docker Compose**
 - **Git** for version control
 

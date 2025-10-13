@@ -104,7 +104,7 @@ Step-by-step guides and troubleshooting.
 
 - **Hot reloading** with Docker Compose watch mode
 - **Comprehensive testing** with Jest, Playwright, and k6
-- **Quality gates** with ESLint, TypeScript strict mode
+- **Quality gates** with Husky, lint-staged, ESLint, TypeScript strict mode
 - **Automated CI/CD** with GitHub Actions
 
 ### 🏗️ Production-Ready Architecture
@@ -132,11 +132,11 @@ cd App.API && yarn test
 # Run frontend tests
 cd App.Web && yarn test
 
-# Check backend code quality
-cd App.API && yarn lint && yarn typecheck
+# Check monorepo code quality (linting)
+yarn lint
 
-# Check frontend code quality
-cd App.Web && yarn lint && yarn typecheck
+# Check monorepo code quality (type-checking)
+yarn typecheck
 ```
 
 ## 📞 Getting Help

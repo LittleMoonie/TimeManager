@@ -283,17 +283,16 @@ docker compose restart api
 1. **Update dependencies**:
 
    ```bash
-   cd App.API  # or App.Web
    yarn install
    ```
 
 2. **Fix common issues**:
 
    ```bash
-   # Auto-fix ESLint issues
+   # Auto-fix ESLint issues across the monorepo
    yarn lint --fix
 
-   # Check TypeScript issues
+   # Check TypeScript issues across the monorepo
    yarn typecheck
    ```
 

@@ -8,10 +8,14 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "husky",
-    "format": "prettier --write \"./**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\" --ignore-path .gitignore --config ./.prettierrc.json"
+    "prepare": "husky install",
+    "format": "prettier --write \"{App.API,App.Web}/**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\" \"./*.{js,json,md,yml,yaml}\" --ignore-path .gitignore --config ./.prettierrc.json --ignore-unknown --exclude '**/package.json'",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
     "@typescript-eslint/eslint-plugin": "^8.3.0",
     "@typescript-eslint/parser": "^8.3.0",
     "eslint": "^9.7.0",
@@ -25,5 +29,9 @@
     "pinst": "^3.0.0",
     "prettier": "^3.3.3"
   },
-  "packageManager": "yarn@4.10.3"
+  "packageManager": "yarn@4.10.3",
+  "engines": {
+    "node": ">=24.9.0",
+    "yarn": ">=4.10.3"
+  }
 }

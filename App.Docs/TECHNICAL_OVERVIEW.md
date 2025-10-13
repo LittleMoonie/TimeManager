@@ -8,8 +8,8 @@ _A high-level technical roadmap for enterprise-grade development practices._
 
 - **Package Management**: Yarn workspaces with proper dependency isolation
 - **Versioning**: Conventional commits with automated changelog generation
-- **Quality Gates**: Husky + lint-staged for pre-commit validation
-- **Code Standards**: ESLint + Prettier with TypeScript strict mode
+- **Quality Gates**: Unified Husky + lint-staged for pre-commit validation
+- **Code Standards**: Unified ESLint + Prettier with TypeScript strict mode (configured at root)
 
 ### API Design
 
@@ -396,7 +396,7 @@ cd App.Infra && docker compose up --build --watch
 - **Live Reloading**: Docker Compose watch mode for instant feedback
 - **Type Safety**: Full TypeScript coverage with strict mode
 - **Code Generation**: API client auto-generation on backend changes
-- **Quality Gates**: Pre-commit hooks with automated formatting and linting
+- **Quality Gates**: Pre-commit hooks (Husky, lint-staged) with automated formatting (Prettier) and linting (ESLint)
 
 ## 🎯 Product & User Experience
 
