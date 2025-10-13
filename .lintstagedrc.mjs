@@ -1,11 +1,15 @@
 export default {
-  'App.{API,Web}/**/*.{ts,tsx,js,jsx,json,css,scss,md,yml,yaml}': [
-    'yarn dlx prettier --write',
+  // Lint and format TypeScript and JavaScript files in App.API and App.Web
+  "App.{API,Web}/**/*.{ts,tsx,js,jsx}": [
+    "eslint --fix",
+    "prettier --write"
   ],
-  'App.{API,Web}/**/*.{ts,tsx,js,jsx}': ['yarn dlx eslint --fix'],
-
-  // Ignore monorepo configs
-  '!package.json': 'echo "🟡 skipped root package.json"',
-  '!.prettierrc*': 'echo "🟡 skipped prettier config"',
-  '!yarn.lock': 'echo "🟡 skipped yarn.lock"'
+  // Format other files in App.API and App.Web
+  "App.{API,Web}/**/*.{json,md,yml,yaml}": [
+    "prettier --write"
+  ],
+  // Exclude root-level configuration files from linting/formatting
+  "!{.prettierrc.json,package.json,yarn.lock,eslint.config.js,.lintstagedrc.mjs}": [
+    // No actions for these files, they are explicitly skipped
+  ]
 };
