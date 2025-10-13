@@ -9,9 +9,10 @@ import LoginPage from '@/pages/login';
 import PeoplePage from '@/pages/people';
 import ProfilePage from '@/pages/profile';
 import ReportsPage from '@/pages/reports';
-import SettingsPage from '@/pages/settings';
-import TasksPage from '@/pages/tasks';
+// import TasksPage from '@/pages/tasks'
 import TimesheetPage from '@/pages/timesheet';
+
+import ForgotPasswordPage from '@/pages/forgot-password';
 
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -51,6 +52,14 @@ const routeConfig: RouteObject[] = [
     ),
   },
   {
+    path: '/forgot-password',
+    element: (
+      <PublicRoute>
+        <ForgotPasswordPage />
+      </PublicRoute>
+    ),
+  },
+  {
     path: '/',
     element: (
       <ProtectedRoute>
@@ -59,11 +68,10 @@ const routeConfig: RouteObject[] = [
     ),
     children: [
       { index: true, element: <HomePage /> },
-      { path: 'tasks', element: <TasksPage /> },
+      // { path: 'tasks', element: <TasksPage /> },
       { path: 'timesheet', element: <TimesheetPage /> },
       { path: 'people', element: <PeoplePage /> },
       { path: 'reports', element: <ReportsPage /> },
-      { path: 'settings', element: <SettingsPage /> },
       { path: 'profile', element: <ProfilePage /> },
     ],
   },

@@ -136,24 +136,27 @@ import { Request, Response, NextFunction } from 'express';
 
 export const metricsMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
-  
+
   res.on('finish', () => {
     const duration = (Date.now() - start) / 1000;
     const route = req.route?.path || req.path;
-    
+
     httpRequestsTotal.inc({
       method: req.method,
       route,
       status_code: res.statusCode.toString(),
     });
-    
-    httpRequestDuration.observe({
-      method: req.method,
-      route,
-      status_code: res.statusCode.toString(),
-    }, duration);
+
+    httpRequestDuration.observe(
+      {
+        method: req.method,
+        route,
+        status_code: res.statusCode.toString(),
+      },
+      duration,
+    );
   });
-  
+
   next();
 };
 
@@ -161,15 +164,15 @@ export const metricsMiddleware = (req: Request, res: Response, next: NextFunctio
 export const withDatabaseMetrics = <T extends any[], R>(
   queryType: string,
   table: string,
-  fn: (...args: T) => Promise<R>
+  fn: (...args: T) => Promise<R>,
 ) => {
   return async (...args: T): Promise<R> => {
     const start = Date.now();
-    
+
     try {
       const result = await fn(...args);
       const duration = (Date.now() - start) / 1000;
-      
+
       databaseQueryDuration.observe({ query_type: queryType, table }, duration);
       return result;
     } catch (error) {
@@ -184,15 +187,15 @@ export const withDatabaseMetrics = <T extends any[], R>(
 export const withCacheMetrics = <T extends any[], R>(
   operation: string,
   cacheLayer: string,
-  fn: (...args: T) => Promise<R>
+  fn: (...args: T) => Promise<R>,
 ) => {
   return async (...args: T): Promise<R> => {
     const start = Date.now();
-    
+
     try {
       const result = await fn(...args);
       const duration = (Date.now() - start) / 1000;
-      
+
       cacheOperations.inc({ operation, cache_layer: cacheLayer, result: 'success' });
       return result;
     } catch (error) {
@@ -220,26 +223,26 @@ export class MetricsService {
 
   // Project metrics
   static recordProjectCreation(organizationId: string, projectType: string): void {
-    projectCreationRate.inc({ 
-      organization_id: organizationId, 
-      project_type: projectType 
+    projectCreationRate.inc({
+      organization_id: organizationId,
+      project_type: projectType,
     });
   }
 
   // Cache metrics
   static recordCacheHit(cacheLayer: string): void {
-    cacheOperations.inc({ 
-      operation: 'get', 
-      cache_layer: cacheLayer, 
-      result: 'hit' 
+    cacheOperations.inc({
+      operation: 'get',
+      cache_layer: cacheLayer,
+      result: 'hit',
     });
   }
 
   static recordCacheMiss(cacheLayer: string): void {
-    cacheOperations.inc({ 
-      operation: 'get', 
-      cache_layer: cacheLayer, 
-      result: 'miss' 
+    cacheOperations.inc({
+      operation: 'get',
+      cache_layer: cacheLayer,
+      result: 'miss',
     });
   }
 
@@ -303,7 +306,7 @@ const logger = pino({
 // Request logging middleware
 export const requestLogger = (req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
-  
+
   req.log = logger.child({
     requestId: req.headers['x-request-id'] || generateRequestId(),
     userId: req.user?.id,
@@ -311,39 +314,48 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
     ip: req.ip,
     userAgent: req.headers['user-agent'],
   });
-  
-  req.log.info({
-    method: req.method,
-    url: req.url,
-    headers: req.headers,
-  }, 'Incoming request');
-  
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    
-    req.log.info({
+
+  req.log.info(
+    {
       method: req.method,
       url: req.url,
-      statusCode: res.statusCode,
-      duration,
-    }, 'Request completed');
+      headers: req.headers,
+    },
+    'Incoming request',
+  );
+
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+
+    req.log.info(
+      {
+        method: req.method,
+        url: req.url,
+        statusCode: res.statusCode,
+        duration,
+      },
+      'Request completed',
+    );
   });
-  
+
   next();
 };
 
 // Error logging
 export const errorLogger = (error: Error, req: Request) => {
   const log = req.log || logger;
-  
-  log.error({
-    err: error,
-    stack: error.stack,
-    requestId: req.headers['x-request-id'],
-    userId: req.user?.id,
-    method: req.method,
-    url: req.url,
-  }, 'Request error');
+
+  log.error(
+    {
+      err: error,
+      stack: error.stack,
+      requestId: req.headers['x-request-id'],
+      userId: req.user?.id,
+      method: req.method,
+      url: req.url,
+    },
+    'Request error',
+  );
 };
 ```
 
@@ -356,7 +368,7 @@ services:
   loki:
     image: grafana/loki:2.8.0
     ports:
-      - "3100:3100"
+      - '3100:3100'
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - ./loki-config.yml:/etc/loki/local-config.yaml
@@ -372,7 +384,7 @@ services:
   grafana:
     image: grafana/grafana:10.0.0
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
@@ -472,7 +484,7 @@ export class HealthCheckService {
     timestamp: string;
   }> {
     const checkResults: Record<string, boolean> = {};
-    
+
     for (const [name, check] of this.checks) {
       try {
         checkResults[name] = await check();
@@ -481,8 +493,8 @@ export class HealthCheckService {
       }
     }
 
-    const allHealthy = Object.values(checkResults).every(result => result);
-    
+    const allHealthy = Object.values(checkResults).every((result) => result);
+
     return {
       status: allHealthy ? 'healthy' : 'unhealthy',
       checks: checkResults,
@@ -498,7 +510,7 @@ export class HealthCheckService {
     // Readiness checks are more comprehensive than liveness checks
     const readinessChecks = ['database', 'redis'];
     const checkResults: Record<string, boolean> = {};
-    
+
     for (const checkName of readinessChecks) {
       const check = this.checks.get(checkName);
       if (check) {
@@ -510,8 +522,8 @@ export class HealthCheckService {
       }
     }
 
-    const allReady = Object.values(checkResults).every(result => result);
-    
+    const allReady = Object.values(checkResults).every((result) => result);
+
     return {
       status: allReady ? 'ready' : 'not_ready',
       checks: checkResults,
@@ -562,8 +574,8 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "High error rate detected"
-          description: "Error rate is {{ $value }} errors per second"
+          summary: 'High error rate detected'
+          description: 'Error rate is {{ $value }} errors per second'
 
       # High response time
       - alert: HighResponseTime
@@ -572,8 +584,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "High response time detected"
-          description: "95th percentile response time is {{ $value }} seconds"
+          summary: 'High response time detected'
+          description: '95th percentile response time is {{ $value }} seconds'
 
       # Database connection issues
       - alert: DatabaseConnectionIssues
@@ -582,8 +594,8 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Database connection issues"
-          description: "No active database connections"
+          summary: 'Database connection issues'
+          description: 'No active database connections'
 
       # High memory usage
       - alert: HighMemoryUsage
@@ -592,8 +604,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "High memory usage"
-          description: "Memory usage is {{ $value | humanizePercentage }}"
+          summary: 'High memory usage'
+          description: 'Memory usage is {{ $value | humanizePercentage }}'
 
       # Queue backup
       - alert: QueueBackup
@@ -602,8 +614,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Queue backup detected"
-          description: "Queue {{ $labels.queue }} has {{ $value }} pending jobs"
+          summary: 'Queue backup detected'
+          description: 'Queue {{ $labels.queue }} has {{ $value }} pending jobs'
 
       # Cache hit rate low
       - alert: LowCacheHitRate
@@ -612,8 +624,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Low cache hit rate"
-          description: "Cache hit rate is {{ $value | humanizePercentage }}"
+          summary: 'Low cache hit rate'
+          description: 'Cache hit rate is {{ $value | humanizePercentage }}'
 ```
 
 ### SLO Definitions
@@ -658,10 +670,10 @@ export class SLOMonitor {
         sum(rate(http_requests_total[5m]))
       ) * 100
     `;
-    
+
     const result = await this.prometheus.query(query);
     const current = result[0]?.value[1] || 0;
-    
+
     return {
       current: parseFloat(current),
       target: SLOs.availability.target,
@@ -679,10 +691,10 @@ export class SLOMonitor {
         sum(rate(http_request_duration_seconds_bucket[5m])) by (le)
       ) * 1000
     `;
-    
+
     const result = await this.prometheus.query(query);
     const current = result[0]?.value[1] || 0;
-    
+
     return {
       current: parseFloat(current),
       target: SLOs.latency.target,
@@ -701,10 +713,10 @@ export class SLOMonitor {
         sum(rate(http_requests_total[5m]))
       ) * 100
     `;
-    
+
     const result = await this.prometheus.query(query);
     const current = result[0]?.value[1] || 0;
-    
+
     return {
       current: parseFloat(current),
       target: SLOs.errorRate.target,
@@ -724,9 +736,9 @@ export class SLOMonitor {
       this.checkErrorRate(),
     ]);
 
-    const overall = [availability, latency, errorRate].every(
-      slo => slo.status === 'meeting'
-    ) ? 'meeting' : 'violating';
+    const overall = [availability, latency, errorRate].every((slo) => slo.status === 'meeting')
+      ? 'meeting'
+      : 'violating';
 
     return {
       availability,
@@ -778,18 +790,15 @@ import { trace, context, SpanStatusCode } from '@opentelemetry/api';
 
 export const tracer = trace.getTracer('ncy-8-api');
 
-export function withTrace<T extends any[], R>(
-  name: string,
-  fn: (...args: T) => Promise<R>
-) {
+export function withTrace<T extends any[], R>(name: string, fn: (...args: T) => Promise<R>) {
   return async (...args: T): Promise<R> => {
     const span = tracer.startSpan(name);
-    
+
     try {
       const result = await context.with(trace.setSpan(context.active(), span), () => {
         return fn(...args);
       });
-      
+
       span.setStatus({ code: SpanStatusCode.OK });
       return result;
     } catch (error) {
@@ -886,4 +895,4 @@ export function withTrace<T extends any[], R>(
 
 ---
 
-*This observability strategy provides comprehensive monitoring, alerting, and debugging capabilities to ensure system reliability and performance.*
+_This observability strategy provides comprehensive monitoring, alerting, and debugging capabilities to ensure system reliability and performance._

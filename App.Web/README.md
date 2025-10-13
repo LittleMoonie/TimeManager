@@ -96,6 +96,7 @@ VITE_USE_MOCK_DATA=true
 The application uses mock data by default for development. Set `VITE_USE_MOCK_DATA=false` to use real API endpoints.
 
 **Demo Credentials:**
+
 - Email: `admin@gogotime.com`
 - Password: `admin123`
 
@@ -205,4 +206,3 @@ The built files will be in the `dist/` directory, ready for deployment to any st
 1. Check React Query DevTools for unnecessary requests
 2. Use React DevTools Profiler to identify slow components
 3. Ensure proper memoization for expensive calculations
-

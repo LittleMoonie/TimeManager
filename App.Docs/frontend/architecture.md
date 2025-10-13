@@ -7,12 +7,14 @@ The GoGoTime frontend is built with React 19, TypeScript, and Material-UI, follo
 ## Technology Stack
 
 ### Core Framework
-- **React 19.2.0** with Vite for development
+
+- **React 19** with Vite for development
 - **TypeScript 5.9+** for type safety
 - **Material-UI (MUI) v7** for UI components
-- **Redux Toolkit** with React Redux for state management
+- **Zustand** for global state management
 
 ### Development Tools
+
 - **Vite 7+** for fast development and building
 - **ESLint + Prettier** for code quality
 - **Vitest** with React Testing Library for testing
@@ -24,7 +26,7 @@ The GoGoTime frontend is built with React 19, TypeScript, and Material-UI, follo
 App.Web/src/
 ├── components/          # 🧩 Reusable React components
 │   ├── cards/          # Card components
-│   ├── common/         # Common UI components  
+│   ├── common/         # Common UI components
 │   ├── extended/       # Extended/custom components
 │   ├── guards/         # Route protection components
 │   └── layout/         # Layout components
@@ -33,12 +35,7 @@ App.Web/src/
 │   ├── dashboard/     # Dashboard components
 │   └── utilities/     # Utility pages
 ├── hooks/             # 🎣 Custom React hooks
-├── lib/               # 📚 Libraries and utilities
-│   ├── api/           # ✨ Auto-generated API client
-│   ├── menu-items/   # Navigation configuration
-│   ├── router.tsx     # React Router setup
-│   ├── routes/        # Route definitions
-│   └── store/         # Redux store configuration
+├── lib/               # 📚 Libraries and utilities (e.g., API client, store, navigation config)
 ├── styles/            # 🎨 Styling and themes
 ├── themes/            # Material-UI theme configuration
 └── types/             # 🏷️ TypeScript type definitions
@@ -46,48 +43,46 @@ App.Web/src/
 
 ## State Management
 
-### Redux Toolkit Setup
+### Zustand Store Setup
+
 ```typescript
 // lib/store/index.ts
-import { configureStore } from '@reduxjs/toolkit';
-import customizationSlice from './slices/customizationSlice';
+import { create } from 'zustand';
 
-export const store = configureStore({
-  reducer: {
-    customization: customizationSlice,
-  },
-});
-
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
-```
-
-### Customization State
-```typescript
-// lib/store/slices/customizationSlice.ts
-export interface CustomizationState {
-  isOpen: string[];           // Opened menu items
-  defaultId: string;          // Default opened menu
-  fontFamily: string;         // Font family setting  
-  borderRadius: number;       // UI border radius
-  opened: boolean;            // Sidebar open state
+interface CustomizationState {
+  isOpen: string[];
+  defaultId: string;
+  fontFamily: string;
+  borderRadius: number;
+  opened: boolean;
 }
+
+export const useAppStore = create<CustomizationState>((set) => ({
+  isOpen: [],
+  defaultId: 'default',
+  fontFamily: 'Roboto',
+  borderRadius: 8,
+  opened: true,
+}));
 ```
 
 ## API Integration
 
 ### Type-Safe API Client
+
 The frontend uses an **auto-generated, type-safe API client**:
 
 ```typescript
 // lib/api/apiClient.ts
 import { apiClient } from '@/lib/api/apiClient';
+import { LoginDto } from '../../App.API/Dtos/Authentication/AuthenticationDto';
+import { ApiError } from './apiClient'; // Assuming ApiError is defined in apiClient.ts
 
 // Type-safe API calls with auto-completion
-const loginUser = async (credentials: LoginRequest) => {
+const loginUser = async (credentials: LoginDto) => {
   try {
-    const result = await apiClient.login(credentials);
-    if (result.success && result.token) {
+    const result = await apiClient.authenticationLogin(credentials);
+    if (result.token) {
       // Token automatically stored
       return result;
     }
@@ -101,6 +96,7 @@ const loginUser = async (credentials: LoginRequest) => {
 ```
 
 ### API Client Features
+
 - ✅ **Auto-generated** from OpenAPI specification
 - ✅ **Type-safe** with full TypeScript support
 - ✅ **JWT handling** automatic token management
@@ -110,6 +106,7 @@ const loginUser = async (credentials: LoginRequest) => {
 ## Component Architecture
 
 ### Component Hierarchy
+
 ```
 App.tsx
 ├── Router (React Router)
@@ -118,28 +115,33 @@ App.tsx
 │   ├── Sidebar
 │   │   └── MenuList
 │   │       ├── NavGroup
-│   │       ├── NavItem  
+│   │       ├── NavItem
 │   │       └── NavCollapse
 │   └── Main Content Area
 └── Theme Provider (MUI)
 ```
 
 ### Layout Components
+
 - **MainLayout**: Primary application layout
 - **MinimalLayout**: Simplified layout for auth pages
 - **Header**: Top navigation and user controls
 - **Sidebar**: Navigation menu with collapsible items
 
 ### Route Protection
+
 ```typescript
 // components/guards/AuthGuard.tsx
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth'; // Assuming a custom auth hook
+
 export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = useSelector(/* auth state */);
-  
+  const { isAuthenticated } = useAuth();
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  
+
   return <>{children}</>;
 };
 ```
@@ -147,32 +149,63 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
 ## Routing Strategy
 
 ### Route Structure
+
 ```typescript
-// lib/routes/MainRoutes.tsx
-const MainRoutes = {
-  path: '/',
-  element: <MainLayout />,
-  children: [
-    {
-      path: '/',
-      element: <DashboardDefault />
-    },
-    {
-      path: '/dashboard',
-      element: <AuthGuard><DashboardDefault /></AuthGuard>
-    },
-    {
-      path: '/utilities',
-      children: [
-        { path: 'typography', element: <Typography /> },
-        { path: 'color', element: <Color /> },
-      ]
-    }
-  ]
-};
+// src/app/router.tsx (Simplified)
+import { createBrowserRouter, Navigate, Outlet, RouteObject } from "react-router-dom";
+import { AuthGuard } from "../components/guards/AuthGuard";
+import { GuestGuard } from "../components/guards/GuestGuard";
+
+// Example Layouts and Pages
+const LoginPage = () => <div>Login Page</div>;
+const ForgotPasswordPage = () => <div>Forgot Password Page</div>;
+const AppLayout = () => <Outlet />;
+const HomePage = () => <div>Home Page</div>;
+const TimesheetPage = () => <div>Timesheet Page</div>;
+const PeoplePage = () => <div>People Page</div>;
+const ReportsPage = () => <div>Reports Page</div>;
+const ProfilePage = () => <div>Profile Page</div>;
+
+const routeConfig: RouteObject[] = [
+  {
+    path: "/login",
+    element: (
+      <GuestGuard>
+        <LoginPage />
+      </GuestGuard>
+    ),
+  },
+  {
+    path: "/forgot-password",
+    element: (
+      <GuestGuard>
+        <ForgotPasswordPage />
+      </GuestGuard>
+    ),
+  },
+  {
+    path: "/",
+    element: (
+      <AuthGuard>
+        <AppLayout />
+      </AuthGuard>
+    ),
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: "timesheet", element: <TimesheetPage /> },
+      { path: "people", element: <PeoplePage /> },
+      { path: "reports", element: <ReportsPage /> },
+      { path: "profile", element: <ProfilePage /> },
+    ],
+  },
+  { path: "*", element: <Navigate to="/" replace /> },
+];
+
+export const router = createBrowserRouter(routeConfig);
 ```
 
 ### Navigation Configuration
+
 ```typescript
 // lib/menu-items/index.ts
 export interface MenuItem {
@@ -188,6 +221,7 @@ export interface MenuItem {
 ## Theming & Styling
 
 ### Material-UI Theme
+
 ```typescript
 // themes/index.ts
 export const theme = (customization: CustomizationState) => {
@@ -207,14 +241,16 @@ export const theme = (customization: CustomizationState) => {
 ```
 
 ### Responsive Design
+
 - **Mobile-first** approach with breakpoints
-- **Sidebar collapse** on mobile devices  
+- **Sidebar collapse** on mobile devices
 - **Responsive grid** using MUI Grid system
 - **Touch-friendly** interface elements
 
 ## Development Workflow
 
 ### Component Development
+
 ```typescript
 // Example component structure
 import React from 'react';
@@ -238,6 +274,7 @@ export const MyComponent: React.FC<MyComponentProps> = ({ title, data = [] }) =>
 ```
 
 ### Testing Strategy
+
 ```typescript
 // Component testing with React Testing Library
 import { render, screen } from '@testing-library/react';
@@ -254,11 +291,13 @@ describe('MyComponent', () => {
 ## Performance Optimization
 
 ### Code Splitting
+
 - **Lazy loading** of route components
 - **Dynamic imports** for heavy components
 - **Bundle analysis** with Vite bundle analyzer
 
 ### Optimization Techniques
+
 - **React.memo** for expensive re-renders
 - **useMemo/useCallback** for expensive calculations
 - **Virtualization** for large lists (if needed)
@@ -267,6 +306,7 @@ describe('MyComponent', () => {
 ## Build & Deployment
 
 ### Development Build
+
 ```bash
 # Start development server with hot reload
 yarn dev
@@ -274,12 +314,13 @@ yarn dev
 # Type checking
 yarn typecheck
 
-# Linting and formatting  
+# Linting and formatting
 yarn lint
 yarn format
 ```
 
 ### Production Build
+
 ```bash
 # Build for production
 yarn build
@@ -289,7 +330,9 @@ yarn preview
 ```
 
 ### Docker Integration
+
 The frontend is containerized with:
+
 - **Multi-stage Dockerfile** for optimization
 - **Nginx** serving in production
 - **Hot reload** in development via Docker Compose watch
@@ -297,24 +340,28 @@ The frontend is containerized with:
 ## Best Practices
 
 ### Code Organization
+
 - **Feature-based** folder structure
 - **Barrel exports** for clean imports
 - **Consistent naming** conventions
 - **TypeScript strict mode** enabled
 
 ### Performance
+
 - **Lazy load** non-critical components
 - **Optimize images** and assets
 - **Minimize bundle size** with tree shaking
 - **Use production builds** for deployment
 
 ### Accessibility
+
 - **Semantic HTML** elements
 - **ARIA labels** where needed
 - **Keyboard navigation** support
 - **Color contrast** compliance
 
 ### Security
+
 - **Input validation** on all forms
 - **XSS prevention** with proper escaping
 - **Secure API calls** with proper headers
@@ -323,6 +370,7 @@ The frontend is containerized with:
 ---
 
 **🎯 Key Benefits:**
+
 - **Type Safety**: Full TypeScript coverage with auto-generated API types
 - **Developer Experience**: Hot reload, excellent tooling, clear architecture
 - **Maintainability**: Well-organized code structure and consistent patterns

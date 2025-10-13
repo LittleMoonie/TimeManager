@@ -11,12 +11,12 @@ services:
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - "${DB_PORT}:5432"
+      - '${DB_PORT}:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./init-scripts:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER} -d ${DB_NAME}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -31,23 +31,23 @@ services:
       context: ../App.API
       dockerfile: Dockerfile
     ports:
-      - "${API_PORT}:4000"
+      - '${API_PORT}:4000'
     env_file:
       - .env
     environment:
       NODE_ENV: development
       PORT: ${API_PORT}
-      CHOKIDAR_USEPOLLING: "true"   # Force polling for Windows/WSL2
-      WATCHPACK_POLLING: "true"
-      TS_NODE_DEV: "true"
+      CHOKIDAR_USEPOLLING: 'true' # Force polling for Windows/WSL2
+      WATCHPACK_POLLING: 'true'
+      TS_NODE_DEV: 'true'
     depends_on:
       db:
         condition: service_healthy
     volumes:
       - ../App.API:/app
-    command: sh -c "(yarn install --immutable || yarn install) && yarn ts-node-dev --respawn --transpile-only --poll src/index.ts"
+    command: yarn dev
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4000/api/system/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:4000/api/system/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -74,18 +74,18 @@ services:
       context: ../App.Web
       dockerfile: Dockerfile
     ports:
-      - "${WEB_PORT}:3000"
+      - '${WEB_PORT}:3000'
     env_file:
       - .env
     environment:
       NODE_ENV: development
-      CHOKIDAR_USEPOLLING: "true"   # Required for WSL2 hot reload
-      WATCHPACK_POLLING: "true"
-      FAST_REFRESH: "true"
-      VITE_DEV_SERVER_HOST: "0.0.0.0"
-      VITE_DEV_SERVER_PORT: "3000"
-      WDS_SOCKET_HOST: "localhost"
-      WDS_SOCKET_PORT: "${WEB_PORT}:5000"
+      CHOKIDAR_USEPOLLING: 'true' # Required for WSL2 hot reload
+      WATCHPACK_POLLING: 'true'
+      FAST_REFRESH: 'true'
+      VITE_DEV_SERVER_HOST: '0.0.0.0'
+      VITE_DEV_SERVER_PORT: '3000'
+      WDS_SOCKET_HOST: 'localhost'
+      WDS_SOCKET_PORT: '${WEB_PORT}:5000'
     depends_on:
       db:
         condition: service_healthy
@@ -95,7 +95,7 @@ services:
       - ../App.Web:/app
     command: sh -c "(yarn install --immutable || yarn install) && yarn dev"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3000']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -117,6 +117,8 @@ services:
           target: /app/package.json
         - action: rebuild
           path: ../App.Web/yarn.lock
+
+
 
 # 📦 Named Volumes for Persistent Data and Cache Isolation
 volumes:

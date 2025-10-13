@@ -1,39 +1,25 @@
 {
-  "entryFile": "src/index.ts",
-  "noImplicitAdditionalProperties": "throw",
-  "controllerPathGlobs": ["src/controllers/**/*.ts"],
+  "entryFile": "./index.ts",
+  "controllerPathGlobs": ["Controllers/**/*.ts", "Dtos/**/*.ts"],
+  "noImplicitAdditionalProperties": "silently-remove-extras",
   "spec": {
-    "outputDirectory": ".",
+    "outputDirectory": "./dist",
     "specVersion": 3,
+    "basePath": "/api",
+    "specFileBaseName": "swagger",
     "securityDefinitions": {
       "jwt": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT",
-        "description": "JWT Authorization header using the Bearer scheme."
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
       }
-    },
-    "info": {
-      "title": "GoGoTime API",
-      "version": "1.0.0",
-      "description": "API documentation for GoGoTime project",
-      "contact": {
-        "name": "GoGoTime Team",
-        "email": "team@gogotime.com"
-      }
-    },
-    "host": "localhost:4000",
-    "basePath": "/",
-    "schemes": ["http", "https"]
+    }
   },
   "routes": {
-    "routesDir": "src/routes/generated",
-    "authenticationModule": "./src/config/auth.ts"
-  },
-  "compilerOptions": {
-    "baseUrl": "./src",
-    "paths": {
-      "@/*": ["*"]
-    }
+    "routesDir": "./Routes/Generated",
+    "routePrefix": "/api",
+    "middleware": "express",
+    "iocModule": "./Server/IoC.ts",
+    "authenticationModule": "./Server/Auth.ts"
   }
 }

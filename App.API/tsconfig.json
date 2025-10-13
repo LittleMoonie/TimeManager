@@ -3,21 +3,25 @@
     "target": "ES2022",
     "module": "CommonJS",
     "moduleResolution": "node",
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": "build",
-    "strict": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "noImplicitAny": false,
-    "sourceMap": true,
-    "declaration": false,
-    "types": ["node"],
-    "forceConsistentCasingInFileNames": true
+    "skipLibCheck": true
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "build", "**/*.test.ts", "**/*.spec.ts"]
+  "include": [
+    "index.ts",
+    "Controllers/**/*.ts",
+    "Dtos/**/*.ts",
+    "Entities/**/*.ts",
+    "Repositories/**/*.ts",
+    "Services/**/*.ts",
+    "Server/**/*.ts",
+    "Utils/**/*.ts",
+    "Errors/**/*.ts"
+  ],
+  "exclude": ["node_modules", "build", "dist", "coverage"]
 }

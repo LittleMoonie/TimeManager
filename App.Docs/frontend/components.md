@@ -7,12 +7,13 @@ GoGoTime's component library is built on Material-UI (MUI) v7 with custom extens
 ## Component Architecture
 
 ### Component Hierarchy
+
 ```
 Components/
 ├── 🎯 Common/              # Base reusable components
 ├── 🎨 Extended/           # Enhanced MUI components
 ├── 🃏 Cards/              # Card-based components
-├── 🛡️ Guards/             # Route protection components  
+├── 🛡️ Guards/             # Route protection components
 ├── 🏗️ Layout/             # Layout and navigation
 └── 📊 Feature-specific/   # Domain-specific components
 ```
@@ -20,9 +21,11 @@ Components/
 ## Common Components
 
 ### Base Components
+
 Located in `src/components/common/`
 
 #### Loadable Component
+
 ```typescript
 // components/common/Loadable.tsx
 import { Suspense, ComponentType, ReactElement } from 'react';
@@ -39,11 +42,16 @@ const Loadable = <P extends object>(Component: ComponentType<P>) => {
 export default Loadable;
 ```
 
-#### Breadcrumbs Navigation  
+#### Breadcrumbs Navigation
+
 ```typescript
 // components/common/Breadcrumbs.tsx
+import { useTheme } from '@mui/material/styles';
+import { Box, Card, Divider, Typography } from '@mui/material';
+import { Link } from 'react-router-dom';
+
 interface BreadcrumbsProps {
-  navigation: any;
+  navigation: { id: string; title: string; type: string; url?: string; children?: any[] };
   title?: boolean;
   titleBottom?: boolean;
   card?: boolean;
@@ -56,27 +64,79 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   card = true,
   divider = true
 }) => {
-  // Breadcrumb implementation with MUI
+  const theme = useTheme();
+
+  const list = navigation.children?.map((item) => {
+    switch (item.type) {
+      case 'group':
+        return (
+          <Link key={item.id} to={item.url || '#'}>
+            <Typography variant="subtitle1" color="text.primary">
+              {item.title}
+            </Typography>
+          </Link>
+        );
+      default:
+        return (
+          <Link key={item.id} to={item.url || '#'}>
+            <Typography variant="subtitle1" color="text.primary">
+              {item.title}
+            </Typography>
+          </Link>
+        );
+    }
+  });
+
+  return (
+    <Card
+      sx={{
+        marginBottom: theme.spacing(3),
+        border: !card ? 'none' : '1px solid',
+        borderColor: theme.palette.divider,
+        borderRadius: theme.shape.borderRadius,
+        bgcolor: card ? theme.palette.background.paper : 'transparent',
+      }}
+    >
+      <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box>
+          {title && (
+            <Typography variant="h3" color="text.primary">
+              {navigation.title}
+            </Typography>
+          )}
+          <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+            {list}
+          </Box>
+        </Box>
+      </Box>
+      {divider && <Divider />}
+    </Card>
+  );
 };
 ```
 
 ### Logo Component
+
 ```typescript
-// components/common/Logo.tsx  
+// components/common/Logo.tsx
+import { ButtonBase } from '@mui/material';
+import { Link } from 'react-router-dom'; // Using react-router-dom Link
+
 interface LogoProps {
-  sx?: SxProps;
+  sx?: object; // Use object for general SxProps
   to?: string;
 }
 
 export const Logo: React.FC<LogoProps> = ({ sx, to }) => {
   return (
-    <ButtonBase 
+    <ButtonBase
       disableRipple
-      component={RouterLink}
+      component={Link} // Use Link from react-router-dom
       to={to || '/'}
       sx={sx}
     >
-      {/* Logo implementation */}
+      {/* Your SVG or image logo here */}
+      <img src="/path/to/your/logo.svg" alt="GoGoTime Logo" style={{ height: 32 }} />
     </ButtonBase>
   );
 };
@@ -85,6 +145,7 @@ export const Logo: React.FC<LogoProps> = ({ sx, to }) => {
 ## Extended Components
 
 ### Enhanced Avatar Component
+
 Located in `src/components/extended/`
 
 ```typescript
@@ -108,9 +169,10 @@ export const Avatar: React.FC<AvatarProps> = ({
 ```
 
 ### Usage Example
+
 ```typescript
-<Avatar 
-  color="primary" 
+<Avatar
+  color="primary"
   size="lg"
   outline
 >
@@ -121,6 +183,7 @@ export const Avatar: React.FC<AvatarProps> = ({
 ## Card Components
 
 ### Main Card Component
+
 ```typescript
 // components/cards/MainCard.tsx
 interface MainCardProps {
@@ -169,7 +232,7 @@ export const MainCard: React.FC<MainCardProps> = ({
           action={secondary}
         />
       )}
-      
+
       {/* Card content */}
       {content && (
         <CardContent sx={contentSX} className={contentClass}>
@@ -183,6 +246,7 @@ export const MainCard: React.FC<MainCardProps> = ({
 ```
 
 ### Secondary Action Component
+
 ```typescript
 // components/cards/CardSecondaryAction.tsx
 interface CardSecondaryActionProps {
@@ -217,19 +281,21 @@ export const CardSecondaryAction: React.FC<CardSecondaryActionProps> = ({
 ## Layout Components
 
 ### Main Layout Structure
+
 ```typescript
-// components/layout/MainLayout.tsx
-export const MainLayout = () => {
+// components/layout/AppLayout.tsx
+import { useAppStore } from '@/lib/store';
+
+export const AppLayout = () => {
   const theme = useTheme();
   const matchDown = useMediaQuery(theme.breakpoints.down('lg'));
-  
-  const dispatch = useDispatch();
-  const { drawerOpen } = useSelector((state) => state.customization);
-  
+
+  const { opened } = useAppStore(); // Using Zustand store
+
   return (
     <Box sx={{ display: 'flex', width: '100%' }}>
       <CssBaseline />
-      
+
       {/* Header */}
       <AppBar
         enableColorOnDark
@@ -240,12 +306,12 @@ export const MainLayout = () => {
       >
         <Header />
       </AppBar>
-      
+
       {/* Sidebar */}
       <Sidebar />
-      
+
       {/* Main content */}
-      <Main theme={theme} open={drawerOpen}>
+      <Main theme={theme} open={opened}>
         <Breadcrumbs />
         <Outlet />
       </Main>
@@ -255,11 +321,12 @@ export const MainLayout = () => {
 ```
 
 ### Header Component
+
 ```typescript
-// components/layout/Header.tsx  
+// components/layout/Header.tsx
 export const Header = () => {
   const theme = useTheme();
-  
+
   return (
     <Toolbar>
       <Box sx={{ width: 228, display: 'flex', alignItems: 'center' }}>
@@ -267,11 +334,11 @@ export const Header = () => {
           <LogoSection />
         </Box>
       </Box>
-      
+
       {/* Header content */}
       <Box sx={{ flexGrow: 1 }} />
       <Box sx={{ flexGrow: 1 }} />
-      
+
       {/* Profile section */}
       <ProfileSection />
     </Toolbar>
@@ -280,12 +347,26 @@ export const Header = () => {
 ```
 
 ### Sidebar Navigation
+
 ```typescript
 // components/layout/Sidebar.tsx
-export const Sidebar = ({ drawerOpen, drawerToggle }) => {
+import { useTheme } from '@mui/material/styles';
+import { Box, Drawer, useMediaQuery } from '@mui/material';
+import PerfectScrollbar from 'react-perfect-scrollbar';
+import { BrowserView, MobileView } from 'react-device-detect';
+import { MenuList } from './MenuList';
+import { LogoSection } from './LogoSection'; // Assuming LogoSection is a component
+import { useAppStore } from '@/lib/store';
+
+export const Sidebar = () => {
   const theme = useTheme();
-  const matchUp = useMediaQuery(theme.breakpoints.up('md'));
-  
+  const matchUpMd = useMediaQuery(theme.breakpoints.up('md'));
+
+  const { opened, toggleDrawer } = useAppStore((state) => ({
+    opened: state.opened,
+    toggleDrawer: state.toggleDrawer, // Assuming a toggleDrawer action exists in your store
+  }));
+
   const drawer = (
     <>
       <Box sx={{ display: { xs: 'block', md: 'none' } }}>
@@ -303,14 +384,14 @@ export const Sidebar = ({ drawerOpen, drawerToggle }) => {
       </MobileView>
     </>
   );
-  
+
   return (
-    <Box component="nav" sx={{ flexShrink: { md: 0 }, width: matchUp ? 260 : 'auto' }}>
+    <Box component="nav" sx={{ flexShrink: { md: 0 }, width: matchUpMd ? 260 : 'auto' }}>
       <Drawer
-        variant={matchUp ? 'persistent' : 'temporary'}
+        variant={matchUpMd ? 'persistent' : 'temporary'}
         anchor="left"
-        open={drawerOpen}
-        onClose={drawerToggle}
+        open={opened}
+        onClose={toggleDrawer} // Use toggleDrawer from store
       >
         {drawer}
       </Drawer>
@@ -322,12 +403,18 @@ export const Sidebar = ({ drawerOpen, drawerToggle }) => {
 ## Navigation Components
 
 ### Menu List Component
+
 ```typescript
 // components/layout/MenuList.tsx
+import { useAppStore } from '@/lib/store';
+import { NavGroup } from './NavGroup'; // Assuming these components exist
+import { NavCollapse } from './NavCollapse';
+import { NavItem } from './NavItem';
+
 export const MenuList = () => {
-  const menuItems = useSelector((state) => state.menu);
-  
-  const renderNavItems = (items) => {
+  const menuItems = useAppStore((state) => state.menuItems); // Assuming menuItems is part of the store state
+
+  const renderNavItems = (items: any[]) => {
     return items.map((item) => {
       switch (item.type) {
         case 'group':
@@ -339,18 +426,23 @@ export const MenuList = () => {
       }
     });
   };
-  
-  return <>{renderNavItems(menuItems.items)}</>;
+
+  return <>{renderNavItems(menuItems)}</>;
 };
 ```
 
 ### Navigation Item Types
-```typescript
+
+````typescript
 // Navigation Item
 export const NavItem = ({ item, level = 0 }) => {
+  const theme = useTheme();
+  const { pathname } = useLocation();
+  const isSelected = pathname === item.url;
+
   return (
     <ListItemButton
-      component={RouterLink}
+      component={Link} // Use Link from react-router-dom
       to={item.url}
       selected={isSelected}
       sx={{ borderRadius: 1, mb: 0.5 }}
@@ -369,13 +461,13 @@ export const NavItem = ({ item, level = 0 }) => {
 // Collapsible Navigation Group
 export const NavCollapse = ({ item }) => {
   const [open, setOpen] = useState(false);
-  
+
   return (
     <>
       <ListItemButton onClick={() => setOpen(!open)}>
         <ListItemIcon>{item.icon}</ListItemIcon>
         <ListItemText primary={item.title} />
-        {open ? <ExpandLess /> : <ExpandMore />}
+        {open ? <ExpandLessIcon /> : <ExpandMoreIcon />} {/* Use generic icons */}
       </ListItemButton>
       <Collapse in={open} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
@@ -386,53 +478,61 @@ export const NavCollapse = ({ item }) => {
       </Collapse>
     </>
   );
-};
-```
+};```
 
 ## Guard Components
 
 ### Authentication Guard
 ```typescript
 // components/guards/AuthGuard.tsx
+import { ReactNode, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth'; // Assuming a custom auth hook
+
 interface AuthGuardProps {
   children: ReactNode;
 }
 
 export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
-  const { isLoggedIn } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  
+
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!isAuthenticated) {
       navigate('/login', { replace: true });
     }
-  }, [isLoggedIn, navigate]);
-  
-  if (!isLoggedIn) {
+  }, [isAuthenticated, navigate]);
+
+  if (!isAuthenticated) {
     return null; // or loading spinner
   }
-  
+
   return <>{children}</>;
 };
-```
+````
 
 ### Guest Guard (Prevent logged-in users from accessing auth pages)
+
 ```typescript
 // components/guards/GuestGuard.tsx
+import { ReactNode, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth'; // Assuming a custom auth hook
+
 export const GuestGuard: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { isLoggedIn } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  
+
   useEffect(() => {
-    if (isLoggedIn) {
+    if (isAuthenticated) {
       navigate('/dashboard', { replace: true });
     }
-  }, [isLoggedIn, navigate]);
-  
-  if (isLoggedIn) {
+  }, [isAuthenticated, navigate]);
+
+  if (isAuthenticated) {
     return null;
   }
-  
+
   return <>{children}</>;
 };
 ```
@@ -440,6 +540,7 @@ export const GuestGuard: React.FC<{ children: ReactNode }> = ({ children }) => {
 ## Dashboard Components
 
 ### Earning Card Component
+
 ```typescript
 // features/dashboard/components/EarningCard.tsx
 interface EarningCardProps {
@@ -524,56 +625,59 @@ export const EarningCard: React.FC<EarningCardProps> = ({
 ## Component Development Guidelines
 
 ### Props Interface Pattern
+
 ```typescript
 // Always define prop interfaces
 interface ComponentProps {
   // Required props without defaults
   title: string;
   data: any[];
-  
+
   // Optional props with types
   variant?: 'primary' | 'secondary';
   size?: 'small' | 'medium' | 'large';
   disabled?: boolean;
-  
+
   // Callback functions
   onClick?: (event: MouseEvent) => void;
   onDataChange?: (data: any[]) => void;
-  
+
   // Style props
   sx?: SxProps;
   className?: string;
-  
+
   // Children
   children?: ReactNode;
 }
 ```
 
 ### Default Props Pattern
+
 ```typescript
 // Use default parameters for optional props
 export const MyComponent: React.FC<ComponentProps> = ({
   title,
   data,
   variant = 'primary',
-  size = 'medium', 
+  size = 'medium',
   disabled = false,
   onClick,
   onDataChange,
   sx = {},
   className = '',
-  children
+  children,
 }) => {
   // Component implementation
 };
 ```
 
 ### Theming Integration
+
 ```typescript
 // Always use theme for consistent styling
 const MyComponent = () => {
   const theme = useTheme();
-  
+
   return (
     <Box
       sx={{
@@ -593,6 +697,7 @@ const MyComponent = () => {
 ## Testing Components
 
 ### Component Testing Pattern
+
 ```typescript
 // MyComponent.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -602,7 +707,7 @@ import MyComponent from './MyComponent';
 
 const renderWithTheme = (component: React.ReactElement) => {
   return render(
-    <ThemeProvider theme={theme()}>
+    <ThemeProvider theme={theme}>
       {component}
     </ThemeProvider>
   );
@@ -613,13 +718,13 @@ describe('MyComponent', () => {
     renderWithTheme(<MyComponent title="Test" data={[]} />);
     expect(screen.getByText('Test')).toBeInTheDocument();
   });
-  
+
   it('handles click events', () => {
     const handleClick = jest.fn();
     renderWithTheme(
       <MyComponent title="Test" data={[]} onClick={handleClick} />
     );
-    
+
     fireEvent.click(screen.getByRole('button'));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
@@ -629,6 +734,7 @@ describe('MyComponent', () => {
 ## Performance Best Practices
 
 ### Memo Usage
+
 ```typescript
 // Use React.memo for expensive components
 export const ExpensiveComponent = React.memo<Props>(({ data, onUpdate }) => {
@@ -646,18 +752,23 @@ const processedData = useMemo(() => {
 ```
 
 ### Callback Optimization
+
 ```typescript
 // Use useCallback for stable references
-const handleClick = useCallback((id: string) => {
-  onItemClick(id);
-}, [onItemClick]);
+const handleClick = useCallback(
+  (id: string) => {
+    onItemClick(id);
+  },
+  [onItemClick],
+);
 ```
 
 ---
 
 **🎯 Key Benefits:**
+
 - **Consistency**: All components follow the same patterns and conventions
-- **Reusability**: Atomic design principles enable maximum component reuse  
+- **Reusability**: Atomic design principles enable maximum component reuse
 - **Type Safety**: Full TypeScript coverage with proper prop interfaces
 - **Accessibility**: Built-in ARIA support through Material-UI base
 - **Performance**: Optimized with memo, callbacks, and proper state management
