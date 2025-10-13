@@ -15,7 +15,7 @@ note() { blu "ℹ️  $*"; }
 ok()   { grn "✅ $*"; }
 
 # ──────────  config  ──────────
-PROTECTED=("main" "develop")
+PROTECTED=("origin/main" "origin/develop" "main" "develop")
 BYPASS="${ALLOW_PROTECTED_PUSH:-0}"
 
 echo ""
@@ -41,7 +41,7 @@ fi
 BLOCK=0
 
 # 1️⃣  always block pushes *from* protected branches
-for BR in "${PROTECTED[@]}"; do
+      for BR in "${PROTECTED[@]}"; do
   if [[ "$CURRENT_BRANCH" == "$BR" ]]; then
     red "❌ Push blocked: you are on protected branch '$BR'"
     echo "   Please create a feature branch and open a PR."
@@ -85,9 +85,4 @@ fi
 
 ok "No protected branches targeted. Safe to push."
 echo ""
-
-echo "🔍 CURRENT_BRANCH=$CURRENT_BRANCH"
-echo "🔍 REMOTE=$REMOTE"
-echo "🔍 DEST=$DEST"
-
 exit 0
