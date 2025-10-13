@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# 🧱 Husky pre-merge-commit — block merging into protected branches
+
+set -euo pipefail
+PROTECTED=("origin/main" "origin/develop" "main" "develop")
+CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo HEAD)"
+
+for BR in "${PROTECTED[@]}"; do
+  if [[ "$CURRENT_BRANCH" == "$BR" ]]; then
+    echo ""
+    echo "🛑  Merge blocked: you are on protected branch '$BR'."
+    echo "    All merges into '$BR' must be done via Pull Request."
+    echo ""
+    exit 1
+  fi
+done
+
+exit 0

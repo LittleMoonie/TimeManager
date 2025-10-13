@@ -7,6 +7,22 @@
 # Runs staged checks, blocks secrets, enforces branch policy,
 # formats & lints code, typechecks & optional tests
 # ------------------------------------------
+# 🚫 forbid commits directly on protected branches
+PROTECTED_BRANCHES=("origin/main" "origin/develop" "main" "develop")
+CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo HEAD)"
+
+for BR in "${PROTECTED_BRANCHES[@]}"; do
+  if [[ "$CURRENT_BRANCH" == "$BR" ]]; then
+    echo ""
+    echo "🛑  You are on protected branch '$BR'"
+    echo "    Commits are not allowed directly on this branch."
+    echo "    Please create a feature branch instead:"
+    echo ""
+    echo "      git checkout -b feat/<something>"
+    echo ""
+    exit 1
+  fi
+done
 
 # make sure we’re in bash (dash chokes on pipefail)
 if [ -z "${BASH_VERSION:-}" ]; then

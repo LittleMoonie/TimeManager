@@ -24,7 +24,7 @@ warn() { ylw "⚠️  $*"; }
 # ──────────────────────────────────────────────
 # Config
 # ──────────────────────────────────────────────
-PROTECTED=("main" "develop")
+PROTECTED=("origin/main" "origin/develop" "main" "develop")
 BYPASS="${ALLOW_PROTECTED_PUSH:-0}"
 REMOTE="${1:-origin}"
 shift || true
@@ -68,6 +68,17 @@ for BR in "${PROTECTED[@]}"; do
     BLOCK=1
   fi
 done
+
+# also block pushing from protected branches
+CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo HEAD)"
+for BR in "${PROTECTED[@]}"; do
+  if [[ "$CURRENT_BRANCH" == "$BR" ]]; then
+    echo "❌ Push blocked: you are on protected branch '$BR'"
+    echo "   Please push from a feature branch via PR instead."
+    exit 1
+  fi
+done
+
 
 # 4️⃣ Decide outcome
 if [[ "$BLOCK" -eq 1 ]]; then
