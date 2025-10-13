@@ -1,9 +1,9 @@
-import { Box, Typography } from '@mui/material'
+import { Box, Typography } from '@mui/material';
 
 interface PageHeaderProps {
-  title: string
-  subtitle?: string
-  actions?: React.ReactNode
+  title: string;
+  subtitle?: string;
+  actions?: React.ReactNode;
 }
 
 export const PageHeader = ({ title, subtitle, actions }: PageHeaderProps) => {
@@ -28,5 +28,5 @@ export const PageHeader = ({ title, subtitle, actions }: PageHeaderProps) => {
         )}
       </Box>
     </Box>
-  )
-}
+  );
+};

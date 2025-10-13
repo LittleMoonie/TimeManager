@@ -1,66 +1,66 @@
-import { useState } from 'react'
-import { Box, Card, CardContent, Typography, TextField, Button, Stack, Alert } from '@mui/material'
-import { useAuth } from '@/hooks/useAuth'
+import { useState } from 'react';
+import { Box, Card, CardContent, Typography, TextField, Button, Stack, Alert } from '@mui/material';
+import { useAuth } from '@/hooks/useAuth';
 
 export const ChangePasswordTab = () => {
-  const { user } = useAuth()
-  const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const { user } = useAuth();
+  const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [formData, setFormData] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
-  })
-  const [errors, setErrors] = useState<Record<string, string>>({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [field]: event.target.value,
-    }))
+    }));
 
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
         [field]: '',
-      }))
+      }));
     }
-  }
+  };
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {}
+    const newErrors: Record<string, string> = {};
 
     if (!formData.currentPassword) {
-      newErrors.currentPassword = 'Current password is required'
+      newErrors.currentPassword = 'Current password is required';
     }
 
     if (!formData.newPassword) {
-      newErrors.newPassword = 'New password is required'
+      newErrors.newPassword = 'New password is required';
     } else if (formData.newPassword.length < 8) {
-      newErrors.newPassword = 'Password must be at least 8 characters long'
+      newErrors.newPassword = 'Password must be at least 8 characters long';
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your new password'
+      newErrors.confirmPassword = 'Please confirm your new password';
     } else if (formData.newPassword !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match'
+      newErrors.confirmPassword = 'Passwords do not match';
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
+    event.preventDefault();
 
     if (!validateForm()) {
-      return
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     // TODO: Implement password change API call
-    console.log('Changing password...', formData)
+    console.log('Changing password...', formData);
 
     // Simulate success
     setTimeout(() => {
@@ -68,14 +68,14 @@ export const ChangePasswordTab = () => {
         currentPassword: '',
         newPassword: '',
         confirmPassword: '',
-      })
+      });
       setStatus({
         type: 'success',
         message: 'Password changed successfully.',
-      })
-      setIsSubmitting(false)
-    }, 400)
-  }
+      });
+      setIsSubmitting(false);
+    }, 400);
+  };
 
   const handleCreateTicket = () => {
     const ticketData = {
@@ -84,18 +84,18 @@ export const ChangePasswordTab = () => {
       email: user?.email,
       subject: 'Password Change Request',
       description: 'User requesting assistance with password change',
-    }
+    };
 
-    console.log('Creating IT ticket:', ticketData)
+    console.log('Creating IT ticket:', ticketData);
 
     if (typeof window !== 'undefined') {
-      const ticketUrl = new URL('/helpdesk/new-ticket', window.location.origin)
-      ticketUrl.searchParams.set('userId', ticketData.userId ?? '')
-      ticketUrl.searchParams.set('username', ticketData.username)
-      ticketUrl.searchParams.set('email', ticketData.email ?? '')
-      window.open(ticketUrl.toString(), '_blank', 'noopener,noreferrer')
+      const ticketUrl = new URL('/helpdesk/new-ticket', window.location.origin);
+      ticketUrl.searchParams.set('userId', ticketData.userId ?? '');
+      ticketUrl.searchParams.set('username', ticketData.username);
+      ticketUrl.searchParams.set('email', ticketData.email ?? '');
+      window.open(ticketUrl.toString(), '_blank', 'noopener,noreferrer');
     }
-  }
+  };
 
   return (
     <Card>
@@ -167,5 +167,5 @@ export const ChangePasswordTab = () => {
         </Stack>
       </CardContent>
     </Card>
-  )
-}
+  );
+};

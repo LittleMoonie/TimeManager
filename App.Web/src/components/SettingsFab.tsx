@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react';
 import {
   ButtonBase,
   Box,
@@ -11,18 +11,18 @@ import {
   ToggleButtonGroup,
   Tooltip,
   Typography,
-} from '@mui/material'
-import { SettingsRounded } from '@mui/icons-material'
-import { alpha, useTheme } from '@mui/material/styles'
-import { useThemeController, type ThemePreset } from '@/themes'
+} from '@mui/material';
+import { SettingsRounded } from '@mui/icons-material';
+import { alpha, useTheme } from '@mui/material/styles';
+import { useThemeController, type ThemePreset } from '@/themes';
 
 const getPresetGradient = (preset: ThemePreset) => {
-  const primary = preset.palette.primary as { light?: string; main?: string } | undefined
-  const secondary = preset.palette.secondary as { main?: string } | undefined
-  const start = primary?.light ?? primary?.main ?? secondary?.main ?? '#1976d2'
-  const end = secondary?.main ?? primary?.main ?? start
-  return `linear-gradient(135deg, ${start}, ${end})`
-}
+  const primary = preset.palette.primary as { light?: string; main?: string } | undefined;
+  const secondary = preset.palette.secondary as { main?: string } | undefined;
+  const start = primary?.light ?? primary?.main ?? secondary?.main ?? '#1976d2';
+  const end = secondary?.main ?? primary?.main ?? start;
+  return `linear-gradient(135deg, ${start}, ${end})`;
+};
 
 export const SettingsFab = () => {
   const {
@@ -36,21 +36,21 @@ export const SettingsFab = () => {
     selectNextTheme,
     density,
     setDensity,
-  } = useThemeController()
-  const theme = useTheme()
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+  } = useThemeController();
+  const theme = useTheme();
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
+    setAnchorEl(event.currentTarget);
+  };
 
-  const handleClose = () => setAnchorEl(null)
+  const handleClose = () => setAnchorEl(null);
 
-  const open = Boolean(anchorEl)
+  const open = Boolean(anchorEl);
   const focusRing = useMemo(
     () => `0 0 0 3px ${alpha(theme.palette.primary.main, mode === 'light' ? 0.28 : 0.42)}`,
-    [mode, theme.palette.primary.main]
-  )
+    [mode, theme.palette.primary.main],
+  );
 
   return (
     <>
@@ -64,8 +64,8 @@ export const SettingsFab = () => {
             position: 'fixed',
             right: 24,
             bottom: 24,
-            zIndex: theme => theme.zIndex.tooltip + 1,
-            boxShadow: theme => theme.shadows[4],
+            zIndex: (theme) => theme.zIndex.tooltip + 1,
+            boxShadow: (theme) => theme.shadows[4],
           }}
         >
           <SettingsRounded />
@@ -84,7 +84,7 @@ export const SettingsFab = () => {
             p: 2.5,
             borderRadius: 3,
             width: 320,
-            boxShadow: themeArg => themeArg.shadows[4],
+            boxShadow: (themeArg) => themeArg.shadows[4],
           },
         }}
       >
@@ -94,11 +94,11 @@ export const SettingsFab = () => {
               Theme palette
             </Typography>
             <Stack direction="row" flexWrap="wrap" gap={1.5}>
-              {availableThemes.map(preset => {
-                const selected = preset.id === themeId
-                const gradient = getPresetGradient(preset)
+              {availableThemes.map((preset) => {
+                const selected = preset.id === themeId;
+                const gradient = getPresetGradient(preset);
                 const primaryMain =
-                  (preset.palette.primary as { main?: string })?.main ?? theme.palette.primary.main
+                  (preset.palette.primary as { main?: string })?.main ?? theme.palette.primary.main;
                 return (
                   <ButtonBase
                     key={preset.id}
@@ -108,13 +108,13 @@ export const SettingsFab = () => {
                       width: 'calc(50% - 6px)',
                       borderRadius: 2,
                       overflow: 'hidden',
-                      border: themeArg =>
+                      border: (themeArg) =>
                         `1px solid ${
                           selected
                             ? themeArg.palette.primary.main
                             : alpha(
                                 themeArg.palette.divider,
-                                themeArg.palette.mode === 'light' ? 1 : 0.6
+                                themeArg.palette.mode === 'light' ? 1 : 0.6,
                               )
                         }`,
                       boxShadow: selected ? theme.shadows[3] : 'none',
@@ -147,7 +147,7 @@ export const SettingsFab = () => {
                       </Typography>
                     </Box>
                   </ButtonBase>
-                )
+                );
               })}
             </Stack>
             <Chip
@@ -216,7 +216,7 @@ export const SettingsFab = () => {
         </Stack>
       </Popover>
     </>
-  )
-}
+  );
+};
 
-export default SettingsFab
+export default SettingsFab;

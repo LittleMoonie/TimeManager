@@ -6,22 +6,22 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 
 ### Core Documentation Files
 
-| File | Purpose | Key Topics |
-|------|---------|------------|
-| **[README.md](#readme)** | Executive summary, stack overview, quick start guide | Project overview, technology stack, getting started, development setup |
-| **[ARCHITECTURE.md](#architecture)** | System design, layers, and architectural decisions | Frontend/backend separation, database design, infrastructure components, design patterns |
-| **[CODE_QUALITY.md](#code-quality)** | Monorepo hygiene and development standards | yarn workspaces, conventional commits, linting, code formatting, quality gates |
-| **[API_VERSIONING.md](#api-versioning)** | API versioning strategy and compatibility | URL path versioning, deprecation policy, backward compatibility, changelog management |
-| **[DATABASE.md](#database)** | Database design, migrations, and operations | TypeORM entities, migration strategy, indexing, backups, audit trails, GDPR compliance |
-| **[AUTH_SECURITY.md](#auth-security)** | Authentication, authorization, and security policies | JWT authentication, RBAC, class-validator, security headers, rate limiting, secrets management |
-| **[CACHE_QUEUES_REALTIME.md](#cache-queues)** | Caching, background jobs, and real-time features | Redis strategy, BullMQ configuration, cache invalidation, job processing, WebSocket setup |
-| **[`timesheet-history.md`](./backend/Database/timesheet-history.md)** | Timesheet history and audit logging | Auditable log of timesheet events, database table, API routes, service integration |
-| **[OBSERVABILITY.md](#observability)** | Monitoring, logging, and alerting | Prometheus metrics, Grafana dashboards, structured logging, health checks, SLO monitoring |
-| **[CI_CD.md](#ci-cd)** | Continuous integration and deployment | GitHub Actions, Jenkins pipelines, containerization, deployment strategies, environment management |
-| **[TESTING.md](#testing)** | Comprehensive testing strategy | Unit, integration, E2E, load, and security testing with Jest, Playwright, and k6 |
-| **[NETWORKING_DELIVERY.md](#networking)** | Network configuration and content delivery | Nginx setup, HTTPS, CORS policies, compression, caching headers, CDN integration |
-| **[DEVELOPER_EXPERIENCE.md](#dev-experience)** | Developer onboarding and tooling | Setup guides, development environment, debugging tools, API documentation, ADRs |
-| **[THREAT_MODEL.md](#threat-model)** | Security analysis and threat mitigation | Attack surface analysis, security controls, SAST/DAST integration, supply chain security |
+| File                                                                  | Purpose                                              | Key Topics                                                                                         |
+| --------------------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| **[README.md](#readme)**                                              | Executive summary, stack overview, quick start guide | Project overview, technology stack, getting started, development setup                             |
+| **[ARCHITECTURE.md](#architecture)**                                  | System design, layers, and architectural decisions   | Frontend/backend separation, database design, infrastructure components, design patterns           |
+| **[CODE_QUALITY.md](#code-quality)**                                  | Monorepo hygiene and development standards           | yarn workspaces, conventional commits, linting, code formatting, quality gates                     |
+| **[API_VERSIONING.md](#api-versioning)**                              | API versioning strategy and compatibility            | URL path versioning, deprecation policy, backward compatibility, changelog management              |
+| **[DATABASE.md](#database)**                                          | Database design, migrations, and operations          | TypeORM entities, migration strategy, indexing, backups, audit trails, GDPR compliance             |
+| **[AUTH_SECURITY.md](#auth-security)**                                | Authentication, authorization, and security policies | JWT authentication, RBAC, class-validator, security headers, rate limiting, secrets management     |
+| **[CACHE_QUEUES_REALTIME.md](#cache-queues)**                         | Caching, background jobs, and real-time features     | Redis strategy, BullMQ configuration, cache invalidation, job processing, WebSocket setup          |
+| **[`timesheet-history.md`](./backend/Database/timesheet-history.md)** | Timesheet history and audit logging                  | Auditable log of timesheet events, database table, API routes, service integration                 |
+| **[OBSERVABILITY.md](#observability)**                                | Monitoring, logging, and alerting                    | Prometheus metrics, Grafana dashboards, structured logging, health checks, SLO monitoring          |
+| **[CI_CD.md](#ci-cd)**                                                | Continuous integration and deployment                | GitHub Actions, Jenkins pipelines, containerization, deployment strategies, environment management |
+| **[TESTING.md](#testing)**                                            | Comprehensive testing strategy                       | Unit, integration, E2E, load, and security testing with Jest, Playwright, and k6                   |
+| **[NETWORKING_DELIVERY.md](#networking)**                             | Network configuration and content delivery           | Nginx setup, HTTPS, CORS policies, compression, caching headers, CDN integration                   |
+| **[DEVELOPER_EXPERIENCE.md](#dev-experience)**                        | Developer onboarding and tooling                     | Setup guides, development environment, debugging tools, API documentation, ADRs                    |
+| **[THREAT_MODEL.md](#threat-model)**                                  | Security analysis and threat mitigation              | Attack surface analysis, security controls, SAST/DAST integration, supply chain security           |
 
 ---
 
@@ -30,6 +30,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 **Purpose**: Executive summary and quick start guide for the NCY_8 project.
 
 **Key Topics**:
+
 - Project overview and business context
 - Technology stack summary (React + Vite, Node.js, PostgreSQL, Docker)
 - Quick start instructions for developers
@@ -44,6 +45,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 **Purpose**: Comprehensive system architecture documentation covering all layers and design decisions.
 
 **Key Topics**:
+
 - System overview and high-level architecture
 - Frontend architecture (React 19, Vite, TypeScript, MUI)
 - Backend architecture (Node.js, Express, TypeScript)
@@ -61,6 +63,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 **Purpose**: Monorepo hygiene standards and development best practices.
 
 **Key Topics**:
+
 - yarn workspace configuration and dependency management
 - Conventional commits and commitlint setup
 - ESLint and Prettier configuration
@@ -77,6 +80,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 **Purpose**: API versioning strategy and backward compatibility management.
 
 **Key Topics**:
+
 - Versioning scheme (/api/v1, /api/v2)
 - Deprecation policy and timeline
 - Backward compatibility guidelines
@@ -93,6 +97,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 **Purpose**: Database design, operations, and data management strategy.
 
 **Key Topics**:
+
 - TypeORM entity design and relationships
 - Migration strategy and version control
 - Indexing strategy and query optimization
@@ -110,6 +115,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 **Purpose**: Authentication, authorization, and comprehensive security policies.
 
 **Key Topics**:
+
 - JWT authentication with `argon2` password hashing
 - Role-based access control (RBAC) with `RolePermissionService`
 - Input validation and sanitization with `class-validator`
@@ -126,6 +132,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 **Purpose**: Caching strategy, background job processing, and real-time features.
 
 **Key Topics**:
+
 - Redis configuration and key naming conventions
 - Cache invalidation strategies and TTL policies
 - BullMQ job queue setup and configuration
@@ -142,6 +149,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 **Purpose**: Comprehensive monitoring, logging, and alerting setup.
 
 **Key Topics**:
+
 - Prometheus metrics collection and exporters
 - Grafana dashboard configuration and visualization
 - Structured logging with Pino and ELK stack integration
@@ -158,6 +166,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 **Purpose**: Continuous integration and deployment pipeline configuration.
 
 **Key Topics**:
+
 - GitHub Actions workflow configuration
 - Jenkins pipeline setup and integration
 - Docker containerization and multi-stage builds
@@ -174,6 +183,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 **Purpose**: Comprehensive testing strategy and quality assurance.
 
 **Key Topics**:
+
 - Unit testing with Jest and testing frameworks
 - Integration testing and API contract testing
 - End-to-end testing with Playwright
@@ -190,6 +200,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 **Purpose**: Network configuration, content delivery, and performance optimization.
 
 **Key Topics**:
+
 - Nginx reverse proxy configuration
 - HTTPS setup with Let's Encrypt
 - CORS policies and cookie configuration
@@ -206,6 +217,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 **Purpose**: Developer onboarding, tooling, and development environment setup.
 
 **Key Topics**:
+
 - Developer onboarding checklist and setup guide
 - Development environment configuration
 - API documentation with Swagger/OpenAPI
@@ -222,6 +234,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 **Purpose**: Security analysis, threat assessment, and mitigation strategies.
 
 **Key Topics**:
+
 - Attack surface analysis and threat identification
 - Security control implementation and effectiveness
 - SAST/DAST integration and automated security testing
@@ -284,4 +297,4 @@ GoGoTime/
 
 ---
 
-*This documentation suite is maintained by the engineering team and updated with each major release. For questions or contributions, please refer to the contributing guidelines in the main README.md.*
+_This documentation suite is maintained by the engineering team and updated with each major release. For questions or contributions, please refer to the contributing guidelines in the main README.md._

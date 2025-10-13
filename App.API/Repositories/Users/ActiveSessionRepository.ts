@@ -1,9 +1,9 @@
-import { Service } from "typedi";
-import { InjectRepository } from "typeorm-typedi-extensions";
-import { Repository, FindOneOptions } from "typeorm";
+import { Service } from 'typedi';
+import { InjectRepository } from 'typeorm-typedi-extensions';
+import { Repository, FindOneOptions } from 'typeorm';
 
-import ActiveSession from "../../Entities/Users/ActiveSessions";
-import { BaseRepository } from "../../Repositories/BaseRepository";
+import ActiveSession from '../../Entities/Users/ActiveSessions';
+import { BaseRepository } from '../../Repositories/BaseRepository';
 
 /**
  * @description Repository for managing ActiveSession entities. Extends BaseRepository to provide standard CRUD operations
@@ -54,13 +54,10 @@ export class ActiveSessionRepository extends BaseRepository<ActiveSession> {
    * @param userId The unique identifier of the user.
    * @returns A Promise that resolves to an array of ActiveSession entities, ordered by last seen time.
    */
-  async findAllForUser(
-    companyId: string,
-    userId: string,
-  ): Promise<ActiveSession[]> {
+  async findAllForUser(companyId: string, userId: string): Promise<ActiveSession[]> {
     return this.repository.find({
       where: { companyId, userId },
-      order: { lastSeenAt: "DESC" },
+      order: { lastSeenAt: 'DESC' },
     });
   }
 }

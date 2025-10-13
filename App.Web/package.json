@@ -4,13 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "eslint": "...",
+    "eslint-*": "...",
+    "prettier": "...",
+    "lint-staged": "...",
+    "@typescript-eslint/*": "...",
+    "husky": "...",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit --skipLibCheck",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "format": "prettier --write \"src/**/*.{ts,tsx,json,css,scss,md}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,json,css,scss,md}\"",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -45,16 +48,9 @@
     "@types/node": "^24.7.0",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.1",
-    "@typescript-eslint/eslint-plugin": "^8.15.0",
-    "@typescript-eslint/parser": "^8.15.0",
     "@vitejs/plugin-react": "^5.0.4",
     "@vitest/coverage-v8": "^2.1.4",
-    "eslint": "^9.15.0",
-    "eslint-plugin-react": "^7.37.2",
-    "eslint-plugin-react-hooks": "^5.0.0",
-    "eslint-plugin-react-refresh": "^0.4.14",
     "jsdom": "^25.0.0",
-    "prettier": "^3.3.3",
     "swagger-parser": "^10.0.3",
     "typescript": "^5.9.3",
     "vite": "^7.1.9",
@@ -64,5 +60,9 @@
   "engines": {
     "node": ">=24.9.0",
     "yarn": ">=4.10.3"
-  }
+  },
+  "eslintConfig": {
+    "extends": "../../eslint.config.js"
+  },
+  "prettier": "../../.prettierrc.json"
 }

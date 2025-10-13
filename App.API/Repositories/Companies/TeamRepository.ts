@@ -1,6 +1,6 @@
-import { Team } from "../../Entities/Companies/Team";
-import { BaseRepository } from "../../Repositories/BaseRepository";
-import { Service } from "typedi";
+import { Team } from '../../Entities/Companies/Team';
+import { BaseRepository } from '../../Repositories/BaseRepository';
+import { Service } from 'typedi';
 
 /**
  * @description Repository for managing Team entities. Extends BaseRepository to provide standard CRUD operations

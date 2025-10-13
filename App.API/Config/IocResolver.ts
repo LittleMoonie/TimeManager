@@ -1,5 +1,5 @@
-import { Container } from "typedi";
-import { IocContainer } from "tsoa";
+import { Container } from 'typedi';
+import { IocContainer } from 'tsoa';
 
 export const iocContainer: IocContainer = {
   get: <T>(controller: { prototype: T }): T | Promise<T> => {

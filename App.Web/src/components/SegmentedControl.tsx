@@ -1,18 +1,18 @@
-import { Tabs, Tab, Box } from '@mui/material'
-import { SxProps, Theme } from '@mui/material/styles'
+import { Tabs, Tab, Box } from '@mui/material';
+import { SxProps, Theme } from '@mui/material/styles';
 
 export type SegmentedOption<T extends string> = {
-  label: string
-  value: T
-}
+  label: string;
+  value: T;
+};
 
 type SegmentedControlProps<T extends string> = {
-  options: SegmentedOption<T>[]
-  value: T
-  onChange: (value: T) => void
-  ariaLabel?: string
-  sx?: SxProps<Theme>
-}
+  options: SegmentedOption<T>[];
+  value: T;
+  onChange: (value: T) => void;
+  ariaLabel?: string;
+  sx?: SxProps<Theme>;
+};
 
 export const SegmentedControl = <T extends string>({
   options,
@@ -27,7 +27,7 @@ export const SegmentedControl = <T extends string>({
         borderRadius: 999,
         px: 0.5,
         py: 0.25,
-        backgroundColor: theme => theme.palette.action.hover,
+        backgroundColor: (theme) => theme.palette.action.hover,
         minWidth: options.length * 72,
         ...sx,
       }}
@@ -47,7 +47,7 @@ export const SegmentedControl = <T extends string>({
           },
         }}
       >
-        {options.map(option => (
+        {options.map((option) => (
           <Tab
             key={option.value}
             disableRipple
@@ -60,15 +60,15 @@ export const SegmentedControl = <T extends string>({
               borderRadius: 999,
               transition: 'background-color 120ms ease',
               '&.Mui-selected': {
-                backgroundColor: theme => theme.palette.background.paper,
-                boxShadow: theme => theme.shadows[1],
+                backgroundColor: (theme) => theme.palette.background.paper,
+                boxShadow: (theme) => theme.shadows[1],
               },
             }}
           />
         ))}
       </Tabs>
     </Box>
-  )
-}
+  );
+};
 
-export default SegmentedControl
+export default SegmentedControl;

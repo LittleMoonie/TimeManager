@@ -1,7 +1,7 @@
-import { Service } from "typedi";
-import ActiveSession from "../../Entities/Users/ActiveSessions";
-import { NotFoundError } from "../../Errors/HttpErrors";
-import { ActiveSessionRepository } from "../../Repositories/Users/ActiveSessionRepository";
+import { Service } from 'typedi';
+import ActiveSession from '../../Entities/Users/ActiveSessions';
+import { NotFoundError } from '../../Errors/HttpErrors';
+import { ActiveSessionRepository } from '../../Repositories/Users/ActiveSessionRepository';
 
 /**
  * @description Service layer for managing the lifecycle of ActiveSession entities. This includes
@@ -14,9 +14,7 @@ export class ActiveSessionService {
    * @description Initializes the ActiveSessionService with the ActiveSessionRepository.
    * @param activeSessionRepository The repository for ActiveSession entities, injected by TypeDI.
    */
-  constructor(
-    private readonly activeSessionRepository: ActiveSessionRepository,
-  ) {}
+  constructor(private readonly activeSessionRepository: ActiveSessionRepository) {}
 
   /**
    * @description Creates a new active session record upon successful user login.
@@ -60,14 +58,13 @@ export class ActiveSessionService {
     companyId: string,
     tokenHash: string,
   ): Promise<ActiveSession> {
-    const activeSession =
-      await this.activeSessionRepository.findByTokenHashInCompany(
-        companyId,
-        tokenHash,
-      );
+    const activeSession = await this.activeSessionRepository.findByTokenHashInCompany(
+      companyId,
+      tokenHash,
+    );
 
     if (!activeSession) {
-      throw new NotFoundError("Active session not found");
+      throw new NotFoundError('Active session not found');
     }
     return activeSession;
   }
@@ -80,14 +77,8 @@ export class ActiveSessionService {
    * @returns A Promise that resolves when the session has been revoked.
    * @throws {NotFoundError} If the active session is not found.
    */
-  async revokeActiveSession(
-    companyId: string,
-    tokenHash: string,
-  ): Promise<void> {
-    const activeSession = await this.getActiveSessionByTokenInCompany(
-      companyId,
-      tokenHash,
-    );
+  async revokeActiveSession(companyId: string, tokenHash: string): Promise<void> {
+    const activeSession = await this.getActiveSessionByTokenInCompany(companyId, tokenHash);
     await this.activeSessionRepository.update(activeSession.id, {
       revokedAt: new Date(),
     });
@@ -101,10 +92,7 @@ export class ActiveSessionService {
    * @throws {NotFoundError} If the active session is not found.
    */
   async updateLastSeen(companyId: string, tokenHash: string): Promise<void> {
-    const activeSession = await this.getActiveSessionByTokenInCompany(
-      companyId,
-      tokenHash,
-    );
+    const activeSession = await this.getActiveSessionByTokenInCompany(companyId, tokenHash);
     await this.activeSessionRepository.update(activeSession.id, {
       lastSeenAt: new Date(),
     });
@@ -116,10 +104,7 @@ export class ActiveSessionService {
    * @param userId The unique identifier of the user.
    * @returns A Promise that resolves to an array of ActiveSession entities.
    */
-  async getAllUserSessions(
-    companyId: string,
-    userId: string,
-  ): Promise<ActiveSession[]> {
+  async getAllUserSessions(companyId: string, userId: string): Promise<ActiveSession[]> {
     return this.activeSessionRepository.findAllForUser(companyId, userId);
   }
 }

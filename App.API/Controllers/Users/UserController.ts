@@ -11,14 +11,14 @@ import {
   Security,
   Request,
   Query,
-} from "tsoa";
-import { Request as ExpressRequest } from "express";
-import { Service } from "typedi";
+} from 'tsoa';
+import { Request as ExpressRequest } from 'express';
+import { Service } from 'typedi';
 
-import { UserService } from "../../Services/Users/UserService";
-import { CreateUserDto, UpdateUserDto } from "../../Dtos/Users/UserDto";
-import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
-import User from "../../Entities/Users/User";
+import { UserService } from '../../Services/Users/UserService';
+import { CreateUserDto, UpdateUserDto } from '../../Dtos/Users/UserDto';
+import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
+import User from '../../Entities/Users/User';
 
 type UsersPage = {
   data: UserResponseDto[];
@@ -32,9 +32,9 @@ type UsersPage = {
  * @tags Users
  * @security jwt
  */
-@Route("users")
-@Tags("Users")
-@Security("jwt")
+@Route('users')
+@Tags('Users')
+@Security('jwt')
 @Service()
 export class UserController extends Controller {
   constructor(private readonly userService: UserService) {
@@ -49,7 +49,7 @@ export class UserController extends Controller {
    * @returns A paginated list of user details.
    * @throws {ForbiddenError} If the current user does not have 'list_users' permission.
    */
-  @Get("/")
+  @Get('/')
   public async listUsers(
     @Request() request: ExpressRequest,
     @Query() page?: number,
@@ -67,7 +67,7 @@ export class UserController extends Controller {
    * @throws {ForbiddenError} If the current user does not have 'view_user' permission and is not the target user.
    * @throws {NotFoundError} If the user is not found within the specified company.
    */
-  @Get("/{id}")
+  @Get('/{id}')
   public async getUserById(
     @Path() id: string,
     @Request() request: ExpressRequest,
@@ -84,7 +84,7 @@ export class UserController extends Controller {
    * @throws {ForbiddenError} If the current user does not have 'create_user' permission.
    * @throws {UnprocessableEntityError} If validation fails, the email already exists, or an invalid roleId is provided.
    */
-  @Post("/")
+  @Post('/')
   public async createUser(
     @Body() createUserDto: CreateUserDto,
     @Request() request: ExpressRequest,
@@ -103,7 +103,7 @@ export class UserController extends Controller {
    * @throws {UnprocessableEntityError} If validation fails, or an invalid roleId/statusId is provided.
    * @throws {NotFoundError} If the user is not found.
    */
-  @Put("/{id}")
+  @Put('/{id}')
   public async updateUser(
     @Path() id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -121,11 +121,8 @@ export class UserController extends Controller {
    * @throws {ForbiddenError} If the current user does not have 'delete_user' permission.
    * @throws {NotFoundError} If the user is not found.
    */
-  @Delete("/{id}")
-  public async deleteUser(
-    @Path() id: string,
-    @Request() request: ExpressRequest,
-  ): Promise<void> {
+  @Delete('/{id}')
+  public async deleteUser(@Path() id: string, @Request() request: ExpressRequest): Promise<void> {
     const me = request.user as User;
     await this.userService.softDeleteUser(me.companyId, id, me);
   }

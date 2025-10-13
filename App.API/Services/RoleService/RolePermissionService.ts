@@ -1,9 +1,9 @@
-import { Service } from "typedi";
-import { RolePermissionRepository } from "../../Repositories/Roles/RolePermissionRepository";
-import { RolePermission } from "../../Entities/Roles/RolePermission";
-import { ForbiddenError, NotFoundError } from "../../Errors/HttpErrors";
-import { CreateRolePermissionDto } from "../../Dtos/Roles/RoleDto";
-import User from "../../Entities/Users/User";
+import { Service } from 'typedi';
+import { RolePermissionRepository } from '../../Repositories/Roles/RolePermissionRepository';
+import { RolePermission } from '../../Entities/Roles/RolePermission';
+import { ForbiddenError, NotFoundError } from '../../Errors/HttpErrors';
+import { CreateRolePermissionDto } from '../../Dtos/Roles/RoleDto';
+import User from '../../Entities/Users/User';
 
 /**
  * @description Service layer for managing RolePermission entities. This service provides business logic
@@ -15,9 +15,7 @@ export class RolePermissionService {
    * @description Initializes the RolePermissionService with the RolePermissionRepository.
    * @param rolePermissionRepository The repository for RolePermission entities, injected by TypeDI.
    */
-  constructor(
-    private readonly rolePermissionRepository: RolePermissionRepository,
-  ) {}
+  constructor(private readonly rolePermissionRepository: RolePermissionRepository) {}
 
   /**
    * @description Checks if a given user has a specific permission.
@@ -25,14 +23,9 @@ export class RolePermissionService {
    * @param permissionName The name of the permission to check for.
    * @returns {Promise<boolean>} A Promise that resolves to `true` if the user has the permission, `false` otherwise.
    */
-  public async checkPermission(
-    user: User,
-    permissionName: string,
-  ): Promise<boolean> {
+  public async checkPermission(user: User, permissionName: string): Promise<boolean> {
     if (!user?.role?.rolePermissions?.length) return false;
-    return user.role.rolePermissions.some(
-      (rp) => rp.permission?.name === permissionName,
-    );
+    return user.role.rolePermissions.some((rp) => rp.permission?.name === permissionName);
   }
 
   /**
@@ -42,13 +35,10 @@ export class RolePermissionService {
    * @returns A Promise that resolves to the RolePermission entity.
    * @throws {NotFoundError} If the role-permission association is not found or does not belong to the specified company.
    */
-  public async getRolePermissionById(
-    companyId: string,
-    id: string,
-  ): Promise<RolePermission> {
+  public async getRolePermissionById(companyId: string, id: string): Promise<RolePermission> {
     const link = await this.rolePermissionRepository.findById(id);
     if (!link || link.companyId !== companyId) {
-      throw new NotFoundError("RolePermission not found");
+      throw new NotFoundError('RolePermission not found');
     }
     return link;
   }
@@ -67,18 +57,15 @@ export class RolePermissionService {
     companyId: string,
     createRolePermissionDto: CreateRolePermissionDto,
   ): Promise<RolePermission> {
-    if (!(await this.checkPermission(currentUser, "create_role_permission"))) {
-      throw new ForbiddenError(
-        "User does not have permission to create role permissions.",
-      );
+    if (!(await this.checkPermission(currentUser, 'create_role_permission'))) {
+      throw new ForbiddenError('User does not have permission to create role permissions.');
     }
 
-    const existing =
-      await this.rolePermissionRepository.findByRoleAndPermission(
-        companyId,
-        createRolePermissionDto.roleId,
-        createRolePermissionDto.permissionId,
-      );
+    const existing = await this.rolePermissionRepository.findByRoleAndPermission(
+      companyId,
+      createRolePermissionDto.roleId,
+      createRolePermissionDto.permissionId,
+    );
     if (existing) return existing;
 
     return this.rolePermissionRepository.create({
@@ -101,15 +88,13 @@ export class RolePermissionService {
     companyId: string,
     id: string,
   ): Promise<void> {
-    if (!(await this.checkPermission(currentUser, "delete_role_permission"))) {
-      throw new ForbiddenError(
-        "User does not have permission to delete role permissions.",
-      );
+    if (!(await this.checkPermission(currentUser, 'delete_role_permission'))) {
+      throw new ForbiddenError('User does not have permission to delete role permissions.');
     }
 
     const link = await this.rolePermissionRepository.findById(id);
     if (!link || link.companyId !== companyId) {
-      throw new NotFoundError("RolePermission not found");
+      throw new NotFoundError('RolePermission not found');
     }
     await this.rolePermissionRepository.removeById(companyId, id);
   }

@@ -1,28 +1,19 @@
-import {
-  Controller,
-  Get,
-  Route,
-  Tags,
-  Security,
-  Request,
-  Path,
-  Delete,
-} from "tsoa";
-import { Request as ExpressRequest } from "express";
-import { Service } from "typedi";
+import { Controller, Get, Route, Tags, Security, Request, Path, Delete } from 'tsoa';
+import { Request as ExpressRequest } from 'express';
+import { Service } from 'typedi';
 
-import { ActiveSessionService } from "../../Services/Users/ActiveSessionService";
-import { ActiveSessionResponseDto } from "../../Dtos/Users/UserDto";
-import User from "../../Entities/Users/User";
+import { ActiveSessionService } from '../../Services/Users/ActiveSessionService';
+import { ActiveSessionResponseDto } from '../../Dtos/Users/UserDto';
+import User from '../../Entities/Users/User';
 
 /**
  * @summary Controller for managing active refresh-token sessions.
  * @tags Active Sessions
  * @security jwt
  */
-@Route("active-sessions")
-@Tags("Active Sessions")
-@Security("jwt")
+@Route('active-sessions')
+@Tags('Active Sessions')
+@Security('jwt')
 @Service()
 export class ActiveSessionsController extends Controller {
   constructor(private readonly activeSessionService: ActiveSessionService) {
@@ -34,7 +25,7 @@ export class ActiveSessionsController extends Controller {
    * @param request The Express request object, containing user information.
    * @returns An array of active session details.
    */
-  @Get("/")
+  @Get('/')
   public async getAllUserSessions(
     @Request() request: ExpressRequest,
   ): Promise<ActiveSessionResponseDto[]> {
@@ -49,15 +40,12 @@ export class ActiveSessionsController extends Controller {
    * @returns A Promise that resolves upon successful revocation.
    * @throws {NotFoundError} If the session is not found.
    */
-  @Delete("/{tokenHash}")
+  @Delete('/{tokenHash}')
   public async revokeActiveSession(
     @Path() tokenHash: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
     const me = request.user as User;
-    await this.activeSessionService.revokeActiveSession(
-      me.companyId,
-      tokenHash,
-    );
+    await this.activeSessionService.revokeActiveSession(me.companyId, tokenHash);
   }
 }

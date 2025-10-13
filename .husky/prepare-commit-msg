@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Auto-insert Conventional Commit template if message is empty (not merge/squash)
+
+set -euo pipefail
+
+MSGFILE="$1"
+SOURCE="${2:-}"
+
+case "$SOURCE" in
+  merge|squash) exit 0 ;;
+esac
+
+# If message already has content, do nothing
+[ -s "$MSGFILE" ] && exit 0
+
+cat > "$MSGFILE" <<'TEMPLATE'
+feat(scope): short summary
+
+- why
+- what
+- how
+
+BREAKING CHANGE: details (if any)
+TEMPLATE

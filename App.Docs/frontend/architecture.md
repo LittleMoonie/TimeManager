@@ -7,12 +7,14 @@ The GoGoTime frontend is built with React 19, TypeScript, and Material-UI, follo
 ## Technology Stack
 
 ### Core Framework
+
 - **React 19** with Vite for development
 - **TypeScript 5.9+** for type safety
 - **Material-UI (MUI) v7** for UI components
 - **Zustand** for global state management
 
 ### Development Tools
+
 - **Vite 7+** for fast development and building
 - **ESLint + Prettier** for code quality
 - **Vitest** with React Testing Library for testing
@@ -24,7 +26,7 @@ The GoGoTime frontend is built with React 19, TypeScript, and Material-UI, follo
 App.Web/src/
 ├── components/          # 🧩 Reusable React components
 │   ├── cards/          # Card components
-│   ├── common/         # Common UI components  
+│   ├── common/         # Common UI components
 │   ├── extended/       # Extended/custom components
 │   ├── guards/         # Route protection components
 │   └── layout/         # Layout components
@@ -42,6 +44,7 @@ App.Web/src/
 ## State Management
 
 ### Zustand Store Setup
+
 ```typescript
 // lib/store/index.ts
 import { create } from 'zustand';
@@ -66,13 +69,14 @@ export const useAppStore = create<CustomizationState>((set) => ({
 ## API Integration
 
 ### Type-Safe API Client
+
 The frontend uses an **auto-generated, type-safe API client**:
 
 ```typescript
 // lib/api/apiClient.ts
 import { apiClient } from '@/lib/api/apiClient';
-import { LoginDto } from "../../App.API/Dtos/Authentication/AuthenticationDto";
-import { ApiError } from "./apiClient"; // Assuming ApiError is defined in apiClient.ts
+import { LoginDto } from '../../App.API/Dtos/Authentication/AuthenticationDto';
+import { ApiError } from './apiClient'; // Assuming ApiError is defined in apiClient.ts
 
 // Type-safe API calls with auto-completion
 const loginUser = async (credentials: LoginDto) => {
@@ -92,6 +96,7 @@ const loginUser = async (credentials: LoginDto) => {
 ```
 
 ### API Client Features
+
 - ✅ **Auto-generated** from OpenAPI specification
 - ✅ **Type-safe** with full TypeScript support
 - ✅ **JWT handling** automatic token management
@@ -101,6 +106,7 @@ const loginUser = async (credentials: LoginDto) => {
 ## Component Architecture
 
 ### Component Hierarchy
+
 ```
 App.tsx
 ├── Router (React Router)
@@ -109,19 +115,21 @@ App.tsx
 │   ├── Sidebar
 │   │   └── MenuList
 │   │       ├── NavGroup
-│   │       ├── NavItem  
+│   │       ├── NavItem
 │   │       └── NavCollapse
 │   └── Main Content Area
 └── Theme Provider (MUI)
 ```
 
 ### Layout Components
+
 - **MainLayout**: Primary application layout
 - **MinimalLayout**: Simplified layout for auth pages
 - **Header**: Top navigation and user controls
 - **Sidebar**: Navigation menu with collapsible items
 
 ### Route Protection
+
 ```typescript
 // components/guards/AuthGuard.tsx
 import { Navigate } from 'react-router-dom';
@@ -129,11 +137,11 @@ import { useAuth } from '@/hooks/useAuth'; // Assuming a custom auth hook
 
 export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  
+
   return <>{children}</>;
 };
 ```
@@ -141,6 +149,7 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
 ## Routing Strategy
 
 ### Route Structure
+
 ```typescript
 // src/app/router.tsx (Simplified)
 import { createBrowserRouter, Navigate, Outlet, RouteObject } from "react-router-dom";
@@ -196,6 +205,7 @@ export const router = createBrowserRouter(routeConfig);
 ```
 
 ### Navigation Configuration
+
 ```typescript
 // lib/menu-items/index.ts
 export interface MenuItem {
@@ -211,6 +221,7 @@ export interface MenuItem {
 ## Theming & Styling
 
 ### Material-UI Theme
+
 ```typescript
 // themes/index.ts
 export const theme = (customization: CustomizationState) => {
@@ -230,14 +241,16 @@ export const theme = (customization: CustomizationState) => {
 ```
 
 ### Responsive Design
+
 - **Mobile-first** approach with breakpoints
-- **Sidebar collapse** on mobile devices  
+- **Sidebar collapse** on mobile devices
 - **Responsive grid** using MUI Grid system
 - **Touch-friendly** interface elements
 
 ## Development Workflow
 
 ### Component Development
+
 ```typescript
 // Example component structure
 import React from 'react';
@@ -261,6 +274,7 @@ export const MyComponent: React.FC<MyComponentProps> = ({ title, data = [] }) =>
 ```
 
 ### Testing Strategy
+
 ```typescript
 // Component testing with React Testing Library
 import { render, screen } from '@testing-library/react';
@@ -277,11 +291,13 @@ describe('MyComponent', () => {
 ## Performance Optimization
 
 ### Code Splitting
+
 - **Lazy loading** of route components
 - **Dynamic imports** for heavy components
 - **Bundle analysis** with Vite bundle analyzer
 
 ### Optimization Techniques
+
 - **React.memo** for expensive re-renders
 - **useMemo/useCallback** for expensive calculations
 - **Virtualization** for large lists (if needed)
@@ -290,6 +306,7 @@ describe('MyComponent', () => {
 ## Build & Deployment
 
 ### Development Build
+
 ```bash
 # Start development server with hot reload
 yarn dev
@@ -297,12 +314,13 @@ yarn dev
 # Type checking
 yarn typecheck
 
-# Linting and formatting  
+# Linting and formatting
 yarn lint
 yarn format
 ```
 
 ### Production Build
+
 ```bash
 # Build for production
 yarn build
@@ -312,7 +330,9 @@ yarn preview
 ```
 
 ### Docker Integration
+
 The frontend is containerized with:
+
 - **Multi-stage Dockerfile** for optimization
 - **Nginx** serving in production
 - **Hot reload** in development via Docker Compose watch
@@ -320,24 +340,28 @@ The frontend is containerized with:
 ## Best Practices
 
 ### Code Organization
+
 - **Feature-based** folder structure
 - **Barrel exports** for clean imports
 - **Consistent naming** conventions
 - **TypeScript strict mode** enabled
 
 ### Performance
+
 - **Lazy load** non-critical components
 - **Optimize images** and assets
 - **Minimize bundle size** with tree shaking
 - **Use production builds** for deployment
 
 ### Accessibility
+
 - **Semantic HTML** elements
 - **ARIA labels** where needed
 - **Keyboard navigation** support
 - **Color contrast** compliance
 
 ### Security
+
 - **Input validation** on all forms
 - **XSS prevention** with proper escaping
 - **Secure API calls** with proper headers
@@ -346,6 +370,7 @@ The frontend is containerized with:
 ---
 
 **🎯 Key Benefits:**
+
 - **Type Safety**: Full TypeScript coverage with auto-generated API types
 - **Developer Experience**: Hot reload, excellent tooling, clear architecture
 - **Maintainability**: Well-organized code structure and consistent patterns

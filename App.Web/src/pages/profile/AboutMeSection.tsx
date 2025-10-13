@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState } from 'react';
 import {
   Box,
   Card,
@@ -8,29 +8,29 @@ import {
   TextField,
   Button,
   Stack,
-} from '@mui/material'
-import { Edit, Save, Cancel } from '@mui/icons-material'
-import { useAuth } from '@/hooks/useAuth'
+} from '@mui/material';
+import { Edit, Save, Cancel } from '@mui/icons-material';
+import { useAuth } from '@/hooks/useAuth';
 
 export const AboutMeSection = () => {
-  const { user } = useAuth()
-  const [isEditing, setIsEditing] = useState(false)
-  const [aboutMe, setAboutMe] = useState(user?.aboutMe || '')
+  const { user } = useAuth();
+  const [isEditing, setIsEditing] = useState(false);
+  const [aboutMe, setAboutMe] = useState(user?.aboutMe || '');
 
   const handleEdit = () => {
-    setIsEditing(true)
-  }
+    setIsEditing(true);
+  };
 
   const handleSave = () => {
     // TODO: Implement save functionality with API call
-    console.log('Saving about me:', aboutMe)
-    setIsEditing(false)
-  }
+    console.log('Saving about me:', aboutMe);
+    setIsEditing(false);
+  };
 
   const handleCancel = () => {
-    setAboutMe(user?.aboutMe || '')
-    setIsEditing(false)
-  }
+    setAboutMe(user?.aboutMe || '');
+    setIsEditing(false);
+  };
 
   return (
     <Card>
@@ -51,7 +51,7 @@ export const AboutMeSection = () => {
               rows={4}
               fullWidth
               value={aboutMe}
-              onChange={e => setAboutMe(e.target.value)}
+              onChange={(e) => setAboutMe(e.target.value)}
               placeholder="Tell us about yourself..."
               variant="outlined"
               sx={{ mb: 2 }}
@@ -72,5 +72,5 @@ export const AboutMeSection = () => {
         )}
       </CardContent>
     </Card>
-  )
-}
+  );
+};

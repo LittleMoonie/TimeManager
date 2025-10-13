@@ -1,5 +1,5 @@
-import { Avatar, Box, Card, CardContent, Chip, Grid, Typography } from '@mui/material'
-import type { Person, PersonStatus } from '@/types'
+import { Avatar, Box, Card, CardContent, Chip, Grid, Typography } from '@mui/material';
+import type { Person, PersonStatus } from '@/types';
 
 const mockPeople: Person[] = [
   {
@@ -26,18 +26,18 @@ const mockPeople: Person[] = [
     status: 'On leave',
     initials: 'PS',
   },
-]
+];
 
 const getStatusColor = (status: PersonStatus) => {
   switch (status) {
     case 'Active':
-      return 'success'
+      return 'success';
     case 'On leave':
-      return 'warning'
+      return 'warning';
     case 'Inactive':
-      return 'error'
+      return 'error';
   }
-}
+};
 
 const PeoplePage = () => {
   return (
@@ -52,7 +52,7 @@ const PeoplePage = () => {
       </Box>
 
       <Grid container spacing={3}>
-        {mockPeople.map(person => (
+        {mockPeople.map((person) => (
           <Grid size={{ xs: 12, sm: 6, md: 4 }} key={person.id}>
             <Card
               sx={{
@@ -60,7 +60,7 @@ const PeoplePage = () => {
                 transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
                 '&:hover': {
                   transform: 'translateY(-2px)',
-                  boxShadow: theme => theme.shadows[8],
+                  boxShadow: (theme) => theme.shadows[8],
                 },
               }}
             >
@@ -103,7 +103,7 @@ const PeoplePage = () => {
         ))}
       </Grid>
     </Box>
-  )
-}
+  );
+};
 
-export default PeoplePage
+export default PeoplePage;

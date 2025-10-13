@@ -9,23 +9,23 @@ import {
   Get,
   Put,
   Delete,
-} from "tsoa";
-import { Request as ExpressRequest } from "express";
-import { Service } from "typedi";
+} from 'tsoa';
+import { Request as ExpressRequest } from 'express';
+import { Service } from 'typedi';
 
-import { CompanySettingsService } from "../../Services/Companies/CompanySettingsService";
-import { UpdateCompanySettingsDto } from "../../Dtos/Companies/CompanyDto";
-import { CompanySettings } from "../../Entities/Companies/CompanySettings";
-import User from "../../Entities/Users/User";
+import { CompanySettingsService } from '../../Services/Companies/CompanySettingsService';
+import { UpdateCompanySettingsDto } from '../../Dtos/Companies/CompanyDto';
+import { CompanySettings } from '../../Entities/Companies/CompanySettings';
+import User from '../../Entities/Users/User';
 
 /**
  * @summary Controller for managing company settings.
  * @tags Company Settings
  * @security jwt
  */
-@Route("company-settings")
-@Tags("Company Settings")
-@Security("jwt")
+@Route('company-settings')
+@Tags('Company Settings')
+@Security('jwt')
 @Service()
 export class CompanySettingsController extends Controller {
   constructor(private companySettingsService: CompanySettingsService) {
@@ -38,10 +38,8 @@ export class CompanySettingsController extends Controller {
    * @returns The company settings.
    * @throws {NotFoundError} If company settings are not found.
    */
-  @Get("/")
-  public async getCompanySettings(
-    @Request() request: ExpressRequest,
-  ): Promise<CompanySettings> {
+  @Get('/')
+  public async getCompanySettings(@Request() request: ExpressRequest): Promise<CompanySettings> {
     const me = request.user as User;
     return this.companySettingsService.getCompanySettings(me.companyId);
   }
@@ -55,17 +53,14 @@ export class CompanySettingsController extends Controller {
    * @throws {UnprocessableEntityError} If validation fails.
    * @throws {NotFoundError} If company settings are not found.
    */
-  @Put("/")
-  @Security("jwt", ["admin", "manager"])
+  @Put('/')
+  @Security('jwt', ['admin', 'manager'])
   public async updateCompanySettings(
     @Body() updateCompanySettingsDto: UpdateCompanySettingsDto,
     @Request() request: ExpressRequest,
   ): Promise<CompanySettings> {
     const me = request.user as User;
-    return this.companySettingsService.updateCompanySettings(
-      me,
-      updateCompanySettingsDto,
-    );
+    return this.companySettingsService.updateCompanySettings(me, updateCompanySettingsDto);
   }
 
   /**
@@ -74,12 +69,10 @@ export class CompanySettingsController extends Controller {
    * @returns A Promise that resolves when the deletion is complete.
    * @throws {NotFoundError} If company settings are not found.
    */
-  @Delete("/")
-  @Security("jwt", ["admin"])
-  @SuccessResponse("204", "Company settings deleted successfully")
-  public async deleteCompanySettings(
-    @Request() request: ExpressRequest,
-  ): Promise<void> {
+  @Delete('/')
+  @Security('jwt', ['admin'])
+  @SuccessResponse('204', 'Company settings deleted successfully')
+  public async deleteCompanySettings(@Request() request: ExpressRequest): Promise<void> {
     const me = request.user as User;
     await this.companySettingsService.deleteCompanySettings(me.companyId);
     this.setStatus(204);

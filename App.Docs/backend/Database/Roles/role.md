@@ -9,51 +9,44 @@ This entity is defined in `App.API/Entities/Roles/Role.ts`.
 ## Entity Definition
 
 ```typescript
-import {
-  Entity,
-  Column,
-  OneToMany,
-  ManyToOne,
-  JoinColumn,
-  Index,
-} from "typeorm";
-import { BaseEntity } from "../BaseEntity";
-import { RolePermission } from "./RolePermission";
-import User from "../Users/User";
-import { Company } from "../Companies/Company";
+import { Entity, Column, OneToMany, ManyToOne, JoinColumn, Index } from 'typeorm';
+import { BaseEntity } from '../BaseEntity';
+import { RolePermission } from './RolePermission';
+import User from '../Users/User';
+import { Company } from '../Companies/Company';
 
 /**
  * @description Represents a user role within a company, defining a set of permissions.
  */
-@Entity("roles")
-@Index(["companyId", "id"], { unique: true })
-@Index(["companyId", "name"], { unique: true })
+@Entity('roles')
+@Index(['companyId', 'id'], { unique: true })
+@Index(['companyId', 'name'], { unique: true })
 export class Role extends BaseEntity {
   /**
    * @description The unique identifier of the company to which this role belongs.
    * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid" }) companyId!: string;
+  @Column({ type: 'uuid' }) companyId!: string;
 
   /**
    * @description The company associated with this role.
    */
   @ManyToOne(() => Company, (company) => company.teams, {
-    onDelete: "RESTRICT",
+    onDelete: 'RESTRICT',
   })
-  @JoinColumn({ name: "companyId" })
+  @JoinColumn({ name: 'companyId' })
   company!: Company;
 
   /**
    * @description The name of the role (e.g., "Admin", "Manager", "Employee").
    * @example "Admin"
    */
-  @Column({ type: "varchar", length: 50, nullable: false }) name!: string;
+  @Column({ type: 'varchar', length: 50, nullable: false }) name!: string;
   /**
    * @description Optional: A detailed description of the role's responsibilities or privileges.
    * @example "Administrator with full access to all company resources."
    */
-  @Column({ type: "text", nullable: true }) description?: string;
+  @Column({ type: 'text', nullable: true }) description?: string;
 
   /**
    * @description List of permissions assigned to this role.
@@ -71,26 +64,26 @@ export class Role extends BaseEntity {
 
 In addition to the fields inherited from `BaseEntity`, the `Role` entity includes:
 
-| Column Name      | Type                 | Description                                                               |
-| :--------------- | :------------------- | :------------------------------------------------------------------------ |
-| `companyId`      | `UUID`               | Foreign Key to `Company.id`, linking the role to its organization.        |
-| `name`           | `VARCHAR(50)`        | The name of the role (e.g., "Admin", "Manager", "Employee"). Must be unique within a company. |
-| `description`    | `TEXT` (nullable)    | Optional detailed description of the role's responsibilities or privileges. |
+| Column Name   | Type              | Description                                                                                   |
+| :------------ | :---------------- | :-------------------------------------------------------------------------------------------- |
+| `companyId`   | `UUID`            | Foreign Key to `Company.id`, linking the role to its organization.                            |
+| `name`        | `VARCHAR(50)`     | The name of the role (e.g., "Admin", "Manager", "Employee"). Must be unique within a company. |
+| `description` | `TEXT` (nullable) | Optional detailed description of the role's responsibilities or privileges.                   |
 
 ## Relations
 
-*   **`company`**: `@ManyToOne` relationship with `Company` entity.
-*   **`rolePermissions`**: `@OneToMany` relationship with `RolePermission` entity, representing the permissions assigned to this role.
-*   **`users`**: `@OneToMany` relationship with `User` entity, representing all users assigned to this role.
+- **`company`**: `@ManyToOne` relationship with `Company` entity.
+- **`rolePermissions`**: `@OneToMany` relationship with `RolePermission` entity, representing the permissions assigned to this role.
+- **`users`**: `@OneToMany` relationship with `User` entity, representing all users assigned to this role.
 
 ## Indexes
 
 To optimize query performance and ensure data integrity, the `Role` entity defines the following indexes:
 
-*   `@Index(["companyId", "id"], { unique: true })`: Ensures a unique role ID within each company.
-*   `@Index(["companyId", "name"], { unique: true })`: Ensures role names are unique within each company.
+- `@Index(["companyId", "id"], { unique: true })`: Ensures a unique role ID within each company.
+- `@Index(["companyId", "name"], { unique: true })`: Ensures role names are unique within each company.
 
 ## Constraints
 
-*   **Unique Role Name**: No two roles within the same company can have the same name.
-*   **Foreign Keys**: Enforced for `companyId` to maintain referential integrity with the `Company` entity. `onDelete: "RESTRICT"` prevents deletion of a company if roles are still associated with it.
+- **Unique Role Name**: No two roles within the same company can have the same name.
+- **Foreign Keys**: Enforced for `companyId` to maintain referential integrity with the `Company` entity. `onDelete: "RESTRICT"` prevents deletion of a company if roles are still associated with it.

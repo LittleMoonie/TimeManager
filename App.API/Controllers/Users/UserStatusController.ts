@@ -1,32 +1,21 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Route,
-  Tags,
-  Path,
-  Security,
-} from "tsoa";
-import { Service } from "typedi";
+import { Body, Controller, Get, Post, Put, Delete, Route, Tags, Path, Security } from 'tsoa';
+import { Service } from 'typedi';
 
-import { UserStatusService } from "../../Services/Users/UserStatusService";
+import { UserStatusService } from '../../Services/Users/UserStatusService';
 import {
   CreateUserStatusDto,
   UserStatusResponseDto,
   UpdateUserStatusDto,
-} from "../../Dtos/Users/UserStatusDto";
+} from '../../Dtos/Users/UserStatusDto';
 
 /**
  * @summary Controller for managing user statuses (global catalog).
  * @tags User Statuses
  * @security jwt
  */
-@Route("user-statuses")
-@Tags("User Statuses")
-@Security("jwt")
+@Route('user-statuses')
+@Tags('User Statuses')
+@Security('jwt')
 @Service()
 export class UserStatusController extends Controller {
   constructor(private readonly userStatusService: UserStatusService) {
@@ -39,10 +28,8 @@ export class UserStatusController extends Controller {
    * @returns The newly created user status.
    * @throws {UnprocessableEntityError} If validation fails or a user status with the same code already exists.
    */
-  @Post("/")
-  public async createUserStatus(
-    @Body() dto: CreateUserStatusDto,
-  ): Promise<UserStatusResponseDto> {
+  @Post('/')
+  public async createUserStatus(@Body() dto: CreateUserStatusDto): Promise<UserStatusResponseDto> {
     return this.userStatusService.createUserStatus(dto);
   }
 
@@ -52,10 +39,8 @@ export class UserStatusController extends Controller {
    * @returns The user status details.
    * @throws {NotFoundError} If the user status is not found.
    */
-  @Get("/{id}")
-  public async getUserStatus(
-    @Path() id: string,
-  ): Promise<UserStatusResponseDto | null> {
+  @Get('/{id}')
+  public async getUserStatus(@Path() id: string): Promise<UserStatusResponseDto | null> {
     return this.userStatusService.getUserStatusById(id);
   }
 
@@ -63,7 +48,7 @@ export class UserStatusController extends Controller {
    * @summary Retrieves all user statuses.
    * @returns An array of user status details.
    */
-  @Get("/")
+  @Get('/')
   public async listUserStatuses(): Promise<UserStatusResponseDto[]> {
     return this.userStatusService.listUserStatuses();
   }
@@ -76,7 +61,7 @@ export class UserStatusController extends Controller {
    * @throws {NotFoundError} If the user status to update is not found.
    * @throws {UnprocessableEntityError} If validation fails or an attempt is made to change the code to one that already exists.
    */
-  @Put("/{id}")
+  @Put('/{id}')
   public async updateUserStatus(
     @Path() id: string,
     @Body() dto: UpdateUserStatusDto,
@@ -90,7 +75,7 @@ export class UserStatusController extends Controller {
    * @returns A Promise that resolves upon successful soft-deletion.
    * @throws {NotFoundError} If the user status to soft-delete is not found.
    */
-  @Delete("/{id}")
+  @Delete('/{id}')
   public async deleteUserStatus(@Path() id: string): Promise<void> {
     await this.userStatusService.softDeleteUserStatus(id);
   }

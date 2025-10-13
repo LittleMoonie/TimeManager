@@ -6,8 +6,8 @@ import {
   IsUUID,
   IsOptional,
   Matches,
-} from "class-validator";
-import { PaginationQueryDto } from "../../Dtos/Common/PaginationDto";
+} from 'class-validator';
+import { PaginationQueryDto } from '../../Dtos/Common/PaginationDto';
 
 /** Common E.164 phone regex */
 const E164 = /^\+?[1-9]\d{1,14}$/;
@@ -60,7 +60,7 @@ export class CreateUserDto {
    */
   @IsString()
   @IsOptional()
-  @Matches(E164, { message: "phoneNumber must be E.164" })
+  @Matches(E164, { message: 'phoneNumber must be E.164' })
   phoneNumber?: string;
 }
 
@@ -133,7 +133,7 @@ export class UpdateUserDto {
    */
   @IsString()
   @IsOptional()
-  @Matches(E164, { message: "phoneNumber must be E.164" })
+  @Matches(E164, { message: 'phoneNumber must be E.164' })
   phoneNumber?: string;
 }
 
@@ -171,7 +171,7 @@ export class UpdateMeDto {
    */
   @IsString()
   @IsOptional()
-  @Matches(E164, { message: "phoneNumber must be E.164" })
+  @Matches(E164, { message: 'phoneNumber must be E.164' })
   phoneNumber?: string;
 }
 

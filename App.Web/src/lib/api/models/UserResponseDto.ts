@@ -3,15 +3,14 @@
 /* tslint:disable */
 /* eslint-disable */
 export type UserResponseDto = {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    companyId: string;
-    roleId: string;
-    statusId: string;
-    createdAt: string;
-    phone?: string;
-    lastLogin?: string;
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  companyId: string;
+  roleId: string;
+  statusId: string;
+  createdAt: string;
+  phone?: string;
+  lastLogin?: string;
 };
-

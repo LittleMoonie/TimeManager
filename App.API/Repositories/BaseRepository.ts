@@ -1,14 +1,8 @@
-import { AppDataSource } from "../Server/Database";
-import {
-  DeepPartial,
-  FindOneOptions,
-  FindOptionsWhere,
-  Repository,
-  EntityTarget,
-} from "typeorm";
-import { BaseEntity } from "../Entities/BaseEntity";
-import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
-import { InternalServerError } from "../Errors/HttpErrors";
+import { AppDataSource } from '../Server/Database';
+import { DeepPartial, FindOneOptions, FindOptionsWhere, Repository, EntityTarget } from 'typeorm';
+import { BaseEntity } from '../Entities/BaseEntity';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import { InternalServerError } from '../Errors/HttpErrors';
 
 /**
  * @description Generic, reusable base repository class for TypeORM entities. Provides common CRUD (Create, Read, Update, Delete)
@@ -105,9 +99,7 @@ export class BaseRepository<T extends BaseEntity> {
     try {
       await this.repository.softDelete({ id } as FindOptionsWhere<T>);
     } catch (error) {
-      throw new InternalServerError(
-        `Failed to soft delete entity ${id}: ${error}`,
-      );
+      throw new InternalServerError(`Failed to soft delete entity ${id}: ${error}`);
     }
   }
 
@@ -168,15 +160,12 @@ export class BaseRepository<T extends BaseEntity> {
    * @param limit The maximum number of records to return per page. Defaults to `10`.
    * @returns A Promise that resolves to an object containing the paginated data (`data`) and the total count of entities (`total`).
    */
-  async findPaginated(
-    page = 1,
-    limit = 10,
-  ): Promise<{ data: T[]; total: number }> {
+  async findPaginated(page = 1, limit = 10): Promise<{ data: T[]; total: number }> {
     const [data, total] = await this.repository.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      order: { createdAt: "DESC" } as any,
+      order: { createdAt: 'DESC' } as any,
     });
     return { data, total };
   }

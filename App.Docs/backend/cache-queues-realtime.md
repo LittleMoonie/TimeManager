@@ -9,6 +9,7 @@ This document outlines the caching strategy, background job processing, and real
 ### Redis Architecture
 
 **Technology Stack**:
+
 - **Redis**: 7+ with clustering support
 - **Connection Pooling**: ioredis with connection management
 - **Serialization**: JSON with compression for large objects
@@ -75,17 +76,17 @@ export class CacheService {
 
     // Fetch from database
     const data = await fetcher();
-    
+
     // Store in both caches
     await this.set(key, data, ttl);
-    
+
     return data;
   }
 
   async set(key: string, data: any, ttl: number = 300): Promise<void> {
     // Store in Redis
     await this.redis.setex(key, ttl, JSON.stringify(data));
-    
+
     // Store in local cache
     this.localCache.set(key, {
       data,
@@ -180,7 +181,7 @@ export class CacheInvalidationService {
       `project_tasks:*`, // Invalidate all project task caches
     ];
 
-    await Promise.all(patterns.map(pattern => this.invalidatePattern(pattern)));
+    await Promise.all(patterns.map((pattern) => this.invalidatePattern(pattern)));
   }
 
   // Company data invalidation
@@ -192,26 +193,23 @@ export class CacheInvalidationService {
       `project_tasks:*`,
     ];
 
-    await Promise.all(patterns.map(pattern => this.invalidatePattern(pattern)));
+    await Promise.all(patterns.map((pattern) => this.invalidatePattern(pattern)));
   }
 
   // Project data invalidation
   async invalidateProject(projectId: string): Promise<void> {
-    const patterns = [
-      CacheKeys.project(projectId),
-      CacheKeys.projectTasks(projectId),
-    ];
+    const patterns = [CacheKeys.project(projectId), CacheKeys.projectTasks(projectId)];
 
-    await Promise.all(patterns.map(pattern => this.invalidatePattern(pattern)));
+    await Promise.all(patterns.map((pattern) => this.invalidatePattern(pattern)));
   }
 
   // TTL-based refresh
   async refreshExpiringKeys(): Promise<void> {
     const keys = await this.redis.keys('*');
-    
+
     for (const key of keys) {
       const ttl = await this.redis.ttl(key);
-      
+
       // Refresh keys that expire in less than 60 seconds
       if (ttl > 0 && ttl < 60) {
         await this.refreshKey(key);
@@ -293,7 +291,7 @@ export interface ReportJobData {
 export class JobProcessor {
   static async processEmail(job: Job<EmailJobData>): Promise<void> {
     const { to, subject, template, data } = job.data;
-    
+
     try {
       await emailService.sendEmail({
         to,
@@ -301,7 +299,7 @@ export class JobProcessor {
         template,
         data,
       });
-      
+
       await job.updateProgress(100);
     } catch (error) {
       throw new Error(`Email sending failed: ${error.message}`);
@@ -310,7 +308,7 @@ export class JobProcessor {
 
   static async processNotification(job: Job<NotificationJobData>): Promise<void> {
     const { userId, type, message, metadata } = job.data;
-    
+
     try {
       await notificationService.createNotification({
         userId,
@@ -318,13 +316,13 @@ export class JobProcessor {
         message,
         metadata,
       });
-      
+
       // Send real-time notification
       await realtimeService.sendToUser(userId, {
         type: 'notification',
         data: { type, message, metadata },
       });
-      
+
       await job.updateProgress(100);
     } catch (error) {
       throw new Error(`Notification processing failed: ${error.message}`);
@@ -333,16 +331,16 @@ export class JobProcessor {
 
   static async processReport(job: Job<ReportJobData>): Promise<void> {
     const { userId, reportType, parameters, format } = job.data;
-    
+
     try {
       await job.updateProgress(10);
-      
+
       const data = await reportService.generateReport(reportType, parameters);
       await job.updateProgress(50);
-      
+
       const file = await reportService.exportReport(data, format);
       await job.updateProgress(80);
-      
+
       await reportService.sendReportToUser(userId, file);
       await job.updateProgress(100);
     } catch (error) {
@@ -389,7 +387,7 @@ export class WorkerManager {
     this.workers = [emailWorker, notificationWorker, reportWorker];
 
     // Error handling
-    this.workers.forEach(worker => {
+    this.workers.forEach((worker) => {
       worker.on('failed', (job, err) => {
         console.error(`Job ${job?.id} failed:`, err);
       });
@@ -401,7 +399,7 @@ export class WorkerManager {
   }
 
   async stopWorkers(): Promise<void> {
-    await Promise.all(this.workers.map(worker => worker.close()));
+    await Promise.all(this.workers.map((worker) => worker.close()));
   }
 }
 ```
@@ -433,7 +431,7 @@ export class JobScheduler {
         type: 'exponential' | 'fixed';
         delay: number;
       };
-    }
+    },
   ): Promise<Job<T>> {
     const queue = this.queues.get(queueName);
     if (!queue) {
@@ -456,7 +454,7 @@ export class JobScheduler {
     queueName: string,
     jobType: string,
     data: T,
-    cronExpression: string
+    cronExpression: string,
   ): Promise<void> {
     const queue = this.queues.get(queueName);
     if (!queue) {
@@ -477,7 +475,7 @@ export class JobScheduler {
       'cleanup',
       JobType.CLEANUP_OLD_DATA,
       { type: 'daily' },
-      '0 2 * * *'
+      '0 2 * * *',
     );
 
     // Weekly backup on Sunday at 3 AM
@@ -485,7 +483,7 @@ export class JobScheduler {
       'cleanup',
       JobType.BACKUP_DATABASE,
       { type: 'weekly' },
-      '0 3 * * 0'
+      '0 3 * * 0',
     );
   }
 }
@@ -527,17 +525,12 @@ export class DeadLetterQueueService {
 
   async retryFailedJob(jobData: any): Promise<void> {
     const { originalQueue, originalJobType, originalData } = jobData;
-    
+
     // Retry the original job
-    await jobScheduler.scheduleJob(
-      originalQueue,
-      originalJobType,
-      originalData,
-      {
-        attempts: 1, // Single retry attempt
-        priority: 10, // High priority for retries
-      }
-    );
+    await jobScheduler.scheduleJob(originalQueue, originalJobType, originalData, {
+      attempts: 1, // Single retry attempt
+      priority: 10, // High priority for retries
+    });
   }
 }
 ```
@@ -586,7 +579,7 @@ export class RealtimeService {
             socket.userId = user.id;
             socket.join(`user:${user.id}`);
             socket.join(`company:${user.companyId}`);
-            
+
             socket.emit('authenticated', { userId: user.id });
           } else {
             socket.emit('authentication_failed');
@@ -625,7 +618,7 @@ export class RealtimeService {
 
     this.redisSubscriber.on('message', (channel, message) => {
       const data = JSON.parse(message);
-      
+
       switch (channel) {
         case 'realtime:notifications':
           this.handleNotificationBroadcast(data);
@@ -694,11 +687,11 @@ export class RealtimeService {
     // Implement JWT token validation
     const authService = new AuthService();
     const payload = await authService.validateAccessToken(token);
-    
+
     if (payload) {
       return await authService.getUserById(payload.userId);
     }
-    
+
     return null;
   }
 }
@@ -708,11 +701,11 @@ export class RealtimeService {
 
 ```typescript
 // Real-time event handlers
-import { Service } from "typedi";
-import { AppDataSource } from "../../Server/Database";
-import { Task } from "../../Entities/Timesheets/Task"; // Assuming Task entity exists
-import User from "../../Entities/Users/User";
-import { RealtimeService } from "./RealtimeService"; // Assuming RealtimeService is in the same directory
+import { Service } from 'typedi';
+import { AppDataSource } from '../../Server/Database';
+import { Task } from '../../Entities/Timesheets/Task'; // Assuming Task entity exists
+import User from '../../Entities/Users/User';
+import { RealtimeService } from './RealtimeService'; // Assuming RealtimeService is in the same directory
 
 @Service()
 export class RealtimeEventHandler {
@@ -880,4 +873,4 @@ export class QueueMetrics {
 
 ---
 
-*This caching, queuing, and real-time strategy provides scalable, performant, and responsive user experiences while maintaining system reliability.*
+_This caching, queuing, and real-time strategy provides scalable, performant, and responsive user experiences while maintaining system reliability._

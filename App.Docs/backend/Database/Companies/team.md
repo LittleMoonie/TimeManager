@@ -59,23 +59,23 @@ export class Team extends BaseEntity {
 
 In addition to the fields inherited from `BaseEntity`, the `Team` entity includes:
 
-| Column Name      | Type                 | Description                                                               |
-| :--------------- | :------------------- | :------------------------------------------------------------------------ |
-| `companyId`      | `UUID`               | Foreign Key to `Company.id`, linking the team to its organization.        |
-| `name`           | `VARCHAR(255)`       | The name of the team. Must be unique within a company.                    |
+| Column Name | Type           | Description                                                        |
+| :---------- | :------------- | :----------------------------------------------------------------- |
+| `companyId` | `UUID`         | Foreign Key to `Company.id`, linking the team to its organization. |
+| `name`      | `VARCHAR(255)` | The name of the team. Must be unique within a company.             |
 
 ## Relations
 
-*   **`company`**: `@ManyToOne` relationship with `Company` entity.
-*   **`members`**: `@OneToMany` relationship with `TeamMember` entity, representing all users who are part of this team.
+- **`company`**: `@ManyToOne` relationship with `Company` entity.
+- **`members`**: `@OneToMany` relationship with `TeamMember` entity, representing all users who are part of this team.
 
 ## Indexes
 
 To optimize query performance and ensure data integrity, the `Team` entity defines the following index:
 
-*   `@Index(["companyId", "id", "name"], { unique: true })`: Ensures that the combination of company ID, team ID, and team name is unique.
+- `@Index(["companyId", "id", "name"], { unique: true })`: Ensures that the combination of company ID, team ID, and team name is unique.
 
 ## Constraints
 
-*   **Unique Team Name**: Ensures that no two teams within the same company can have the same name.
-*   **Foreign Keys**: Enforced for `companyId` to maintain referential integrity with the `Company` entity. `onDelete: "RESTRICT"` prevents deletion of a company if teams are still associated with it.
+- **Unique Team Name**: Ensures that no two teams within the same company can have the same name.
+- **Foreign Keys**: Enforced for `companyId` to maintain referential integrity with the `Company` entity. `onDelete: "RESTRICT"` prevents deletion of a company if teams are still associated with it.

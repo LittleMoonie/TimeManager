@@ -10,23 +10,23 @@ import {
   ListItemText,
   Stack,
   Typography,
-} from '@mui/material'
-import { Close } from '@mui/icons-material'
-import { formatWeekRange, getWeekStart } from './utils'
+} from '@mui/material';
+import { Close } from '@mui/icons-material';
+import { formatWeekRange, getWeekStart } from './utils';
 
 export interface TimesheetHistoryItem {
-  id: string
-  weekStartISO: string
-  status: string
-  weekTotal: number
-  submittedAt: string
+  id: string;
+  weekStartISO: string;
+  status: string;
+  weekTotal: number;
+  submittedAt: string;
 }
 
 interface TimesheetHistoryPanelProps {
-  open: boolean
-  onClose: () => void
-  history: TimesheetHistoryItem[]
-  onSelectWeek: (weekStartISO: string) => void
+  open: boolean;
+  onClose: () => void;
+  history: TimesheetHistoryItem[];
+  onSelectWeek: (weekStartISO: string) => void;
 }
 
 const statusColorMap: Record<string, 'default' | 'success' | 'warning' | 'error' | 'info'> = {
@@ -35,7 +35,7 @@ const statusColorMap: Record<string, 'default' | 'success' | 'warning' | 'error'
   'attention-required': 'warning',
   approved: 'success',
   rejected: 'error',
-}
+};
 
 export const TimesheetHistoryPanel = ({
   open,
@@ -59,16 +59,16 @@ export const TimesheetHistoryPanel = ({
           </Typography>
         ) : (
           <List>
-            {history.map(item => {
-              const weekStart = getWeekStart(new Date(item.weekStartISO))
-              const rangeLabel = formatWeekRange(weekStart)
-              const statusColor = statusColorMap[item.status] ?? 'default'
+            {history.map((item) => {
+              const weekStart = getWeekStart(new Date(item.weekStartISO));
+              const rangeLabel = formatWeekRange(weekStart);
+              const statusColor = statusColorMap[item.status] ?? 'default';
               return (
                 <ListItem key={item.id} disablePadding>
                   <ListItemButton
                     onClick={() => {
-                      onSelectWeek(item.weekStartISO)
-                      onClose()
+                      onSelectWeek(item.weekStartISO);
+                      onClose();
                     }}
                   >
                     <ListItemText
@@ -99,13 +99,13 @@ export const TimesheetHistoryPanel = ({
                     />
                   </ListItemButton>
                 </ListItem>
-              )
+              );
             })}
           </List>
         )}
       </Box>
     </Drawer>
-  )
-}
+  );
+};
 
-export default TimesheetHistoryPanel
+export default TimesheetHistoryPanel;

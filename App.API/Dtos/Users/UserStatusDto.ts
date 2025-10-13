@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsOptional, IsBoolean } from "class-validator";
+import { IsNotEmpty, IsString, IsOptional, IsBoolean } from 'class-validator';
 
 /**
  * @description Data transfer object for creating a new user status.

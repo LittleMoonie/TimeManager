@@ -1,23 +1,23 @@
-import { Service } from "typedi";
-import { add } from "date-fns";
-import { sign } from "jsonwebtoken";
-import * as argon2 from "argon2";
-import * as crypto from "crypto";
+import { Service } from 'typedi';
+import { add } from 'date-fns';
+import { sign } from 'jsonwebtoken';
+import * as argon2 from 'argon2';
+import * as crypto from 'crypto';
 
 import {
   LoginDto,
   RegisterDto,
   AuthResponseDto,
-} from "../../Dtos/Authentication/AuthenticationDto";
-import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
+} from '../../Dtos/Authentication/AuthenticationDto';
+import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
 
-import User from "../../Entities/Users/User";
+import User from '../../Entities/Users/User';
 
-import { AuthenticationError, NotFoundError } from "../../Errors/HttpErrors";
-import { UserStatusService } from "../../Services/Users/UserStatusService";
-import { ActiveSessionService } from "../../Services/Users/ActiveSessionService";
-import { AuthenticationRepository } from "../../Repositories/Authentication/AuthenticationRepository";
-import { UserStatus } from "../../Entities/Users/UserStatus";
+import { AuthenticationError, NotFoundError } from '../../Errors/HttpErrors';
+import { UserStatusService } from '../../Services/Users/UserStatusService';
+import { ActiveSessionService } from '../../Services/Users/ActiveSessionService';
+import { AuthenticationRepository } from '../../Repositories/Authentication/AuthenticationRepository';
+import { UserStatus } from '../../Entities/Users/UserStatus';
 
 /**
  * @description Service layer for handling user authentication processes, including registration, login, logout,
@@ -46,19 +46,16 @@ export class AuthenticationService {
    * @throws {NotFoundError} If the default user status (ACTIVE) is not found.
    */
   public async register(registerDto: RegisterDto): Promise<User> {
-    const existingUser = await this.authRepo.findUserByEmailWithAuthRelations(
-      registerDto.email,
-    );
+    const existingUser = await this.authRepo.findUserByEmailWithAuthRelations(registerDto.email);
     if (existingUser) {
-      throw new AuthenticationError("Email already exists");
+      throw new AuthenticationError('Email already exists');
     }
 
     const hashedPassword = await argon2.hash(registerDto.password);
 
-    const defaultUserStatus =
-      await this.userStatusService.getUserStatusByCode("ACTIVE");
+    const defaultUserStatus = await this.userStatusService.getUserStatusByCode('ACTIVE');
     if (!defaultUserStatus) {
-      throw new NotFoundError("Default user status not found");
+      throw new NotFoundError('Default user status not found');
     }
 
     const user = new User();
@@ -89,30 +86,26 @@ export class AuthenticationService {
     ipAddress?: string,
     userAgent?: string,
   ): Promise<AuthResponseDto> {
-    const user = await this.authRepo.findUserByEmailWithAuthRelations(
-      loginDto.email,
-    );
+    const user = await this.authRepo.findUserByEmailWithAuthRelations(loginDto.email);
 
     if (!user || !(await argon2.verify(user.passwordHash, loginDto.password))) {
-      throw new AuthenticationError("Wrong credentials");
+      throw new AuthenticationError('Wrong credentials');
     }
 
     if (!user.status || !user.status.canLogin) {
-      throw new AuthenticationError(
-        "User account is not active or cannot log in",
-      );
+      throw new AuthenticationError('User account is not active or cannot log in');
     }
 
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
-      throw new AuthenticationError("JWT secret is not configured");
+      throw new AuthenticationError('JWT secret is not configured');
     }
 
     // Access token (JWT)
     const token = sign(
       { id: user.id, companyId: user.companyId, role: user.role?.name },
       jwtSecret,
-      { expiresIn: "1d" },
+      { expiresIn: '1d' },
     );
 
     // Refresh token: return raw token to caller; store only hash
@@ -214,22 +207,16 @@ export class AuthenticationService {
    * @returns A Promise that resolves to the User entity associated with the refresh token.
    * @throws {NotFoundError} If the active session or the user is not found.
    */
-  public async getCurrentUser(
-    companyId: string,
-    refreshToken: string,
-  ): Promise<User> {
+  public async getCurrentUser(companyId: string, refreshToken: string): Promise<User> {
     const tokenHash = this.hashToken(refreshToken);
-    const active =
-      await this.activeSessionService.getActiveSessionByTokenInCompany(
-        companyId,
-        tokenHash,
-      );
-
-    const user = await this.authRepo.findUserByIdWithBasicRelations(
-      active.userId,
+    const active = await this.activeSessionService.getActiveSessionByTokenInCompany(
+      companyId,
+      tokenHash,
     );
+
+    const user = await this.authRepo.findUserByIdWithBasicRelations(active.userId);
     if (!user) {
-      throw new NotFoundError("User not found");
+      throw new NotFoundError('User not found');
     }
     return user;
   }
@@ -248,7 +235,7 @@ export class AuthenticationService {
     deviceId: string;
     expiresAt: Date;
   }> {
-    const rawToken = crypto.randomBytes(48).toString("base64url");
+    const rawToken = crypto.randomBytes(48).toString('base64url');
     const tokenHash = this.hashToken(rawToken);
     const deviceId = crypto.randomUUID();
     const expiresAt = add(new Date(), { days: 7 });
@@ -261,6 +248,6 @@ export class AuthenticationService {
    * @returns The SHA-256 hash of the raw token as a hexadecimal string.
    */
   private hashToken(raw: string): string {
-    return crypto.createHash("sha256").update(raw).digest("hex");
+    return crypto.createHash('sha256').update(raw).digest('hex');
   }
 }

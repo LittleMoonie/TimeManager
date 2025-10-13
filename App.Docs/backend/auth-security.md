@@ -9,6 +9,7 @@ This document outlines the comprehensive security strategy for the NCY_8 platfor
 ### JWT-Based Authentication
 
 **Technology Stack**:
+
 - **Access Tokens**: JWT with 15-minute expiration
 - **Refresh Tokens**: Long-lived tokens stored in Redis
 - **Token Storage**: HttpOnly cookies for web, Bearer tokens for API
@@ -32,7 +33,7 @@ sequenceDiagram
     A->>R: Store Refresh Token
     A-->>F: Set HttpOnly Cookies
     F-->>C: Authentication Success
-    
+
     Note over C,R: Token Refresh Flow
     C->>F: API Request (Expired Token)
     F->>A: POST /auth/refresh
@@ -49,18 +50,18 @@ Our JWT implementation leverages `jsonwebtoken` for token generation and `argon2
 
 ```typescript
 // App.API/Services/AuthenticationService/AuthenticationService.ts (Simplified)
-import { Service } from "typedi";
-import { add } from "date-fns";
-import { sign } from "jsonwebtoken";
-import * as argon2 from "argon2";
-import * as crypto from "crypto";
+import { Service } from 'typedi';
+import { add } from 'date-fns';
+import { sign } from 'jsonwebtoken';
+import * as argon2 from 'argon2';
+import * as crypto from 'crypto';
 
-import { AuthResponseDto, LoginDto } from "../../Dtos/Authentication/AuthenticationDto";
-import User from "../../Entities/Users/User";
-import { AuthenticationError, NotFoundError } from "../../Errors/HttpErrors";
-import { UserStatusService } from "../../Services/Users/UserStatusService";
-import { ActiveSessionService } from "../../Services/Users/ActiveSessionService";
-import { AuthenticationRepository } from "../../Repositories/Authentication/AuthenticationRepository";
+import { AuthResponseDto, LoginDto } from '../../Dtos/Authentication/AuthenticationDto';
+import User from '../../Entities/Users/User';
+import { AuthenticationError, NotFoundError } from '../../Errors/HttpErrors';
+import { UserStatusService } from '../../Services/Users/UserStatusService';
+import { ActiveSessionService } from '../../Services/Users/ActiveSessionService';
+import { AuthenticationRepository } from '../../Repositories/Authentication/AuthenticationRepository';
 
 @Service()
 export class AuthenticationService {
@@ -75,30 +76,26 @@ export class AuthenticationService {
     ipAddress?: string,
     userAgent?: string,
   ): Promise<AuthResponseDto> {
-    const user = await this.authRepo.findUserByEmailWithAuthRelations(
-      loginDto.email,
-    );
+    const user = await this.authRepo.findUserByEmailWithAuthRelations(loginDto.email);
 
     if (!user || !(await argon2.verify(user.passwordHash, loginDto.password))) {
-      throw new AuthenticationError("Wrong credentials");
+      throw new AuthenticationError('Wrong credentials');
     }
 
     if (!user.status || !user.status.canLogin) {
-      throw new AuthenticationError(
-        "User account is not active or cannot log in",
-      );
+      throw new AuthenticationError('User account is not active or cannot log in');
     }
 
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
-      throw new AuthenticationError("JWT secret is not configured");
+      throw new AuthenticationError('JWT secret is not configured');
     }
 
     // Access token (JWT)
     const token = sign(
       { id: user.id, companyId: user.companyId, role: user.role?.name },
       jwtSecret,
-      { expiresIn: "1d" },
+      { expiresIn: '1d' },
     );
 
     // Refresh token: return raw token to caller; store only hash
@@ -127,7 +124,9 @@ export class AuthenticationService {
     return {
       token,
       refreshToken: _refreshTokenRaw,
-      user: { /* ... user data */ },
+      user: {
+        /* ... user data */
+      },
     };
   }
 
@@ -137,7 +136,7 @@ export class AuthenticationService {
     deviceId: string;
     expiresAt: Date;
   }> {
-    const rawToken = crypto.randomBytes(48).toString("base64url");
+    const rawToken = crypto.randomBytes(48).toString('base64url');
     const tokenHash = this.hashToken(rawToken);
     const deviceId = crypto.randomUUID();
     const expiresAt = add(new Date(), { days: 7 });
@@ -145,7 +144,7 @@ export class AuthenticationService {
   }
 
   private hashToken(raw: string): string {
-    return crypto.createHash("sha256").update(raw).digest("hex");
+    return crypto.createHash('sha256').update(raw).digest('hex');
   }
 }
 ```
@@ -156,14 +155,14 @@ Authentication is handled by the `AuthenticationController` for login/logout flo
 
 ```typescript
 // App.API/Controllers/Authentication/AuthenticationController.ts (Login Simplified)
-import { Request as ExpressRequest } from "express";
-import { LoginDto, AuthResponseDto } from "../../Dtos/Authentication/AuthenticationDto";
-import { AuthenticationService } from "../../Services/AuthenticationService/AuthenticationService";
-import { Controller, Post, Route, SuccessResponse, Request, Body } from "tsoa";
-import { validate } from "class-validator";
-import { UnprocessableEntityError } from "../../Errors/HttpErrors";
+import { Request as ExpressRequest } from 'express';
+import { LoginDto, AuthResponseDto } from '../../Dtos/Authentication/AuthenticationDto';
+import { AuthenticationService } from '../../Services/AuthenticationService/AuthenticationService';
+import { Controller, Post, Route, SuccessResponse, Request, Body } from 'tsoa';
+import { validate } from 'class-validator';
+import { UnprocessableEntityError } from '../../Errors/HttpErrors';
 
-@Route("auth")
+@Route('auth')
 export class AuthenticationController extends Controller {
   constructor(private authenticationService: AuthenticationService) {
     super();
@@ -172,8 +171,8 @@ export class AuthenticationController extends Controller {
   /**
    * @summary Logs in a user and returns authentication tokens.
    */
-  @Post("/login")
-  @SuccessResponse("200", "User logged in successfully")
+  @Post('/login')
+  @SuccessResponse('200', 'User logged in successfully')
   public async login(
     @Body() requestBody: LoginDto,
     @Request() request: ExpressRequest,
@@ -181,19 +180,23 @@ export class AuthenticationController extends Controller {
     const errors = await validate(requestBody);
     if (errors.length > 0) {
       throw new UnprocessableEntityError(
-        `Validation error: ${errors.map((e) => e.toString()).join(", ")}`,
+        `Validation error: ${errors.map((e) => e.toString()).join(', ')}`,
       );
     }
 
     const authResponse = await this.authenticationService.login(
       requestBody,
       request.ip,
-      request.headers["user-agent"],
+      request.headers['user-agent'],
     );
 
     // Set cookies (handled in controller for HTTP-only cookies)
-    request.res?.cookie("jwt", authResponse.token, { /* ...options */ });
-    request.res?.cookie("refreshToken", authResponse.refreshToken, { /* ...options */ });
+    request.res?.cookie('jwt', authResponse.token, {
+      /* ...options */
+    });
+    request.res?.cookie('refreshToken', authResponse.refreshToken, {
+      /* ...options */
+    });
 
     return {
       token: authResponse.token,
@@ -206,23 +209,24 @@ export class AuthenticationController extends Controller {
 
 ```typescript
 // App.API/Config/Passport.ts (expressAuthentication function)
-import * as express from "express";
-import { AuthenticationService } from "../Services/AuthenticationService/AuthenticationService";
-import { Container } from "typedi";
-import { UserResponseDto } from "../Dtos/Users/UserResponseDto";
-import { ForbiddenError } from "../Errors/HttpErrors";
+import * as express from 'express';
+import { AuthenticationService } from '../Services/AuthenticationService/AuthenticationService';
+import { Container } from 'typedi';
+import { UserResponseDto } from '../Dtos/Users/UserResponseDto';
+import { ForbiddenError } from '../Errors/HttpErrors';
 
 export async function expressAuthentication(
   request: express.Request,
   securityName: string,
   scopes?: string[],
 ): Promise<any> {
-  if (securityName === "jwt") {
-    const token = request.cookies?.jwt || request.headers["authorization"]?.split(" ")[1];
-    const refreshToken = request.cookies?.refreshToken || request.headers["x-refresh-token"] as string;
+  if (securityName === 'jwt') {
+    const token = request.cookies?.jwt || request.headers['authorization']?.split(' ')[1];
+    const refreshToken =
+      request.cookies?.refreshToken || (request.headers['x-refresh-token'] as string);
 
     if (!token && !refreshToken) {
-      throw new ForbiddenError("No token provided");
+      throw new ForbiddenError('No token provided');
     }
 
     const authenticationService = Container.get(AuthenticationService);
@@ -230,13 +234,16 @@ export async function expressAuthentication(
     try {
       // Attempt to get current user from refresh token if JWT is missing or expired
       if (refreshToken) {
-        const user = await authenticationService.getCurrentUser(request.user?.companyId, refreshToken);
+        const user = await authenticationService.getCurrentUser(
+          request.user?.companyId,
+          refreshToken,
+        );
         request.user = user as UserResponseDto; // Attach user to request
         return Promise.resolve(user);
       }
     } catch (error) {
       // Handle refresh token errors, e.g., expired or invalid
-      throw new ForbiddenError("Invalid or expired refresh token");
+      throw new ForbiddenError('Invalid or expired refresh token');
     }
 
     // Fallback if no refresh token or refresh failed, try JWT
@@ -259,24 +266,24 @@ Our RBAC system is implemented using `Role` and `Permission` entities, with a ma
 
 ```typescript
 // App.API/Entities/Roles/Permission.ts
-import { Entity, Column, OneToMany, Index, JoinColumn, ManyToOne } from "typeorm";
-import { BaseEntity } from "../BaseEntity";
-import { RolePermission } from "./RolePermission";
-import { Company } from "../Companies/Company";
+import { Entity, Column, OneToMany, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { BaseEntity } from '../BaseEntity';
+import { RolePermission } from './RolePermission';
+import { Company } from '../Companies/Company';
 
 /**
  * @description Represents a specific permission that can be assigned to roles within a company.
  */
-@Entity("permissions")
-@Index(["companyId", "id"], { unique: true })
-@Index(["companyId", "name"], { unique: true })
+@Entity('permissions')
+@Index(['companyId', 'id'], { unique: true })
+@Index(['companyId', 'name'], { unique: true })
 export class Permission extends BaseEntity {
-  @Column({ type: "uuid" }) companyId!: string;
-  @ManyToOne(() => Company, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "companyId" })
+  @Column({ type: 'uuid' }) companyId!: string;
+  @ManyToOne(() => Company, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'companyId' })
   company!: Company;
-  @Column({ type: "varchar", length: 100, nullable: false }) name!: string;
-  @Column({ type: "text", nullable: true }) description?: string;
+  @Column({ type: 'varchar', length: 100, nullable: false }) name!: string;
+  @Column({ type: 'text', nullable: true }) description?: string;
   @OneToMany(() => RolePermission, (rolePermission) => rolePermission.permission)
   rolePermissions!: RolePermission[];
 }
@@ -284,25 +291,25 @@ export class Permission extends BaseEntity {
 
 ```typescript
 // App.API/Entities/Roles/Role.ts
-import { Entity, Column, OneToMany, ManyToOne, JoinColumn, Index } from "typeorm";
-import { BaseEntity } from "../BaseEntity";
-import { RolePermission } from "./RolePermission";
-import User from "../Users/User";
-import { Company } from "../Companies/Company";
+import { Entity, Column, OneToMany, ManyToOne, JoinColumn, Index } from 'typeorm';
+import { BaseEntity } from '../BaseEntity';
+import { RolePermission } from './RolePermission';
+import User from '../Users/User';
+import { Company } from '../Companies/Company';
 
 /**
  * @description Represents a user role within a company, defining a set of permissions.
  */
-@Entity("roles")
-@Index(["companyId", "id"], { unique: true })
-@Index(["companyId", "name"], { unique: true })
+@Entity('roles')
+@Index(['companyId', 'id'], { unique: true })
+@Index(['companyId', 'name'], { unique: true })
 export class Role extends BaseEntity {
-  @Column({ type: "uuid" }) companyId!: string;
-  @ManyToOne(() => Company, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "companyId" })
+  @Column({ type: 'uuid' }) companyId!: string;
+  @ManyToOne(() => Company, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'companyId' })
   company!: Company;
-  @Column({ type: "varchar", length: 50, nullable: false }) name!: string;
-  @Column({ type: "text", nullable: true }) description?: string;
+  @Column({ type: 'varchar', length: 50, nullable: false }) name!: string;
+  @Column({ type: 'text', nullable: true }) description?: string;
   @OneToMany(() => RolePermission, (rp) => rp.role)
   rolePermissions!: RolePermission[];
   @OneToMany(() => User, (user) => user.role) users!: User[];
@@ -311,15 +318,13 @@ export class Role extends BaseEntity {
 
 ```typescript
 // App.API/Services/RoleService/RolePermissionService.ts (Simplified)
-import { Service } from "typedi";
-import { RolePermissionRepository } from "../../Repositories/Roles/RolePermissionRepository";
-import User from "../../Entities/Users/User";
+import { Service } from 'typedi';
+import { RolePermissionRepository } from '../../Repositories/Roles/RolePermissionRepository';
+import User from '../../Entities/Users/User';
 
 @Service()
 export class RolePermissionService {
-  constructor(
-    private readonly rolePermissionRepository: RolePermissionRepository,
-  ) {}
+  constructor(private readonly rolePermissionRepository: RolePermissionRepository) {}
 
   /**
    * @description Checks if a given user has a specific permission.
@@ -327,14 +332,9 @@ export class RolePermissionService {
    * @param permissionName The name of the permission to check for.
    * @returns {Promise<boolean>} A Promise that resolves to `true` if the user has the permission, `false` otherwise.
    */
-  public async checkPermission(
-    user: User,
-    permissionName: string,
-  ): Promise<boolean> {
+  public async checkPermission(user: User, permissionName: string): Promise<boolean> {
     if (!user?.role?.rolePermissions?.length) return false;
-    return user.role.rolePermissions.some(
-      (rp) => rp.permission?.name === permissionName,
-    );
+    return user.role.rolePermissions.some((rp) => rp.permission?.name === permissionName);
   }
 }
 ```
@@ -345,23 +345,24 @@ Authentication and authorization middleware are crucial for protecting API route
 
 ```typescript
 // App.API/Config/Passport.ts (expressAuthentication function - simplified)
-import * as express from "express";
-import { AuthenticationService } from "../Services/AuthenticationService/AuthenticationService";
-import { Container } from "typedi";
-import { UserResponseDto } from "../Dtos/Users/UserResponseDto";
-import { ForbiddenError } from "../Errors/HttpErrors";
+import * as express from 'express';
+import { AuthenticationService } from '../Services/AuthenticationService/AuthenticationService';
+import { Container } from 'typedi';
+import { UserResponseDto } from '../Dtos/Users/UserResponseDto';
+import { ForbiddenError } from '../Errors/HttpErrors';
 
 export async function expressAuthentication(
   request: express.Request,
   securityName: string,
   scopes?: string[],
 ): Promise<any> {
-  if (securityName === "jwt") {
-    const token = request.cookies?.jwt || request.headers["authorization"]?.split(" ")[1];
-    const refreshToken = request.cookies?.refreshToken || request.headers["x-refresh-token"] as string;
+  if (securityName === 'jwt') {
+    const token = request.cookies?.jwt || request.headers['authorization']?.split(' ')[1];
+    const refreshToken =
+      request.cookies?.refreshToken || (request.headers['x-refresh-token'] as string);
 
     if (!token && !refreshToken) {
-      throw new ForbiddenError("No token provided");
+      throw new ForbiddenError('No token provided');
     }
 
     const authenticationService = Container.get(AuthenticationService);
@@ -369,12 +370,15 @@ export async function expressAuthentication(
     try {
       // Attempt to get current user from refresh token if JWT is missing or expired
       if (refreshToken) {
-        const user = await authenticationService.getCurrentUser(request.user?.companyId, refreshToken);
+        const user = await authenticationService.getCurrentUser(
+          request.user?.companyId,
+          refreshToken,
+        );
         request.user = user as UserResponseDto; // Attach user to request
         return Promise.resolve(user);
       }
     } catch (error) {
-      throw new ForbiddenError("Invalid or expired refresh token");
+      throw new ForbiddenError('Invalid or expired refresh token');
     }
 
     return Promise.resolve(request.user); // User should be populated by tsoa if JWT is valid
@@ -386,9 +390,9 @@ export async function expressAuthentication(
 
 ```typescript
 // App.API/Services/RoleService/RoleService.ts (ensurePermission helper - simplified)
-import { Service } from "typedi";
-import User from "../../Entities/Users/User";
-import { ForbiddenError } from "../../Errors/HttpErrors";
+import { Service } from 'typedi';
+import User from '../../Entities/Users/User';
+import { ForbiddenError } from '../../Errors/HttpErrors';
 
 @Service()
 export class RoleService {
@@ -421,14 +425,14 @@ Route protection is primarily handled by `tsoa`'s `@Security` decorator, which l
 
 ```typescript
 // App.API/Controllers/Users/UserController.ts (Simplified)
-import { Controller, Get, Post, Security, Request, Body, Path, Put, Delete, Query } from "tsoa";
-import { Request as ExpressRequest } from "express";
-import { UserService } from "../../Services/Users/UserService";
-import User from "../../Entities/Users/User";
-import { CreateUserDto, UpdateUserDto } from "../../Dtos/Users/UserDto";
-import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
+import { Controller, Get, Post, Security, Request, Body, Path, Put, Delete, Query } from 'tsoa';
+import { Request as ExpressRequest } from 'express';
+import { UserService } from '../../Services/Users/UserService';
+import User from '../../Entities/Users/User';
+import { CreateUserDto, UpdateUserDto } from '../../Dtos/Users/UserDto';
+import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
 
-@Security("jwt") // Applies JWT security to all methods in this controller
+@Security('jwt') // Applies JWT security to all methods in this controller
 export class UserController extends Controller {
   constructor(private readonly userService: UserService) {
     super();
@@ -437,7 +441,7 @@ export class UserController extends Controller {
   /**
    * @summary Retrieves a paginated list of users within the authenticated user's company.
    */
-  @Get("/")
+  @Get('/')
   public async listUsers(
     @Request() request: ExpressRequest,
     @Query() page?: number,
@@ -450,7 +454,7 @@ export class UserController extends Controller {
   /**
    * @summary Creates a new user within the authenticated user's company.
    */
-  @Post("/")
+  @Post('/')
   public async createUser(
     @Body() createUserDto: CreateUserDto,
     @Request() request: ExpressRequest,
@@ -462,7 +466,7 @@ export class UserController extends Controller {
   /**
    * @summary Updates an existing user's details within the authenticated user's company.
    */
-  @Put("/{id}")
+  @Put('/{id}')
   public async updateUser(
     @Path() id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -475,11 +479,8 @@ export class UserController extends Controller {
   /**
    * @summary Soft-deletes a user within the authenticated user's company.
    */
-  @Delete("/{id}")
-  public async deleteUser(
-    @Path() id: string,
-    @Request() request: ExpressRequest,
-  ): Promise<void> {
+  @Delete('/{id}')
+  public async deleteUser(@Path() id: string, @Request() request: ExpressRequest): Promise<void> {
     const me = request.user as User;
     await this.userService.softDeleteUser(me.companyId, id, me);
   }
@@ -502,7 +503,7 @@ import {
   IsUUID,
   IsOptional,
   Matches,
-} from "class-validator";
+} from 'class-validator';
 
 /**
  * @description Data transfer object for creating a new user.
@@ -552,7 +553,7 @@ export class CreateUserDto {
    */
   @IsString()
   @IsOptional()
-  @Matches(/^\+?[1-9]\d{1,14}$/, { message: "phoneNumber must be E.164" })
+  @Matches(/^\+?[1-9]\d{1,14}$/, { message: 'phoneNumber must be E.164' })
   phoneNumber?: string;
 }
 ```
@@ -563,22 +564,20 @@ Validation is typically performed within the controller or service layer by call
 
 ```typescript
 // Example: Validation in a Controller method
-import { Body, Controller, Post, Route, SuccessResponse } from "tsoa";
-import { validate } from "class-validator";
-import { CreateUserDto } from "../../Dtos/Users/UserDto";
-import { UnprocessableEntityError } from "../../Errors/HttpErrors";
+import { Body, Controller, Post, Route, SuccessResponse } from 'tsoa';
+import { validate } from 'class-validator';
+import { CreateUserDto } from '../../Dtos/Users/UserDto';
+import { UnprocessableEntityError } from '../../Errors/HttpErrors';
 
-@Route("users")
+@Route('users')
 export class UserController extends Controller {
-  @Post("/")
-  @SuccessResponse("201", "User created successfully")
-  public async createUser(
-    @Body() createUserDto: CreateUserDto,
-  ): Promise<any> {
+  @Post('/')
+  @SuccessResponse('201', 'User created successfully')
+  public async createUser(@Body() createUserDto: CreateUserDto): Promise<any> {
     const errors = await validate(createUserDto);
     if (errors.length > 0) {
       throw new UnprocessableEntityError(
-        `Validation error: ${errors.map((e) => e.toString()).join(", ")}`,
+        `Validation error: ${errors.map((e) => e.toString()).join(', ')}`,
       );
     }
     // ... further processing
@@ -586,9 +585,11 @@ export class UserController extends Controller {
   }
 }
 ```
-  };
+
 };
-```
+};
+
+````
 
 ### HTML Sanitization
 
@@ -628,7 +629,7 @@ export class SanitizationService {
     }
   }
 }
-```
+````
 
 ## Security Headers & Middleware
 
@@ -643,11 +644,11 @@ export const securityMiddleware = helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https:"],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+      imgSrc: ["'self'", 'data:', 'https:'],
       scriptSrc: ["'self'"],
-      connectSrc: ["'self'", "https://api.ncy-8.com"],
+      connectSrc: ["'self'", 'https://api.ncy-8.com'],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: [],
@@ -675,9 +676,9 @@ const corsOptions = {
     const allowedOrigins = [
       'https://app.ncy-8.com',
       'https://admin.ncy-8.com',
-      ...(process.env.NODE_ENV === 'development' 
-        ? ['http://localhost:3000', 'http://localhost:3001'] 
-        : [])
+      ...(process.env.NODE_ENV === 'development'
+        ? ['http://localhost:3000', 'http://localhost:3001']
+        : []),
     ];
 
     if (!origin || allowedOrigins.includes(origin)) {
@@ -751,13 +752,13 @@ Environment variables are crucial for configuring our application across differe
 
 ```typescript
 // Example: Simplified environment variable validation (conceptual)
-import { IsEnum, IsNumber, IsString, IsUrl, validateSync } from "class-validator";
-import { plainToInstance } from "class-transformer";
+import { IsEnum, IsNumber, IsString, IsUrl, validateSync } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
 
 enum NodeEnv {
-  Development = "development",
-  Staging = "staging",
-  Production = "production",
+  Development = 'development',
+  Staging = 'staging',
+  Production = 'production',
 }
 
 class EnvironmentVariables {
@@ -783,11 +784,9 @@ class EnvironmentVariables {
 }
 
 export function validateEnvironmentVariables(config: Record<string, unknown>) {
-  const validatedConfig = plainToInstance(
-    EnvironmentVariables,
-    config,
-    { enableImplicitConversion: true },
-  );
+  const validatedConfig = plainToInstance(EnvironmentVariables, config, {
+    enableImplicitConversion: true,
+  });
   const errors = validateSync(validatedConfig, { skipMissingProperties: false });
 
   if (errors.length > 0) {
@@ -869,16 +868,19 @@ export class SecretsRotationService {
       JSON.stringify({
         secret: newSecret,
         createdAt: new Date().toISOString(),
-      })
+      }),
     );
 
     // Update environment variable
     process.env.JWT_SECRET = newSecret;
 
     // After 24 hours, remove old secret
-    setTimeout(async () => {
-      await this.redis.del('jwt_secret_old');
-    }, 24 * 60 * 60 * 1000);
+    setTimeout(
+      async () => {
+        await this.redis.del('jwt_secret_old');
+      },
+      24 * 60 * 60 * 1000,
+    );
   }
 
   async getCurrentJWTSecret(): Promise<string> {
@@ -958,7 +960,7 @@ export class IntrusionDetectionService {
   async detectBruteForce(ipAddress: string): Promise<boolean> {
     const key = `failed_logins:${ipAddress}`;
     const attempts = await this.redis.incr(key);
-    
+
     if (attempts === 1) {
       await this.redis.expire(key, 15 * 60); // 15 minutes
     }
@@ -982,27 +984,28 @@ export class IntrusionDetectionService {
     // Detect unusual access patterns
     const userKey = `user_activity:${userId}`;
     const activities = await this.redis.lrange(userKey, 0, -1);
-    
+
     // Check for rapid successive requests
-    const recentActivities = activities.filter(activity => {
+    const recentActivities = activities.filter((activity) => {
       const timestamp = JSON.parse(activity).timestamp;
       return Date.now() - timestamp < 60000; // Last minute
     });
 
     if (recentActivities.length > 100) {
-      await this.securityLogger.logSuspiciousActivity(
-        userId,
-        'RAPID_REQUESTS',
-        { count: recentActivities.length }
-      );
+      await this.securityLogger.logSuspiciousActivity(userId, 'RAPID_REQUESTS', {
+        count: recentActivities.length,
+      });
     }
 
     // Store current activity
-    await this.redis.lpush(userKey, JSON.stringify({
-      endpoint: request.path,
-      method: request.method,
-      timestamp: Date.now(),
-    }));
+    await this.redis.lpush(
+      userKey,
+      JSON.stringify({
+        endpoint: request.path,
+        method: request.method,
+        timestamp: Date.now(),
+      }),
+    );
     await this.redis.ltrim(userKey, 0, 999); // Keep last 1000 activities
   }
 }
@@ -1020,10 +1023,8 @@ import { app } from '@/app';
 describe('Security Tests', () => {
   describe('Authentication', () => {
     test('should reject requests without token', async () => {
-      const response = await request(app)
-        .get('/api/v1/users')
-        .expect(401);
-      
+      const response = await request(app).get('/api/v1/users').expect(401);
+
       expect(response.body.error).toBe('Access token required');
     });
 
@@ -1032,7 +1033,7 @@ describe('Security Tests', () => {
         .get('/api/v1/users')
         .set('Authorization', 'Bearer invalid-token')
         .expect(401);
-      
+
       expect(response.body.error).toBe('Invalid or expired token');
     });
   });
@@ -1040,12 +1041,12 @@ describe('Security Tests', () => {
   describe('Authorization', () => {
     test('should reject unauthorized access', async () => {
       const employeeToken = await generateTestToken('EMPLOYEE');
-      
+
       const response = await request(app)
         .delete('/api/v1/users/user-123')
         .set('Authorization', `Bearer ${employeeToken}`)
         .expect(403);
-      
+
       expect(response.body.error).toBe('Insufficient permissions');
     });
   });
@@ -1053,13 +1054,13 @@ describe('Security Tests', () => {
   describe('Input Validation', () => {
     test('should reject SQL injection attempts', async () => {
       const adminToken = await generateTestToken('ADMIN');
-      
+
       const response = await request(app)
         .get('/api/v1/users')
         .set('Authorization', `Bearer ${adminToken}`)
         .query({ search: "'; DROP TABLE users; --" })
         .expect(400);
-      
+
       expect(response.body.error).toBe('Query validation failed');
     });
 
@@ -1072,20 +1073,20 @@ describe('Security Tests', () => {
           password: 'SecurePass123!',
         })
         .expect(400);
-      
+
       expect(response.body.error).toBe('Validation failed');
     });
   });
 
   describe('Rate Limiting', () => {
     test('should enforce rate limits', async () => {
-      const requests = Array(101).fill(null).map(() =>
-        request(app).get('/api/v1/health')
-      );
-      
+      const requests = Array(101)
+        .fill(null)
+        .map(() => request(app).get('/api/v1/health'));
+
       const responses = await Promise.all(requests);
-      const rateLimitedResponse = responses.find(res => res.status === 429);
-      
+      const rateLimitedResponse = responses.find((res) => res.status === 429);
+
       expect(rateLimitedResponse).toBeDefined();
       expect(rateLimitedResponse?.body.message).toContain('Too many requests');
     });
@@ -1095,4 +1096,4 @@ describe('Security Tests', () => {
 
 ---
 
-*This security strategy provides comprehensive protection against common threats while maintaining usability and performance.*
+_This security strategy provides comprehensive protection against common threats while maintaining usability and performance._

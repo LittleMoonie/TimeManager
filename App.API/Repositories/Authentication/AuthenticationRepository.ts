@@ -1,9 +1,9 @@
-import { Service } from "typedi";
-import { Repository } from "typeorm";
-import { InjectRepository } from "typeorm-typedi-extensions";
+import { Service } from 'typedi';
+import { Repository } from 'typeorm';
+import { InjectRepository } from 'typeorm-typedi-extensions';
 
-import User from "../../Entities/Users/User";
-import ActiveSession from "../../Entities/Users/ActiveSessions";
+import User from '../../Entities/Users/User';
+import ActiveSession from '../../Entities/Users/ActiveSessions';
 
 /**
  * @description Repository for handling authentication-related database operations.
@@ -33,11 +33,11 @@ export class AuthenticationRepository {
     return this.userRepo.findOne({
       where: { email },
       relations: [
-        "status",
-        "company",
-        "role",
-        "role.rolePermissions",
-        "role.rolePermissions.permission",
+        'status',
+        'company',
+        'role',
+        'role.rolePermissions',
+        'role.rolePermissions.permission',
       ],
     });
   }
@@ -59,7 +59,7 @@ export class AuthenticationRepository {
   async findUserByIdWithBasicRelations(id: string): Promise<User | null> {
     return this.userRepo.findOne({
       where: { id },
-      relations: ["status", "company", "role"],
+      relations: ['status', 'company', 'role'],
     });
   }
 
@@ -68,9 +68,7 @@ export class AuthenticationRepository {
    * @param data A partial ActiveSession object containing the data to be saved.
    * @returns A Promise that resolves to the newly created ActiveSession entity.
    */
-  async createAndSaveActiveSessionPartial(
-    data: Partial<ActiveSession>,
-  ): Promise<ActiveSession> {
+  async createAndSaveActiveSessionPartial(data: Partial<ActiveSession>): Promise<ActiveSession> {
     const entity = this.activeSessionRepo.create(data);
     return this.activeSessionRepo.save(entity);
   }

@@ -1,8 +1,8 @@
-import { Service } from "typedi";
-import { InjectRepository } from "typeorm-typedi-extensions";
-import { Repository } from "typeorm";
-import { TimesheetHistory } from "../../Entities/Timesheets/TimesheetHistory";
-import { BaseRepository } from "../../Repositories/BaseRepository";
+import { Service } from 'typedi';
+import { InjectRepository } from 'typeorm-typedi-extensions';
+import { Repository } from 'typeorm';
+import { TimesheetHistory } from '../../Entities/Timesheets/TimesheetHistory';
+import { BaseRepository } from '../../Repositories/BaseRepository';
 
 /**
  * @description Repository for managing TimesheetHistory entities. Extends BaseRepository to provide standard CRUD operations
@@ -14,9 +14,7 @@ export class TimesheetHistoryRepository extends BaseRepository<TimesheetHistory>
    * @description Initializes the TimesheetHistoryRepository with a TypeORM Repository instance for TimesheetHistory.
    * @param repo The TypeORM Repository<TimesheetHistory> injected by TypeDI.
    */
-  constructor(
-    @InjectRepository(TimesheetHistory) repo: Repository<TimesheetHistory>,
-  ) {
+  constructor(@InjectRepository(TimesheetHistory) repo: Repository<TimesheetHistory>) {
     super(TimesheetHistory, repo);
   }
 
@@ -29,11 +27,7 @@ export class TimesheetHistoryRepository extends BaseRepository<TimesheetHistory>
    */
   async findAllForTarget(
     companyId: string,
-    targetType:
-      | "Timesheet"
-      | "TimesheetEntry"
-      | "TimesheetApproval"
-      | "ActionCode",
+    targetType: 'Timesheet' | 'TimesheetEntry' | 'TimesheetApproval' | 'ActionCode',
     targetId: string,
   ): Promise<TimesheetHistory[]> {
     return this.repository.find({ where: { companyId, targetType, targetId } });

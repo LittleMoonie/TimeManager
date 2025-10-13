@@ -11,22 +11,22 @@ import {
   Path,
   Put,
   Delete,
-} from "tsoa";
-import { Request as ExpressRequest } from "express";
-import { Service } from "typedi";
+} from 'tsoa';
+import { Request as ExpressRequest } from 'express';
+import { Service } from 'typedi';
 
-import { RoleService } from "../../Services/RoleService/RoleService";
-import { CreateRoleDto, UpdateRoleDto } from "../../Dtos/Roles/RoleDto";
-import { Role } from "../../Entities/Roles/Role";
-import User from "../../Entities/Users/User";
+import { RoleService } from '../../Services/RoleService/RoleService';
+import { CreateRoleDto, UpdateRoleDto } from '../../Dtos/Roles/RoleDto';
+import { Role } from '../../Entities/Roles/Role';
+import User from '../../Entities/Users/User';
 
 /**
  * @summary Controller for managing roles within a company.
  * @tags Roles
  * @security jwt
  */
-@Route("roles")
-@Tags("Roles")
+@Route('roles')
+@Tags('Roles')
 @Service()
 export class RoleController extends Controller {
   constructor(private readonly roleService: RoleService) {
@@ -41,9 +41,9 @@ export class RoleController extends Controller {
    * @throws {ForbiddenError} If the current user does not have 'create_role' permission.
    * @throws {UnprocessableEntityError} If validation fails or a role with the same name already exists in the company.
    */
-  @Post("/")
-  @Security("jwt", ["admin"])
-  @SuccessResponse("201", "Role created successfully")
+  @Post('/')
+  @Security('jwt', ['admin'])
+  @SuccessResponse('201', 'Role created successfully')
   public async createRole(
     @Body() body: CreateRoleDto,
     @Request() request: ExpressRequest,
@@ -62,12 +62,9 @@ export class RoleController extends Controller {
    * @throws {NotFoundError} If the role is not found.
    * @throws {ForbiddenError} If the current user does not have access to the role's company.
    */
-  @Get("/{id}")
-  @Security("jwt", ["admin"])
-  public async getRole(
-    @Path() id: string,
-    @Request() request: ExpressRequest,
-  ): Promise<Role> {
+  @Get('/{id}')
+  @Security('jwt', ['admin'])
+  public async getRole(@Path() id: string, @Request() request: ExpressRequest): Promise<Role> {
     const me = request.user as User;
     return this.roleService.getRoleById(me.companyId, id, me);
   }
@@ -78,8 +75,8 @@ export class RoleController extends Controller {
    * @returns An array of roles.
    * @throws {ForbiddenError} If the current user does not have access to the specified company.
    */
-  @Get("/")
-  @Security("jwt", ["admin"])
+  @Get('/')
+  @Security('jwt', ['admin'])
   public async listRoles(@Request() request: ExpressRequest): Promise<Role[]> {
     const me = request.user as User;
     return this.roleService.listRoles(me.companyId, me);
@@ -95,8 +92,8 @@ export class RoleController extends Controller {
    * @throws {UnprocessableEntityError} If validation fails or an attempt is made to change the name to one that already exists.
    * @throws {NotFoundError} If the role to update is not found.
    */
-  @Put("/{id}")
-  @Security("jwt", ["admin"])
+  @Put('/{id}')
+  @Security('jwt', ['admin'])
   public async updateRole(
     @Path() id: string,
     @Body() body: UpdateRoleDto,
@@ -114,13 +111,10 @@ export class RoleController extends Controller {
    * @throws {ForbiddenError} If the current user does not have 'delete_role' permission or access to the role's company.
    * @throws {NotFoundError} If the role to delete is not found.
    */
-  @Delete("/{id}")
-  @Security("jwt", ["admin"])
-  @SuccessResponse("200", "Role deleted successfully")
-  public async deleteRole(
-    @Path() id: string,
-    @Request() request: ExpressRequest,
-  ): Promise<void> {
+  @Delete('/{id}')
+  @Security('jwt', ['admin'])
+  @SuccessResponse('200', 'Role deleted successfully')
+  public async deleteRole(@Path() id: string, @Request() request: ExpressRequest): Promise<void> {
     const me = request.user as User;
     await this.roleService.deleteRole(me.companyId, id, me);
   }
@@ -134,21 +128,16 @@ export class RoleController extends Controller {
    * @throws {ForbiddenError} If the current user does not have 'assign_role_permission' permission or access to the role's company.
    * @throws {NotFoundError} If the role is not found.
    */
-  @Post("/{roleId}/permissions/{permissionId}")
-  @Security("jwt", ["admin"])
-  @SuccessResponse("201", "Permission added to role successfully")
+  @Post('/{roleId}/permissions/{permissionId}')
+  @Security('jwt', ['admin'])
+  @SuccessResponse('201', 'Permission added to role successfully')
   public async addPermissionToRole(
     @Path() roleId: string,
     @Path() permissionId: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
     const me = request.user as User;
-    await this.roleService.assignPermissionToRole(
-      me.companyId,
-      roleId,
-      permissionId,
-      me,
-    );
+    await this.roleService.assignPermissionToRole(me.companyId, roleId, permissionId, me);
     this.setStatus(201);
   }
 
@@ -161,20 +150,15 @@ export class RoleController extends Controller {
    * @throws {ForbiddenError} If the current user does not have 'remove_role_permission' permission or access to the role's company.
    * @throws {NotFoundError} If the role is not found.
    */
-  @Delete("/{roleId}/permissions/{permissionId}")
-  @Security("jwt", ["admin"])
-  @SuccessResponse("200", "Permission removed from role successfully")
+  @Delete('/{roleId}/permissions/{permissionId}')
+  @Security('jwt', ['admin'])
+  @SuccessResponse('200', 'Permission removed from role successfully')
   public async removePermissionFromRole(
     @Path() roleId: string,
     @Path() permissionId: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
     const me = request.user as User;
-    await this.roleService.removePermissionFromRole(
-      me.companyId,
-      roleId,
-      permissionId,
-      me,
-    );
+    await this.roleService.removePermissionFromRole(me.companyId, roleId, permissionId, me);
   }
 }

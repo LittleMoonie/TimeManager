@@ -51,7 +51,7 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    
+
     services:
       postgres:
         image: postgres:15
@@ -65,7 +65,7 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-      
+
       redis:
         image: redis:7
         options: >-
@@ -150,7 +150,7 @@ on:
 jobs:
   security:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -207,7 +207,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -276,13 +276,13 @@ jobs:
 // Jenkinsfile
 pipeline {
     agent any
-    
+
     environment {
         DOCKER_REGISTRY = 'docker.io/ncy8'
         KUBECONFIG = credentials('kubeconfig')
         SLACK_WEBHOOK = credentials('slack-webhook')
     }
-    
+
     stages {
         stage('Checkout') {
             steps {
@@ -295,7 +295,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Build Images') {
             parallel {
                 stage('Build Frontend') {
@@ -309,7 +309,7 @@ pipeline {
                         }
                     }
                 }
-                
+
                 stage('Build Backend') {
                     steps {
                         script {
@@ -323,7 +323,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Security Scan') {
             steps {
                 script {
@@ -336,7 +336,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Deploy to Staging') {
             when {
                 branch 'develop'
@@ -355,7 +355,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Run E2E Tests') {
             when {
                 branch 'develop'
@@ -366,7 +366,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Deploy to Production') {
             when {
                 branch 'main'
@@ -383,20 +383,20 @@ pipeline {
                         kubectl set image deployment/ncy8-backend \
                             backend=${DOCKER_REGISTRY}/backend:${GIT_COMMIT_SHORT} \
                             -n production-green
-                        
+
                         # Wait for deployment to be ready
                         kubectl rollout status deployment/ncy8-frontend -n production-green
                         kubectl rollout status deployment/ncy8-backend -n production-green
-                        
+
                         # Run health checks
                         ./scripts/health-check.sh production-green
-                        
+
                         # Switch traffic to green
                         kubectl patch service ncy8-frontend -n production \
                             -p '{"spec":{"selector":{"version":"green"}}}'
                         kubectl patch service ncy8-backend -n production \
                             -p '{"spec":{"selector":{"version":"green"}}}'
-                        
+
                         # Clean up blue environment
                         kubectl delete namespace production-blue
                     '''
@@ -404,7 +404,7 @@ pipeline {
             }
         }
     }
-    
+
     post {
         always {
             script {
@@ -412,7 +412,7 @@ pipeline {
                 cleanWs()
             }
         }
-        
+
         success {
             script {
                 slackSend(
@@ -422,7 +422,7 @@ pipeline {
                 )
             }
         }
-        
+
         failure {
             script {
                 slackSend(
@@ -442,12 +442,12 @@ pipeline {
 // Jenkinsfile.migration
 pipeline {
     agent any
-    
+
     environment {
         DATABASE_URL = credentials('database-url')
         KUBECONFIG = credentials('kubeconfig')
     }
-    
+
     stages {
         stage('Backup Database') {
             steps {
@@ -459,31 +459,31 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Run Migrations') {
             steps {
                 script {
                     sh '''
                         # Run migrations in dry-run mode first
                         yarn typeorm migration:run -d ./Server/Database.ts --check
-                        
+
                         # Run actual migrations
                         yarn typeorm migration:run -d ./Server/Database.ts
-                        
+
                         # Verify migration success
                         yarn typeorm migration:show -d ./Server/Database.ts
                     '''
                 }
             }
         }
-        
+
         stage('Verify Migration') {
             steps {
                 script {
                     sh '''
                         # Run smoke tests
                         yarn test:migration-smoke
-                        
+
                         # Check database integrity
                         yarn db:integrity-check
                     '''
@@ -491,7 +491,7 @@ pipeline {
             }
         }
     }
-    
+
     post {
         failure {
             script {
@@ -584,11 +584,11 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -596,11 +596,11 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -610,7 +610,7 @@ services:
       context: ./back
       dockerfile: Dockerfile.dev
     ports:
-      - "3001:3001"
+      - '3001:3001'
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ncy8_dev
       REDIS_URL: redis://redis:6379
@@ -629,7 +629,7 @@ services:
       context: ./front
       dockerfile: Dockerfile.dev
     ports:
-      - "3000:3000"
+      - '3000:3000'
     depends_on:
       - backend
     volumes:
@@ -665,37 +665,37 @@ spec:
         version: blue
     spec:
       containers:
-      - name: frontend
-        image: ncy8/frontend:latest
-        ports:
-        - containerPort: 3000
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "200m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 3000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 3000
-          initialDelaySeconds: 5
-          periodSeconds: 5
-        securityContext:
-          runAsNonRoot: true
-          runAsUser: 1001
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop:
-            - ALL
+        - name: frontend
+          image: ncy8/frontend:latest
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              memory: '128Mi'
+              cpu: '100m'
+            limits:
+              memory: '256Mi'
+              cpu: '200m'
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
 ---
 apiVersion: v1
 kind: Service
@@ -707,8 +707,8 @@ spec:
     app: ncy8-frontend
     version: blue
   ports:
-  - port: 80
-    targetPort: 3000
+    - port: 80
+      targetPort: 3000
   type: ClusterIP
 ```
 
@@ -733,53 +733,53 @@ spec:
         version: blue
     spec:
       containers:
-      - name: backend
-        image: ncy8/backend:latest
-        ports:
-        - containerPort: 3001
-        env:
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: ncy8-secrets
-              key: database-url
-        - name: REDIS_URL
-          valueFrom:
-            secretKeyRef:
-              name: ncy8-secrets
-              key: redis-url
-        - name: JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: ncy8-secrets
-              key: jwt-secret
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "200m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 3001
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 3001
-          initialDelaySeconds: 5
-          periodSeconds: 5
-        securityContext:
-          runAsNonRoot: true
-          runAsUser: 1001
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop:
-            - ALL
+        - name: backend
+          image: ncy8/backend:latest
+          ports:
+            - containerPort: 3001
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ncy8-secrets
+                  key: database-url
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ncy8-secrets
+                  key: redis-url
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ncy8-secrets
+                  key: jwt-secret
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '200m'
+            limits:
+              memory: '512Mi'
+              cpu: '500m'
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
 ---
 apiVersion: v1
 kind: Service
@@ -791,8 +791,8 @@ spec:
     app: ncy8-backend
     version: blue
   ports:
-  - port: 80
-    targetPort: 3001
+    - port: 80
+      targetPort: 3001
   type: ClusterIP
 ```
 
@@ -876,14 +876,14 @@ kubectl rollout status deployment/ncy8-backend-canary -n $ENVIRONMENT
 # Gradually increase canary traffic
 for percentage in 10 25 50 75 100; do
     echo "Increasing canary traffic to $percentage%"
-    
+
     # Update service weights
     kubectl patch service ncy8-frontend -n $ENVIRONMENT \
         -p "{\"spec\":{\"selector\":{\"version\":\"canary-$percentage\"}}}"
-    
+
     # Wait and monitor
     sleep 60
-    
+
     # Check error rates and response times
     if ! ./scripts/health-check.sh $ENVIRONMENT; then
         echo "Health check failed at $percentage% traffic. Rolling back..."
@@ -982,29 +982,29 @@ resource "aws_eks_node_group" "ncy8" {
 # RDS Database
 resource "aws_db_instance" "ncy8" {
   identifier = "ncy8-db"
-  
+
   engine         = "postgres"
   engine_version = "15.4"
   instance_class = "db.t3.micro"
-  
+
   allocated_storage     = 20
   max_allocated_storage = 100
   storage_encrypted     = true
-  
+
   db_name  = "ncy8"
   username = "postgres"
   password = var.db_password
-  
+
   vpc_security_group_ids = [aws_security_group.rds.id]
   db_subnet_group_name   = aws_db_subnet_group.ncy8.name
-  
+
   backup_retention_period = 7
   backup_window          = "03:00-04:00"
   maintenance_window     = "sun:04:00-sun:05:00"
-  
+
   skip_final_snapshot = false
   final_snapshot_identifier = "ncy8-db-final-snapshot"
-  
+
   tags = {
     Name = "ncy8-database"
   }
@@ -1077,24 +1077,24 @@ spec:
         app: prometheus
     spec:
       containers:
-      - name: prometheus
-        image: prom/prometheus:latest
-        ports:
-        - containerPort: 9090
-        volumeMounts:
-        - name: config
-          mountPath: /etc/prometheus
-        - name: storage
-          mountPath: /prometheus
+        - name: prometheus
+          image: prom/prometheus:latest
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: config
+              mountPath: /etc/prometheus
+            - name: storage
+              mountPath: /prometheus
       volumes:
-      - name: config
-        configMap:
-          name: prometheus-config
-      - name: storage
-        persistentVolumeClaim:
-          claimName: prometheus-storage
+        - name: config
+          configMap:
+            name: prometheus-config
+        - name: storage
+          persistentVolumeClaim:
+            claimName: prometheus-storage
 ```
 
 ---
 
-*This CI/CD strategy ensures reliable, secure, and scalable deployments with comprehensive monitoring and rollback capabilities.*
+_This CI/CD strategy ensures reliable, secure, and scalable deployments with comprehensive monitoring and rollback capabilities._

@@ -39,48 +39,48 @@ Our backend unit and integration tests are configured using Jest. The `jest.conf
 ```javascript
 // App.API/jest.config.js
 module.exports = {
-  preset: "ts-jest",
-  testEnvironment: "node",
-  moduleFileExtensions: ["js", "json", "ts"],
-  rootDir: "src",
-  testRegex: ".*\\.spec\\.ts$",
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  moduleFileExtensions: ['js', 'json', 'ts'],
+  rootDir: 'src',
+  testRegex: '.*\\.spec\\.ts$',
   transform: {
-    "^.+\\.(ts)$": "ts-jest",
+    '^.+\\.(ts)$': 'ts-jest',
   },
-  collectCoverageFrom: ["**/*.(t|j)s"],
-  coverageDirectory: "../coverage",
+  collectCoverageFrom: ['**/*.(t|j)s'],
+  coverageDirectory: '../coverage',
   coveragePathIgnorePatterns: [
-    ".interface.ts",
-    ".enum.ts",
-    ".dto.ts",
-    ".module.ts",
-    ".mock.ts",
-    ".config.ts",
-    ".entity.ts",
-    ".factory.ts",
-    ".schema.ts",
-    ".spec.ts",
-    ".e2e-spec.ts",
-    "main.ts",
-    "index.ts",
-    "Server/Database.ts",
-    "Server/IoC.ts",
-    "Server/Auth.ts",
-    "Server/Seed.ts",
-    "Config/",
-    "Errors/",
-    "Middlewares/",
-    "Migrations/",
-    "Repositories/",
-    "Routes/",
-    "Seeds/",
-    "Utils/Logger.ts",
+    '.interface.ts',
+    '.enum.ts',
+    '.dto.ts',
+    '.module.ts',
+    '.mock.ts',
+    '.config.ts',
+    '.entity.ts',
+    '.factory.ts',
+    '.schema.ts',
+    '.spec.ts',
+    '.e2e-spec.ts',
+    'main.ts',
+    'index.ts',
+    'Server/Database.ts',
+    'Server/IoC.ts',
+    'Server/Auth.ts',
+    'Server/Seed.ts',
+    'Config/',
+    'Errors/',
+    'Middlewares/',
+    'Migrations/',
+    'Repositories/',
+    'Routes/',
+    'Seeds/',
+    'Utils/Logger.ts',
   ],
   testTimeout: 10000,
   verbose: true,
-  setupFilesAfterEnv: ["../jest.setup.ts"],
+  setupFilesAfterEnv: ['../jest.setup.ts'],
   moduleNameMapper: {
-    "^@App.API/(.*)$": "<rootDir>/$1",
+    '^@App.API/(.*)$': '<rootDir>/$1',
   },
 };
 ```
@@ -91,31 +91,36 @@ Service layer tests focus on the business logic in isolation from controllers an
 
 ```typescript
 // App.API/Services/AuthenticationService/AuthenticationService.spec.ts (Simplified)
-import { AuthenticationService } from "@App.API/Services/AuthenticationService/AuthenticationService";
-import { AuthenticationRepository } from "@App.API/Repositories/Authentication/AuthenticationRepository";
-import { UserStatusService } from "@App.API/Services/Users/UserStatusService";
-import { ActiveSessionService } from "@App.API/Services/Users/ActiveSessionService";
-import { LoginDto, RegisterDto } from "@App.API/Dtos/Authentication/AuthenticationDto";
-import User from "@App.API/Entities/Users/User";
-import { AuthenticationError, NotFoundError } from "@App.API/Errors/HttpErrors";
-import * as argon2 from "argon2";
+import { AuthenticationService } from '@App.API/Services/AuthenticationService/AuthenticationService';
+import { AuthenticationRepository } from '@App.API/Repositories/Authentication/AuthenticationRepository';
+import { UserStatusService } from '@App.API/Services/Users/UserStatusService';
+import { ActiveSessionService } from '@App.API/Services/Users/ActiveSessionService';
+import { LoginDto, RegisterDto } from '@App.API/Dtos/Authentication/AuthenticationDto';
+import User from '@App.API/Entities/Users/User';
+import { AuthenticationError, NotFoundError } from '@App.API/Errors/HttpErrors';
+import * as argon2 from 'argon2';
 
 // Mock dependencies
-jest.mock("@App.API/Repositories/Authentication/AuthenticationRepository");
-jest.mock("@App.API/Services/Users/UserStatusService");
-jest.mock("@App.API/Services/Users/ActiveSessionService");
-jest.mock("argon2");
+jest.mock('@App.API/Repositories/Authentication/AuthenticationRepository');
+jest.mock('@App.API/Services/Users/UserStatusService');
+jest.mock('@App.API/Services/Users/ActiveSessionService');
+jest.mock('argon2');
 
-describe("AuthenticationService", () => {
+describe('AuthenticationService', () => {
   let authenticationService: AuthenticationService;
   let authRepo: jest.Mocked<AuthenticationRepository>;
   let userStatusService: jest.Mocked<UserStatusService>;
   let activeSessionService: jest.Mocked<ActiveSessionService>;
 
   beforeEach(() => {
-    authRepo = new AuthenticationRepository(null as any, null as any) as jest.Mocked<AuthenticationRepository>;
+    authRepo = new AuthenticationRepository(
+      null as any,
+      null as any,
+    ) as jest.Mocked<AuthenticationRepository>;
     userStatusService = new UserStatusService(null as any) as jest.Mocked<UserStatusService>;
-    activeSessionService = new ActiveSessionService(null as any) as jest.Mocked<ActiveSessionService>;
+    activeSessionService = new ActiveSessionService(
+      null as any,
+    ) as jest.Mocked<ActiveSessionService>;
 
     authenticationService = new AuthenticationService(
       authRepo,
@@ -127,21 +132,27 @@ describe("AuthenticationService", () => {
     (argon2.verify as jest.Mock).mockResolvedValue(true);
   });
 
-  describe("register", () => {
-    it("should register a new user successfully", async () => {
+  describe('register', () => {
+    it('should register a new user successfully', async () => {
       const registerDto: RegisterDto = {
-        email: "test@example.com",
-        password: "password123",
-        firstName: "Test",
-        lastName: "User",
-        companyId: "company-uuid",
-        roleId: "role-uuid",
-        statusId: "status-uuid",
-        phoneNumber: "+1234567890",
+        email: 'test@example.com',
+        password: 'password123',
+        firstName: 'Test',
+        lastName: 'User',
+        companyId: 'company-uuid',
+        roleId: 'role-uuid',
+        statusId: 'status-uuid',
+        phoneNumber: '+1234567890',
       };
 
       authRepo.findUserByEmailWithAuthRelations.mockResolvedValue(null);
-      userStatusService.getUserStatusByCode.mockResolvedValue({ id: "status-uuid", code: "ACTIVE", name: "Active", canLogin: true, isTerminal: false });
+      userStatusService.getUserStatusByCode.mockResolvedValue({
+        id: 'status-uuid',
+        code: 'ACTIVE',
+        name: 'Active',
+        canLogin: true,
+        isTerminal: false,
+      });
       authRepo.saveUser.mockImplementation(async (user: User) => user);
 
       const user = await authenticationService.register(registerDto);
@@ -150,16 +161,16 @@ describe("AuthenticationService", () => {
       expect(authRepo.saveUser).toHaveBeenCalled();
     });
 
-    it("should throw AuthenticationError if email already exists", async () => {
+    it('should throw AuthenticationError if email already exists', async () => {
       const registerDto: RegisterDto = {
-        email: "test@example.com",
-        password: "password123",
-        firstName: "Test",
-        lastName: "User",
-        companyId: "company-uuid",
-        roleId: "role-uuid",
-        statusId: "status-uuid",
-        phoneNumber: "+1234567890",
+        email: 'test@example.com',
+        password: 'password123',
+        firstName: 'Test',
+        lastName: 'User',
+        companyId: 'company-uuid',
+        roleId: 'role-uuid',
+        statusId: 'status-uuid',
+        phoneNumber: '+1234567890',
       };
 
       authRepo.findUserByEmailWithAuthRelations.mockResolvedValue(new User());
@@ -263,13 +274,9 @@ import { validateEmail, validatePassword, validateUserData } from '@/utils/valid
 describe('Validation Utils', () => {
   describe('validateEmail', () => {
     it('should return true for valid emails', () => {
-      const validEmails = [
-        'test@example.com',
-        'user.name@domain.co.uk',
-        'user+tag@example.org',
-      ];
+      const validEmails = ['test@example.com', 'user.name@domain.co.uk', 'user+tag@example.org'];
 
-      validEmails.forEach(email => {
+      validEmails.forEach((email) => {
         expect(validateEmail(email)).toBe(true);
       });
     });
@@ -283,7 +290,7 @@ describe('Validation Utils', () => {
         '',
       ];
 
-      invalidEmails.forEach(email => {
+      invalidEmails.forEach((email) => {
         expect(validateEmail(email)).toBe(false);
       });
     });
@@ -291,27 +298,17 @@ describe('Validation Utils', () => {
 
   describe('validatePassword', () => {
     it('should return true for strong passwords', () => {
-      const strongPasswords = [
-        'SecurePass123!',
-        'MyP@ssw0rd2024',
-        'Complex#Password1',
-      ];
+      const strongPasswords = ['SecurePass123!', 'MyP@ssw0rd2024', 'Complex#Password1'];
 
-      strongPasswords.forEach(password => {
+      strongPasswords.forEach((password) => {
         expect(validatePassword(password)).toBe(true);
       });
     });
 
     it('should return false for weak passwords', () => {
-      const weakPasswords = [
-        'password',
-        '12345678',
-        'Password',
-        'P@ssw0rd',
-        'SecurePass123',
-      ];
+      const weakPasswords = ['password', '12345678', 'Password', 'P@ssw0rd', 'SecurePass123'];
 
-      weakPasswords.forEach(password => {
+      weakPasswords.forEach((password) => {
         expect(validatePassword(password)).toBe(false);
       });
     });
@@ -358,16 +355,16 @@ API endpoint tests verify the integration between controllers, services, and rep
 
 ```typescript
 // App.API/Tests/Controllers/Authentication/AuthenticationController.test.ts (Simplified)
-import request from "supertest";
-import { app } from "../../Server/index"; // Assuming 'app' is your Express app instance
-import { AppDataSource } from "../../Server/Database";
-import User from "../../Entities/Users/User";
-import { UserStatus } from "../../Entities/Users/UserStatus";
-import { Role } from "../../Entities/Roles/Role";
-import { Company } from "../../Entities/Companies/Company";
-import * as argon2 from "argon2";
+import request from 'supertest';
+import { app } from '../../Server/index'; // Assuming 'app' is your Express app instance
+import { AppDataSource } from '../../Server/Database';
+import User from '../../Entities/Users/User';
+import { UserStatus } from '../../Entities/Users/UserStatus';
+import { Role } from '../../Entities/Roles/Role';
+import { Company } from '../../Entities/Companies/Company';
+import * as argon2 from 'argon2';
 
-describe("AuthenticationController", () => {
+describe('AuthenticationController', () => {
   let testUser: User;
   let testCompany: Company;
   let testRole: Role;
@@ -378,19 +375,19 @@ describe("AuthenticationController", () => {
 
     // Create a test company
     testCompany = await AppDataSource.getRepository(Company).save({
-      name: "Test Company",
+      name: 'Test Company',
     });
 
     // Create a test role
     testRole = await AppDataSource.getRepository(Role).save({
-      name: "Employee",
+      name: 'Employee',
       companyId: testCompany.id,
     });
 
     // Create a test user status
     testStatus = await AppDataSource.getRepository(UserStatus).save({
-      code: "ACTIVE",
-      name: "Active",
+      code: 'ACTIVE',
+      name: 'Active',
       canLogin: true,
     });
   });
@@ -404,49 +401,49 @@ describe("AuthenticationController", () => {
     await AppDataSource.getRepository(User).clear();
   });
 
-  describe("POST /auth/register", () => {
-    it("should register a new user", async () => {
-      const res = await request(app).post("/auth/register").send({
-        email: "test@example.com",
-        password: "password123",
-        firstName: "Test",
-        lastName: "User",
+  describe('POST /auth/register', () => {
+    it('should register a new user', async () => {
+      const res = await request(app).post('/auth/register').send({
+        email: 'test@example.com',
+        password: 'password123',
+        firstName: 'Test',
+        lastName: 'User',
         companyId: testCompany.id,
         roleId: testRole.id,
         statusId: testStatus.id,
-        phoneNumber: "+1234567890",
+        phoneNumber: '+1234567890',
       });
 
       expect(res.statusCode).toEqual(201);
-      expect(res.body).toHaveProperty("id");
-      expect(res.body.email).toEqual("test@example.com");
+      expect(res.body).toHaveProperty('id');
+      expect(res.body.email).toEqual('test@example.com');
     });
 
-    it("should return 422 if email already exists", async () => {
+    it('should return 422 if email already exists', async () => {
       await AppDataSource.getRepository(User).save({
-        email: "test@example.com",
-        passwordHash: await argon2.hash("password123"),
-        firstName: "Existing",
-        lastName: "User",
+        email: 'test@example.com',
+        passwordHash: await argon2.hash('password123'),
+        firstName: 'Existing',
+        lastName: 'User',
         companyId: testCompany.id,
         roleId: testRole.id,
         statusId: testStatus.id,
-        phoneNumber: "+1234567890",
+        phoneNumber: '+1234567890',
       });
 
-      const res = await request(app).post("/auth/register").send({
-        email: "test@example.com",
-        password: "newpassword",
-        firstName: "New",
-        lastName: "User",
+      const res = await request(app).post('/auth/register').send({
+        email: 'test@example.com',
+        password: 'newpassword',
+        firstName: 'New',
+        lastName: 'User',
         companyId: testCompany.id,
         roleId: testRole.id,
         statusId: testStatus.id,
-        phoneNumber: "+1234567890",
+        phoneNumber: '+1234567890',
       });
 
       expect(res.statusCode).toEqual(422);
-      expect(res.body.message).toContain("Validation error");
+      expect(res.body.message).toContain('Validation error');
     });
   });
 
@@ -460,15 +457,15 @@ Database integration tests verify the interaction between repositories and the d
 
 ```typescript
 // App.API/Repositories/Users/UserRepository.test.ts (Simplified)
-import { UserRepository } from "@App.API/Repositories/Users/UserRepository";
-import { AppDataSource } from "../../Server/Database";
-import User from "@App.API/Entities/Users/User";
-import { Company } from "@App.API/Entities/Companies/Company";
-import { Role } from "@App.API/Entities/Roles/Role";
-import { UserStatus } from "@App.API/Entities/Users/UserStatus";
-import * as argon2 from "argon2";
+import { UserRepository } from '@App.API/Repositories/Users/UserRepository';
+import { AppDataSource } from '../../Server/Database';
+import User from '@App.API/Entities/Users/User';
+import { Company } from '@App.API/Entities/Companies/Company';
+import { Role } from '@App.API/Entities/Roles/Role';
+import { UserStatus } from '@App.API/Entities/Users/UserStatus';
+import * as argon2 from 'argon2';
 
-describe("UserRepository", () => {
+describe('UserRepository', () => {
   let userRepository: UserRepository;
   let testCompany: Company;
   let testRole: Role;
@@ -478,15 +475,15 @@ describe("UserRepository", () => {
     await AppDataSource.initialize();
 
     testCompany = await AppDataSource.getRepository(Company).save({
-      name: "Test Company",
+      name: 'Test Company',
     });
     testRole = await AppDataSource.getRepository(Role).save({
-      name: "Employee",
+      name: 'Employee',
       companyId: testCompany.id,
     });
     testStatus = await AppDataSource.getRepository(UserStatus).save({
-      code: "ACTIVE",
-      name: "Active",
+      code: 'ACTIVE',
+      name: 'Active',
       canLogin: true,
     });
 
@@ -501,21 +498,21 @@ describe("UserRepository", () => {
     await AppDataSource.getRepository(User).clear();
   });
 
-  describe("findByEmailInCompany", () => {
-    it("should find user by email and company ID", async () => {
+  describe('findByEmailInCompany', () => {
+    it('should find user by email and company ID', async () => {
       const user = await AppDataSource.getRepository(User).save({
-        email: "test@example.com",
-        passwordHash: await argon2.hash("password123"),
-        firstName: "Test",
-        lastName: "User",
+        email: 'test@example.com',
+        passwordHash: await argon2.hash('password123'),
+        firstName: 'Test',
+        lastName: 'User',
         companyId: testCompany.id,
         roleId: testRole.id,
         statusId: testStatus.id,
-        phoneNumber: "+1234567890",
+        phoneNumber: '+1234567890',
       });
 
       const foundUser = await userRepository.findByEmailInCompany(
-        "test@example.com",
+        'test@example.com',
         testCompany.id,
       );
 
@@ -523,37 +520,37 @@ describe("UserRepository", () => {
       expect(foundUser?.email).toEqual(user.email);
     });
 
-    it("should return null if user not found in company", async () => {
+    it('should return null if user not found in company', async () => {
       const foundUser = await userRepository.findByEmailInCompany(
-        "nonexistent@example.com",
+        'nonexistent@example.com',
         testCompany.id,
       );
       expect(foundUser).toBeNull();
     });
   });
 
-  describe("findAllByCompanyId", () => {
-    it("should return all users for a given company ID", async () => {
+  describe('findAllByCompanyId', () => {
+    it('should return all users for a given company ID', async () => {
       await AppDataSource.getRepository(User).save([
         {
-          email: "user1@example.com",
-          passwordHash: await argon2.hash("password123"),
-          firstName: "User",
-          lastName: "One",
+          email: 'user1@example.com',
+          passwordHash: await argon2.hash('password123'),
+          firstName: 'User',
+          lastName: 'One',
           companyId: testCompany.id,
           roleId: testRole.id,
           statusId: testStatus.id,
-          phoneNumber: "+1234567890",
+          phoneNumber: '+1234567890',
         },
         {
-          email: "user2@example.com",
-          passwordHash: await argon2.hash("password123"),
-          firstName: "User",
-          lastName: "Two",
+          email: 'user2@example.com',
+          passwordHash: await argon2.hash('password123'),
+          firstName: 'User',
+          lastName: 'Two',
           companyId: testCompany.id,
           roleId: testRole.id,
           statusId: testStatus.id,
-          phoneNumber: "+1234567890",
+          phoneNumber: '+1234567890',
         },
       ]);
 
@@ -654,7 +651,7 @@ test.describe('Authentication', () => {
     // Should show error message
     await expect(page.locator('[data-testid="error-message"]')).toBeVisible();
     await expect(page.locator('[data-testid="error-message"]')).toContainText(
-      'Invalid credentials'
+      'Invalid credentials',
     );
   });
 
@@ -719,18 +716,16 @@ test.describe('User Management', () => {
     // Should show success message
     await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
     await expect(page.locator('[data-testid="success-message"]')).toContainText(
-      'User created successfully'
+      'User created successfully',
     );
 
     // User should appear in the list
-    await expect(page.locator('[data-testid="user-list"]')).toContainText(
-      'New Test User'
-    );
+    await expect(page.locator('[data-testid="user-list"]')).toContainText('New Test User');
   });
 
   test('should edit existing user', async ({ page }) => {
     await page.click('[data-testid="users-menu"]');
-    
+
     // Click edit button for first user
     await page.click('[data-testid="edit-user-button"]:first');
     await expect(page.locator('[data-testid="edit-user-modal"]')).toBeVisible();
@@ -741,19 +736,17 @@ test.describe('User Management', () => {
 
     // Should show success message
     await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
-    
+
     // Updated name should appear in the list
-    await expect(page.locator('[data-testid="user-list"]')).toContainText(
-      'Updated User Name'
-    );
+    await expect(page.locator('[data-testid="user-list"]')).toContainText('Updated User Name');
   });
 
   test('should delete user', async ({ page }) => {
     await page.click('[data-testid="users-menu"]');
-    
+
     // Click delete button for first user
     await page.click('[data-testid="delete-user-button"]:first');
-    
+
     // Confirm deletion
     await expect(page.locator('[data-testid="confirm-delete-modal"]')).toBeVisible();
     await page.click('[data-testid="confirm-delete-button"]');
@@ -761,19 +754,19 @@ test.describe('User Management', () => {
     // Should show success message
     await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
     await expect(page.locator('[data-testid="success-message"]')).toContainText(
-      'User deleted successfully'
+      'User deleted successfully',
     );
   });
 
   test('should filter users by role', async ({ page }) => {
     await page.click('[data-testid="users-menu"]');
-    
+
     // Filter by manager role
     await page.selectOption('[data-testid="role-filter"]', 'MANAGER');
-    
+
     // All visible users should have manager role
     const userRoles = await page.locator('[data-testid="user-role"]').allTextContents();
-    userRoles.forEach(role => {
+    userRoles.forEach((role) => {
       expect(role).toBe('MANAGER');
     });
   });
@@ -798,45 +791,41 @@ test.describe('Project Management', () => {
   test('should create new project', async ({ page }) => {
     await page.click('[data-testid="projects-menu"]');
     await page.click('[data-testid="create-project-button"]');
-    
+
     await page.fill('[data-testid="project-name-input"]', 'New Test Project');
     await page.fill('[data-testid="project-description-input"]', 'This is a test project');
     await page.selectOption('[data-testid="project-status-select"]', 'ACTIVE');
-    
+
     await page.click('[data-testid="create-project-submit"]');
-    
+
     await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
-    await expect(page.locator('[data-testid="project-list"]')).toContainText(
-      'New Test Project'
-    );
+    await expect(page.locator('[data-testid="project-list"]')).toContainText('New Test Project');
   });
 
   test('should add tasks to project', async ({ page }) => {
     await page.click('[data-testid="projects-menu"]');
     await page.click('[data-testid="project-card"]:first');
-    
+
     // Add new task
     await page.click('[data-testid="add-task-button"]');
     await page.fill('[data-testid="task-title-input"]', 'New Task');
     await page.fill('[data-testid="task-description-input"]', 'Task description');
     await page.selectOption('[data-testid="task-priority-select"]', 'HIGH');
     await page.click('[data-testid="create-task-submit"]');
-    
+
     await expect(page.locator('[data-testid="task-list"]')).toContainText('New Task');
   });
 
   test('should update task status', async ({ page }) => {
     await page.click('[data-testid="projects-menu"]');
     await page.click('[data-testid="project-card"]:first');
-    
+
     // Update first task status
     await page.click('[data-testid="task-status-select"]:first');
     await page.selectOption('[data-testid="task-status-select"]:first', 'IN_PROGRESS');
-    
+
     // Status should be updated
-    await expect(page.locator('[data-testid="task-status"]:first')).toContainText(
-      'IN_PROGRESS'
-    );
+    await expect(page.locator('[data-testid="task-status"]:first')).toContainText('IN_PROGRESS');
   });
 });
 ```
@@ -859,11 +848,11 @@ export const options = {
     { duration: '5m', target: 100 }, // Stay at 100 users
     { duration: '2m', target: 200 }, // Ramp up to 200 users
     { duration: '5m', target: 200 }, // Stay at 200 users
-    { duration: '2m', target: 0 },   // Ramp down
+    { duration: '2m', target: 0 }, // Ramp down
   ],
   thresholds: {
     http_req_duration: ['p(95)<500'], // 95% of requests under 500ms
-    http_req_failed: ['rate<0.1'],    // Error rate under 10%
+    http_req_failed: ['rate<0.1'], // Error rate under 10%
     errors: ['rate<0.1'],
   },
 };
@@ -888,7 +877,7 @@ export default function () {
   const registerResponse = http.post(
     `${BASE_URL}/api/v1/auth/register`,
     registerPayload,
-    registerParams
+    registerParams,
   );
 
   check(registerResponse, {
@@ -903,16 +892,13 @@ export default function () {
     // Test authenticated endpoints
     const authParams = {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     };
 
     // Get user profile
-    const profileResponse = http.get(
-      `${BASE_URL}/api/v1/users/me`,
-      authParams
-    );
+    const profileResponse = http.get(`${BASE_URL}/api/v1/users/me`, authParams);
 
     check(profileResponse, {
       'profile status is 200': (r) => r.status === 200,
@@ -920,10 +906,7 @@ export default function () {
     }) || errorRate.add(1);
 
     // Get projects
-    const projectsResponse = http.get(
-      `${BASE_URL}/api/v1/projects`,
-      authParams
-    );
+    const projectsResponse = http.get(`${BASE_URL}/api/v1/projects`, authParams);
 
     check(projectsResponse, {
       'projects status is 200': (r) => r.status === 200,
@@ -967,7 +950,7 @@ export default function () {
     // Get users list
     const usersResponse = http.get(`${BASE_URL}/api/v1/users`, {
       headers: {
-        'Authorization': `Bearer ${ADMIN_TOKEN}`,
+        Authorization: `Bearer ${ADMIN_TOKEN}`,
       },
     });
 
@@ -987,16 +970,12 @@ export default function () {
       role: 'EMPLOYEE',
     });
 
-    const createUserResponse = http.post(
-      `${BASE_URL}/api/v1/users`,
-      createUserPayload,
-      {
-        headers: {
-          'Authorization': `Bearer ${ADMIN_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    const createUserResponse = http.post(`${BASE_URL}/api/v1/users`, createUserPayload, {
+      headers: {
+        Authorization: `Bearer ${ADMIN_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+    });
 
     check(createUserResponse, {
       'create user status is 201': (r) => r.status === 201,
@@ -1008,7 +987,7 @@ export default function () {
     // Get projects
     const projectsResponse = http.get(`${BASE_URL}/api/v1/projects`, {
       headers: {
-        'Authorization': `Bearer ${ADMIN_TOKEN}`,
+        Authorization: `Bearer ${ADMIN_TOKEN}`,
       },
     });
 
@@ -1023,16 +1002,12 @@ export default function () {
       status: 'ACTIVE',
     });
 
-    const createProjectResponse = http.post(
-      `${BASE_URL}/api/v1/projects`,
-      createProjectPayload,
-      {
-        headers: {
-          'Authorization': `Bearer ${ADMIN_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    const createProjectResponse = http.post(`${BASE_URL}/api/v1/projects`, createProjectPayload, {
+      headers: {
+        Authorization: `Bearer ${ADMIN_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+    });
 
     check(createProjectResponse, {
       'create project status is 201': (r) => r.status === 201,
@@ -1041,7 +1016,7 @@ export default function () {
 
   group('Health Check', () => {
     const healthResponse = http.get(`${BASE_URL}/health`);
-    
+
     check(healthResponse, {
       'health check status is 200': (r) => r.status === 200,
       'health check response time < 100ms': (r) => r.timings.duration < 100,
@@ -1069,10 +1044,7 @@ describe('Authentication Security', () => {
 
       // Make multiple failed login attempts
       for (let i = 0; i < 6; i++) {
-        const response = await request(app)
-          .post('/api/v1/auth/login')
-          .send(loginData)
-          .expect(401);
+        const response = await request(app).post('/api/v1/auth/login').send(loginData).expect(401);
       }
 
       // Next attempt should be blocked
@@ -1087,12 +1059,7 @@ describe('Authentication Security', () => {
 
   describe('Password Security', () => {
     it('should reject weak passwords', async () => {
-      const weakPasswords = [
-        'password',
-        '12345678',
-        'Password',
-        'P@ssw0rd',
-      ];
+      const weakPasswords = ['password', '12345678', 'Password', 'P@ssw0rd'];
 
       for (const password of weakPasswords) {
         const response = await request(app)
@@ -1115,10 +1082,7 @@ describe('Authentication Security', () => {
         name: 'Test User',
       };
 
-      await request(app)
-        .post('/api/v1/auth/register')
-        .send(userData)
-        .expect(201);
+      await request(app).post('/api/v1/auth/register').send(userData).expect(201);
 
       // Verify password is hashed in database
       const userRepository = AppDataSource.getRepository(User);
@@ -1134,7 +1098,7 @@ describe('Authentication Security', () => {
   describe('JWT Security', () => {
     it('should reject expired tokens', async () => {
       const expiredToken = generateExpiredToken();
-      
+
       const response = await request(app)
         .get('/api/v1/users/me')
         .set('Authorization', `Bearer ${expiredToken}`)
@@ -1144,12 +1108,7 @@ describe('Authentication Security', () => {
     });
 
     it('should reject malformed tokens', async () => {
-      const malformedTokens = [
-        'invalid-token',
-        'Bearer invalid',
-        'Bearer ',
-        '',
-      ];
+      const malformedTokens = ['invalid-token', 'Bearer invalid', 'Bearer ', ''];
 
       for (const token of malformedTokens) {
         const response = await request(app)
@@ -1217,21 +1176,21 @@ Test helpers provide utility functions for setting up and tearing down test envi
 
 ```typescript
 // App.API/Tests/TestHelper.ts (Simplified)
-import { DataSource } from "typeorm";
-import User from "../Entities/Users/User";
-import { Company } from "../Entities/Companies/Company";
-import { Role } from "../Entities/Roles/Role";
-import { UserStatus } from "../Entities/Users/UserStatus";
-import * as jwt from "jsonwebtoken";
+import { DataSource } from 'typeorm';
+import User from '../Entities/Users/User';
+import { Company } from '../Entities/Companies/Company';
+import { Role } from '../Entities/Roles/Role';
+import { UserStatus } from '../Entities/Users/UserStatus';
+import * as jwt from 'jsonwebtoken';
 
 export const createTestDataSource = async (): Promise<DataSource> => {
   const dataSource = new DataSource({
-    type: "postgres",
-    host: process.env.DB_HOST || "localhost",
-    port: parseInt(process.env.DB_PORT || "5432"),
-    username: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASS || "postgres",
-    database: process.env.DB_NAME || "gogotime_test",
+    type: 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '5432'),
+    username: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASS || 'postgres',
+    database: process.env.DB_NAME || 'gogotime_test',
     synchronize: true, // Use synchronize for test databases
     logging: false,
     entities: [User, Company, Role, UserStatus], // Include all relevant entities
@@ -1254,7 +1213,7 @@ export const generateTestToken = (userId: string, companyId: string, roleName: s
       role: roleName,
     },
     process.env.JWT_SECRET!,
-    { expiresIn: "1h" },
+    { expiresIn: '1h' },
   );
 };
 
@@ -1266,27 +1225,36 @@ export const generateExpiredToken = (userId: string, companyId: string, roleName
       role: roleName,
     },
     process.env.JWT_SECRET!,
-    { expiresIn: "-1h" }, // Expired token
+    { expiresIn: '-1h' }, // Expired token
   );
 };
 
-export const createTestUser = async (dataSource: DataSource, company: Company, role: Role, status: UserStatus, overrides: Partial<User> = {}) => {
+export const createTestUser = async (
+  dataSource: DataSource,
+  company: Company,
+  role: Role,
+  status: UserStatus,
+  overrides: Partial<User> = {},
+) => {
   const userRepository = dataSource.getRepository(User);
   const user = userRepository.create({
     email: `testuser-${Date.now()}@example.com`,
-    passwordHash: await argon2.hash("password123"),
-    firstName: "Test",
-    lastName: "User",
+    passwordHash: await argon2.hash('password123'),
+    firstName: 'Test',
+    lastName: 'User',
     companyId: company.id,
     roleId: role.id,
     statusId: status.id,
-    phoneNumber: "+1234567890",
+    phoneNumber: '+1234567890',
     ...overrides,
   });
   return userRepository.save(user);
 };
 
-export const createTestCompany = async (dataSource: DataSource, overrides: Partial<Company> = {}) => {
+export const createTestCompany = async (
+  dataSource: DataSource,
+  overrides: Partial<Company> = {},
+) => {
   const companyRepository = dataSource.getRepository(Company);
   const company = companyRepository.create({
     name: `Test Company ${Date.now()}`,
@@ -1295,7 +1263,11 @@ export const createTestCompany = async (dataSource: DataSource, overrides: Parti
   return companyRepository.save(company);
 };
 
-export const createTestRole = async (dataSource: DataSource, company: Company, overrides: Partial<Role> = {}) => {
+export const createTestRole = async (
+  dataSource: DataSource,
+  company: Company,
+  overrides: Partial<Role> = {},
+) => {
   const roleRepository = dataSource.getRepository(Role);
   const role = roleRepository.create({
     name: `Test Role ${Date.now()}`,
@@ -1305,7 +1277,10 @@ export const createTestRole = async (dataSource: DataSource, company: Company, o
   return roleRepository.save(role);
 };
 
-export const createTestUserStatus = async (dataSource: DataSource, overrides: Partial<UserStatus> = {}) => {
+export const createTestUserStatus = async (
+  dataSource: DataSource,
+  overrides: Partial<UserStatus> = {},
+) => {
   const userStatusRepository = dataSource.getRepository(UserStatus);
   const status = userStatusRepository.create({
     code: `STATUS_${Date.now()}`,
@@ -1323,15 +1298,15 @@ Mock data is used to provide consistent and predictable data for tests. These mo
 
 ```typescript
 // tests/mocks/user.ts (Simplified)
-import User from "@App.API/Entities/Users/User";
-import { Company } from "@App.API/Entities/Companies/Company";
-import { Role } from "@App.API/Entities/Roles/Role";
-import { UserStatus } from "@App.API/Entities/Users/UserStatus";
+import User from '@App.API/Entities/Users/User';
+import { Company } from '@App.API/Entities/Companies/Company';
+import { Role } from '@App.API/Entities/Roles/Role';
+import { UserStatus } from '@App.API/Entities/Users/UserStatus';
 
 export const mockCompany: Company = {
-  id: "company-123",
-  name: "Mock Company",
-  timezone: "UTC",
+  id: 'company-123',
+  name: 'Mock Company',
+  timezone: 'UTC',
   createdAt: new Date(),
   updatedAt: new Date(),
   version: 1,
@@ -1345,22 +1320,22 @@ export const mockCompany: Company = {
 };
 
 export const mockRole: Role = {
-  id: "role-123",
-  name: "Employee",
+  id: 'role-123',
+  name: 'Employee',
   companyId: mockCompany.id,
   createdAt: new Date(),
   updatedAt: new Date(),
   version: 1,
   company: mockCompany,
-  description: "",
+  description: '',
   rolePermissions: [],
   users: [],
 };
 
 export const mockUserStatus: UserStatus = {
-  id: "status-123",
-  code: "ACTIVE",
-  name: "Active",
+  id: 'status-123',
+  code: 'ACTIVE',
+  name: 'Active',
   canLogin: true,
   isTerminal: false,
   createdAt: new Date(),
@@ -1370,11 +1345,11 @@ export const mockUserStatus: UserStatus = {
 };
 
 export const mockUser: User = {
-  id: "user-123",
-  email: "test@example.com",
-  firstName: "Test",
-  lastName: "User",
-  passwordHash: "hashedPassword",
+  id: 'user-123',
+  email: 'test@example.com',
+  firstName: 'Test',
+  lastName: 'User',
+  passwordHash: 'hashedPassword',
   companyId: mockCompany.id,
   company: mockCompany,
   roleId: mockRole.id,
@@ -1391,20 +1366,20 @@ export const mockUser: User = {
 
 export const mockAdminUser: User = {
   ...mockUser,
-  id: "admin-123",
-  email: "admin@example.com",
-  firstName: "Admin",
-  lastName: "User",
-  role: { ...mockRole, id: "role-admin", name: "Admin" },
+  id: 'admin-123',
+  email: 'admin@example.com',
+  firstName: 'Admin',
+  lastName: 'User',
+  role: { ...mockRole, id: 'role-admin', name: 'Admin' },
 };
 
 export const mockManagerUser: User = {
   ...mockUser,
-  id: "manager-123",
-  email: "manager@example.com",
-  firstName: "Manager",
-  lastName: "User",
-  role: { ...mockRole, id: "role-manager", name: "Manager" },
+  id: 'manager-123',
+  email: 'manager@example.com',
+  firstName: 'Manager',
+  lastName: 'User',
+  role: { ...mockRole, id: 'role-manager', name: 'Manager' },
 };
 ```
 
@@ -1421,12 +1396,7 @@ export const mockManagerUser: User = {
     "!src/**/*.test.{ts,tsx}",
     "!src/**/*.spec.{ts,tsx}"
   ],
-  "coverageReporters": [
-    "text",
-    "lcov",
-    "html",
-    "json-summary"
-  ],
+  "coverageReporters": ["text", "lcov", "html", "json-summary"],
   "coverageThreshold": {
     "global": {
       "branches": 80,
@@ -1472,4 +1442,4 @@ For frontend tests, navigate to `App.Web` and run `yarn test`.
 
 ---
 
-*This comprehensive testing strategy ensures code quality, reliability, and security across all layers of the NCY_8 platform.*
+_This comprehensive testing strategy ensures code quality, reliability, and security across all layers of the NCY_8 platform._

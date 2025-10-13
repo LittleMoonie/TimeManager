@@ -1,17 +1,14 @@
-import { Service } from "typedi";
-import { validate } from "class-validator";
+import { Service } from 'typedi';
+import { validate } from 'class-validator';
 
-import { UserStatusRepository } from "../../Repositories/Users/UserStatusRepository";
-import { UserStatus } from "../../Entities/Users/UserStatus";
-import {
-  NotFoundError,
-  UnprocessableEntityError,
-} from "../../Errors/HttpErrors";
+import { UserStatusRepository } from '../../Repositories/Users/UserStatusRepository';
+import { UserStatus } from '../../Entities/Users/UserStatus';
+import { NotFoundError, UnprocessableEntityError } from '../../Errors/HttpErrors';
 import {
   CreateUserStatusDto,
   UpdateUserStatusDto,
   UserStatusResponseDto,
-} from "../../Dtos/Users/UserStatusDto";
+} from '../../Dtos/Users/UserStatusDto';
 
 /**
  * @description Service layer for managing UserStatus entities. This service provides business logic
@@ -39,7 +36,7 @@ export class UserStatusService {
     const errors = await validate(dto as object);
     if (errors.length > 0) {
       throw new UnprocessableEntityError(
-        `Validation error: ${errors.map((e) => e.toString()).join(", ")}`,
+        `Validation error: ${errors.map((e) => e.toString()).join(', ')}`,
       );
     }
   }
@@ -69,9 +66,7 @@ export class UserStatusService {
    * @param code The unique code of the status (e.g., "ACTIVE", "SUSPENDED").
    * @returns A Promise that resolves to the UserStatusResponseDto or null if no status is found with the given code.
    */
-  public async getUserStatusByCode(
-    code: string,
-  ): Promise<UserStatusResponseDto | null> {
+  public async getUserStatusByCode(code: string): Promise<UserStatusResponseDto | null> {
     const userStatus = await this.userStatusRepository.findByCode(code);
     return userStatus ? this.toResponse(userStatus) : null;
   }
@@ -81,9 +76,7 @@ export class UserStatusService {
    * @param id The unique identifier of the user status.
    * @returns A Promise that resolves to the UserStatusResponseDto or null if no status is found with the given ID.
    */
-  public async getUserStatusById(
-    id: string,
-  ): Promise<UserStatusResponseDto | null> {
+  public async getUserStatusById(id: string): Promise<UserStatusResponseDto | null> {
     const userStatus = await this.userStatusRepository.findById(id);
     return userStatus ? this.toResponse(userStatus) : null;
   }
@@ -103,21 +96,15 @@ export class UserStatusService {
    * @returns A Promise that resolves to the newly created UserStatusResponseDto.
    * @throws {UnprocessableEntityError} If validation fails or a user status with the same code already exists.
    */
-  public async createUserStatus(
-    dto: CreateUserStatusDto,
-  ): Promise<UserStatusResponseDto> {
+  public async createUserStatus(dto: CreateUserStatusDto): Promise<UserStatusResponseDto> {
     await this.ensureValidation(dto);
 
     const existing = await this.userStatusRepository.findByCode(dto.code);
     if (existing) {
-      throw new UnprocessableEntityError(
-        "User status with this code already exists.",
-      );
+      throw new UnprocessableEntityError('User status with this code already exists.');
     }
 
-    const userStatus = await this.userStatusRepository.create(
-      dto as UserStatus,
-    );
+    const userStatus = await this.userStatusRepository.create(dto as UserStatus);
     return this.toResponse(userStatus);
   }
 
@@ -137,15 +124,13 @@ export class UserStatusService {
 
     const userStatus = await this.userStatusRepository.findById(id);
     if (!userStatus) {
-      throw new NotFoundError("User status not found.");
+      throw new NotFoundError('User status not found.');
     }
 
     if (dto.code && dto.code !== userStatus.code) {
       const existing = await this.userStatusRepository.findByCode(dto.code);
       if (existing && existing.id !== id) {
-        throw new UnprocessableEntityError(
-          "User status with this code already exists.",
-        );
+        throw new UnprocessableEntityError('User status with this code already exists.');
       }
     }
 
@@ -154,7 +139,7 @@ export class UserStatusService {
       dto as Partial<UserStatus>,
     );
     if (!updatedUserStatus) {
-      throw new NotFoundError("User status not found after update.");
+      throw new NotFoundError('User status not found after update.');
     }
     return this.toResponse(updatedUserStatus);
   }
@@ -168,7 +153,7 @@ export class UserStatusService {
   public async softDeleteUserStatus(id: string): Promise<void> {
     const userStatus = await this.userStatusRepository.findById(id);
     if (!userStatus) {
-      throw new NotFoundError("User status not found.");
+      throw new NotFoundError('User status not found.');
     }
     await this.userStatusRepository.softDelete(id);
   }
@@ -182,12 +167,12 @@ export class UserStatusService {
   public async restoreUserStatus(id: string): Promise<UserStatusResponseDto> {
     const userStatus = await this.userStatusRepository.findById(id, true);
     if (!userStatus) {
-      throw new NotFoundError("User status not found.");
+      throw new NotFoundError('User status not found.');
     }
     await this.userStatusRepository.restore(id);
     const restoredUserStatus = await this.userStatusRepository.findById(id);
     if (!restoredUserStatus) {
-      throw new NotFoundError("User status not found after restore.");
+      throw new NotFoundError('User status not found after restore.');
     }
     return this.toResponse(restoredUserStatus);
   }
@@ -201,7 +186,7 @@ export class UserStatusService {
   public async hardDeleteUserStatus(id: string): Promise<void> {
     const userStatus = await this.userStatusRepository.findById(id, true);
     if (!userStatus) {
-      throw new NotFoundError("User status not found.");
+      throw new NotFoundError('User status not found.');
     }
     await this.userStatusRepository.hardDeleteUserStatus(id);
   }

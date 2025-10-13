@@ -1,19 +1,19 @@
-import { Body, Controller, Post, Request, Route, Security, Tags } from "tsoa";
-import { Request as ExRequest } from "express";
-import { Service } from "typedi";
+import { Body, Controller, Post, Request, Route, Security, Tags } from 'tsoa';
+import { Request as ExRequest } from 'express';
+import { Service } from 'typedi';
 
-import { TimesheetHistory } from "../../Entities/Timesheets/TimesheetHistory";
-import { TimesheetHistoryRepository } from "../../Repositories/Timesheets/TimesheetHistoryRepository";
-import User from "../../Entities/Users/User";
+import { TimesheetHistory } from '../../Entities/Timesheets/TimesheetHistory';
+import { TimesheetHistoryRepository } from '../../Repositories/Timesheets/TimesheetHistoryRepository';
+import User from '../../Entities/Users/User';
 
 /**
  * @summary Controller for retrieving timesheet history events.
  * @tags Timesheet History
  * @security jwt
  */
-@Route("timesheet-history")
-@Tags("Timesheet History")
-@Security("jwt")
+@Route('timesheet-history')
+@Tags('Timesheet History')
+@Security('jwt')
 @Service()
 export class TimesheetHistoryController extends Controller {
   constructor(private readonly historyRepo: TimesheetHistoryRepository) {
@@ -28,25 +28,17 @@ export class TimesheetHistoryController extends Controller {
    * @param body.targetId The unique identifier of the target entity.
    * @returns An array of TimesheetHistory entities matching the filter criteria.
    */
-  @Post("/filter")
+  @Post('/filter')
   public async listHistory(
     @Request() request: ExRequest,
     @Body()
     body: {
-      targetType:
-        | "ActionCode"
-        | "Timesheet"
-        | "TimesheetEntry"
-        | "TimesheetApproval";
+      targetType: 'ActionCode' | 'Timesheet' | 'TimesheetEntry' | 'TimesheetApproval';
       targetId: string;
     },
   ): Promise<TimesheetHistory[]> {
     const me = request.user as User;
     // Assuming repository exposes a finder like this; if not, replace with a QueryBuilder in the repo.
-    return this.historyRepo.findAllForTarget(
-      me.companyId,
-      body.targetType,
-      body.targetId,
-    );
+    return this.historyRepo.findAllForTarget(me.companyId, body.targetType, body.targetId);
   }
 }

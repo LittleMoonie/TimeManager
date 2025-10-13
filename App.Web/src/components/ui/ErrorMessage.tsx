@@ -1,9 +1,9 @@
-import { Alert, AlertTitle, Box } from '@mui/material'
+import { Alert, AlertTitle, Box } from '@mui/material';
 
 interface ErrorMessageProps {
-  title?: string
-  message: string
-  severity?: 'error' | 'warning' | 'info' | 'success'
+  title?: string;
+  message: string;
+  severity?: 'error' | 'warning' | 'info' | 'success';
 }
 
 export const ErrorMessage = ({
@@ -18,5 +18,5 @@ export const ErrorMessage = ({
         {message}
       </Alert>
     </Box>
-  )
-}
+  );
+};

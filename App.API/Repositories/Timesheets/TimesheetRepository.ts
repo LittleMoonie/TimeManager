@@ -1,8 +1,8 @@
-import { Service } from "typedi";
-import { InjectRepository } from "typeorm-typedi-extensions";
-import { FindOneOptions, Repository } from "typeorm";
-import { Timesheet } from "../../Entities/Timesheets/Timesheet";
-import { BaseRepository } from "../BaseRepository";
+import { Service } from 'typedi';
+import { InjectRepository } from 'typeorm-typedi-extensions';
+import { FindOneOptions, Repository } from 'typeorm';
+import { Timesheet } from '../../Entities/Timesheets/Timesheet';
+import { BaseRepository } from '../BaseRepository';
 
 /**
  * @description Repository for managing Timesheet entities. Extends BaseRepository to provide standard CRUD operations
@@ -35,7 +35,7 @@ export class TimesheetRepository extends BaseRepository<Timesheet> {
   ): Promise<Timesheet | null> {
     const options: FindOneOptions<Timesheet> = {
       where: { companyId, userId, periodStart, periodEnd },
-      relations: ["entries", "entries.actionCode"],
+      relations: ['entries', 'entries.actionCode'],
     };
     return this.repository.findOne(options);
   }
@@ -47,13 +47,10 @@ export class TimesheetRepository extends BaseRepository<Timesheet> {
    * @param userId The unique identifier of the user.
    * @returns A Promise that resolves to an array of Timesheet entities.
    */
-  async findAllForUser(
-    companyId: string,
-    userId: string,
-  ): Promise<Timesheet[]> {
+  async findAllForUser(companyId: string, userId: string): Promise<Timesheet[]> {
     return this.repository.find({
       where: { companyId, userId },
-      relations: ["entries", "entries.actionCode"],
+      relations: ['entries', 'entries.actionCode'],
     });
   }
 }

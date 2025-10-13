@@ -42,26 +42,26 @@ jobs:
           noprefix: true
           timestamp: true
           title: ${{ (github.event.action == 'opened' && '✨ Pull request opened')
-                 || (github.event.action == 'reopened' && '🔄 Pull request reopened')
-                 || (github.event.action == 'synchronize' && '🔁 Pull request updated')
-                 || (github.event.action == 'ready_for_review' && '✅ Ready for review')
-                 || (github.event.action == 'converted_to_draft' && '📝 Marked as draft')
-                 || (github.event.action == 'labeled' && '🏷️ Label added')
-                 || (github.event.action == 'unlabeled' && '🏷️ Label removed')
-                 || (github.event.action == 'review_requested' && '👀 Review requested')
-                 || (github.event.action == 'review_request_removed' && '🙅 Review request removed')
-                 || '📦 Pull request updated' }}
+            || (github.event.action == 'reopened' && '🔄 Pull request reopened')
+            || (github.event.action == 'synchronize' && '🔁 Pull request updated')
+            || (github.event.action == 'ready_for_review' && '✅ Ready for review')
+            || (github.event.action == 'converted_to_draft' && '📝 Marked as draft')
+            || (github.event.action == 'labeled' && '🏷️ Label added')
+            || (github.event.action == 'unlabeled' && '🏷️ Label removed')
+            || (github.event.action == 'review_requested' && '👀 Review requested')
+            || (github.event.action == 'review_request_removed' && '🙅 Review request removed')
+            || '📦 Pull request updated' }}
           url: ${{ github.event.pull_request.html_url }}
           color: ${{ (github.event.action == 'opened' && '0x5865F2')
-                 || (github.event.action == 'reopened' && '0xFEE75C')
-                 || (github.event.action == 'synchronize' && '0xFEE75C')
-                 || (github.event.action == 'ready_for_review' && '0x57F287')
-                 || (github.event.action == 'converted_to_draft' && '0x2B2D31')
-                 || (github.event.action == 'labeled' && '0x5865F2')
-                 || (github.event.action == 'unlabeled' && '0x5865F2')
-                 || (github.event.action == 'review_requested' && '0x57F287')
-                 || (github.event.action == 'review_request_removed' && '0xED4245')
-                 || '0x2B2D31' }}
+            || (github.event.action == 'reopened' && '0xFEE75C')
+            || (github.event.action == 'synchronize' && '0xFEE75C')
+            || (github.event.action == 'ready_for_review' && '0x57F287')
+            || (github.event.action == 'converted_to_draft' && '0x2B2D31')
+            || (github.event.action == 'labeled' && '0x5865F2')
+            || (github.event.action == 'unlabeled' && '0x5865F2')
+            || (github.event.action == 'review_requested' && '0x57F287')
+            || (github.event.action == 'review_request_removed' && '0xED4245')
+            || '0x2B2D31' }}
           description: |
             **#${{ github.event.pull_request.number }} — ${{ github.event.pull_request.title }}**
 
@@ -113,14 +113,14 @@ jobs:
           noprefix: true
           timestamp: true
           title: ${{ (github.event.review.state == 'approved' && '✅ Review approved')
-                 || (github.event.review.state == 'changes_requested' && '❗ Changes requested')
-                 || (github.event.review.state == 'commented' && '💬 Review comment')
-                 || '👀 Pull request review' }}
+            || (github.event.review.state == 'changes_requested' && '❗ Changes requested')
+            || (github.event.review.state == 'commented' && '💬 Review comment')
+            || '👀 Pull request review' }}
           url: ${{ github.event.review.html_url || github.event.pull_request.html_url }}
           color: ${{ (github.event.review.state == 'approved' && '0x57F287')
-                 || (github.event.review.state == 'changes_requested' && '0xED4245')
-                 || (github.event.review.state == 'commented' && '0x5865F2')
-                 || '0x2B2D31' }}
+            || (github.event.review.state == 'changes_requested' && '0xED4245')
+            || (github.event.review.state == 'commented' && '0x5865F2')
+            || '0x2B2D31' }}
           description: |
             **#${{ github.event.pull_request.number }} — ${{ github.event.pull_request.title }}**
 
@@ -144,12 +144,12 @@ jobs:
           noprefix: true
           timestamp: true
           title: ${{ (github.event.action == 'created' && '💬 New review comment')
-                 || (github.event.action == 'edited' && '✏️ Review comment edited')
-                 || '🗑️ Review comment deleted' }}
+            || (github.event.action == 'edited' && '✏️ Review comment edited')
+            || '🗑️ Review comment deleted' }}
           url: ${{ github.event.comment.html_url }}
           color: ${{ (github.event.action == 'created' && '0x5865F2')
-                 || (github.event.action == 'edited' && '0xFEE75C')
-                 || '0xED4245' }}
+            || (github.event.action == 'edited' && '0xFEE75C')
+            || '0xED4245' }}
           description: |
             **#${{ github.event.pull_request.number }} — ${{ github.event.pull_request.title }}**
 
@@ -173,7 +173,7 @@ jobs:
           noprefix: true
           timestamp: true
           title: ${{ (github.event.action == 'resolved' && '✅ Thread resolved')
-                 || '🔄 Thread reopened' }}
+            || '🔄 Thread reopened' }}
           url: ${{ github.event.pull_request.html_url }}
           color: ${{ (github.event.action == 'resolved' && '0x57F287') || '0xED4245' }}
           description: |

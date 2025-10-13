@@ -1,0 +1,54 @@
+#!/bin/sh
+# Enforce Conventional Commit structure + What/Why/How/Impact sections
+# Called by Git with the commit message file path as $1
+
+MSGFILE="$1"
+
+# Verify commitlint is installed
+if ! command -v yarn >/dev/null 2>&1; then
+  echo "❌ Yarn not found. Please install dependencies before committing."
+  exit 1
+fi
+
+# Run commitlint validation
+echo "🔍 Validating commit message format..."
+if ! yarn dlx commitlint --edit "$MSGFILE"; then
+  echo ""
+  echo "🛑 Commit message validation failed."
+  echo "Your commit message must follow the structure:"
+  echo ""
+  echo "  <type>: short summary"
+  echo ""
+  echo "  What:"
+  echo "  - Describe what changed"
+  echo ""
+  echo "  Why:"
+  echo "  - Explain the motivation"
+  echo ""
+  echo "  How:"
+  echo "  - Summarize how it was done"
+  echo ""
+  echo "  Impact:"
+  echo "  - Mention side effects or important implications"
+  echo ""
+  echo "Example:"
+  echo ""
+  echo "  feat: add leave request approval panel"
+  echo ""
+  echo "  What:"
+  echo "  - Added approval UI and backend endpoint integration"
+  echo ""
+  echo "  Why:"
+  echo "  - Needed a way for managers to handle requests"
+  echo ""
+  echo "  How:"
+  echo "  - Created LeaveRequestPanel.tsx and linked to service"
+  echo ""
+  echo "  Impact:"
+  echo "  - Requires DB migration for new approval status"
+  echo ""
+  exit 1
+fi
+
+echo "✅ Commit message passed linting."
+exit 0

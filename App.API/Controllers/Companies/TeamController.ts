@@ -10,25 +10,25 @@ import {
   Path,
   Security,
   Request,
-} from "tsoa";
-import { Request as ExpressRequest } from "express";
-import { Service } from "typedi";
+} from 'tsoa';
+import { Request as ExpressRequest } from 'express';
+import { Service } from 'typedi';
 
-import { TeamService } from "../../Services/Companies/TeamService";
-import { CreateTeamDto, UpdateTeamDto } from "../../Dtos/Companies/CompanyDto";
-import { Team } from "../../Entities/Companies/Team";
-import { UserService } from "../../Services/Users/UserService";
-import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
-import User from "Entities/Users/User";
+import { TeamService } from '../../Services/Companies/TeamService';
+import { CreateTeamDto, UpdateTeamDto } from '../../Dtos/Companies/CompanyDto';
+import { Team } from '../../Entities/Companies/Team';
+import { UserService } from '../../Services/Users/UserService';
+import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
+import User from 'Entities/Users/User';
 
 /**
  * @summary Controller for managing teams.
  * @tags Teams
  * @security jwt
  */
-@Route("teams")
-@Tags("Teams")
-@Security("jwt")
+@Route('teams')
+@Tags('Teams')
+@Security('jwt')
 @Service()
 export class TeamController extends Controller {
   constructor(
@@ -46,23 +46,15 @@ export class TeamController extends Controller {
    * @throws {ForbiddenError} If the acting user does not have permission to create teams.
    * @throws {UnprocessableEntityError} If validation of the DTO fails.
    */
-  @Post("/")
-  @Security("jwt", ["admin", "manager"])
+  @Post('/')
+  @Security('jwt', ['admin', 'manager'])
   public async createTeam(
     @Body() createTeamDto: CreateTeamDto,
     @Request() request: ExpressRequest,
   ): Promise<Team> {
     const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(
-      userId,
-      userId,
-      request.user as User,
-    );
-    return this.teamService.createTeam(
-      actingUser.companyId,
-      actingUser as User,
-      createTeamDto,
-    );
+    const actingUser = await this.userService.getUserById(userId, userId, request.user as User);
+    return this.teamService.createTeam(actingUser.companyId, actingUser as User, createTeamDto);
   }
 
   /**
@@ -72,17 +64,10 @@ export class TeamController extends Controller {
    * @returns The team details.
    * @throws {NotFoundError} If the team is not found or does not belong to the specified company.
    */
-  @Get("/{id}")
-  public async getTeam(
-    @Path() id: string,
-    @Request() request: ExpressRequest,
-  ): Promise<Team> {
+  @Get('/{id}')
+  public async getTeam(@Path() id: string, @Request() request: ExpressRequest): Promise<Team> {
     const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(
-      userId,
-      userId,
-      request.user as User,
-    );
+    const actingUser = await this.userService.getUserById(userId, userId, request.user as User);
     return this.teamService.getTeamById(actingUser.companyId, id);
   }
 
@@ -91,16 +76,10 @@ export class TeamController extends Controller {
    * @param request The Express request object, containing user information.
    * @returns An array of teams.
    */
-  @Get("/")
-  public async getAllTeams(
-    @Request() request: ExpressRequest,
-  ): Promise<Team[]> {
+  @Get('/')
+  public async getAllTeams(@Request() request: ExpressRequest): Promise<Team[]> {
     const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(
-      userId,
-      userId,
-      request.user as User,
-    );
+    const actingUser = await this.userService.getUserById(userId, userId, request.user as User);
     return this.teamService.listTeams(actingUser.companyId);
   }
 
@@ -114,25 +93,16 @@ export class TeamController extends Controller {
    * @throws {UnprocessableEntityError} If validation of the DTO fails.
    * @throws {NotFoundError} If the team is not found or does not belong to the specified company.
    */
-  @Put("/{id}")
-  @Security("jwt", ["admin", "manager"])
+  @Put('/{id}')
+  @Security('jwt', ['admin', 'manager'])
   public async updateTeam(
     @Path() id: string,
     @Body() updateTeamDto: UpdateTeamDto,
     @Request() request: ExpressRequest,
   ): Promise<Team> {
     const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(
-      userId,
-      userId,
-      request.user as User,
-    );
-    return this.teamService.updateTeam(
-      actingUser.companyId,
-      actingUser as User,
-      id,
-      updateTeamDto,
-    );
+    const actingUser = await this.userService.getUserById(userId, userId, request.user as User);
+    return this.teamService.updateTeam(actingUser.companyId, actingUser as User, id, updateTeamDto);
   }
 
   /**
@@ -143,22 +113,11 @@ export class TeamController extends Controller {
    * @throws {ForbiddenError} If the acting user does not have permission to delete teams.
    * @throws {NotFoundError} If the team is not found or does not belong to the specified company.
    */
-  @Delete("/{id}")
-  @Security("jwt", ["admin", "manager"])
-  public async deleteTeam(
-    @Path() id: string,
-    @Request() request: ExpressRequest,
-  ): Promise<void> {
+  @Delete('/{id}')
+  @Security('jwt', ['admin', 'manager'])
+  public async deleteTeam(@Path() id: string, @Request() request: ExpressRequest): Promise<void> {
     const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(
-      userId,
-      userId,
-      request.user as User,
-    );
-    await this.teamService.deleteTeam(
-      actingUser.companyId,
-      actingUser as User,
-      id,
-    );
+    const actingUser = await this.userService.getUserById(userId, userId, request.user as User);
+    await this.teamService.deleteTeam(actingUser.companyId, actingUser as User, id);
   }
 }

@@ -16,7 +16,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   VersionColumn,
-} from "typeorm";
+} from 'typeorm';
 
 /**
  * @description Base entity providing common fields for all entities in the application.
@@ -27,7 +27,7 @@ export abstract class BaseEntity {
    * @description Unique identifier for the entity, generated as a UUID.
    * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
    */
-  @PrimaryGeneratedColumn("uuid") id!: string;
+  @PrimaryGeneratedColumn('uuid') id!: string;
 
   /**
    * @description Version number for optimistic locking.
@@ -42,8 +42,8 @@ export abstract class BaseEntity {
    * @example "2023-10-27T10:00:00Z"
    */
   @CreateDateColumn({
-    type: "timestamp with time zone",
-    default: () => "now()",
+    type: 'timestamp with time zone',
+    default: () => 'now()',
   })
   createdAt!: Date;
 
@@ -52,41 +52,41 @@ export abstract class BaseEntity {
    * Automatically updated on each save.
    * @example "2023-10-27T11:30:00Z"
    */
-  @UpdateDateColumn({ type: "timestamp with time zone" }) updatedAt!: Date;
+  @UpdateDateColumn({ type: 'timestamp with time zone' }) updatedAt!: Date;
 
   /**
    * @description Timestamp when the entity was soft-deleted.
    * Null if the entity is not deleted.
    * @example "2023-10-27T12:00:00Z"
    */
-  @DeleteDateColumn({ type: "timestamp with time zone", nullable: true })
+  @DeleteDateColumn({ type: 'timestamp with time zone', nullable: true })
   deletedAt?: Date;
 
   /**
    * @description ID of the user who created the entity.
    * @example "u1s2e3r4-i5d6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid", nullable: true }) createdByUserId?: string;
+  @Column({ type: 'uuid', nullable: true }) createdByUserId?: string;
 
   /**
    * @description ID of the user who last updated the entity.
    * @example "u1s2e3r4-i5d6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid", nullable: true }) updatedByUserId?: string;
+  @Column({ type: 'uuid', nullable: true }) updatedByUserId?: string;
 }
 ```
 
 ## Columns
 
-| Column Name      | Type                 | Description                                                               |
-| :--------------- | :------------------- | :------------------------------------------------------------------------ |
-| `id`             | `UUID`               | Primary Key, auto-generated unique identifier for the entity.             |
-| `version`        | `int`                | Used for optimistic locking, automatically incremented on updates.        |
-| `createdAt`      | `TIMESTAMPTZ`        | Timestamp when the entity record was created.                             |
-| `updatedAt`      | `TIMESTAMPTZ`        | Timestamp when the entity record was last updated.                        |
-| `deletedAt`      | `TIMESTAMPTZ` (nullable) | Timestamp when the entity was soft-deleted. `NULL` if not deleted.        |
-| `createdByUserId`| `UUID` (nullable)    | The ID of the user who created this entity.                               |
-| `updatedByUserId`| `UUID` (nullable)    | The ID of the user who last updated this entity.                          |
+| Column Name       | Type                     | Description                                                        |
+| :---------------- | :----------------------- | :----------------------------------------------------------------- |
+| `id`              | `UUID`                   | Primary Key, auto-generated unique identifier for the entity.      |
+| `version`         | `int`                    | Used for optimistic locking, automatically incremented on updates. |
+| `createdAt`       | `TIMESTAMPTZ`            | Timestamp when the entity record was created.                      |
+| `updatedAt`       | `TIMESTAMPTZ`            | Timestamp when the entity record was last updated.                 |
+| `deletedAt`       | `TIMESTAMPTZ` (nullable) | Timestamp when the entity was soft-deleted. `NULL` if not deleted. |
+| `createdByUserId` | `UUID` (nullable)        | The ID of the user who created this entity.                        |
+| `updatedByUserId` | `UUID` (nullable)        | The ID of the user who last updated this entity.                   |
 
 ## Usage
 

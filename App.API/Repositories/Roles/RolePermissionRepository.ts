@@ -1,9 +1,9 @@
-import { Service } from "typedi";
-import { InjectRepository } from "typeorm-typedi-extensions";
-import { Repository } from "typeorm";
+import { Service } from 'typedi';
+import { InjectRepository } from 'typeorm-typedi-extensions';
+import { Repository } from 'typeorm';
 
-import { BaseRepository } from "../../Repositories/BaseRepository";
-import { RolePermission } from "../../Entities/Roles/RolePermission";
+import { BaseRepository } from '../../Repositories/BaseRepository';
+import { RolePermission } from '../../Entities/Roles/RolePermission';
 
 /**
  * @description Repository for managing RolePermission entities. Extends BaseRepository to provide standard CRUD operations
@@ -29,13 +29,10 @@ export class RolePermissionRepository extends BaseRepository<RolePermission> {
    * @param roleId The unique identifier of the role.
    * @returns A Promise that resolves to an array of RolePermission entities.
    */
-  async findAllByRole(
-    companyId: string,
-    roleId: string,
-  ): Promise<RolePermission[]> {
+  async findAllByRole(companyId: string, roleId: string): Promise<RolePermission[]> {
     return this.repository.find({
       where: { companyId, roleId },
-      relations: ["permission", "role"],
+      relations: ['permission', 'role'],
     });
   }
 
@@ -54,7 +51,7 @@ export class RolePermissionRepository extends BaseRepository<RolePermission> {
   ): Promise<RolePermission | null> {
     return this.repository.findOne({
       where: { companyId, roleId, permissionId },
-      relations: ["permission", "role"],
+      relations: ['permission', 'role'],
     });
   }
 
