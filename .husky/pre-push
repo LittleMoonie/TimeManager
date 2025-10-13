@@ -43,6 +43,20 @@ is_protected() {
 
 BLOCK=0
 
+# 🔒 Paranoid mode — block any push mentioning protected branches, even if no updates
+for arg in "$@"; do
+  for p in "${PROTECTED[@]}"; do
+    if [[ "$arg" =~ (^|[:/])$p($|[[:space:]]) ]]; then
+      red "❌ Push blocked: command references protected branch '$p' (even no-op)."
+      blu "   Use a Pull Request instead."
+      echo ""
+      exit 1
+    fi
+  done
+done
+
+
+
 # 1️⃣  Block pushes *from* protected local branches
 if is_protected "$CURRENT_BRANCH"; then
   red "❌ Push blocked: you are on protected branch '$CURRENT_BRANCH'"
@@ -55,15 +69,26 @@ fi
 stdin_seen=0
 while read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
   stdin_seen=1
-  # Match refs/heads/<branch>
+
+  # Only continue if the remote ref looks like a branch
   if [[ "$REMOTE_REF" =~ ^refs/heads/([^[:space:]]+)$ ]]; then
     target="${BASH_REMATCH[1]}"
+
     if is_protected "$target"; then
-      red "❌ Push blocked: remote target '$target' is protected"
+      # Also block deletes (REMOTE_SHA = all zeros)
+      if [[ "$REMOTE_SHA" =~ ^0+$ ]]; then
+        red "❌ Push blocked: deletion of protected branch '$target' is forbidden"
+      else
+        red "❌ Push blocked: remote target '$target' is protected"
+      fi
       BLOCK=1
     fi
   fi
-done
+done < <(cat)  # ensures no "unbound variable" when no match
+
+b="$(git rev-parse --abbrev-ref HEAD)"; case "$b" in
+  main|develop) echo "❌ No commits on $b. Use a feature branch."; exit 1;;
+esac
 
 # 3️⃣  If there were NO ref lines on STDIN (e.g., nothing to push),
 #     fall back to upstream inference: block if upstream is protected.
