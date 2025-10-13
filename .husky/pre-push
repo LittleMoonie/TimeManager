@@ -5,7 +5,7 @@
 [ -z "${BASH_VERSION:-}" ] && exec /usr/bin/env bash "$0" "$@"
 set -Eeuo pipefail
 
-# ──────────  helpers  ──────────
+# ────────── helpers ──────────
 red()  { printf "\033[31m%s\033[0m\n" "$*"; }
 grn()  { printf "\033[32m%s\033[0m\n" "$*"; }
 ylw()  { printf "\033[33m%s\033[0m\n" "$*"; }
@@ -14,8 +14,9 @@ abort(){ red "❌ $*"; exit 1; }
 note() { blu "ℹ️  $*"; }
 ok()   { grn "✅ $*"; }
 
-# ──────────  config  ──────────
-PROTECTED=("origin/main" "origin/develop" "main" "develop")
+# ────────── config ──────────
+# Keep only branch names here (not origin/*)
+PROTECTED=("main" "develop")
 BYPASS="${ALLOW_PROTECTED_PUSH:-0}"
 
 echo ""
@@ -25,52 +26,54 @@ blu "─────────────────────────
 echo ""
 note "Checking push target for protected branches..."
 
-CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo HEAD)"
-REMOTE="${1:-origin}"
-# determine destination branch robustly
-if [ -n "${2:-}" ]; then
-  DEST="$2"
-else
-  # try to detect upstream branch (for plain `git push`)
-  DEST="$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || true)"
-  # if that failed, read the remote’s HEAD ref as a last resort
-  [ -z "$DEST" ] && DEST="$(git remote show "$REMOTE" 2>/dev/null | awk '/HEAD branch/ {print $NF}')"
-fi
+REMOTE_NAME="${1:-origin}"   # arg1 = remote name
+# arg2 is the remote URL; DO NOT assume it’s a branch!
 
+CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo HEAD)"
+UPSTREAM_FULL="$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || true)"
+UPSTREAM_BRANCH="${UPSTREAM_FULL#*/}" # strips 'origin/' if present
+
+is_protected() {
+  local name="$1"
+  for p in "${PROTECTED[@]}"; do
+    [[ "$name" == "$p" ]] && return 0
+  done
+  return 1
+}
 
 BLOCK=0
 
-# 1️⃣  always block pushes *from* protected branches
-      for BR in "${PROTECTED[@]}"; do
-  if [[ "$CURRENT_BRANCH" == "$BR" ]]; then
-    red "❌ Push blocked: you are on protected branch '$BR'"
-    echo "   Please create a feature branch and open a PR."
-    BLOCK=1
-  fi
-done
-
-# 2️⃣  block pushes *to* protected branches (explicit arg or detected ref)
-# Detect destination name whether it's "origin develop" or "origin/develop"
-if [[ "$DEST" =~ ^(refs/heads/)?(main|develop)$ ]]; then
-  red "❌ Push blocked: destination branch '${BASH_REMATCH[2]}' is protected"
-  BLOCK=1
-elif [[ "$DEST" =~ ^origin/(main|develop)$ ]]; then
-  red "❌ Push blocked: destination branch '${BASH_REMATCH[1]}' is protected"
+# 1️⃣  Block pushes *from* protected local branches
+if is_protected "$CURRENT_BRANCH"; then
+  red "❌ Push blocked: you are on protected branch '$CURRENT_BRANCH'"
+  echo "   Please create a feature branch and open a PR."
   BLOCK=1
 fi
 
-# 3️⃣  check stdin refs if Git sends them
+# 2️⃣  Read STDIN for refspecs the push intends to update
+#     Lines: <local ref> <local sha> <remote ref> <remote sha>
+stdin_seen=0
 while read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
-  [ -z "${REMOTE_REF:-}" ] && continue
-  for BR in "${PROTECTED[@]}"; do
-    if [[ "$REMOTE_REF" == "refs/heads/$BR" ]]; then
-      red "❌ Push blocked: remote target '$BR' is protected"
+  stdin_seen=1
+  # Match refs/heads/<branch>
+  if [[ "$REMOTE_REF" =~ ^refs/heads/([^[:space:]]+)$ ]]; then
+    target="${BASH_REMATCH[1]}"
+    if is_protected "$target"; then
+      red "❌ Push blocked: remote target '$target' is protected"
       BLOCK=1
     fi
-  done
+  fi
 done
 
-# 4️⃣  final decision
+# 3️⃣  If there were NO ref lines on STDIN (e.g., nothing to push),
+#     fall back to upstream inference: block if upstream is protected.
+if [[ "$stdin_seen" -eq 0 && -n "$UPSTREAM_BRANCH" ]] && is_protected "$UPSTREAM_BRANCH"; then
+  red "❌ Push blocked: upstream '$UPSTREAM_BRANCH' is protected"
+  echo "   This includes 'git push' with default upstream set to a protected branch."
+  BLOCK=1
+fi
+
+# 4️⃣  Final decision
 if [[ "$BLOCK" -eq 1 ]]; then
   if [[ "$BYPASS" == "1" ]]; then
     ylw "⚠️  Bypass enabled (ALLOW_PROTECTED_PUSH=1). Proceeding anyway."
