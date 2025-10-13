@@ -11,9 +11,9 @@ import {
   IsEnum,
   IsISO8601,
   IsObject,
-} from "class-validator";
-import { ApprovalStatus } from "../../Entities/Timesheets/TimesheetApproval";
-import { WorkMode } from "../../Entities/Timesheets/TimesheetEntry";
+} from 'class-validator';
+import { ApprovalStatus } from '../../Entities/Timesheets/TimesheetApproval';
+import { WorkMode } from '../../Entities/Timesheets/TimesheetEntry';
 
 /* --------------------------------- ActionCode --------------------------------- */
 
@@ -134,7 +134,7 @@ export class CreateTimesheetEntryDto {
    * @example "office"
    */
   @IsOptional()
-  @IsIn(["office", "remote", "hybrid"])
+  @IsIn(['office', 'remote', 'hybrid'])
   workMode?: WorkMode;
 
   /**
@@ -189,7 +189,7 @@ export class UpdateTimesheetEntryDto {
    * @example "remote"
    */
   @IsOptional()
-  @IsIn(["office", "remote", "hybrid"])
+  @IsIn(['office', 'remote', 'hybrid'])
   workMode?: WorkMode;
 
   /**
@@ -324,22 +324,10 @@ export class TimesheetApprovalResponseDto {
 
 /* ------------------------------- Record History ------------------------------- */
 
-const TARGET_TYPES = [
-  "Timesheet",
-  "TimesheetEntry",
-  "TimesheetApproval",
-  "ActionCode",
-] as const;
+const TARGET_TYPES = ['Timesheet', 'TimesheetEntry', 'TimesheetApproval', 'ActionCode'] as const;
 type TargetType = (typeof TARGET_TYPES)[number];
 
-const ACTIONS = [
-  "created",
-  "updated",
-  "submitted",
-  "approved",
-  "rejected",
-  "deleted",
-] as const;
+const ACTIONS = ['created', 'updated', 'submitted', 'approved', 'rejected', 'deleted'] as const;
 type ActionType = (typeof ACTIONS)[number];
 
 /**

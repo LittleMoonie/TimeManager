@@ -1,10 +1,6 @@
-import { Request } from "express";
-import jwt from "jsonwebtoken";
-import {
-  AuthenticationError,
-  ForbiddenError,
-  InternalServerError,
-} from "../Errors/HttpErrors";
+import { Request } from 'express';
+import jwt from 'jsonwebtoken';
+import { AuthenticationError, ForbiddenError, InternalServerError } from '../Errors/HttpErrors';
 
 // Define the shape of the JWT payload
 type JwtPayload = {
@@ -35,26 +31,23 @@ export async function expressAuthentication(
   name: string,
   scopes?: string[],
 ): Promise<AuthenticatedUser> {
-  if (name !== "jwt") {
-    throw new InternalServerError("Unsupported security scheme");
+  if (name !== 'jwt') {
+    throw new InternalServerError('Unsupported security scheme');
   }
 
-  const token = request.headers.authorization?.startsWith("Bearer ")
+  const token = request.headers.authorization?.startsWith('Bearer ')
     ? request.headers.authorization.slice(7)
     : request.cookies?.jwt;
 
   if (!token) {
-    throw new AuthenticationError("No token provided");
+    throw new AuthenticationError('No token provided');
   }
 
   try {
-    const payload = jwt.verify(
-      token,
-      process.env.JWT_SECRET as string,
-    ) as JwtPayload;
+    const payload = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
 
     if (scopes?.length && !scopes.includes(payload.role)) {
-      throw new ForbiddenError("Forbidden: Insufficient scope");
+      throw new ForbiddenError('Forbidden: Insufficient scope');
     }
 
     const user: AuthenticatedUser = {
@@ -66,8 +59,6 @@ export async function expressAuthentication(
     request.user = user;
     return user;
   } catch (_error: unknown) {
-    throw new AuthenticationError(
-      "Invalid or expired token " + (_error as Error).message,
-    );
+    throw new AuthenticationError('Invalid or expired token ' + (_error as Error).message);
   }
 }

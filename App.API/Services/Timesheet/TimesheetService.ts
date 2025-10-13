@@ -1,20 +1,11 @@
-import { Service } from "typedi";
-import { TimesheetRepository } from "../../Repositories/Timesheets/TimesheetRepository";
-import { TimesheetEntryRepository } from "../../Repositories/Timesheets/TimesheetEntryRepository";
-import { TimesheetHistoryRepository } from "../../Repositories/Timesheets/TimesheetHistoryRepository";
-import {
-  Timesheet,
-  TimesheetStatus,
-} from "../../Entities/Timesheets/Timesheet";
-import {
-  NotFoundError,
-  UnprocessableEntityError,
-} from "../../Errors/HttpErrors";
-import {
-  CreateTimesheetDto,
-  CreateTimesheetEntryDto,
-} from "../../Dtos/Timesheet/TimesheetDto";
-import { validate } from "class-validator";
+import { Service } from 'typedi';
+import { TimesheetRepository } from '../../Repositories/Timesheets/TimesheetRepository';
+import { TimesheetEntryRepository } from '../../Repositories/Timesheets/TimesheetEntryRepository';
+import { TimesheetHistoryRepository } from '../../Repositories/Timesheets/TimesheetHistoryRepository';
+import { Timesheet, TimesheetStatus } from '../../Entities/Timesheets/Timesheet';
+import { NotFoundError, UnprocessableEntityError } from '../../Errors/HttpErrors';
+import { CreateTimesheetDto, CreateTimesheetEntryDto } from '../../Dtos/Timesheet/TimesheetDto';
+import { validate } from 'class-validator';
 
 /**
  * @description Service layer for managing Timesheet entities. This service provides business logic
@@ -53,9 +44,9 @@ export class TimesheetService {
     companyId: string,
     payload: {
       userId: string;
-      targetType: "Timesheet" | "TimesheetEntry";
+      targetType: 'Timesheet' | 'TimesheetEntry';
       targetId: string;
-      action: "created" | "submitted" | "approved" | "rejected";
+      action: 'created' | 'submitted' | 'approved' | 'rejected';
       actorUserId?: string;
       reason?: string;
       diff?: Record<string, string>;
@@ -82,7 +73,7 @@ export class TimesheetService {
     const errors = await validate(dto as object);
     if (errors.length > 0) {
       throw new UnprocessableEntityError(
-        `Validation error: ${errors.map((e) => e.toString()).join(", ")}`,
+        `Validation error: ${errors.map((e) => e.toString()).join(', ')}`,
       );
     }
 
@@ -94,9 +85,9 @@ export class TimesheetService {
 
     await this.recordEvent(companyId, {
       userId,
-      targetType: "Timesheet",
+      targetType: 'Timesheet',
       targetId: created.id,
-      action: "created",
+      action: 'created',
     });
 
     return created;
@@ -111,7 +102,7 @@ export class TimesheetService {
   public async getTimesheet(timesheetId: string): Promise<Timesheet> {
     const timesheet = await this.timesheetRepository.findById(timesheetId);
     if (!timesheet) {
-      throw new NotFoundError("Timesheet not found");
+      throw new NotFoundError('Timesheet not found');
     }
     return timesheet;
   }
@@ -122,10 +113,7 @@ export class TimesheetService {
    * @param userId The unique identifier of the user.
    * @returns A Promise that resolves to an array of Timesheet entities.
    */
-  public async getAllTimesheetsForUser(
-    companyId: string,
-    userId: string,
-  ): Promise<Timesheet[]> {
+  public async getAllTimesheetsForUser(companyId: string, userId: string): Promise<Timesheet[]> {
     return this.timesheetRepository.findAllForUser(companyId, userId);
   }
 
@@ -160,9 +148,9 @@ export class TimesheetService {
 
     await this.recordEvent(companyId, {
       userId,
-      targetType: "TimesheetEntry",
+      targetType: 'TimesheetEntry',
       targetId: newEntry.id,
-      action: "created",
+      action: 'created',
       metadata: { timesheetId },
     });
 
@@ -186,7 +174,7 @@ export class TimesheetService {
     const timesheet = await this.getTimesheet(timesheetId);
 
     if (timesheet.status !== TimesheetStatus.DRAFT) {
-      throw new UnprocessableEntityError("Timesheet is not in draft status");
+      throw new UnprocessableEntityError('Timesheet is not in draft status');
     }
 
     const updated = await this.timesheetRepository.update(timesheetId, {
@@ -197,9 +185,9 @@ export class TimesheetService {
 
     await this.recordEvent(companyId, {
       userId,
-      targetType: "Timesheet",
+      targetType: 'Timesheet',
       targetId: timesheetId,
-      action: "submitted",
+      action: 'submitted',
     });
 
     return updated!;
@@ -222,9 +210,7 @@ export class TimesheetService {
     const timesheet = await this.getTimesheet(timesheetId);
 
     if (timesheet.status !== TimesheetStatus.SUBMITTED) {
-      throw new UnprocessableEntityError(
-        "Timesheet is not in submitted status",
-      );
+      throw new UnprocessableEntityError('Timesheet is not in submitted status');
     }
 
     const updated = await this.timesheetRepository.update(timesheetId, {
@@ -235,9 +221,9 @@ export class TimesheetService {
 
     await this.recordEvent(companyId, {
       userId: timesheet.userId,
-      targetType: "Timesheet",
+      targetType: 'Timesheet',
       targetId: timesheetId,
-      action: "approved",
+      action: 'approved',
       actorUserId: approverId,
     });
 
@@ -263,9 +249,7 @@ export class TimesheetService {
     const timesheet = await this.getTimesheet(timesheetId);
 
     if (timesheet.status !== TimesheetStatus.SUBMITTED) {
-      throw new UnprocessableEntityError(
-        "Timesheet is not in submitted status",
-      );
+      throw new UnprocessableEntityError('Timesheet is not in submitted status');
     }
 
     const updated = await this.timesheetRepository.update(timesheetId, {
@@ -274,9 +258,9 @@ export class TimesheetService {
 
     await this.recordEvent(companyId, {
       userId: timesheet.userId,
-      targetType: "Timesheet",
+      targetType: 'Timesheet',
       targetId: timesheetId,
-      action: "rejected",
+      action: 'rejected',
       actorUserId: approverId,
       reason,
     });
@@ -302,12 +286,9 @@ export class TimesheetService {
    * @throws {NotFoundError} If the timesheet is not found.
    */
   public async hardDeleteTimesheet(timesheetId: string): Promise<void> {
-    const timesheet = await this.timesheetRepository.findById(
-      timesheetId,
-      true,
-    );
+    const timesheet = await this.timesheetRepository.findById(timesheetId, true);
     if (!timesheet) {
-      throw new NotFoundError("Timesheet not found.");
+      throw new NotFoundError('Timesheet not found.');
     }
     await this.timesheetRepository.delete(timesheet.id);
   }

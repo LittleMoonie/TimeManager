@@ -1,13 +1,13 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { CssBaseline } from '@mui/material'
-import { AppThemeProvider } from '@/theme/ThemeProvider'
-import { AppLayout } from '@/components/layout/AppLayout'
-import HomePage from '@/pages/index'
-import Login from '@/pages/login'
-import { useAuth } from '@/hooks/useAuth'
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { CssBaseline } from '@mui/material';
+import { AppThemeProvider } from '@/theme/ThemeProvider';
+import { AppLayout } from '@/components/layout/AppLayout';
+import HomePage from '@/pages/index';
+import Login from '@/pages/login';
+import { useAuth } from '@/hooks/useAuth';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,27 +16,27 @@ const queryClient = new QueryClient({
       staleTime: 5 * 60 * 1000, // 5 minutes
     },
   },
-})
+});
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return <LoadingSpinner message="Checking authentication..." />
+    return <LoadingSpinner message="Checking authentication..." />;
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/login" replace />;
   }
 
-  return <>{children}</>
-}
+  return <>{children}</>;
+};
 
 const AppRoutes = () => {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return <LoadingSpinner message="Loading application..." />
+    return <LoadingSpinner message="Loading application..." />;
   }
 
   return (
@@ -60,8 +60,8 @@ const AppRoutes = () => {
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-  )
-}
+  );
+};
 
 const App = () => {
   return (
@@ -74,7 +74,7 @@ const App = () => {
         <ReactQueryDevtools initialIsOpen={false} />
       </AppThemeProvider>
     </QueryClientProvider>
-  )
-}
+  );
+};
 
-export default App
+export default App;

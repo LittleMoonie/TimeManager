@@ -35,6 +35,7 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
 **Technology**: React 19 + Vite, TypeScript
 
 **Responsibilities**:
+
 - User interface and user experience
 - Client-side routing and navigation
 - State management and data fetching
@@ -42,6 +43,7 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
 - Real-time updates via WebSocket
 
 **Key Components**:
+
 - **Pages**: App Router-based page components
 - **Components**: Reusable UI components with MUI
 - **Hooks**: Custom React hooks for business logic
@@ -49,6 +51,7 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
 - **Store**: Zustand for global state management
 
 **Design Patterns**:
+
 - Server-Side Rendering (SSR) for SEO and performance
 - Static Site Generation (SSG) for static content
 - Incremental Static Regeneration (ISR) for dynamic content
@@ -59,6 +62,7 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
 **Technology**: Node.js, Express.js, TypeScript
 
 **Responsibilities**:
+
 - RESTful API endpoints
 - Authentication and authorization
 - Business logic orchestration
@@ -66,6 +70,7 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
 - Error handling and logging
 
 **Key Components**:
+
 - **Routes**: API endpoint definitions
 - **Controllers**: Request/response handling
 - **Services**: Business logic implementation
@@ -73,6 +78,7 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
 - **Models**: Data access layer with TypeORM
 
 **Design Patterns**:
+
 - Layered architecture (Controller → Service → Repository)
 - Dependency injection for testability
 - Middleware pipeline for cross-cutting concerns
@@ -83,6 +89,7 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
 **Technology**: PostgreSQL 15+, TypeORM
 
 **Responsibilities**:
+
 - Data persistence and retrieval
 - Data integrity and constraints
 - Query optimization and indexing
@@ -90,6 +97,7 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
 - Audit trails and compliance
 
 **Key Components**:
+
 - **Schema**: Database schema definition with TypeORM
 - **Migrations**: Version-controlled schema changes
 - **Seeds**: Development and test data
@@ -101,6 +109,7 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
 **Technology**: Redis 7+
 
 **Responsibilities**:
+
 - Session storage and management
 - API response caching
 - Rate limiting and throttling
@@ -108,6 +117,7 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
 - Real-time data caching
 
 **Key Components**:
+
 - **Session Store**: JWT refresh token storage
 - **API Cache**: Response caching with TTL
 - **Rate Limiter**: Request throttling per user/IP
@@ -119,6 +129,7 @@ NCY_8 follows a modern, scalable architecture pattern with clear separation of c
 **Technology**: Docker, Nginx, Prometheus, Grafana
 
 **Responsibilities**:
+
 - Container orchestration
 - Load balancing and reverse proxy
 - SSL/TLS termination
@@ -133,11 +144,11 @@ The database schema is defined using **TypeORM Entities**, which provide an obje
 
 Key principles guiding our schema design include:
 
-*   **Normalized Design**: Primarily follows third normal form with strategic denormalization for performance.
-*   **UUID Primary Keys**: All entities use UUIDs for better distribution and security.
-*   **Soft Deletes**: Critical entities support soft deletion for audit trails and data recovery.
-*   **Multi-tenancy**: Data is isolated per company, ensuring tenant data separation.
-*   **Audit Logging**: Comprehensive audit trails are implemented for compliance requirements.
+- **Normalized Design**: Primarily follows third normal form with strategic denormalization for performance.
+- **UUID Primary Keys**: All entities use UUIDs for better distribution and security.
+- **Soft Deletes**: Critical entities support soft deletion for audit trails and data recovery.
+- **Multi-tenancy**: Data is isolated per company, ensuring tenant data separation.
+- **Audit Logging**: Comprehensive audit trails are implemented for compliance requirements.
 
 For detailed entity definitions and their relationships, refer to the [[DATABASE.md#Schema Design]] document.
 
@@ -188,7 +199,7 @@ sequenceDiagram
     A->>R: Store Refresh Token
     A-->>F: Access + Refresh Tokens
     F-->>C: Set Tokens in Storage
-    
+
     Note over C,R: Subsequent Requests
     C->>F: API Request
     F->>A: Request with Bearer Token
@@ -333,4 +344,4 @@ CMD ["npm", "start"]
 
 ---
 
-*This architecture document is maintained by the engineering team and updated with each major system change. For questions or contributions, please refer to the contributing guidelines.*
+_This architecture document is maintained by the engineering team and updated with each major system change. For questions or contributions, please refer to the contributing guidelines._

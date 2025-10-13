@@ -7,12 +7,13 @@ GoGoTime's component library is built on Material-UI (MUI) v7 with custom extens
 ## Component Architecture
 
 ### Component Hierarchy
+
 ```
 Components/
 ├── 🎯 Common/              # Base reusable components
 ├── 🎨 Extended/           # Enhanced MUI components
 ├── 🃏 Cards/              # Card-based components
-├── 🛡️ Guards/             # Route protection components  
+├── 🛡️ Guards/             # Route protection components
 ├── 🏗️ Layout/             # Layout and navigation
 └── 📊 Feature-specific/   # Domain-specific components
 ```
@@ -20,9 +21,11 @@ Components/
 ## Common Components
 
 ### Base Components
+
 Located in `src/components/common/`
 
 #### Loadable Component
+
 ```typescript
 // components/common/Loadable.tsx
 import { Suspense, ComponentType, ReactElement } from 'react';
@@ -39,7 +42,8 @@ const Loadable = <P extends object>(Component: ComponentType<P>) => {
 export default Loadable;
 ```
 
-#### Breadcrumbs Navigation  
+#### Breadcrumbs Navigation
+
 ```typescript
 // components/common/Breadcrumbs.tsx
 import { useTheme } from '@mui/material/styles';
@@ -112,8 +116,9 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
 ```
 
 ### Logo Component
+
 ```typescript
-// components/common/Logo.tsx  
+// components/common/Logo.tsx
 import { ButtonBase } from '@mui/material';
 import { Link } from 'react-router-dom'; // Using react-router-dom Link
 
@@ -124,7 +129,7 @@ interface LogoProps {
 
 export const Logo: React.FC<LogoProps> = ({ sx, to }) => {
   return (
-    <ButtonBase 
+    <ButtonBase
       disableRipple
       component={Link} // Use Link from react-router-dom
       to={to || '/'}
@@ -140,6 +145,7 @@ export const Logo: React.FC<LogoProps> = ({ sx, to }) => {
 ## Extended Components
 
 ### Enhanced Avatar Component
+
 Located in `src/components/extended/`
 
 ```typescript
@@ -163,9 +169,10 @@ export const Avatar: React.FC<AvatarProps> = ({
 ```
 
 ### Usage Example
+
 ```typescript
-<Avatar 
-  color="primary" 
+<Avatar
+  color="primary"
   size="lg"
   outline
 >
@@ -176,6 +183,7 @@ export const Avatar: React.FC<AvatarProps> = ({
 ## Card Components
 
 ### Main Card Component
+
 ```typescript
 // components/cards/MainCard.tsx
 interface MainCardProps {
@@ -224,7 +232,7 @@ export const MainCard: React.FC<MainCardProps> = ({
           action={secondary}
         />
       )}
-      
+
       {/* Card content */}
       {content && (
         <CardContent sx={contentSX} className={contentClass}>
@@ -238,6 +246,7 @@ export const MainCard: React.FC<MainCardProps> = ({
 ```
 
 ### Secondary Action Component
+
 ```typescript
 // components/cards/CardSecondaryAction.tsx
 interface CardSecondaryActionProps {
@@ -272,6 +281,7 @@ export const CardSecondaryAction: React.FC<CardSecondaryActionProps> = ({
 ## Layout Components
 
 ### Main Layout Structure
+
 ```typescript
 // components/layout/AppLayout.tsx
 import { useAppStore } from '@/lib/store';
@@ -279,13 +289,13 @@ import { useAppStore } from '@/lib/store';
 export const AppLayout = () => {
   const theme = useTheme();
   const matchDown = useMediaQuery(theme.breakpoints.down('lg'));
-  
+
   const { opened } = useAppStore(); // Using Zustand store
-  
+
   return (
     <Box sx={{ display: 'flex', width: '100%' }}>
       <CssBaseline />
-      
+
       {/* Header */}
       <AppBar
         enableColorOnDark
@@ -296,10 +306,10 @@ export const AppLayout = () => {
       >
         <Header />
       </AppBar>
-      
+
       {/* Sidebar */}
       <Sidebar />
-      
+
       {/* Main content */}
       <Main theme={theme} open={opened}>
         <Breadcrumbs />
@@ -311,11 +321,12 @@ export const AppLayout = () => {
 ```
 
 ### Header Component
+
 ```typescript
-// components/layout/Header.tsx  
+// components/layout/Header.tsx
 export const Header = () => {
   const theme = useTheme();
-  
+
   return (
     <Toolbar>
       <Box sx={{ width: 228, display: 'flex', alignItems: 'center' }}>
@@ -323,11 +334,11 @@ export const Header = () => {
           <LogoSection />
         </Box>
       </Box>
-      
+
       {/* Header content */}
       <Box sx={{ flexGrow: 1 }} />
       <Box sx={{ flexGrow: 1 }} />
-      
+
       {/* Profile section */}
       <ProfileSection />
     </Toolbar>
@@ -336,6 +347,7 @@ export const Header = () => {
 ```
 
 ### Sidebar Navigation
+
 ```typescript
 // components/layout/Sidebar.tsx
 import { useTheme } from '@mui/material/styles';
@@ -354,7 +366,7 @@ export const Sidebar = () => {
     opened: state.opened,
     toggleDrawer: state.toggleDrawer, // Assuming a toggleDrawer action exists in your store
   }));
-  
+
   const drawer = (
     <>
       <Box sx={{ display: { xs: 'block', md: 'none' } }}>
@@ -372,7 +384,7 @@ export const Sidebar = () => {
       </MobileView>
     </>
   );
-  
+
   return (
     <Box component="nav" sx={{ flexShrink: { md: 0 }, width: matchUpMd ? 260 : 'auto' }}>
       <Drawer
@@ -391,6 +403,7 @@ export const Sidebar = () => {
 ## Navigation Components
 
 ### Menu List Component
+
 ```typescript
 // components/layout/MenuList.tsx
 import { useAppStore } from '@/lib/store';
@@ -400,7 +413,7 @@ import { NavItem } from './NavItem';
 
 export const MenuList = () => {
   const menuItems = useAppStore((state) => state.menuItems); // Assuming menuItems is part of the store state
-  
+
   const renderNavItems = (items: any[]) => {
     return items.map((item) => {
       switch (item.type) {
@@ -413,13 +426,14 @@ export const MenuList = () => {
       }
     });
   };
-  
+
   return <>{renderNavItems(menuItems)}</>;
 };
 ```
 
 ### Navigation Item Types
-```typescript
+
+````typescript
 // Navigation Item
 export const NavItem = ({ item, level = 0 }) => {
   const theme = useTheme();
@@ -447,7 +461,7 @@ export const NavItem = ({ item, level = 0 }) => {
 // Collapsible Navigation Group
 export const NavCollapse = ({ item }) => {
   const [open, setOpen] = useState(false);
-  
+
   return (
     <>
       <ListItemButton onClick={() => setOpen(!open)}>
@@ -482,22 +496,23 @@ interface AuthGuardProps {
 export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login', { replace: true });
     }
   }, [isAuthenticated, navigate]);
-  
+
   if (!isAuthenticated) {
     return null; // or loading spinner
   }
-  
+
   return <>{children}</>;
 };
-```
+````
 
 ### Guest Guard (Prevent logged-in users from accessing auth pages)
+
 ```typescript
 // components/guards/GuestGuard.tsx
 import { ReactNode, useEffect } from 'react';
@@ -507,17 +522,17 @@ import { useAuth } from '@/hooks/useAuth'; // Assuming a custom auth hook
 export const GuestGuard: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/dashboard', { replace: true });
     }
   }, [isAuthenticated, navigate]);
-  
+
   if (isAuthenticated) {
     return null;
   }
-  
+
   return <>{children}</>;
 };
 ```
@@ -525,6 +540,7 @@ export const GuestGuard: React.FC<{ children: ReactNode }> = ({ children }) => {
 ## Dashboard Components
 
 ### Earning Card Component
+
 ```typescript
 // features/dashboard/components/EarningCard.tsx
 interface EarningCardProps {
@@ -609,56 +625,59 @@ export const EarningCard: React.FC<EarningCardProps> = ({
 ## Component Development Guidelines
 
 ### Props Interface Pattern
+
 ```typescript
 // Always define prop interfaces
 interface ComponentProps {
   // Required props without defaults
   title: string;
   data: any[];
-  
+
   // Optional props with types
   variant?: 'primary' | 'secondary';
   size?: 'small' | 'medium' | 'large';
   disabled?: boolean;
-  
+
   // Callback functions
   onClick?: (event: MouseEvent) => void;
   onDataChange?: (data: any[]) => void;
-  
+
   // Style props
   sx?: SxProps;
   className?: string;
-  
+
   // Children
   children?: ReactNode;
 }
 ```
 
 ### Default Props Pattern
+
 ```typescript
 // Use default parameters for optional props
 export const MyComponent: React.FC<ComponentProps> = ({
   title,
   data,
   variant = 'primary',
-  size = 'medium', 
+  size = 'medium',
   disabled = false,
   onClick,
   onDataChange,
   sx = {},
   className = '',
-  children
+  children,
 }) => {
   // Component implementation
 };
 ```
 
 ### Theming Integration
+
 ```typescript
 // Always use theme for consistent styling
 const MyComponent = () => {
   const theme = useTheme();
-  
+
   return (
     <Box
       sx={{
@@ -678,6 +697,7 @@ const MyComponent = () => {
 ## Testing Components
 
 ### Component Testing Pattern
+
 ```typescript
 // MyComponent.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -698,13 +718,13 @@ describe('MyComponent', () => {
     renderWithTheme(<MyComponent title="Test" data={[]} />);
     expect(screen.getByText('Test')).toBeInTheDocument();
   });
-  
+
   it('handles click events', () => {
     const handleClick = jest.fn();
     renderWithTheme(
       <MyComponent title="Test" data={[]} onClick={handleClick} />
     );
-    
+
     fireEvent.click(screen.getByRole('button'));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
@@ -714,6 +734,7 @@ describe('MyComponent', () => {
 ## Performance Best Practices
 
 ### Memo Usage
+
 ```typescript
 // Use React.memo for expensive components
 export const ExpensiveComponent = React.memo<Props>(({ data, onUpdate }) => {
@@ -731,18 +752,23 @@ const processedData = useMemo(() => {
 ```
 
 ### Callback Optimization
+
 ```typescript
 // Use useCallback for stable references
-const handleClick = useCallback((id: string) => {
-  onItemClick(id);
-}, [onItemClick]);
+const handleClick = useCallback(
+  (id: string) => {
+    onItemClick(id);
+  },
+  [onItemClick],
+);
 ```
 
 ---
 
 **🎯 Key Benefits:**
+
 - **Consistency**: All components follow the same patterns and conventions
-- **Reusability**: Atomic design principles enable maximum component reuse  
+- **Reusability**: Atomic design principles enable maximum component reuse
 - **Type Safety**: Full TypeScript coverage with proper prop interfaces
 - **Accessibility**: Built-in ARIA support through Material-UI base
 - **Performance**: Optimized with memo, callbacks, and proper state management

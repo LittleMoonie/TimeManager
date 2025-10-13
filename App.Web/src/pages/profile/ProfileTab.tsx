@@ -1,9 +1,9 @@
-import { Avatar, Box, Card, CardContent, Typography, Chip, Stack, Divider } from '@mui/material'
-import { Email, Phone, LocationOn } from '@mui/icons-material'
-import { useAuth } from '@/hooks/useAuth'
+import { Avatar, Box, Card, CardContent, Typography, Chip, Stack, Divider } from '@mui/material';
+import { Email, Phone, LocationOn } from '@mui/icons-material';
+import { useAuth } from '@/hooks/useAuth';
 
 export const ProfileSummaryCard = () => {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   if (!user) {
     return (
@@ -14,11 +14,11 @@ export const ProfileSummaryCard = () => {
           </Typography>
         </CardContent>
       </Card>
-    )
+    );
   }
 
-  const initials = `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
-  const fullName = `${user.firstName} ${user.lastName}`
+  const initials = `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
+  const fullName = `${user.firstName} ${user.lastName}`;
 
   return (
     <Card>
@@ -95,5 +95,5 @@ export const ProfileSummaryCard = () => {
         </Stack>
       </CardContent>
     </Card>
-  )
-}
+  );
+};

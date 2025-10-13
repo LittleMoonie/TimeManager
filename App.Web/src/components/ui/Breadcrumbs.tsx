@@ -1,14 +1,14 @@
-import { Box, Breadcrumbs, Link, Typography } from '@mui/material'
-import { Home } from '@mui/icons-material'
-import { Link as RouterLink } from 'react-router-dom'
+import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
+import { Home } from '@mui/icons-material';
+import { Link as RouterLink } from 'react-router-dom';
 
 export interface BreadcrumbItem {
-  label: string
-  href?: string
+  label: string;
+  href?: string;
 }
 
 interface BreadcrumbsProps {
-  items: BreadcrumbItem[]
+  items: BreadcrumbItem[];
 }
 
 export const AppBreadcrumbs = ({ items }: BreadcrumbsProps) => {
@@ -80,5 +80,5 @@ export const AppBreadcrumbs = ({ items }: BreadcrumbsProps) => {
         ))}
       </Breadcrumbs>
     </Box>
-  )
-}
+  );
+};

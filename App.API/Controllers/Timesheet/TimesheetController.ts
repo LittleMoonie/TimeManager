@@ -1,34 +1,20 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Put,
-  Route,
-  Tags,
-  Path,
-  Security,
-  Request,
-} from "tsoa";
-import { Request as ExpressRequest } from "express";
-import { Service } from "typedi";
+import { Body, Controller, Get, Post, Put, Route, Tags, Path, Security, Request } from 'tsoa';
+import { Request as ExpressRequest } from 'express';
+import { Service } from 'typedi';
 
-import { TimesheetService } from "../../Services/Timesheet/TimesheetService";
-import { Timesheet } from "../../Entities/Timesheets/Timesheet";
-import {
-  CreateTimesheetDto,
-  CreateTimesheetEntryDto,
-} from "../../Dtos/Timesheet/TimesheetDto";
-import User from "../../Entities/Users/User";
+import { TimesheetService } from '../../Services/Timesheet/TimesheetService';
+import { Timesheet } from '../../Entities/Timesheets/Timesheet';
+import { CreateTimesheetDto, CreateTimesheetEntryDto } from '../../Dtos/Timesheet/TimesheetDto';
+import User from '../../Entities/Users/User';
 
 /**
  * @summary Controller for managing timesheet operations.
  * @tags Timesheets
  * @security jwt
  */
-@Route("timesheets")
-@Tags("Timesheets")
-@Security("jwt")
+@Route('timesheets')
+@Tags('Timesheets')
+@Security('jwt')
 @Service()
 export class TimesheetController extends Controller {
   constructor(private readonly timesheetService: TimesheetService) {
@@ -42,7 +28,7 @@ export class TimesheetController extends Controller {
    * @returns The newly created timesheet.
    * @throws {UnprocessableEntityError} If validation of the DTO fails.
    */
-  @Post("/")
+  @Post('/')
   public async createTimesheet(
     @Body() dto: CreateTimesheetDto,
     @Request() request: ExpressRequest,
@@ -57,7 +43,7 @@ export class TimesheetController extends Controller {
    * @returns The timesheet details.
    * @throws {NotFoundError} If the timesheet is not found.
    */
-  @Get("/{id}")
+  @Get('/{id}')
   public async getTimesheet(@Path() id: string): Promise<Timesheet> {
     // Service is not company-scoped for this read in current impl.
     return this.timesheetService.getTimesheet(id);
@@ -71,19 +57,14 @@ export class TimesheetController extends Controller {
    * @returns The updated timesheet with the new entry.
    * @throws {NotFoundError} If the timesheet is not found.
    */
-  @Post("/{id}/entries")
+  @Post('/{id}/entries')
   public async addTimesheetEntry(
     @Path() id: string,
     @Body() dto: CreateTimesheetEntryDto,
     @Request() request: ExpressRequest,
   ): Promise<Timesheet> {
     const me = request.user as User;
-    return this.timesheetService.addTimesheetEntry(
-      me.companyId,
-      me.id,
-      id,
-      dto,
-    );
+    return this.timesheetService.addTimesheetEntry(me.companyId, me.id, id, dto);
   }
 
   /**
@@ -94,7 +75,7 @@ export class TimesheetController extends Controller {
    * @throws {NotFoundError} If the timesheet is not found.
    * @throws {UnprocessableEntityError} If the timesheet is not in DRAFT status.
    */
-  @Put("/{id}/submit")
+  @Put('/{id}/submit')
   public async submitTimesheet(
     @Path() id: string,
     @Request() request: ExpressRequest,
@@ -111,8 +92,8 @@ export class TimesheetController extends Controller {
    * @throws {NotFoundError} If the timesheet is not found.
    * @throws {UnprocessableEntityError} If the timesheet is not in SUBMITTED status.
    */
-  @Put("/{id}/approve")
-  @Security("jwt", ["manager", "admin"])
+  @Put('/{id}/approve')
+  @Security('jwt', ['manager', 'admin'])
   public async approveTimesheet(
     @Path() id: string,
     @Request() request: ExpressRequest,
@@ -130,19 +111,14 @@ export class TimesheetController extends Controller {
    * @throws {NotFoundError} If the timesheet is not found.
    * @throws {UnprocessableEntityError} If the timesheet is not in SUBMITTED status.
    */
-  @Put("/{id}/reject")
-  @Security("jwt", ["manager", "admin"])
+  @Put('/{id}/reject')
+  @Security('jwt', ['manager', 'admin'])
   public async rejectTimesheet(
     @Path() id: string,
     @Body() body: { reason: string },
     @Request() request: ExpressRequest,
   ): Promise<Timesheet> {
     const me = request.user as User;
-    return this.timesheetService.rejectTimesheet(
-      me.companyId,
-      me.id,
-      id,
-      body.reason,
-    );
+    return this.timesheetService.rejectTimesheet(me.companyId, me.id, id, body.reason);
   }
 }

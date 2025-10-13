@@ -1,19 +1,15 @@
-import {
-  createTestApp,
-  startTestServer,
-  closeTestServer,
-} from "./Tests/TestHelper";
-import { Server } from "http";
+import { createTestApp, startTestServer, closeTestServer } from './Tests/TestHelper';
+import { Server } from 'http';
 
 declare global {
   var testServer: Server;
 }
 
-jest.mock("uuid", () => ({
-  v4: jest.fn(() => "mock-uuid"),
+jest.mock('uuid', () => ({
+  v4: jest.fn(() => 'mock-uuid'),
 }));
 
-jest.mock("./Server/Database", () => ({
+jest.mock('./Server/Database', () => ({
   connectDB: jest.fn(),
   AppDataSource: {
     initialize: jest.fn().mockResolvedValue(undefined),

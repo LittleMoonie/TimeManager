@@ -28,85 +28,78 @@ This document outlines the database strategy for the NCY_8 platform, including s
 
 ```typescript
 // App.API/Entities/Users/User.ts
-import {
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-} from "typeorm";
-import { BaseEntity } from "../BaseEntity";
-import { Company } from "../Companies/Company";
-import { Role } from "../Roles/Role";
-import { UserStatus } from "./UserStatus";
-import ActiveSession from "./ActiveSessions";
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { BaseEntity } from '../BaseEntity';
+import { Company } from '../Companies/Company';
+import { Role } from '../Roles/Role';
+import { UserStatus } from './UserStatus';
+import ActiveSession from './ActiveSessions';
 
 /**
  * @description Represents a user in the system.
  */
-@Entity("users")
-@Index(["companyId", "id"])
-@Index(["companyId", "email"], { unique: true })
-@Index(["companyId", "roleId"])
-@Index(["companyId", "statusId"])
+@Entity('users')
+@Index(['companyId', 'id'])
+@Index(['companyId', 'email'], { unique: true })
+@Index(['companyId', 'roleId'])
+@Index(['companyId', 'statusId'])
 export default class User extends BaseEntity {
   /**
    * @description The unique identifier of the company to which this user belongs.
    * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid" }) companyId!: string;
+  @Column({ type: 'uuid' }) companyId!: string;
 
   /**
    * @description The company associated with this user.
    */
   @ManyToOne(() => Company, (company) => company.users, {
-    onDelete: "RESTRICT",
+    onDelete: 'RESTRICT',
   })
-  @JoinColumn({ name: "companyId" })
+  @JoinColumn({ name: 'companyId' })
   company!: Company;
 
   /**
    * @description The user's email address, unique within the company.
    * @example "john.doe@example.com"
    */
-  @Column({ type: "citext", nullable: false }) email!: string;
+  @Column({ type: 'citext', nullable: false }) email!: string;
 
   /**
    * @description The first name of the user.
    * @example "John"
    */
-  @Column({ type: "varchar", length: 255, nullable: false }) firstName!: string;
+  @Column({ type: 'varchar', length: 255, nullable: false }) firstName!: string;
   /**
    * @description The last name of the user.
    * @example "Doe"
    */
-  @Column({ type: "varchar", length: 255, nullable: false }) lastName!: string;
+  @Column({ type: 'varchar', length: 255, nullable: false }) lastName!: string;
 
   /**
    * @description The hashed password of the user.
    */
-  @Column({ type: "varchar", length: 255, nullable: false })
+  @Column({ type: 'varchar', length: 255, nullable: false })
   passwordHash!: string;
   /**
    * @description Indicates if the user must change their password at the next login.
    * @example false
    */
-  @Column({ type: "boolean", default: false })
+  @Column({ type: 'boolean', default: false })
   mustChangePasswordAtNextLogin!: boolean;
 
   /**
    * @description The unique identifier of the role assigned to the user.
    * @example "r1o2l3e4-i5d6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid", nullable: false }) roleId!: string;
+  @Column({ type: 'uuid', nullable: false }) roleId!: string;
   /**
    * @description The role assigned to the user.
    */
-  @ManyToOne(() => Role, (role) => role.users, { onDelete: "RESTRICT" })
+  @ManyToOne(() => Role, (role) => role.users, { onDelete: 'RESTRICT' })
   @JoinColumn([
-    { name: "roleId", referencedColumnName: "id" },
-    { name: "companyId", referencedColumnName: "companyId" },
+    { name: 'roleId', referencedColumnName: 'id' },
+    { name: 'companyId', referencedColumnName: 'companyId' },
   ])
   role!: Role;
 
@@ -114,13 +107,13 @@ export default class User extends BaseEntity {
    * @description Optional: The user's phone number in E.164 format.
    * @example "+15551234567"
    */
-  @Column({ type: "varchar", length: 32, nullable: true }) phoneNumber?: string;
+  @Column({ type: 'varchar', length: 32, nullable: true }) phoneNumber?: string;
 
   /**
    * @description Optional: The timestamp of the user's last successful login.
    * @example "2023-10-27T11:30:00Z"
    */
-  @Column({ type: "timestamp with time zone", nullable: true })
+  @Column({ type: 'timestamp with time zone', nullable: true })
   lastLogin?: Date;
   /**
    * @description Indicates if the user's data has been anonymized.
@@ -138,148 +131,148 @@ export default class User extends BaseEntity {
    * @description The unique identifier of the user's current status.
    * @example "s1t2a3t4-u5s6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid", nullable: false }) statusId!: string;
+  @Column({ type: 'uuid', nullable: false }) statusId!: string;
   /**
    * @description The user's current status.
    */
-  @ManyToOne(() => UserStatus, (s) => s.users, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "statusId" })
+  @ManyToOne(() => UserStatus, (s) => s.users, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'statusId' })
   status!: UserStatus;
 }
 ```
 
 ```typescript
 // App.API/Entities/Users/ActiveSessions.ts
-import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
-import { BaseEntity } from "../BaseEntity";
-import User from "./User";
-import { Company } from "../Companies/Company";
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { BaseEntity } from '../BaseEntity';
+import User from './User';
+import { Company } from '../Companies/Company';
 
 /**
  * @description Represents an active user session, typically linked to a refresh token.
  */
-@Entity("active_sessions")
-@Index(["companyId", "userId"])
-@Index(["tokenHash"], { unique: true })
-@Index(["expiresAt"])
+@Entity('active_sessions')
+@Index(['companyId', 'userId'])
+@Index(['tokenHash'], { unique: true })
+@Index(['expiresAt'])
 export default class ActiveSession extends BaseEntity {
   /**
    * @description The unique identifier of the company to which this active session belongs.
    * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid" }) companyId!: string;
+  @Column({ type: 'uuid' }) companyId!: string;
 
   /**
    * @description The company associated with this active session.
    */
-  @ManyToOne(() => Company, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "companyId" })
+  @ManyToOne(() => Company, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'companyId' })
   company!: Company;
 
   /**
    * @description The unique identifier of the user associated with this active session.
    * @example "u1s2e3r4-i5d6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid" }) userId!: string;
+  @Column({ type: 'uuid' }) userId!: string;
 
   /**
    * @description The user associated with this active session.
    */
   @ManyToOne(() => User, (user) => user.activeSessions, {
-    onDelete: "RESTRICT",
+    onDelete: 'RESTRICT',
   })
-  @JoinColumn({ name: "userId" })
+  @JoinColumn({ name: 'userId' })
   user!: User;
 
   /**
    * @description The SHA-256 hash of the refresh token.
    * @example "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
    */
-  @Column({ type: "text" }) tokenHash!: string;
+  @Column({ type: 'text' }) tokenHash!: string;
   /**
    * @description Optional: The hash of the previous refresh token, used for refresh token rotation.
    * @example "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
    */
-  @Column({ type: "text", nullable: true }) previousTokenHash?: string;
+  @Column({ type: 'text', nullable: true }) previousTokenHash?: string;
 
   /**
    * @description Optional: The expiration date and time of the refresh token.
    * @example "2024-01-01T10:00:00Z"
    */
-  @Column({ type: "timestamp with time zone", nullable: true })
+  @Column({ type: 'timestamp with time zone', nullable: true })
   expiresAt?: Date;
   /**
    * @description Optional: The date and time when the session was revoked.
    * @example "2024-01-01T09:30:00Z"
    */
-  @Column({ type: "timestamp with time zone", nullable: true })
+  @Column({ type: 'timestamp with time zone', nullable: true })
   revokedAt?: Date;
   /**
    * @description Optional: The date and time when the session was last seen active.
    * @example "2024-01-01T09:45:00Z"
    */
-  @Column({ type: "timestamp with time zone", nullable: true })
+  @Column({ type: 'timestamp with time zone', nullable: true })
   lastSeenAt?: Date;
 
   /**
    * @description Optional: The IP address from which the session originated.
    * @example "192.168.1.100"
    */
-  @Column({ type: "inet", nullable: true }) ip?: string;
+  @Column({ type: 'inet', nullable: true }) ip?: string;
   /**
    * @description Optional: The user agent string of the client that initiated the session.
    * @example "Mozilla/5.0 (Windows NT 10.0)"
    */
-  @Column({ type: "text", nullable: true }) userAgent?: string;
+  @Column({ type: 'text', nullable: true }) userAgent?: string;
   /**
    * @description Optional: A unique identifier for the device associated with the session.
    * @example "d1e2v3i4-c5e6i7d8-9012-3456-7890abcdef"
    */
-  @Column({ type: "text", nullable: true }) deviceId?: string;
+  @Column({ type: 'text', nullable: true }) deviceId?: string;
 }
 ```
 
 ```typescript
 // App.API/Entities/Users/UserStatus.ts
-import { Entity, Column, OneToMany } from "typeorm";
-import { BaseEntity } from "../BaseEntity";
-import User from "./User";
+import { Entity, Column, OneToMany } from 'typeorm';
+import { BaseEntity } from '../BaseEntity';
+import User from './User';
 
 /**
  * @description Represents a status that can be assigned to a user, controlling their access and behavior.
  */
-@Entity("user_statuses")
+@Entity('user_statuses')
 export class UserStatus extends BaseEntity {
   /**
    * @description A unique machine-readable code for the user status (e.g., "ACTIVE", "SUSPENDED").
    * @example "ACTIVE"
    */
-  @Column({ type: "varchar", length: 50, unique: true, nullable: false })
+  @Column({ type: 'varchar', length: 50, unique: true, nullable: false })
   code!: string; // e.g. INVITED, ACTIVE, SUSPENDED, TERMINATED
 
   /**
    * @description The human-readable display name for the user status.
    * @example "Active"
    */
-  @Column({ type: "varchar", length: 50, unique: true, nullable: false })
+  @Column({ type: 'varchar', length: 50, unique: true, nullable: false })
   name!: string; // Display label
 
   /**
    * @description Optional: A detailed description of what this user status signifies.
    * @example "User is currently active and can log in."
    */
-  @Column({ type: "text", nullable: true }) description?: string;
+  @Column({ type: 'text', nullable: true }) description?: string;
 
   /**
    * @description Indicates whether users with this status are allowed to log in.
    * @example true
    */
-  @Column({ type: "boolean", default: true }) canLogin!: boolean;
+  @Column({ type: 'boolean', default: true }) canLogin!: boolean;
   /**
    * @description Indicates whether this status is a terminal status (e.g., "terminated", "archived"), meaning further actions might be restricted.
    * @example false
    */
-  @Column({ type: "boolean", default: false }) isTerminal!: boolean;
+  @Column({ type: 'boolean', default: false }) isTerminal!: boolean;
 
   /**
    * @description List of users currently assigned to this status.
@@ -293,49 +286,42 @@ export class UserStatus extends BaseEntity {
 
 ```typescript
 // App.API/Entities/Roles/Role.ts
-import {
-  Entity,
-  Column,
-  OneToMany,
-  ManyToOne,
-  JoinColumn,
-  Index,
-} from "typeorm";
-import { BaseEntity } from "../BaseEntity";
-import { RolePermission } from "./RolePermission";
-import User from "../Users/User";
-import { Company } from "../Companies/Company";
+import { Entity, Column, OneToMany, ManyToOne, JoinColumn, Index } from 'typeorm';
+import { BaseEntity } from '../BaseEntity';
+import { RolePermission } from './RolePermission';
+import User from '../Users/User';
+import { Company } from '../Companies/Company';
 
 /**
  * @description Represents a user role within a company, defining a set of permissions.
  */
-@Entity("roles")
-@Index(["companyId", "id"], { unique: true })
-@Index(["companyId", "name"], { unique: true })
+@Entity('roles')
+@Index(['companyId', 'id'], { unique: true })
+@Index(['companyId', 'name'], { unique: true })
 export class Role extends BaseEntity {
   /**
    * @description The unique identifier of the company to which this role belongs.
    * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid" }) companyId!: string;
+  @Column({ type: 'uuid' }) companyId!: string;
 
   /**
    * @description The company associated with this role.
    */
-  @ManyToOne(() => Company, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "companyId" })
+  @ManyToOne(() => Company, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'companyId' })
   company!: Company;
 
   /**
    * @description The name of the role (e.g., "Admin", "Manager", "Employee").
    * @example "Admin"
    */
-  @Column({ type: "varchar", length: 50, nullable: false }) name!: string;
+  @Column({ type: 'varchar', length: 50, nullable: false }) name!: string;
   /**
    * @description Optional: A detailed description of the role's responsibilities or privileges.
    * @example "Administrator with full access to all company resources."
    */
-  @Column({ type: "text", nullable: true }) description?: string;
+  @Column({ type: 'text', nullable: true }) description?: string;
 
   /**
    * @description List of permissions assigned to this role.
@@ -351,99 +337,89 @@ export class Role extends BaseEntity {
 
 ```typescript
 // App.API/Entities/Roles/Permission.ts
-import {
-  Entity,
-  Column,
-  OneToMany,
-  Index,
-  JoinColumn,
-  ManyToOne,
-} from "typeorm";
-import { BaseEntity } from "../BaseEntity";
-import { RolePermission } from "./RolePermission";
-import { Company } from "../Companies/Company";
+import { Entity, Column, OneToMany, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { BaseEntity } from '../BaseEntity';
+import { RolePermission } from './RolePermission';
+import { Company } from '../Companies/Company';
 
 /**
  * @description Represents a specific permission that can be assigned to roles within a company.
  */
-@Entity("permissions")
-@Index(["companyId", "id"], { unique: true })
-@Index(["companyId", "name"], { unique: true })
+@Entity('permissions')
+@Index(['companyId', 'id'], { unique: true })
+@Index(['companyId', 'name'], { unique: true })
 export class Permission extends BaseEntity {
   /**
    * @description The unique identifier of the company to which this permission belongs.
    * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid" }) companyId!: string;
+  @Column({ type: 'uuid' }) companyId!: string;
 
   /**
    * @description The company associated with this permission.
    */
-  @ManyToOne(() => Company, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "companyId" })
+  @ManyToOne(() => Company, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'companyId' })
   company!: Company;
 
   /**
    * @description The name of the permission (e.g., "create_user", "delete_timesheet").
    * @example "create_user"
    */
-  @Column({ type: "varchar", length: 100, nullable: false }) name!: string;
+  @Column({ type: 'varchar', length: 100, nullable: false }) name!: string;
   /**
    * @description Optional: A detailed description of what this permission allows.
    * @example "Allows creation of new user accounts"
    */
-  @Column({ type: "text", nullable: true }) description?: string;
+  @Column({ type: 'text', nullable: true }) description?: string;
 
   /**
    * @description List of role-permission associations for this permission.
    */
-  @OneToMany(
-    () => RolePermission,
-    (rolePermission) => rolePermission.permission,
-  )
+  @OneToMany(() => RolePermission, (rolePermission) => rolePermission.permission)
   rolePermissions!: RolePermission[];
 }
 ```
 
 ```typescript
 // App.API/Entities/Roles/RolePermission.ts
-import { Entity, ManyToOne, JoinColumn, Index, Column } from "typeorm";
-import { Role } from "./Role";
-import { Permission } from "./Permission";
-import { Company } from "../Companies/Company";
-import { BaseEntity } from "../BaseEntity";
+import { Entity, ManyToOne, JoinColumn, Index, Column } from 'typeorm';
+import { Role } from './Role';
+import { Permission } from './Permission';
+import { Company } from '../Companies/Company';
+import { BaseEntity } from '../BaseEntity';
 
 /**
  * @description Represents the many-to-many relationship between roles and permissions within a company.
  */
-@Entity("role_permissions")
-@Index(["companyId", "roleId", "permissionId"], { unique: true })
+@Entity('role_permissions')
+@Index(['companyId', 'roleId', 'permissionId'], { unique: true })
 export class RolePermission extends BaseEntity {
   /**
    * @description The unique identifier of the company to which this role-permission association belongs.
    * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid" }) companyId!: string;
+  @Column({ type: 'uuid' }) companyId!: string;
 
   /**
    * @description The company associated with this role-permission.
    */
-  @ManyToOne(() => Company, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "companyId" })
+  @ManyToOne(() => Company, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'companyId' })
   company!: Company;
 
   /**
    * @description The unique identifier of the role in this association.
    * @example "r1o2l3e4-i5d6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid" }) roleId!: string;
+  @Column({ type: 'uuid' }) roleId!: string;
   /**
    * @description The role in this association.
    */
-  @ManyToOne(() => Role, { onDelete: "RESTRICT" })
+  @ManyToOne(() => Role, { onDelete: 'RESTRICT' })
   @JoinColumn([
-    { name: "roleId", referencedColumnName: "id" },
-    { name: "companyId", referencedColumnName: "companyId" },
+    { name: 'roleId', referencedColumnName: 'id' },
+    { name: 'companyId', referencedColumnName: 'companyId' },
   ])
   role!: Role;
 
@@ -451,14 +427,14 @@ export class RolePermission extends BaseEntity {
    * @description The unique identifier of the permission in this association.
    * @example "p1e2r3m4-i5s6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid" }) permissionId!: string;
+  @Column({ type: 'uuid' }) permissionId!: string;
   /**
    * @description The permission in this association.
    */
-  @ManyToOne(() => Permission, { onDelete: "RESTRICT" })
+  @ManyToOne(() => Permission, { onDelete: 'RESTRICT' })
   @JoinColumn([
-    { name: "permissionId", referencedColumnName: "id" },
-    { name: "companyId", referencedColumnName: "companyId" },
+    { name: 'permissionId', referencedColumnName: 'id' },
+    { name: 'companyId', referencedColumnName: 'companyId' },
   ])
   permission!: Permission;
 }
@@ -468,34 +444,34 @@ export class RolePermission extends BaseEntity {
 
 ```typescript
 // App.API/Entities/Companies/Company.ts
-import { Column, Entity, Index, OneToMany, OneToOne } from "typeorm";
-import { BaseEntity } from "../BaseEntity";
-import User from "../Users/User";
-import { Team, TeamMember } from "./Team";
-import { ActionCode } from "../Timesheets/ActionCode";
-import { TimesheetEntry } from "../Timesheets/TimesheetEntry";
-import { TimesheetHistory } from "../Timesheets/TimesheetHistory";
-import { CompanySettings } from "./CompanySettings";
+import { Column, Entity, Index, OneToMany, OneToOne } from 'typeorm';
+import { BaseEntity } from '../BaseEntity';
+import User from '../Users/User';
+import { Team, TeamMember } from './Team';
+import { ActionCode } from '../Timesheets/ActionCode';
+import { TimesheetEntry } from '../Timesheets/TimesheetEntry';
+import { TimesheetHistory } from '../Timesheets/TimesheetHistory';
+import { CompanySettings } from './CompanySettings';
 
 /**
  * @description Represents a company in the system.
  */
-@Entity("companies")
-@Index(["id"])
-@Index(["name"], { unique: true })
+@Entity('companies')
+@Index(['id'])
+@Index(['name'], { unique: true })
 export class Company extends BaseEntity {
   /**
    * @description The name of the company.
    * @example "Acme Corp"
    */
-  @Column({ type: "varchar", length: 255 })
+  @Column({ type: 'varchar', length: 255 })
   name!: string;
 
   /**
    * @description The timezone of the company (e.g., "America/New_York").
    * @example "America/New_York"
    */
-  @Column({ type: "varchar", length: 255, nullable: true }) timezone?: string;
+  @Column({ type: 'varchar', length: 255, nullable: true }) timezone?: string;
 
   /**
    * @description List of users belonging to this company.
@@ -534,66 +510,63 @@ export class Company extends BaseEntity {
 
 ```typescript
 // App.API/Entities/Companies/CompanySettings.ts
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from "typeorm";
-import { Company } from "./Company";
-import { BaseEntity } from "../BaseEntity";
+import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
+import { Company } from './Company';
+import { BaseEntity } from '../BaseEntity';
 
 /**
  * @description Defines the possible policies for timesheet approvers.
  */
 export enum ApproverPolicy {
-  MANAGER_OF_USER = "manager_of_user",
-  ROLE_MANAGER = "role_manager",
-  EXPLICIT = "explicit",
+  MANAGER_OF_USER = 'manager_of_user',
+  ROLE_MANAGER = 'role_manager',
+  EXPLICIT = 'explicit',
 }
 
 /**
  * @description Represents the settings for a specific company.
  */
-@Entity("company_settings")
+@Entity('company_settings')
 export class CompanySettings extends BaseEntity {
   /**
    * @description The unique identifier of the company these settings belong to.
    * This also serves as the primary key.
    * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
    */
-  @PrimaryColumn("uuid")
+  @PrimaryColumn('uuid')
   companyId!: string;
 
   /**
    * @description The company associated with these settings.
    */
   @OneToOne(() => Company, (company) => company.companySettings, {
-    onDelete: "CASCADE",
+    onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: "companyId" })
+  @JoinColumn({ name: 'companyId' })
   company!: Company;
 
   /**
    * @description The timezone of the company (e.g., "UTC", "America/New_York").
    * @example "UTC"
    */
-  @Column({ type: "text", default: "UTC" }) timezone!: string;
+  @Column({ type: 'text', default: 'UTC' }) timezone!: string;
   /**
    * @description Configuration for the company's work week, typically mapping days to work hours.
    * @example { "monday": [9, 17], "tuesday": [9, 17] }
    */
-  @Column({ type: "jsonb", default: () => `'{}'` }) workWeek!: Record<
-    string,
-    number[]
-  >;
+  @Column({ type: 'jsonb', default: () => `'{}'` }) workWeek!: Record<string, number[]>;
   /**
    * @description Optional: Identifier for the holiday calendar used by the company.
    * @example "us_federal_holidays"
    */
-  @Column({ type: "text", nullable: true }) holidayCalendar?: string;
+  @Column({ type: 'text', nullable: true }) holidayCalendar?: string;
 
   /**
    * @description The policy used for timesheet approvals within the company.
    * @example "manager_of_user"
    */
   @Column({
-    type: "varchar",
+    type: 'varchar',
     length: 32,
     default: ApproverPolicy.MANAGER_OF_USER,
   })
@@ -603,57 +576,50 @@ export class CompanySettings extends BaseEntity {
    * @description Optional: An array of email domains allowed for new user registrations.
    * @example ["example.com", "another.org"]
    */
-  @Column({ type: "text", array: true, nullable: true })
+  @Column({ type: 'text', array: true, nullable: true })
   allowedEmailDomains?: string[];
 
   /**
    * @description Indicates whether new user registrations must use an email from `allowedEmailDomains`.
    * @example false
    */
-  @Column({ type: "boolean", default: false }) requireCompanyEmail!: boolean;
+  @Column({ type: 'boolean', default: false }) requireCompanyEmail!: boolean;
 }
 ```
 
 ```typescript
 // App.API/Entities/Companies/Team.ts
-import {
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-} from "typeorm";
-import { BaseEntity } from "../BaseEntity";
-import { Company } from "./Company";
-import User from "../Users/User";
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { BaseEntity } from '../BaseEntity';
+import { Company } from './Company';
+import User from '../Users/User';
 
 /**
  * @description Represents a team within a company.
  */
-@Entity("teams")
-@Index(["companyId", "id", "name"], { unique: true })
+@Entity('teams')
+@Index(['companyId', 'id', 'name'], { unique: true })
 export class Team extends BaseEntity {
   /**
    * @description The unique identifier of the company to which this team belongs.
    * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid" }) companyId!: string;
+  @Column({ type: 'uuid' }) companyId!: string;
 
   /**
    * @description The company associated with this team.
    */
   @ManyToOne(() => Company, (company) => company.teams, {
-    onDelete: "RESTRICT",
+    onDelete: 'RESTRICT',
   })
-  @JoinColumn({ name: "companyId" })
+  @JoinColumn({ name: 'companyId' })
   company!: Company;
 
   /**
    * @description The name of the team.
    * @example "Engineering"
    */
-  @Column({ type: "varchar", length: 255 }) name!: string;
+  @Column({ type: 'varchar', length: 255 }) name!: string;
 
   /**
    * @description List of members belonging to this team.
@@ -665,53 +631,53 @@ export class Team extends BaseEntity {
 /**
  * @description Represents a member of a team, linking a user to a team within a company.
  */
-@Entity("team_members")
-@Index(["companyId", "teamId", "userId"], { unique: true })
+@Entity('team_members')
+@Index(['companyId', 'teamId', 'userId'], { unique: true })
 export class TeamMember extends BaseEntity {
   /**
    * @description The unique identifier of the company to which this team member association belongs.
    * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid" }) companyId!: string;
+  @Column({ type: 'uuid' }) companyId!: string;
 
   /**
    * @description The company associated with this team member.
    */
-  @ManyToOne(() => Company, (c) => c.teamMembers, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "companyId" })
+  @ManyToOne(() => Company, (c) => c.teamMembers, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'companyId' })
   company!: Company;
 
   /**
    * @description The unique identifier of the team this member belongs to.
    * @example "g1h2i3j4-k5l6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid" }) teamId!: string;
+  @Column({ type: 'uuid' }) teamId!: string;
 
   /**
    * @description The team this member belongs to.
    */
-  @ManyToOne(() => Team, (team) => team.members, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "teamId" })
+  @ManyToOne(() => Team, (team) => team.members, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'teamId' })
   team!: Team;
 
   /**
    * @description The unique identifier of the user who is a member of the team.
    * @example "u1s2e3r4-i5d6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid" }) userId!: string;
+  @Column({ type: 'uuid' }) userId!: string;
 
   /**
    * @description The user who is a member of the team.
    */
-  @ManyToOne(() => User, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "userId" })
+  @ManyToOne(() => User, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'userId' })
   user!: User;
 
   /**
    * @description The role of the user within the team (e.g., "member", "lead").
    * @example "member"
    */
-  @Column({ type: "varchar", length: 50, default: "member" })
+  @Column({ type: 'varchar', length: 50, default: 'member' })
   role!: string; // team-level role (lead/member)
 }
 ```
@@ -720,269 +686,262 @@ export class TeamMember extends BaseEntity {
 
 ```typescript
 // App.API/Entities/Companies/LeaveRequest.ts
-import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
-import { BaseEntity } from "../BaseEntity";
-import User from "../Users/User";
-import { Company } from "./Company";
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { BaseEntity } from '../BaseEntity';
+import User from '../Users/User';
+import { Company } from './Company';
 
 /**
  * @description Defines the possible statuses for a leave request.
  */
 export enum LeaveRequestStatus {
-  PENDING = "PENDING",
-  APPROVED = "APPROVED",
-  REJECTED = "REJECTED",
-  CANCELLED = "CANCELLED",
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  CANCELLED = 'CANCELLED',
 }
 
 /**
  * @description Defines the possible types of leave.
  */
 export enum LeaveType {
-  PTO = "PTO",
-  SICK = "SICK",
-  UNPAID = "UNPAID",
+  PTO = 'PTO',
+  SICK = 'SICK',
+  UNPAID = 'UNPAID',
 }
 
 /**
  * @description Represents a leave request made by a user within a company.
  */
-@Entity("leave_requests")
-@Index(["companyId", "userId"])
-@Index(["companyId", "startDate", "endDate"])
+@Entity('leave_requests')
+@Index(['companyId', 'userId'])
+@Index(['companyId', 'startDate', 'endDate'])
 export class LeaveRequest extends BaseEntity {
   /**
    * @description The unique identifier of the company to which this leave request belongs.
    * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid" }) companyId!: string;
+  @Column({ type: 'uuid' }) companyId!: string;
 
   /**
    * @description The company associated with this leave request.
    */
-  @ManyToOne(() => Company, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "companyId" })
+  @ManyToOne(() => Company, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'companyId' })
   company!: Company;
 
   /**
    * @description The unique identifier of the user who made this leave request.
    * @example "u1s2e3r4-i5d6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid" }) userId!: string;
+  @Column({ type: 'uuid' }) userId!: string;
 
   /**
    * @description The user who made this leave request.
    */
-  @ManyToOne(() => User, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "userId" })
+  @ManyToOne(() => User, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'userId' })
   user!: User;
 
   /**
    * @description The start date of the leave request.
    * @example "2024-01-01"
    */
-  @Column({ type: "date" }) startDate!: Date;
+  @Column({ type: 'date' }) startDate!: Date;
   /**
    * @description The end date of the leave request.
    * @example "2024-01-05"
    */
-  @Column({ type: "date" }) endDate!: Date;
+  @Column({ type: 'date' }) endDate!: Date;
 
   /**
    * @description The type of leave being requested.
    * @example "PTO"
    */
-  @Column({ type: "varchar", length: 20 }) leaveType!: LeaveType;
+  @Column({ type: 'varchar', length: 20 }) leaveType!: LeaveType;
 
   /**
    * @description The current status of the leave request.
    * @example "PENDING"
    */
-  @Column({ type: "varchar", length: 20, default: LeaveRequestStatus.PENDING })
+  @Column({ type: 'varchar', length: 20, default: LeaveRequestStatus.PENDING })
   status!: LeaveRequestStatus;
 
   /**
    * @description Optional: A reason or description for the leave request.
    * @example "Annual vacation trip"
    */
-  @Column({ type: "text", nullable: true }) reason?: string;
+  @Column({ type: 'text', nullable: true }) reason?: string;
   /**
    * @description Optional: A reason for rejecting the leave request.
    * @example "Insufficient coverage"
    */
-  @Column({ type: "text", nullable: true }) rejectionReason?: string;
+  @Column({ type: 'text', nullable: true }) rejectionReason?: string;
 }
 ```
 
 ```typescript
 // App.API/Entities/Timesheets/ActionCode.ts
-import { Column, Entity, ManyToOne, Index, JoinColumn, Unique } from "typeorm";
-import { BaseEntity } from "../BaseEntity";
-import { Company } from "../Companies/Company";
+import { Column, Entity, ManyToOne, Index, JoinColumn, Unique } from 'typeorm';
+import { BaseEntity } from '../BaseEntity';
+import { Company } from '../Companies/Company';
 
 /**
  * @description Defines the type of an action code, indicating if it's billable or non-billable.
  */
 export enum ActionCodeType {
-  BILLABLE = "billable",
-  NON_BILLABLE = "non-billable",
+  BILLABLE = 'billable',
+  NON_BILLABLE = 'non-billable',
 }
 
 /**
  * @description Represents an action code used for categorizing timesheet entries within a company.
  */
-@Entity("action_codes")
-@Unique(["companyId", "code"])
-@Index(["companyId", "code"])
+@Entity('action_codes')
+@Unique(['companyId', 'code'])
+@Index(['companyId', 'code'])
 export class ActionCode extends BaseEntity {
   /**
    * @description The unique identifier of the company to which this action code belongs.
    * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
    */
-  @Column("uuid") companyId!: string;
+  @Column('uuid') companyId!: string;
 
   /**
    * @description The company associated with this action code.
    */
-  @ManyToOne(() => Company, (c) => c.actionCodes, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "companyId" })
+  @ManyToOne(() => Company, (c) => c.actionCodes, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'companyId' })
   company!: Company;
 
   /**
    * @description A unique short code for the action (e.g., "DEV", "MEETING").
    * @example "DEV"
    */
-  @Column({ type: "varchar", length: 255 }) code!: string;
+  @Column({ type: 'varchar', length: 255 }) code!: string;
   /**
    * @description The display name of the action code (e.g., "Development", "Team Meeting").
    * @example "Development"
    */
-  @Column({ type: "varchar", length: 255 }) name!: string;
+  @Column({ type: 'varchar', length: 255 }) name!: string;
 
   /**
    * @description The type of the action code, indicating if it's billable or non-billable.
    * @example "billable"
    */
-  @Column({ type: "varchar", length: 16, default: ActionCodeType.BILLABLE })
+  @Column({ type: 'varchar', length: 16, default: ActionCodeType.BILLABLE })
   type!: ActionCodeType;
 
   /**
    * @description Indicates if the action code is currently active.
    * @example true
    */
-  @Column({ type: "boolean", default: true }) active!: boolean;
+  @Column({ type: 'boolean', default: true }) active!: boolean;
 }
 ```
 
 ```typescript
 // App.API/Entities/Timesheets/Timesheet.ts
-import {
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-} from "typeorm";
-import { BaseEntity } from "../BaseEntity";
-import { Company } from "../Companies/Company";
-import User from "../Users/User";
-import { TimesheetEntry } from "./TimesheetEntry";
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { BaseEntity } from '../BaseEntity';
+import { Company } from '../Companies/Company';
+import User from '../Users/User';
+import { TimesheetEntry } from './TimesheetEntry';
 
 /**
  * @description Defines the possible statuses for a timesheet.
  */
 export enum TimesheetStatus {
-  DRAFT = "DRAFT",
-  SUBMITTED = "SUBMITTED",
-  APPROVED = "APPROVED",
-  REJECTED = "REJECTED",
+  DRAFT = 'DRAFT',
+  SUBMITTED = 'SUBMITTED',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
 }
 
 /**
  * @description Represents a timesheet submitted by a user for a specific period.
  */
-@Entity("timesheets")
-@Index(["companyId", "userId", "periodStart", "periodEnd"], { unique: true })
-@Index(["companyId", "status"])
+@Entity('timesheets')
+@Index(['companyId', 'userId', 'periodStart', 'periodEnd'], { unique: true })
+@Index(['companyId', 'status'])
 export class Timesheet extends BaseEntity {
   /**
    * @description The unique identifier of the company to which this timesheet belongs.
    * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
    */
-  @Column("uuid") companyId!: string;
+  @Column('uuid') companyId!: string;
   /**
    * @description The company associated with this timesheet.
    */
-  @ManyToOne(() => Company, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "companyId" })
+  @ManyToOne(() => Company, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'companyId' })
   company!: Company;
 
   /**
    * @description The unique identifier of the user who owns this timesheet.
    * @example "u1s2e3r4-i5d6-7890-1234-567890abcdef"
    */
-  @Column("uuid") userId!: string;
+  @Column('uuid') userId!: string;
   /**
    * @description The user who owns this timesheet.
    */
-  @ManyToOne(() => User, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "userId" })
+  @ManyToOne(() => User, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'userId' })
   user!: User;
 
   /**
    * @description The start date of the timesheet period in ISO date format (YYYY-MM-DD).
    * @example "2024-01-01"
    */
-  @Column({ type: "date" }) periodStart!: string; // ISO date
+  @Column({ type: 'date' }) periodStart!: string; // ISO date
   /**
    * @description The end date of the timesheet period in ISO date format (YYYY-MM-DD).
    * @example "2024-01-07"
    */
-  @Column({ type: "date" }) periodEnd!: string;
+  @Column({ type: 'date' }) periodEnd!: string;
 
   /**
    * @description The current status of the timesheet.
    * @example "DRAFT"
    */
-  @Column({ type: "varchar", length: 16, default: TimesheetStatus.DRAFT })
+  @Column({ type: 'varchar', length: 16, default: TimesheetStatus.DRAFT })
   status!: TimesheetStatus;
 
   /**
    * @description Optional: Timestamp when the timesheet was submitted for approval.
    * @example "2024-01-08T10:00:00Z"
    */
-  @Column({ type: "timestamp with time zone", nullable: true })
+  @Column({ type: 'timestamp with time zone', nullable: true })
   submittedAt?: Date;
   /**
    * @description Optional: The unique identifier of the user who submitted the timesheet.
    * @example "u1s2e3r4-i5d6-7890-1234-567890abcdef"
    */
-  @Column({ type: "uuid", nullable: true }) submittedByUserId?: string;
+  @Column({ type: 'uuid', nullable: true }) submittedByUserId?: string;
 
   /**
    * @description Optional: Timestamp when the timesheet was approved.
    * @example "2024-01-09T11:00:00Z"
    */
-  @Column({ type: "timestamp with time zone", nullable: true })
+  @Column({ type: 'timestamp with time zone', nullable: true })
   approvedAt?: Date;
   /**
    * @description Optional: The unique identifier of the user who approved the timesheet.
    * @example "a1p2p3r4-o5v6e7r8-9012-3456-7890abcdef"
    */
-  @Column({ type: "uuid", nullable: true }) approverId?: string;
+  @Column({ type: 'uuid', nullable: true }) approverId?: string;
 
   /**
    * @description The total duration in minutes of all entries in this timesheet.
    * This is a cached value for quick retrieval.
    * @example 480
    */
-  @Column({ type: "int", default: 0 }) totalMinutes!: number; // roll-up cache
+  @Column({ type: 'int', default: 0 }) totalMinutes!: number; // roll-up cache
   /**
    * @description Optional: Any general notes or comments for the timesheet.
    * @example "Weekly report for Project Alpha"
    */
-  @Column({ type: "text", nullable: true }) notes?: string;
+  @Column({ type: 'text', nullable: true }) notes?: string;
 
   /**
    * @description List of individual timesheet entries belonging to this timesheet.
@@ -994,198 +953,198 @@ export class Timesheet extends BaseEntity {
 
 ```typescript
 // App.API/Entities/Timesheets/TimesheetApproval.ts
-import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
-import { BaseEntity } from "../BaseEntity";
-import { Company } from "../Companies/Company";
-import { Timesheet } from "./Timesheet";
-import User from "../Users/User";
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { BaseEntity } from '../BaseEntity';
+import { Company } from '../Companies/Company';
+import { Timesheet } from './Timesheet';
+import User from '../Users/User';
 
 /**
  * @description Defines the possible statuses for a timesheet approval.
  */
 export enum ApprovalStatus {
-  PENDING = "PENDING",
-  APPROVED = "APPROVED",
-  REJECTED = "REJECTED",
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
 }
 
 /**
  * @description Represents an approval record for a timesheet.
  */
-@Entity("timesheet_approvals")
-@Index(["companyId", "timesheetId", "approverId"], { unique: true })
+@Entity('timesheet_approvals')
+@Index(['companyId', 'timesheetId', 'approverId'], { unique: true })
 export class TimesheetApproval extends BaseEntity {
   /**
    * @description The unique identifier of the company to which this timesheet approval belongs.
    * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
    */
-  @Column("uuid") companyId!: string;
+  @Column('uuid') companyId!: string;
   /**
    * @description The company associated with this timesheet approval.
    */
-  @ManyToOne(() => Company, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "companyId" })
+  @ManyToOne(() => Company, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'companyId' })
   company!: Company;
 
   /**
    * @description The unique identifier of the timesheet being approved.
    * @example "t1i2m3e4-s5h6e7e8-9012-3456-7890abcdef"
    */
-  @Column("uuid") timesheetId!: string;
+  @Column('uuid') timesheetId!: string;
   /**
    * @description The timesheet associated with this approval.
    */
-  @ManyToOne(() => Timesheet, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "timesheetId" })
+  @ManyToOne(() => Timesheet, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'timesheetId' })
   timesheet!: Timesheet;
 
   /**
    * @description The unique identifier of the user who is approving the timesheet.
    * @example "a1p2p3r4-o5v6e7r8-9012-3456-7890abcdef"
    */
-  @Column("uuid") approverId!: string;
+  @Column('uuid') approverId!: string;
   /**
    * @description The user who is approving the timesheet.
    */
-  @ManyToOne(() => User, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "approverId" })
+  @ManyToOne(() => User, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'approverId' })
   approver!: User;
 
   /**
    * @description The current status of the timesheet approval.
    * @example "PENDING"
    */
-  @Column({ type: "varchar", length: 16, default: ApprovalStatus.PENDING })
+  @Column({ type: 'varchar', length: 16, default: ApprovalStatus.PENDING })
   status!: ApprovalStatus;
 
   /**
    * @description Optional: A reason or comment for the approval decision (e.g., rejection reason).
    * @example "Approved as submitted"
    */
-  @Column({ type: "text", nullable: true }) reason?: string;
+  @Column({ type: 'text', nullable: true }) reason?: string;
   /**
    * @description Optional: Timestamp when the approval decision was made.
    * @example "2024-01-08T10:00:00Z"
    */
-  @Column({ type: "timestamp with time zone", nullable: true })
+  @Column({ type: 'timestamp with time zone', nullable: true })
   decidedAt?: Date;
 }
 ```
 
 ```typescript
 // App.API/Entities/Timesheets/TimesheetEntry.ts
-import { Column, Entity, ManyToOne, Check, Index, JoinColumn } from "typeorm";
-import { BaseEntity } from "../BaseEntity";
-import User from "../Users/User";
-import { Company } from "../Companies/Company";
-import { ActionCode } from "./ActionCode";
-import { Timesheet } from "./Timesheet";
+import { Column, Entity, ManyToOne, Check, Index, JoinColumn } from 'typeorm';
+import { BaseEntity } from '../BaseEntity';
+import User from '../Users/User';
+import { Company } from '../Companies/Company';
+import { ActionCode } from './ActionCode';
+import { Timesheet } from './Timesheet';
 
 /**
  * @description Defines the possible work modes for a timesheet entry.
  */
 export enum WorkMode {
-  OFFICE = "office",
-  REMOTE = "remote",
-  HYBRID = "hybrid",
+  OFFICE = 'office',
+  REMOTE = 'remote',
+  HYBRID = 'hybrid',
 }
 
 /**
  * @description Represents a single entry within a timesheet, detailing work performed.
  */
-@Entity("timesheet_entries")
+@Entity('timesheet_entries')
 @Check(`"durationMin" BETWEEN 0 AND 1440`)
-@Index(["companyId", "userId", "day"])
-@Index(["companyId", "timesheetId"])
+@Index(['companyId', 'userId', 'day'])
+@Index(['companyId', 'timesheetId'])
 export class TimesheetEntry extends BaseEntity {
   /**
    * @description The unique identifier of the company to which this timesheet entry belongs.
    * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
    */
-  @Column("uuid") companyId!: string;
+  @Column('uuid') companyId!: string;
   /**
    * @description The company associated with this timesheet entry.
    */
-  @ManyToOne(() => Company, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "companyId" })
+  @ManyToOne(() => Company, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'companyId' })
   company!: Company;
 
   /**
    * @description The unique identifier of the user who made this timesheet entry.
    * @example "u1s2e3r4-i5d6-7890-1234-567890abcdef"
    */
-  @Column("uuid") userId!: string;
+  @Column('uuid') userId!: string;
   /**
    * @description The user who made this timesheet entry.
    */
-  @ManyToOne(() => User, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "userId" })
+  @ManyToOne(() => User, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'userId' })
   user!: User;
 
   /**
    * @description Optional: The unique identifier of the timesheet this entry belongs to.
    * @example "t1i2m3e4-s5h6e7e8-9012-3456-7890abcdef"
    */
-  @Column("uuid", { nullable: true }) timesheetId?: string;
+  @Column('uuid', { nullable: true }) timesheetId?: string;
   /**
    * @description Optional: The timesheet this entry belongs to.
    */
-  @ManyToOne(() => Timesheet, (t) => t.entries, { onDelete: "SET NULL" })
-  @JoinColumn({ name: "timesheetId" })
+  @ManyToOne(() => Timesheet, (t) => t.entries, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'timesheetId' })
   timesheet?: Timesheet;
 
   /**
    * @description The unique identifier of the action code associated with this entry.
    * @example "a1c2t3i4-o5n6-7890-1234-567890abcdef"
    */
-  @Column("uuid") actionCodeId!: string;
+  @Column('uuid') actionCodeId!: string;
   /**
    * @description The action code associated with this entry.
    */
-  @ManyToOne(() => ActionCode, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "actionCodeId" })
+  @ManyToOne(() => ActionCode, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'actionCodeId' })
   actionCode!: ActionCode;
 
   /**
    * @description The work mode for this entry (e.g., "office", "remote", "hybrid").
    * @example "office"
    */
-  @Column({ type: "varchar", length: 8, default: WorkMode.OFFICE })
+  @Column({ type: 'varchar', length: 8, default: WorkMode.OFFICE })
   workMode!: WorkMode;
 
   /**
    * @description The country code (ISO 3166-1 alpha-2) where the work was performed.
    * @example "US"
    */
-  @Column({ type: "varchar", length: 2 }) country!: string;
+  @Column({ type: 'varchar', length: 2 }) country!: string;
 
   /**
    * @description Optional: Timestamp when the work for this entry started.
    * @example "2024-01-01T09:00:00Z"
    */
-  @Column({ type: "timestamp with time zone", nullable: true })
+  @Column({ type: 'timestamp with time zone', nullable: true })
   startedAt?: Date;
   /**
    * @description Optional: Timestamp when the work for this entry ended.
    * @example "2024-01-01T17:00:00Z"
    */
-  @Column({ type: "timestamp with time zone", nullable: true }) endedAt?: Date;
+  @Column({ type: 'timestamp with time zone', nullable: true }) endedAt?: Date;
 
   /**
    * @description The duration of the entry in minutes.
    * @example 480
    */
-  @Column("int") durationMin!: number; // store computed duration for fast totals
+  @Column('int') durationMin!: number; // store computed duration for fast totals
   /**
    * @description The date of the timesheet entry in ISO date format (YYYY-MM-DD).
    * @example "2024-01-01"
    */
-  @Column("date") day!: string; // denormalized day for quick filtering
+  @Column('date') day!: string; // denormalized day for quick filtering
   /**
    * @description Optional: Any notes or comments for this specific entry.
    * @example "Worked on feature X"
    */
-  @Column({ type: "text", nullable: true }) note?: string;
+  @Column({ type: 'text', nullable: true }) note?: string;
 }
 ```
 
@@ -1297,7 +1256,15 @@ For a detailed breakdown of the Timesheet History module, including its entity d
 
 ```typescript
 // src/entities/User.ts
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+  OneToMany,
+} from 'typeorm';
 import { Session } from './Session';
 import { ApiKey } from './ApiKey';
 import { CompanyMember } from './CompanyMember';
@@ -1347,25 +1314,25 @@ export class User {
   deletedAt?: Date;
 
   // Relations
-  @OneToMany(() => Session, session => session.user)
+  @OneToMany(() => Session, (session) => session.user)
   sessions!: Session[];
 
-  @OneToMany(() => ApiKey, apiKey => apiKey.user)
+  @OneToMany(() => ApiKey, (apiKey) => apiKey.user)
   apiKeys!: ApiKey[];
 
-  @OneToMany(() => CompanyMember, member => member.user)
+  @OneToMany(() => CompanyMember, (member) => member.user)
   CompanyMembers!: CompanyMember[];
 
-  @OneToMany(() => Company, Company => Company.owner)
+  @OneToMany(() => Company, (Company) => Company.owner)
   ownedCompanys!: Company[];
 
-  @OneToMany(() => Task, task => task.assignee)
+  @OneToMany(() => Task, (task) => task.assignee)
   assignedTasks!: Task[];
 
-  @OneToMany(() => AuditLog, log => log.user)
+  @OneToMany(() => AuditLog, (log) => log.user)
   auditLogs!: AuditLog[];
 
-  @OneToMany(() => AccessLog, log => log.user)
+  @OneToMany(() => AccessLog, (log) => log.user)
   accessLogs!: AccessLog[];
 
   // ... other relations as needed
@@ -1444,62 +1411,62 @@ TypeORM migrations are TypeScript files that define `up` and `down` methods to a
 
 ```typescript
 // App.API/Migrations/1760310538461-InitialDatabase.ts
-import { MigrationInterface, QueryRunner, Table, TableIndex } from "typeorm";
+import { MigrationInterface, QueryRunner, Table, TableIndex } from 'typeorm';
 
 export class InitialDatabase1760310538461 implements MigrationInterface {
-  name = "InitialDatabase1760310538461";
+  name = 'InitialDatabase1760310538461';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: "companies",
+        name: 'companies',
         columns: [
           {
-            name: "id",
-            type: "uuid",
+            name: 'id',
+            type: 'uuid',
             isPrimary: true,
-            default: "gen_random_uuid()",
+            default: 'gen_random_uuid()',
           },
           {
-            name: "name",
-            type: "varchar",
-            length: "255",
+            name: 'name',
+            type: 'varchar',
+            length: '255',
             isNullable: false,
           },
           {
-            name: "timezone",
-            type: "varchar",
-            length: "255",
+            name: 'timezone',
+            type: 'varchar',
+            length: '255',
             isNullable: true,
           },
           {
-            name: "createdAt",
-            type: "timestamp with time zone",
-            default: "now()",
+            name: 'createdAt',
+            type: 'timestamp with time zone',
+            default: 'now()',
           },
           {
-            name: "updatedAt",
-            type: "timestamp with time zone",
-            default: "now()",
+            name: 'updatedAt',
+            type: 'timestamp with time zone',
+            default: 'now()',
           },
           {
-            name: "deletedAt",
-            type: "timestamp with time zone",
+            name: 'deletedAt',
+            type: 'timestamp with time zone',
             isNullable: true,
           },
           {
-            name: "version",
-            type: "int",
-            default: "1",
+            name: 'version',
+            type: 'int',
+            default: '1',
           },
           {
-            name: "createdByUserId",
-            type: "uuid",
+            name: 'createdByUserId',
+            type: 'uuid',
             isNullable: true,
           },
           {
-            name: "updatedByUserId",
-            type: "uuid",
+            name: 'updatedByUserId',
+            type: 'uuid',
             isNullable: true,
           },
         ],
@@ -1508,10 +1475,10 @@ export class InitialDatabase1760310538461 implements MigrationInterface {
     );
 
     await queryRunner.createIndex(
-      "companies",
+      'companies',
       new TableIndex({
-        name: "IDX_COMPANY_NAME_UNIQUE",
-        columnNames: ["name"],
+        name: 'IDX_COMPANY_NAME_UNIQUE',
+        columnNames: ['name'],
         isUnique: true,
       }),
     );
@@ -1520,8 +1487,8 @@ export class InitialDatabase1760310538461 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropIndex("companies", "IDX_COMPANY_NAME_UNIQUE");
-    await queryRunner.dropTable("companies");
+    await queryRunner.dropIndex('companies', 'IDX_COMPANY_NAME_UNIQUE');
+    await queryRunner.dropTable('companies');
     // ... other table drops
   }
 }
@@ -1563,11 +1530,11 @@ Here are examples of how indexes are defined on our TypeORM entities:
 
 ```typescript
 // Example: User Entity Indexes
-@Entity("users")
-@Index(["companyId", "id"])
-@Index(["companyId", "email"], { unique: true })
-@Index(["companyId", "roleId"])
-@Index(["companyId", "statusId"])
+@Entity('users')
+@Index(['companyId', 'id'])
+@Index(['companyId', 'email'], { unique: true })
+@Index(['companyId', 'roleId'])
+@Index(['companyId', 'statusId'])
 export default class User extends BaseEntity {
   // ... entity properties
 }
@@ -1575,9 +1542,9 @@ export default class User extends BaseEntity {
 
 ```typescript
 // Example: Company Entity Indexes
-@Entity("companies")
-@Index(["id"])
-@Index(["name"], { unique: true })
+@Entity('companies')
+@Index(['id'])
+@Index(['name'], { unique: true })
 export class Company extends BaseEntity {
   // ... entity properties
 }
@@ -1585,8 +1552,8 @@ export class Company extends BaseEntity {
 
 ```typescript
 // Example: Team Entity Indexes
-@Entity("teams")
-@Index(["companyId", "id", "name"], { unique: true })
+@Entity('teams')
+@Index(['companyId', 'id', 'name'], { unique: true })
 export class Team extends BaseEntity {
   // ... entity properties
 }
@@ -1594,9 +1561,9 @@ export class Team extends BaseEntity {
 
 ```typescript
 // Example: Timesheet Entity Indexes
-@Entity("timesheets")
-@Index(["companyId", "userId", "periodStart", "periodEnd"], { unique: true })
-@Index(["companyId", "status"])
+@Entity('timesheets')
+@Index(['companyId', 'userId', 'periodStart', 'periodEnd'], { unique: true })
+@Index(['companyId', 'status'])
 export class Timesheet extends BaseEntity {
   // ... entity properties
 }
@@ -1604,10 +1571,10 @@ export class Timesheet extends BaseEntity {
 
 ```typescript
 // Example: TimesheetEntry Entity Indexes
-@Entity("timesheet_entries")
+@Entity('timesheet_entries')
 @Check(`"durationMin" BETWEEN 0 AND 1440`)
-@Index(["companyId", "userId", "day"])
-@Index(["companyId", "timesheetId"])
+@Index(['companyId', 'userId', 'day'])
+@Index(['companyId', 'timesheetId'])
 export class TimesheetEntry extends BaseEntity {
   // ... entity properties
 }
@@ -1615,9 +1582,9 @@ export class TimesheetEntry extends BaseEntity {
 
 ```typescript
 // Example: TimesheetHistory Entity Indexes
-@Entity("timesheet_history")
-@Index(["companyId", "userId"])
-@Index(["companyId", "targetType", "targetId"])
+@Entity('timesheet_history')
+@Index(['companyId', 'userId'])
+@Index(['companyId', 'targetType', 'targetId'])
 export class TimesheetHistory extends BaseEntity {
   // ... entity properties
 }
@@ -1629,23 +1596,23 @@ For more complex indexes, such as partial indexes or those requiring specific SQ
 
 ```typescript
 // Example from a migration file
-import { MigrationInterface, QueryRunner, TableIndex } from "typeorm";
+import { MigrationInterface, QueryRunner, TableIndex } from 'typeorm';
 
 export class AddUserEmailIndex123456789 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createIndex(
-      "users",
+      'users',
       new TableIndex({
-        name: "IDX_USER_EMAIL_ACTIVE",
-        columnNames: ["email"],
+        name: 'IDX_USER_EMAIL_ACTIVE',
+        columnNames: ['email'],
         isUnique: true,
-        where: "\"deletedAt\" IS NULL", // Partial index example
+        where: '"deletedAt" IS NULL', // Partial index example
       }),
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropIndex("users", "IDX_USER_EMAIL_ACTIVE");
+    await queryRunner.dropIndex('users', 'IDX_USER_EMAIL_ACTIVE');
   }
 }
 ```
@@ -1674,13 +1641,13 @@ pg_dump -h localhost -U postgres -d $DB_NAME \
 # Backup verification
 if [ $? -eq 0 ]; then
   echo "Backup completed successfully: ncy8_${DATE}.dump"
-  
+
   # Log backup in database
   psql -h localhost -U postgres -d $DB_NAME -c "
     INSERT INTO \"BackupSnapshot\" (path, size, verified, created_at)
-    VALUES ('$BACKUP_DIR/ncy8_${DATE}.dump', 
-            $(stat -c%s "$BACKUP_DIR/ncy8_${DATE}.dump"), 
-            true, 
+    VALUES ('$BACKUP_DIR/ncy8_${DATE}.dump',
+            $(stat -c%s "$BACKUP_DIR/ncy8_${DATE}.dump"),
+            true,
             NOW());
   "
 else
@@ -1743,19 +1710,19 @@ Our project includes several seed files located in `App.API/Seeds/` to populate 
 Example of a seed file (`App.API/Seeds/01-seed-user-statuses.ts`):
 
 ```typescript
-import { DataSource } from "typeorm";
-import { UserStatus } from "../Entities/Users/UserStatus";
-import { BaseSeed } from "./BaseSeed";
+import { DataSource } from 'typeorm';
+import { UserStatus } from '../Entities/Users/UserStatus';
+import { BaseSeed } from './BaseSeed';
 
 export class SeedUserStatuses1760310538461 extends BaseSeed {
   public async run(dataSource: DataSource): Promise<void> {
     const repository = dataSource.getRepository(UserStatus);
 
     const statuses = [
-      { code: "ACTIVE", name: "Active", canLogin: true, isTerminal: false },
-      { code: "INVITED", name: "Invited", canLogin: false, isTerminal: false },
-      { code: "SUSPENDED", name: "Suspended", canLogin: false, isTerminal: false },
-      { code: "TERMINATED", name: "Terminated", canLogin: false, isTerminal: true },
+      { code: 'ACTIVE', name: 'Active', canLogin: true, isTerminal: false },
+      { code: 'INVITED', name: 'Invited', canLogin: false, isTerminal: false },
+      { code: 'SUSPENDED', name: 'Suspended', canLogin: false, isTerminal: false },
+      { code: 'TERMINATED', name: 'Terminated', canLogin: false, isTerminal: true },
     ];
 
     for (const statusData of statuses) {
@@ -1786,7 +1753,7 @@ ALTER SYSTEM SET log_min_duration_statement = 1000; -- Log queries > 1s
 SELECT pg_reload_conf();
 
 -- Query performance analysis
-SELECT 
+SELECT
   query,
   calls,
   total_time,
@@ -1821,7 +1788,7 @@ setInterval(async () => {
     const queryRunner = AppDataSource.createQueryRunner();
     try {
       const result = await queryRunner.query(
-        `SELECT count(*) as active_connections FROM pg_stat_activity WHERE state = 'active'`
+        `SELECT count(*) as active_connections FROM pg_stat_activity WHERE state = 'active'`,
       );
       dbConnections.set(Number(result[0].active_connections));
     } finally {
@@ -1851,11 +1818,11 @@ For privacy reasons, user data can be anonymized instead of being permanently de
 
 ```typescript
 // App.API/Services/Users/AnonymizationService.ts (simplified example)
-import { Service } from "typedi";
-import { UserRepository } from "../../Repositories/Users/UserRepository";
-import ActiveSession from "../../Entities/Users/ActiveSessions";
-import { NotFoundError } from "../../Errors/HttpErrors";
-import { Repository } from "typeorm";
+import { Service } from 'typedi';
+import { UserRepository } from '../../Repositories/Users/UserRepository';
+import ActiveSession from '../../Entities/Users/ActiveSessions';
+import { NotFoundError } from '../../Errors/HttpErrors';
+import { Repository } from 'typeorm';
 
 @Service()
 export class AnonymizationService {
@@ -1864,21 +1831,18 @@ export class AnonymizationService {
     private readonly activeSessionRepository: Repository<ActiveSession>,
   ) {}
 
-  public async anonymizeUserData(
-    userId: string,
-    companyId: string,
-  ): Promise<void> {
+  public async anonymizeUserData(userId: string, companyId: string): Promise<void> {
     const user = await this.userRepository.findById(userId);
     if (!user || user.companyId !== companyId) {
-      throw new NotFoundError("User not found");
+      throw new NotFoundError('User not found');
     }
 
     // Anonymize user's personal information
-    user.firstName = "Deleted";
-    user.lastName = "User";
+    user.firstName = 'Deleted';
+    user.lastName = 'User';
     user.email = `deleted-${user.id}@gogotime.com`;
     user.phoneNumber = undefined;
-    user.passwordHash = ""; // Invalidate password
+    user.passwordHash = ''; // Invalidate password
     user.isAnonymized = true;
 
     await this.userRepository.update(user.id, user);
@@ -1891,4 +1855,4 @@ export class AnonymizationService {
 
 ---
 
-*This database strategy ensures data integrity, performance, and compliance while providing a solid foundation for the NCY_8 platform.*
+_This database strategy ensures data integrity, performance, and compliance while providing a solid foundation for the NCY_8 platform._

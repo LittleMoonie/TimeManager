@@ -1,19 +1,12 @@
-import { Service } from "typedi";
-import { validate } from "class-validator";
+import { Service } from 'typedi';
+import { validate } from 'class-validator';
 
-import { LeaveRequestRepository } from "../../Repositories/Companies/LeaveRequestRepository";
-import {
-  CreateLeaveRequestDto,
-  UpdateLeaveRequestDto,
-} from "../../Dtos/Companies/CompanyDto";
-import { LeaveRequest } from "../../Entities/Companies/LeaveRequest";
-import {
-  ForbiddenError,
-  NotFoundError,
-  UnprocessableEntityError,
-} from "../../Errors/HttpErrors";
-import User from "../../Entities/Users/User";
-import { RolePermissionService } from "../../Services/RoleService/RolePermissionService";
+import { LeaveRequestRepository } from '../../Repositories/Companies/LeaveRequestRepository';
+import { CreateLeaveRequestDto, UpdateLeaveRequestDto } from '../../Dtos/Companies/CompanyDto';
+import { LeaveRequest } from '../../Entities/Companies/LeaveRequest';
+import { ForbiddenError, NotFoundError, UnprocessableEntityError } from '../../Errors/HttpErrors';
+import User from '../../Entities/Users/User';
+import { RolePermissionService } from '../../Services/RoleService/RolePermissionService';
 
 /**
  * @description Service layer for managing LeaveRequest entities. This service provides business logic
@@ -41,7 +34,7 @@ export class LeaveRequestService {
     const errors = await validate(dto as object);
     if (errors.length > 0) {
       throw new UnprocessableEntityError(
-        `Validation error: ${errors.map((e) => e.toString()).join(", ")}`,
+        `Validation error: ${errors.map((e) => e.toString()).join(', ')}`,
       );
     }
   }
@@ -53,15 +46,12 @@ export class LeaveRequestService {
    * @returns A Promise that resolves to the LeaveRequest entity.
    * @throws {NotFoundError} If the leave request is not found.
    */
-  async getLeaveRequestById(
-    companyId: string,
-    leaveRequestId: string,
-  ): Promise<LeaveRequest> {
+  async getLeaveRequestById(companyId: string, leaveRequestId: string): Promise<LeaveRequest> {
     const leaveRequest = await this.leaveRequestRepository.getLeaveRequestById(
       companyId,
       leaveRequestId,
     );
-    if (!leaveRequest) throw new NotFoundError("Leave request not found");
+    if (!leaveRequest) throw new NotFoundError('Leave request not found');
     return leaveRequest;
   }
 
@@ -94,13 +84,10 @@ export class LeaveRequestService {
     // Users can create their own; managers can create for others
     if (
       actingUser.id !== dto.userId &&
-      !(await this.rolePermissionService.checkPermission(
-        actingUser,
-        "create_other_leave_request",
-      ))
+      !(await this.rolePermissionService.checkPermission(actingUser, 'create_other_leave_request'))
     ) {
       throw new ForbiddenError(
-        "User does not have permission to create leave requests for other users.",
+        'User does not have permission to create leave requests for other users.',
       );
     }
 
@@ -134,20 +121,14 @@ export class LeaveRequestService {
 
     if (
       actingUser.id !== leaveRequest.userId &&
-      !(await this.rolePermissionService.checkPermission(
-        actingUser,
-        "update_other_leave_request",
-      ))
+      !(await this.rolePermissionService.checkPermission(actingUser, 'update_other_leave_request'))
     ) {
       throw new ForbiddenError(
-        "User does not have permission to update leave requests for other users.",
+        'User does not have permission to update leave requests for other users.',
       );
     }
 
-    const updated = await this.leaveRequestRepository.update(
-      leaveRequestId,
-      dto,
-    );
+    const updated = await this.leaveRequestRepository.update(leaveRequestId, dto);
     return updated!;
   }
 
@@ -173,13 +154,10 @@ export class LeaveRequestService {
 
     if (
       actingUser.id !== leaveRequest.userId &&
-      !(await this.rolePermissionService.checkPermission(
-        actingUser,
-        "delete_other_leave_request",
-      ))
+      !(await this.rolePermissionService.checkPermission(actingUser, 'delete_other_leave_request'))
     ) {
       throw new ForbiddenError(
-        "User does not have permission to delete leave requests for other users.",
+        'User does not have permission to delete leave requests for other users.',
       );
     }
 

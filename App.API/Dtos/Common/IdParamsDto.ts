@@ -1,4 +1,4 @@
-import { IsUUID } from "class-validator";
+import { IsUUID } from 'class-validator';
 
 /**
  * @description Data transfer object for path parameters that contain a single UUID identifier.

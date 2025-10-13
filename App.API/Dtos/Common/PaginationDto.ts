@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, IsString, Min, IsIn } from "class-validator";
+import { IsInt, IsOptional, IsString, Min, IsIn } from 'class-validator';
 
 /**
  * @description Data transfer object for query parameters related to pagination and free-text search.
@@ -34,9 +34,9 @@ export class PaginationQueryDto {
    * @description Optional: The direction to sort the results, either "asc" for ascending or "desc" for descending.
    * @example "desc"
    */
-  @IsIn(["asc", "desc"])
+  @IsIn(['asc', 'desc'])
   @IsOptional()
-  sortDir?: "asc" | "desc";
+  sortDir?: 'asc' | 'desc';
 
   /**
    * @description Optional: A free-text search query string to filter results.
@@ -80,5 +80,5 @@ export class PaginatedResponseDto<T> {
    * @description Optional: The direction in which the results are sorted ("asc" or "desc").
    * @example "desc"
    */
-  sortDir?: "asc" | "desc";
+  sortDir?: 'asc' | 'desc';
 }

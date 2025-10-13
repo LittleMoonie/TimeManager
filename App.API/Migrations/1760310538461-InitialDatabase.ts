@@ -1,7 +1,7 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class InitialDatabase1760310538461 implements MigrationInterface {
-  name = "InitialDatabase1760310538461";
+  name = 'InitialDatabase1760310538461';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -58,9 +58,7 @@ export class InitialDatabase1760310538461 implements MigrationInterface {
     await queryRunner.query(
       `CREATE UNIQUE INDEX "IDX_3dacbb3eb4f095e29372ff8e13" ON "companies" ("name") `,
     );
-    await queryRunner.query(
-      `CREATE INDEX "IDX_d4bc3e82a314fa9e29f652c2c2" ON "companies" ("id") `,
-    );
+    await queryRunner.query(`CREATE INDEX "IDX_d4bc3e82a314fa9e29f652c2c2" ON "companies" ("id") `);
     await queryRunner.query(
       `CREATE TABLE "permissions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "version" integer NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "createdByUserId" uuid, "updatedByUserId" uuid, "companyId" uuid NOT NULL, "name" character varying(100) NOT NULL, "description" text, CONSTRAINT "PK_920331560282b8bd21bb02290df" PRIMARY KEY ("id"))`,
     );
@@ -490,24 +488,16 @@ export class InitialDatabase1760310538461 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "timesheet_approvals" DROP CONSTRAINT "FK_6b3b90451dd4c7f77171fe70ade"`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "users" DROP CONSTRAINT "FK_fffa7945e50138103659f6326b7"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "users" DROP CONSTRAINT "FK_d026fb529267ddb23a759d78129"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "users" DROP CONSTRAINT "FK_6f9395c9037632a31107c8a9e58"`,
-    );
+    await queryRunner.query(`ALTER TABLE "users" DROP CONSTRAINT "FK_fffa7945e50138103659f6326b7"`);
+    await queryRunner.query(`ALTER TABLE "users" DROP CONSTRAINT "FK_d026fb529267ddb23a759d78129"`);
+    await queryRunner.query(`ALTER TABLE "users" DROP CONSTRAINT "FK_6f9395c9037632a31107c8a9e58"`);
     await queryRunner.query(
       `ALTER TABLE "active_sessions" DROP CONSTRAINT "FK_be166928edf8fd4aa5281078f13"`,
     );
     await queryRunner.query(
       `ALTER TABLE "active_sessions" DROP CONSTRAINT "FK_5629b436a4b1ff80ef886aaaead"`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "roles" DROP CONSTRAINT "FK_5ff67a53e3777f7ab6186db44ba"`,
-    );
+    await queryRunner.query(`ALTER TABLE "roles" DROP CONSTRAINT "FK_5ff67a53e3777f7ab6186db44ba"`);
     await queryRunner.query(
       `ALTER TABLE "role_permissions" DROP CONSTRAINT "FK_c7769bcf3bbc2f66e4a37a821c3"`,
     );
@@ -556,210 +546,94 @@ export class InitialDatabase1760310538461 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "team_members" DROP CONSTRAINT "FK_a191cce2bbe49e41474666a9b19"`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "teams" DROP CONSTRAINT "FK_fc2a980dcd97019349b17b3921e"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_b404e6e95fdf5bb3b9b9883ffb"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_65046d2ba0bad86a52e9884557"`,
-    );
+    await queryRunner.query(`ALTER TABLE "teams" DROP CONSTRAINT "FK_fc2a980dcd97019349b17b3921e"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_b404e6e95fdf5bb3b9b9883ffb"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_65046d2ba0bad86a52e9884557"`);
     await queryRunner.query(`DROP TABLE "action_logs"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_efa597fecfef3d3ec683d69332"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_1213ae71840eb542af204cb52a"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_e5ce1d3dc21c4ca52b8ceb5c06"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_efa597fecfef3d3ec683d69332"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_1213ae71840eb542af204cb52a"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_e5ce1d3dc21c4ca52b8ceb5c06"`);
     await queryRunner.query(`DROP TABLE "audit_logs"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_2734a95ab9b9284d289be6a32e"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_933a6512c88fd1ff683970f4c9"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_2734a95ab9b9284d289be6a32e"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_933a6512c88fd1ff683970f4c9"`);
     await queryRunner.query(`DROP TABLE "data_access_logs"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_34b3fbcb0fb110f4b3e6f0a6ea"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_21dd7cf480b28bd2ebe231037f"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_34b3fbcb0fb110f4b3e6f0a6ea"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_21dd7cf480b28bd2ebe231037f"`);
     await queryRunner.query(`DROP TABLE "data_logs"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_3341e2af04b667e582bf2d8f2d"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_a117d81764b6d868b979539619"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_3341e2af04b667e582bf2d8f2d"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_a117d81764b6d868b979539619"`);
     await queryRunner.query(`DROP TABLE "app_errors"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_33177b54ebfc0ad70dbd3cece2"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_54c55b1aaf304e61fcc4aafefe"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_33177b54ebfc0ad70dbd3cece2"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_54c55b1aaf304e61fcc4aafefe"`);
     await queryRunner.query(`DROP TABLE "error_logs"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_658d43fbf41939f685cd83600c"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_22de6e14c6acf071b0f5b209af"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_658d43fbf41939f685cd83600c"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_22de6e14c6acf071b0f5b209af"`);
     await queryRunner.query(`DROP TABLE "auth_logs"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_5f790cb75d98ba8bb0c58468da"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_a97590f8e08c9b3f0139261f4f"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_5f790cb75d98ba8bb0c58468da"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_a97590f8e08c9b3f0139261f4f"`);
     await queryRunner.query(`DROP TABLE "email_logs"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_2be1809111f92ac1364fa5b251"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_1fd4bb40f33b2bc06104d0ee3c"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_2be1809111f92ac1364fa5b251"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_1fd4bb40f33b2bc06104d0ee3c"`);
     await queryRunner.query(`DROP TABLE "login_attempts"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_88a0c2638a01c6dc0bfed67709"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_d4a8ef94b1bcea81a569a74e68"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_88a0c2638a01c6dc0bfed67709"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_d4a8ef94b1bcea81a569a74e68"`);
     await queryRunner.query(`DROP TABLE "security_events"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_83f1da2c400ac70f676657ee01"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_83f1da2c400ac70f676657ee01"`);
     await queryRunner.query(`DROP TABLE "webhook_deliveries"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_b8b6bdf231541606d3b59f3bcb"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_3a34232c2b64dc298cf17c49d5"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_b8b6bdf231541606d3b59f3bcb"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_3a34232c2b64dc298cf17c49d5"`);
     await queryRunner.query(`DROP TABLE "webhook_outbox"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_f891ebd989b503abac3f670c35"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_f891ebd989b503abac3f670c35"`);
     await queryRunner.query(`DROP TABLE "system_logs"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_84f96322fea232b8f586b46a8a"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_3e6758ddae91d59f7f0c5d3d3e"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_9d7893a95ffdd37a8984e40f18"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_84f96322fea232b8f586b46a8a"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_3e6758ddae91d59f7f0c5d3d3e"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_9d7893a95ffdd37a8984e40f18"`);
     await queryRunner.query(`DROP TABLE "user_activity_logs"`);
-    await queryRunner.query(
-      `DROP TYPE "public"."user_activity_logs_activitytype_enum"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_c7a67fa4e2e06c363bf26b9b09"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_4eb5860e3d2a3e90cc7241a76f"`,
-    );
+    await queryRunner.query(`DROP TYPE "public"."user_activity_logs_activitytype_enum"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_c7a67fa4e2e06c363bf26b9b09"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_4eb5860e3d2a3e90cc7241a76f"`);
     await queryRunner.query(`DROP TABLE "webhook_logs"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_694ca8851e4e80bdd0a50020c7"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_6cb7b102ce47a2a7062a0d2ae5"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_694ca8851e4e80bdd0a50020c7"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_6cb7b102ce47a2a7062a0d2ae5"`);
     await queryRunner.query(`DROP TABLE "leave_requests"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_6d24653c9636862b5c373045ff"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_6d24653c9636862b5c373045ff"`);
     await queryRunner.query(`DROP TABLE "timesheet_approvals"`);
     await queryRunner.query(`DROP TABLE "user_statuses"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_3792ba7ce3ee793cf55d3a308a"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_712444039e93513628513fa89a"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_d026fb529267ddb23a759d7812"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_bfef67e9afa18541460e965129"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_3792ba7ce3ee793cf55d3a308a"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_712444039e93513628513fa89a"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_d026fb529267ddb23a759d7812"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_bfef67e9afa18541460e965129"`);
     await queryRunner.query(`DROP TABLE "users"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_428eacd8106a365cb6d504fc1f"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_8a0232c472ac5fd98bc66dcfb2"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_9552793858873524524e6292dc"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_428eacd8106a365cb6d504fc1f"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_8a0232c472ac5fd98bc66dcfb2"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_9552793858873524524e6292dc"`);
     await queryRunner.query(`DROP TABLE "active_sessions"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_e49da5b4edf713f75a9cedbe67"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_0385fdf771296e383c90c8a201"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_e49da5b4edf713f75a9cedbe67"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_0385fdf771296e383c90c8a201"`);
     await queryRunner.query(`DROP TABLE "roles"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_4d5b34779ce0ce383408376696"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_4d5b34779ce0ce383408376696"`);
     await queryRunner.query(`DROP TABLE "role_permissions"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_f41f8c6c1fb5eb042d2b37a45e"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_45a18190352130763a12277cf6"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_f41f8c6c1fb5eb042d2b37a45e"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_45a18190352130763a12277cf6"`);
     await queryRunner.query(`DROP TABLE "permissions"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_d4bc3e82a314fa9e29f652c2c2"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_3dacbb3eb4f095e29372ff8e13"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_d4bc3e82a314fa9e29f652c2c2"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_3dacbb3eb4f095e29372ff8e13"`);
     await queryRunner.query(`DROP TABLE "companies"`);
     await queryRunner.query(`DROP TABLE "company_settings"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_6268d20a72e1b18dff32f35f45"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_f4d20dc751e282273acfa47f57"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_6268d20a72e1b18dff32f35f45"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_f4d20dc751e282273acfa47f57"`);
     await queryRunner.query(`DROP TABLE "timesheet_history"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_159d34ce6ffc2c05457cd13153"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_37f742cd24094240abfefe7c73"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_159d34ce6ffc2c05457cd13153"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_37f742cd24094240abfefe7c73"`);
     await queryRunner.query(`DROP TABLE "timesheet_entries"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_7d68b6b580dee2d278730e2523"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_3021b8f6838973d8ac4980c424"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_7d68b6b580dee2d278730e2523"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_3021b8f6838973d8ac4980c424"`);
     await queryRunner.query(`DROP TABLE "timesheets"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_cadb5135dddc76482563e8fe37"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_cadb5135dddc76482563e8fe37"`);
     await queryRunner.query(`DROP TABLE "action_codes"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_c6f2f91de84d85084a930657f1"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_c6f2f91de84d85084a930657f1"`);
     await queryRunner.query(`DROP TABLE "team_members"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_966722747d5714ca0004d10881"`,
-    );
+    await queryRunner.query(`DROP INDEX "public"."IDX_966722747d5714ca0004d10881"`);
     await queryRunner.query(`DROP TABLE "teams"`);
   }
 }

@@ -10,28 +10,25 @@ import {
   Path,
   Security,
   Request,
-} from "tsoa";
-import { Request as ExpressRequest } from "express";
-import { Service } from "typedi";
+} from 'tsoa';
+import { Request as ExpressRequest } from 'express';
+import { Service } from 'typedi';
 
-import { LeaveRequestService } from "../../Services/Companies/LeaveRequestService";
-import {
-  CreateLeaveRequestDto,
-  UpdateLeaveRequestDto,
-} from "../../Dtos/Companies/CompanyDto";
-import { LeaveRequest } from "../../Entities/Companies/LeaveRequest";
-import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
-import { UserService } from "../../Services/Users/UserService";
-import User from "Entities/Users/User";
+import { LeaveRequestService } from '../../Services/Companies/LeaveRequestService';
+import { CreateLeaveRequestDto, UpdateLeaveRequestDto } from '../../Dtos/Companies/CompanyDto';
+import { LeaveRequest } from '../../Entities/Companies/LeaveRequest';
+import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
+import { UserService } from '../../Services/Users/UserService';
+import User from 'Entities/Users/User';
 
 /**
  * @summary Controller for managing leave requests.
  * @tags Leave Requests
  * @security jwt
  */
-@Route("leave-requests")
-@Tags("Leave Requests")
-@Security("jwt")
+@Route('leave-requests')
+@Tags('Leave Requests')
+@Security('jwt')
 @Service()
 export class LeaveRequestController extends Controller {
   constructor(
@@ -49,17 +46,13 @@ export class LeaveRequestController extends Controller {
    * @throws {ForbiddenError} If the acting user does not have permission to create leave requests for other users.
    * @throws {UnprocessableEntityError} If validation of the DTO fails.
    */
-  @Post("/")
+  @Post('/')
   public async createLeaveRequest(
     @Body() createLeaveRequestDto: CreateLeaveRequestDto,
     @Request() request: ExpressRequest,
   ): Promise<LeaveRequest> {
     const { id: userId, companyId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(
-      companyId,
-      userId,
-      request.user as User,
-    );
+    const actingUser = await this.userService.getUserById(companyId, userId, request.user as User);
     return this.leaveRequestService.createLeaveRequest(
       actingUser as User,
       companyId,
@@ -74,7 +67,7 @@ export class LeaveRequestController extends Controller {
    * @returns The leave request details.
    * @throws {NotFoundError} If the leave request is not found.
    */
-  @Get("/{id}")
+  @Get('/{id}')
   public async getLeaveRequest(
     @Path() id: string,
     @Request() request: ExpressRequest,
@@ -88,16 +81,10 @@ export class LeaveRequestController extends Controller {
    * @param request The Express request object, containing user information.
    * @returns An array of leave requests.
    */
-  @Get("/")
-  public async getAllLeaveRequests(
-    @Request() request: ExpressRequest,
-  ): Promise<LeaveRequest[]> {
+  @Get('/')
+  public async getAllLeaveRequests(@Request() request: ExpressRequest): Promise<LeaveRequest[]> {
     const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(
-      userId,
-      userId,
-      request.user as User,
-    );
+    const actingUser = await this.userService.getUserById(userId, userId, request.user as User);
     return this.leaveRequestService.getAllLeaveRequests(actingUser.companyId);
   }
 
@@ -111,18 +98,14 @@ export class LeaveRequestController extends Controller {
    * @throws {UnprocessableEntityError} If validation of the DTO fails.
    * @throws {NotFoundError} If the leave request is not found.
    */
-  @Put("/{id}")
+  @Put('/{id}')
   public async updateLeaveRequest(
     @Path() id: string,
     @Body() updateLeaveRequestDto: UpdateLeaveRequestDto,
     @Request() request: ExpressRequest,
   ): Promise<LeaveRequest> {
     const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(
-      userId,
-      userId,
-      request.user as User,
-    );
+    const actingUser = await this.userService.getUserById(userId, userId, request.user as User);
     return this.leaveRequestService.updateLeaveRequest(
       actingUser as User,
       actingUser.companyId,
@@ -139,21 +122,13 @@ export class LeaveRequestController extends Controller {
    * @throws {ForbiddenError} If the acting user does not have permission to delete leave requests for other users.
    * @throws {NotFoundError} If the leave request is not found.
    */
-  @Delete("/{id}")
+  @Delete('/{id}')
   public async deleteLeaveRequest(
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
     const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(
-      userId,
-      userId,
-      request.user as User,
-    );
-    await this.leaveRequestService.deleteLeaveRequest(
-      actingUser as User,
-      actingUser.companyId,
-      id,
-    );
+    const actingUser = await this.userService.getUserById(userId, userId, request.user as User);
+    await this.leaveRequestService.deleteLeaveRequest(actingUser as User, actingUser.companyId, id);
   }
 }

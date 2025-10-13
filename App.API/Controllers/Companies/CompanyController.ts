@@ -10,25 +10,22 @@ import {
   Get,
   Path,
   Put,
-} from "tsoa";
-import { Request as ExpressRequest } from "express";
-import { Service } from "typedi";
+} from 'tsoa';
+import { Request as ExpressRequest } from 'express';
+import { Service } from 'typedi';
 
-import { CompanyService } from "../../Services/Companies/CompanyService";
-import {
-  CreateCompanyDto,
-  UpdateCompanyDto,
-} from "../../Dtos/Companies/CompanyDto";
-import { Company } from "../../Entities/Companies/Company";
+import { CompanyService } from '../../Services/Companies/CompanyService';
+import { CreateCompanyDto, UpdateCompanyDto } from '../../Dtos/Companies/CompanyDto';
+import { Company } from '../../Entities/Companies/Company';
 
 /**
  * @summary Controller for managing company entities.
  * @tags Companies
  * @security jwt
  */
-@Route("companies")
-@Tags("Companies")
-@Security("jwt")
+@Route('companies')
+@Tags('Companies')
+@Security('jwt')
 @Service()
 export class CompanyController extends Controller {
   constructor(private companyService: CompanyService) {
@@ -42,9 +39,9 @@ export class CompanyController extends Controller {
    * @returns The newly created company.
    * @throws {UnprocessableEntityError} If validation fails.
    */
-  @Post("/")
-  @Security("jwt", ["admin"])
-  @SuccessResponse("201", "Company created successfully")
+  @Post('/')
+  @Security('jwt', ['admin'])
+  @SuccessResponse('201', 'Company created successfully')
   public async createCompany(
     @Body() createCompanyDto: CreateCompanyDto,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -61,7 +58,7 @@ export class CompanyController extends Controller {
    * @returns The company details.
    * @throws {NotFoundError} If the company is not found.
    */
-  @Get("/{id}")
+  @Get('/{id}')
   public async getCompany(@Path() id: string): Promise<Company> {
     return this.companyService.getCompanyById(id);
   }
@@ -75,8 +72,8 @@ export class CompanyController extends Controller {
    * @throws {UnprocessableEntityError} If validation fails.
    * @throws {NotFoundError} If the company to update is not found.
    */
-  @Put("/{id}")
-  @Security("jwt", ["admin"])
+  @Put('/{id}')
+  @Security('jwt', ['admin'])
   public async updateCompany(
     @Path() id: string,
     @Body() updateCompanyDto: UpdateCompanyDto,

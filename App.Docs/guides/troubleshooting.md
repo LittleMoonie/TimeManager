@@ -5,9 +5,11 @@ Common issues and solutions for GoGoTime development.
 ## 🚀 Startup Issues
 
 ### API Won't Start - "Port undefined"
+
 **Problem**: Server shows `🚀 Server is listening on port undefined`
 
 **Solution**:
+
 ```bash
 # Ensure PORT is set in environment
 cd App.Infra
@@ -18,20 +20,24 @@ grep PORT /home/lazar/Epitech/T-DEV-700-project-NCY_8/.env
 ```
 
 ### Database Connection Refused
+
 **Problem**: `❌ Database connection error: ECONNREFUSED`
 
 **Solutions**:
+
 1. **Check database is running**:
+
    ```bash
    docker compose ps
    # gogotime-db should show "Up" and "healthy"
    ```
 
 2. **Wrong hostname** (if running API outside Docker):
+
    ```bash
    # In .env, use localhost for local development
    DB_HOST=localhost
-   
+
    # In Docker, use service name
    DB_HOST=db
    ```
@@ -43,16 +49,20 @@ grep PORT /home/lazar/Epitech/T-DEV-700-project-NCY_8/.env
    ```
 
 ### OpenAPI Spec Not Found
+
 **Problem**: `/api/docs` shows "swagger.json not found"
 
 **Solutions**:
+
 1. **Manual generation**:
+
    ```bash
    cd App.API
    yarn api:generate
    ```
 
 2. **Auto-generation via API**:
+
    ```bash
    curl -X POST "http://localhost:4000/api/system/generate-openapi"
    ```
@@ -66,10 +76,13 @@ grep PORT /home/lazar/Epitech/T-DEV-700-project-NCY_8/.env
 ## 🐳 Docker Issues
 
 ### Services Not Starting
+
 **Problem**: Docker Compose services fail to start
 
 **Solutions**:
+
 1. **Clean rebuild**:
+
    ```bash
    docker compose down -v
    docker compose build --no-cache
@@ -77,25 +90,29 @@ grep PORT /home/lazar/Epitech/T-DEV-700-project-NCY_8/.env
    ```
 
 2. **Check Docker resources**:
+
    ```bash
    docker system df
    docker system prune -f  # Clean up space
    ```
 
 3. **Port conflicts**:
+
    ```bash
    # Find what's using ports
    lsof -i :3000  # Web
-   lsof -i :4000  # API  
+   lsof -i :4000  # API
    lsof -i :5432  # Database
-   
+
    # Kill processes or change ports in .env
    ```
 
 ### File Sync Issues (WSL2)
+
 **Problem**: Code changes not reflected in containers
 
 **Solution**:
+
 ```bash
 # Enable polling in .env
 CHOKIDAR_USEPOLLING=true
@@ -108,10 +125,13 @@ docker compose up --watch
 ## 📱 API Issues
 
 ### Auto-Generation Not Working
+
 **Problem**: OpenAPI spec doesn't update automatically
 
 **Check**:
+
 1. **File timestamps**:
+
    ```bash
    # Check if controllers are newer than swagger.json
    ls -la App.API/src/controllers/
@@ -119,6 +139,7 @@ docker compose up --watch
    ```
 
 2. **Generation service**:
+
    ```bash
    # Check OpenAPI service status
    curl "http://localhost:4000/api/system/openapi-status"
@@ -129,11 +150,14 @@ docker compose up --watch
    curl -X POST "http://localhost:4000/api/system/generate-openapi?frontend=true"
    ```
 
-### JWT Authentication Issues  
+### JWT Authentication Issues
+
 **Problem**: API calls return 401 Unauthorized
 
 **Solutions**:
+
 1. **Check JWT secrets**:
+
    ```bash
    # Ensure JWT_SECRET and JWT_REFRESH_SECRET are set in .env
    grep JWT_SECRET .env
@@ -141,6 +165,7 @@ docker compose up --watch
    ```
 
 2. **Token format**:
+
    ```typescript
    // Correct format
    headers: {
@@ -158,16 +183,20 @@ docker compose up --watch
 ## 🌐 Frontend Issues
 
 ### API Client Type Errors
+
 **Problem**: TypeScript errors in generated API client
 
 **Solutions**:
+
 1. **Regenerate client**:
+
    ```bash
    cd App.Web
    yarn api:client
    ```
 
 2. **Check OpenAPI spec validity**:
+
    ```bash
    # Validate spec
    npx swagger-parser validate App.API/swagger.json
@@ -181,10 +210,13 @@ docker compose up --watch
    ```
 
 ### Module Resolution Errors
+
 **Problem**: Cannot find module '@/lib/api/client'
 
 **Solutions**:
+
 1. **Check tsconfig paths**:
+
    ```json
    // App.Web/tsconfig.json
    {
@@ -205,10 +237,13 @@ docker compose up --watch
 ## 🗄️ Database Issues
 
 ### Migration Errors
+
 **Problem**: TypeORM migration/synchronization fails
 
 **Solutions**:
+
 1. **Reset development database**:
+
    ```bash
    docker compose down db
    docker volume rm appinfra_pgdata
@@ -223,9 +258,11 @@ docker compose up --watch
    ```
 
 ### Connection Pool Exhausted
+
 **Problem**: "remaining connection slots are reserved"
 
 **Solution**:
+
 ```bash
 # Check active connections
 docker exec -it gogotime-db psql -U postgres -d gogotime_dev
@@ -238,29 +275,36 @@ docker compose restart api
 ## 🔧 Development Tools
 
 ### ESLint/TypeScript Errors
+
 **Problem**: Linting or type checking fails
 
 **Solutions**:
+
 1. **Update dependencies**:
+
    ```bash
    cd App.API  # or App.Web
    yarn install
    ```
 
 2. **Fix common issues**:
+
    ```bash
    # Auto-fix ESLint issues
    yarn lint --fix
-   
+
    # Check TypeScript issues
    yarn typecheck
    ```
 
 ### Hot Reload Not Working
+
 **Problem**: Changes not reflected automatically
 
 **Solutions**:
+
 1. **Check watch mode**:
+
    ```bash
    # Ensure using watch mode
    docker compose up --watch
@@ -275,16 +319,20 @@ docker compose restart api
 
 ## 📊 Performance Issues
 
-### Slow API Responses  
+### Slow API Responses
+
 **Problem**: API endpoints responding slowly
 
 **Debug**:
+
 1. **Check database queries**:
+
    ```bash
    docker compose logs api | grep "query:"
    ```
 
 2. **Monitor resources**:
+
    ```bash
    docker stats
    ```
@@ -292,17 +340,20 @@ docker compose restart api
 3. **Database performance**:
    ```sql
    -- Check slow queries
-   SELECT query, mean_time, calls 
-   FROM pg_stat_statements 
-   ORDER BY mean_time DESC 
+   SELECT query, mean_time, calls
+   FROM pg_stat_statements
+   ORDER BY mean_time DESC
    LIMIT 10;
    ```
 
 ### High Memory Usage
+
 **Problem**: Docker containers using too much memory
 
 **Solutions**:
+
 1. **Limit container memory**:
+
    ```yaml
    # docker-compose.yml
    services:
@@ -322,6 +373,7 @@ docker compose restart api
 ## 🆘 Emergency Commands
 
 ### Complete Reset
+
 ```bash
 # Nuclear option - resets everything
 cd App.Infra
@@ -332,6 +384,7 @@ docker compose up
 ```
 
 ### Quick Diagnostics
+
 ```bash
 # Check all service status
 docker compose ps
@@ -347,6 +400,7 @@ docker exec gogotime-db pg_isready -U postgres
 ```
 
 ### Get Help Information
+
 ```bash
 # API system status
 curl "http://localhost:4000/api/system/openapi-status"

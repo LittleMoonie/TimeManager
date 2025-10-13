@@ -9,7 +9,7 @@ import {
   ListItemText,
   Stack,
   Typography,
-} from '@mui/material'
+} from '@mui/material';
 // import { useTasks } from '@/hooks/useTasks'
 // import type { Task, TaskPriority, TaskStatus } from '@/types'
 
@@ -33,7 +33,7 @@ const timesheetEntries = [
   { id: 'ts-2', date: '2024-10-15', project: 'GoGoTime API', hours: 7.5, status: 'Pending' },
   { id: 'ts-3', date: '2024-10-16', project: 'Product discovery', hours: 5, status: 'Approved' },
   { id: 'ts-4', date: '2024-10-17', project: 'Design sync', hours: 4, status: 'Pending' },
-]
+];
 
 const reportSummaries = [
   {
@@ -56,7 +56,7 @@ const reportSummaries = [
     title: 'Billing preview',
     description: 'Forecasts billable hours and cost allocations.',
   },
-]
+];
 
 const settingsShortcuts = [
   {
@@ -66,7 +66,7 @@ const settingsShortcuts = [
   },
   { id: 's2', label: 'Teams', description: 'Manage assignments and approval routing.' },
   { id: 's3', label: 'Integrations', description: 'Connect Slack, Jira, or payroll exports.' },
-]
+];
 
 // const renderTask = (task: Task) => (
 //   <Box
@@ -309,7 +309,7 @@ export const DashboardPage = () => {
             </Box>
             <Divider />
             <Stack spacing={1.5} sx={{ flex: 1, overflowY: 'auto', pr: 0.5 }}>
-              {settingsShortcuts.map(item => (
+              {settingsShortcuts.map((item) => (
                 <Box
                   key={item.id}
                   sx={{
@@ -378,7 +378,7 @@ export const DashboardPage = () => {
                   gap: { xs: 1.5, md: 2 },
                 }}
               >
-                {reportSummaries.map(report => (
+                {reportSummaries.map((report) => (
                   <ListItem
                     key={report.id}
                     sx={{
@@ -412,5 +412,5 @@ export const DashboardPage = () => {
         </Card>
       </Box>
     </Box>
-  )
-}
+  );
+};

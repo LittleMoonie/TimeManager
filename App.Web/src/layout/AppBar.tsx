@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState } from 'react';
 import {
   AppBar,
   Avatar,
@@ -11,7 +11,7 @@ import {
   TextField,
   Toolbar,
   Typography,
-} from '@mui/material'
+} from '@mui/material';
 import {
   MenuRounded,
   NotificationsRounded,
@@ -19,21 +19,21 @@ import {
   SearchRounded,
   LogoutRounded,
   PersonRounded,
-} from '@mui/icons-material'
-import { useAuth } from '@/hooks/useAuth'
+} from '@mui/icons-material';
+import { useAuth } from '@/hooks/useAuth';
 
 type LayoutAppBarProps = {
-  onMenuClick: () => void
-}
+  onMenuClick: () => void;
+};
 
 export const LayoutAppBar = ({ onMenuClick }: LayoutAppBarProps) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const { user } = useAuth()
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const { user } = useAuth();
   const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
+    setAnchorEl(event.currentTarget);
+  };
 
-  const handleMenuClose = () => setAnchorEl(null)
+  const handleMenuClose = () => setAnchorEl(null);
 
   return (
     <AppBar
@@ -43,7 +43,7 @@ export const LayoutAppBar = ({ onMenuClick }: LayoutAppBarProps) => {
         backgroundColor: 'background.default',
         borderRadius: 0,
         width: '100%',
-        zIndex: theme => theme.zIndex.drawer + 1,
+        zIndex: (theme) => theme.zIndex.drawer + 1,
         '& .MuiToolbar-root': {
           borderRadius: 0,
         },
@@ -67,7 +67,7 @@ export const LayoutAppBar = ({ onMenuClick }: LayoutAppBarProps) => {
                 width: 32,
                 height: 32,
                 borderRadius: 1,
-                background: theme => theme.app.gradients.brand,
+                background: (theme) => theme.app.gradients.brand,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -177,7 +177,7 @@ export const LayoutAppBar = ({ onMenuClick }: LayoutAppBarProps) => {
             mt: 1,
             minWidth: 180,
             borderRadius: 2,
-            boxShadow: theme => theme.shadows[4],
+            boxShadow: (theme) => theme.shadows[4],
           },
         }}
       >
@@ -199,5 +199,5 @@ export const LayoutAppBar = ({ onMenuClick }: LayoutAppBarProps) => {
         </MenuItem>
       </Menu>
     </AppBar>
-  )
-}
+  );
+};

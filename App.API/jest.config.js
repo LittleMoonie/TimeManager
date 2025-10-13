@@ -35,12 +35,12 @@ module.exports = {
     '!**/Errors/**',
     '!**/Entities/**',
     '!**/Repositories/**',
-    '!**/Dtos/**'
+    '!**/Dtos/**',
   ],
   globals: {
     'ts-jest': {
       tsconfig: 'tsconfig.json',
-      isolatedModules: true
-    }
-  }
+      isolatedModules: true,
+    },
+  },
 };

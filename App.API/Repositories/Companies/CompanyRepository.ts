@@ -1,7 +1,7 @@
-import { Service } from "typedi";
-import { Company } from "../../Entities/Companies/Company";
-import { BaseRepository } from "../../Repositories/BaseRepository";
-import { NotFoundError } from "../../Errors/HttpErrors";
+import { Service } from 'typedi';
+import { Company } from '../../Entities/Companies/Company';
+import { BaseRepository } from '../../Repositories/BaseRepository';
+import { NotFoundError } from '../../Errors/HttpErrors';
 
 /**
  * @description Repository for managing Company entities. Extends BaseRepository to provide standard CRUD operations
@@ -25,7 +25,7 @@ export class CompanyRepository extends BaseRepository<Company> {
    */
   async getCompanyById(companyId: string): Promise<Company> {
     const company = await this.findById(companyId);
-    if (!company) throw new NotFoundError("Company not found");
+    if (!company) throw new NotFoundError('Company not found');
     return company;
   }
 }

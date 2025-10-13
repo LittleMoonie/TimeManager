@@ -1,32 +1,32 @@
-import { Column, Entity, Index, OneToMany, OneToOne } from "typeorm";
-import { BaseEntity } from "../BaseEntity";
-import User from "../Users/User";
-import { Team } from "./Team";
-import { TeamMember } from "./TeamMember";
-import { ActionCode } from "../Timesheets/ActionCode";
-import { TimesheetEntry } from "../Timesheets/TimesheetEntry";
-import { TimesheetHistory } from "../Timesheets/TimesheetHistory";
-import { CompanySettings } from "./CompanySettings";
+import { Column, Entity, Index, OneToMany, OneToOne } from 'typeorm';
+import { BaseEntity } from '../BaseEntity';
+import User from '../Users/User';
+import { Team } from './Team';
+import { TeamMember } from './TeamMember';
+import { ActionCode } from '../Timesheets/ActionCode';
+import { TimesheetEntry } from '../Timesheets/TimesheetEntry';
+import { TimesheetHistory } from '../Timesheets/TimesheetHistory';
+import { CompanySettings } from './CompanySettings';
 
 /**
  * @description Represents a company in the system.
  */
-@Entity("companies")
-@Index(["id"])
-@Index(["name"], { unique: true })
+@Entity('companies')
+@Index(['id'])
+@Index(['name'], { unique: true })
 export class Company extends BaseEntity {
   /**
    * @description The name of the company.
    * @example "Acme Corp"
    */
-  @Column({ type: "varchar", length: 255 })
+  @Column({ type: 'varchar', length: 255 })
   name!: string;
 
   /**
    * @description The timezone of the company (e.g., "America/New_York").
    * @example "America/New_York"
    */
-  @Column({ type: "varchar", length: 255, nullable: true }) timezone?: string;
+  @Column({ type: 'varchar', length: 255, nullable: true }) timezone?: string;
 
   /**
    * @description List of users belonging to this company.

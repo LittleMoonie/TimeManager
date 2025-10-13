@@ -1,29 +1,29 @@
-import { useState } from 'react'
-import { Box, useMediaQuery } from '@mui/material'
-import { useTheme } from '@mui/material/styles'
-import { Outlet } from 'react-router-dom'
-import { Navigation } from '@/layout/Navigation'
-import { LayoutAppBar } from '@/layout/AppBar'
-import { SettingsFab } from '@/components/SettingsFab'
-import { APP_BAR_HEIGHT, DRAWER_WIDTH } from '@/constants/layout'
+import { useState } from 'react';
+import { Box, useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import { Outlet } from 'react-router-dom';
+import { Navigation } from '@/layout/Navigation';
+import { LayoutAppBar } from '@/layout/AppBar';
+import { SettingsFab } from '@/components/SettingsFab';
+import { APP_BAR_HEIGHT, DRAWER_WIDTH } from '@/constants/layout';
 
 export const Shell = () => {
-  const theme = useTheme()
-  const isDesktop = useMediaQuery(theme.breakpoints.up('lg'))
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const handleDrawerToggle = () => {
     if (isDesktop) {
-      setSidebarCollapsed(prev => !prev)
+      setSidebarCollapsed((prev) => !prev);
     } else {
-      setMobileOpen(prev => !prev)
+      setMobileOpen((prev) => !prev);
     }
-  }
+  };
 
-  const handleCloseNavigation = () => setMobileOpen(false)
+  const handleCloseNavigation = () => setMobileOpen(false);
 
-  const sidebarWidth = isDesktop ? (sidebarCollapsed ? 80 : DRAWER_WIDTH) : 0
+  const sidebarWidth = isDesktop ? (sidebarCollapsed ? 80 : DRAWER_WIDTH) : 0;
 
   return (
     <Box
@@ -60,7 +60,7 @@ export const Shell = () => {
 
       <SettingsFab />
     </Box>
-  )
-}
+  );
+};
 
-export default Shell
+export default Shell;

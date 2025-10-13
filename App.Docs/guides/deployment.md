@@ -4,15 +4,16 @@ Complete guide for deploying GoGoTime to different environments.
 
 ## 🎯 Environment Overview
 
-| Environment | Purpose | URL | Database |
-|-------------|---------|-----|----------|
-| **Development** | Local development | localhost:3000 | Local PostgreSQL |
-| **Staging** | Testing & QA | staging.gogotime.com | Cloud PostgreSQL |
-| **Production** | Live application | gogotime.com | Production PostgreSQL |
+| Environment     | Purpose           | URL                  | Database              |
+| --------------- | ----------------- | -------------------- | --------------------- |
+| **Development** | Local development | localhost:3000       | Local PostgreSQL      |
+| **Staging**     | Testing & QA      | staging.gogotime.com | Cloud PostgreSQL      |
+| **Production**  | Live application  | gogotime.com         | Production PostgreSQL |
 
 ## 🐳 Docker Deployment (Recommended)
 
 ### Development Deployment
+
 ```bash
 # Standard development setup
 cd App.Infra
@@ -25,6 +26,7 @@ docker compose up --build --watch
 ```
 
 ### Production Deployment
+
 ```bash
 # Create production environment file
 cp .env.example .env.production
@@ -72,6 +74,7 @@ CORS_ORIGIN=https://gogotime.com,https://www.gogotime.com
 ```
 
 ### Security Considerations
+
 ```bash
 # Strong JWT secret (64+ characters)
 JWT_SECRET=$(openssl rand -base64 64)
@@ -152,18 +155,18 @@ spec:
         app: gogotime-api
     spec:
       containers:
-      - name: api
-        image: your-registry/gogotime-api:latest
-        ports:
-        - containerPort: 4000
-        env:
-        - name: NODE_ENV
-          value: "production"
-        - name: DB_HOST
-          valueFrom:
-            secretKeyRef:
-              name: db-secret
-              key: host
+        - name: api
+          image: your-registry/gogotime-api:latest
+          ports:
+            - containerPort: 4000
+          env:
+            - name: NODE_ENV
+              value: 'production'
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: host
 ```
 
 ## 📊 Database Setup
@@ -171,12 +174,14 @@ spec:
 ### PostgreSQL Cloud Options
 
 #### Option A: Managed PostgreSQL (AWS RDS, Google Cloud SQL)
+
 ```bash
 # Example connection string
 DATABASE_URL="postgresql://username:password@instance.region.rds.amazonaws.com:5432/gogotime"
 ```
 
 #### Option B: Self-hosted PostgreSQL
+
 ```bash
 # Install PostgreSQL
 sudo apt update
@@ -190,6 +195,7 @@ GRANT ALL PRIVILEGES ON DATABASE gogotime_prod TO gogotime;
 ```
 
 ### Database Migration
+
 ```bash
 # Run migrations on production database
 cd App.API
@@ -202,6 +208,7 @@ pg_dump -h your-db-host -U username gogotime_prod > backup.sql
 ## 🔒 SSL/TLS Setup
 
 ### Option 1: Let's Encrypt (Free)
+
 ```bash
 # Install certbot
 sudo apt install certbot python3-certbot-nginx
@@ -215,11 +222,13 @@ sudo crontab -e
 ```
 
 ### Option 2: Cloud Load Balancer
+
 Most cloud providers (AWS ALB, GCP Load Balancer) handle SSL termination automatically.
 
 ## 📈 Monitoring & Health Checks
 
 ### Health Check Endpoints
+
 ```bash
 # API health
 curl https://api.gogotime.com/api/system/health
@@ -232,6 +241,7 @@ curl https://gogotime.com/health
 ```
 
 ### Monitoring Setup
+
 ```bash
 # Add to docker-compose.prod.yml
 version: '3.8'
@@ -254,6 +264,7 @@ services:
 ## 🔄 CI/CD Deployment
 
 ### GitHub Actions Example
+
 ```yaml
 # .github/workflows/deploy.yml
 name: Deploy to Production
@@ -266,45 +277,46 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: production # Use GitHub Environments for secrets
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      - uses: actions/checkout@v3
 
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-    - name: Build and Push API Image
-      run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/gogotime-api:${{ github.sha }} ./App.API
-        docker push ${{ secrets.DOCKER_USERNAME }}/gogotime-api:${{ github.sha }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build and Push Web Image
-      run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/gogotime-web:${{ github.sha }} ./App.Web
-        docker push ${{ secrets.DOCKER_USERNAME }}/gogotime-web:${{ github.sha }}
-        
-    - name: Deploy to Server
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.DEPLOY_HOST }}
-        username: ${{ secrets.DEPLOY_USER }}
-        key: ${{ secrets.DEPLOY_KEY }}
-        script: |
-          cd /path/to/your/app/T-DEV-700-project-NCY_8/App.Infra # Adjust path as needed
-          docker compose -f docker-compose.prod.yml pull
-          docker compose -f docker-compose.prod.yml up -d --remove-orphans
-          docker image prune -f
+      - name: Build and Push API Image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/gogotime-api:${{ github.sha }} ./App.API
+          docker push ${{ secrets.DOCKER_USERNAME }}/gogotime-api:${{ github.sha }}
+
+      - name: Build and Push Web Image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/gogotime-web:${{ github.sha }} ./App.Web
+          docker push ${{ secrets.DOCKER_USERNAME }}/gogotime-web:${{ github.sha }}
+
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: |
+            cd /path/to/your/app/T-DEV-700-project-NCY_8/App.Infra # Adjust path as needed
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker image prune -f
 ```
 
 ## 🚀 Performance Optimization
 
 ### Production Optimizations
+
 ```bash
 # Enable Node.js production optimizations
 NODE_ENV=production
@@ -327,6 +339,7 @@ location /static {
 ```
 
 ### Load Balancing
+
 ```nginx
 # nginx load balancer
 upstream api_backend {
@@ -338,7 +351,7 @@ upstream api_backend {
 server {
     listen 80;
     server_name api.gogotime.com;
-    
+
     location / {
         proxy_pass http://api_backend;
         proxy_set_header Host $host;
@@ -350,6 +363,7 @@ server {
 ## 📋 Deployment Checklist
 
 ### Pre-deployment
+
 - [ ] Environment variables configured
 - [ ] Database setup and migrations ready
 - [ ] SSL certificates obtained
@@ -358,6 +372,7 @@ server {
 - [ ] Monitoring tools configured
 
 ### Deployment
+
 - [ ] Build and test images locally
 - [ ] Push images to registry
 - [ ] Deploy to staging first
@@ -366,6 +381,7 @@ server {
 - [ ] Verify health checks pass
 
 ### Post-deployment
+
 - [ ] Verify all services are running
 - [ ] Test critical user flows
 - [ ] Check logs for errors
@@ -376,6 +392,7 @@ server {
 ## 🆘 Rollback Procedure
 
 ### Quick Rollback
+
 ```bash
 # Rollback to previous version
 docker compose -f docker-compose.prod.yml down
@@ -387,11 +404,13 @@ psql -h your-db < backup-before-migration.sql
 ```
 
 ### Blue-Green Deployment
+
 For zero-downtime deployments, maintain two identical environments and switch traffic between them.
 
 ## 📞 Support & Monitoring
 
 ### Log Management
+
 ```bash
 # Centralized logging
 docker run -d \
@@ -405,6 +424,7 @@ docker compose -f docker-compose.prod.yml logs --tail 100 -f
 ```
 
 ### Alerts & Notifications
+
 - Set up alerts for:
   - Service downtime
   - High error rates
@@ -417,6 +437,7 @@ docker compose -f docker-compose.prod.yml logs --tail 100 -f
 **🎉 Your GoGoTime application is now deployed and ready for users!**
 
 For ongoing maintenance, see:
+
 - [`../infrastructure/observability.md`](../infrastructure/observability.md) - Monitoring
 - [`troubleshooting.md`](./troubleshooting.md) - Common issues
 - [`../infrastructure/ci-cd.md`](../infrastructure/ci-cd.md) - Automation

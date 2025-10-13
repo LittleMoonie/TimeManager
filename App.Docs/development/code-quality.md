@@ -14,10 +14,7 @@ Our project utilizes Yarn workspaces for managing multiple packages within a sin
 // package.json (root)
 {
   "private": true,
-  "workspaces": [
-    "App.API",
-    "App.Web"
-  ],
+  "workspaces": ["App.API", "App.Web"],
   "scripts": {
     "dev": "concurrently \"yarn workspace App.Web dev\" \"yarn workspace App.API dev\"",
     "build": "yarn workspaces run build",
@@ -43,13 +40,13 @@ Our ESLint configuration is defined in `eslint.config.js` files at the root of `
 
 ```javascript
 // App.API/eslint.config.js (Simplified)
-import globals from "globals";
-import pluginJs from "@eslint/js";
-import tseslint from "typescript-eslint";
-import prettierConfig from "eslint-config-prettier";
+import globals from 'globals';
+import pluginJs from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import prettierConfig from 'eslint-config-prettier';
 
 export default [
-  { files: ["**/*.{js,ts}"] },
+  { files: ['**/*.{js,ts}'] },
   { languageOptions: { globals: globals.node } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
@@ -57,8 +54,8 @@ export default [
   {
     rules: {
       // Custom rules or overrides
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
-      "@typescript-eslint/explicit-function-return-type": "off", // Often inferred
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/explicit-function-return-type': 'off', // Often inferred
     },
   },
 ];
@@ -110,6 +107,7 @@ All commits must follow the [Conventional Commits](https://www.conventionalcommi
 ```
 
 **Types**:
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -119,6 +117,7 @@ All commits must follow the [Conventional Commits](https://www.conventionalcommi
 - `chore`: Maintenance tasks
 
 **Examples**:
+
 ```bash
 feat(auth): add OIDC authentication support
 fix(api): resolve user creation validation error
@@ -133,13 +132,14 @@ refactor(database): optimize user query performance
 module.exports = {
   extends: ['@commitlint/config-conventional'],
   rules: {
-    'type-enum': [2, 'always', [
-      'feat', 'fix', 'docs', 'style', 'refactor', 
-      'test', 'chore', 'perf', 'ci', 'build'
-    ]],
+    'type-enum': [
+      2,
+      'always',
+      ['feat', 'fix', 'docs', 'style', 'refactor', 'test', 'chore', 'perf', 'ci', 'build'],
+    ],
     'subject-case': [2, 'never', ['sentence-case', 'start-case', 'pascal-case']],
-    'subject-max-length': [2, 'always', 72]
-  }
+    'subject-max-length': [2, 'always', 72],
+  },
 };
 ```
 
@@ -163,13 +163,8 @@ module.exports = {
 ```json
 {
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md,yml,yaml}": [
-      "prettier --write"
-    ]
+    "*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write"],
+    "*.{json,md,yml,yaml}": ["prettier --write"]
   }
 }
 ```
@@ -179,24 +174,28 @@ module.exports = {
 ### Review Checklist
 
 **Functionality**:
+
 - [ ] Code works as intended
 - [ ] Edge cases are handled
 - [ ] Error handling is appropriate
 - [ ] Performance considerations addressed
 
 **Code Quality**:
+
 - [ ] Code is readable and well-documented
 - [ ] No code duplication
 - [ ] Appropriate abstractions used
 - [ ] SOLID principles followed
 
 **Testing**:
+
 - [ ] Unit tests cover new functionality
 - [ ] Integration tests updated if needed
 - [ ] Test coverage maintained
 - [ ] Tests are meaningful and not brittle
 
 **Security**:
+
 - [ ] No sensitive data exposed
 - [ ] Input validation implemented
 - [ ] Authentication/authorization checked
@@ -260,6 +259,7 @@ describe('POST /api/v1/users', () => {
 ### Code Documentation
 
 **JSDoc for Functions**:
+
 ```typescript
 /**
  * Creates a new user account with the provided data
@@ -268,32 +268,33 @@ describe('POST /api/v1/users', () => {
  * @throws {UnprocessableEntityError} When user data is invalid or email already exists
  * @throws {NotFoundError} If related entities (e.g., default status) are not found
  */
-async function createUser(
-  userData: CreateUserDto,
-): Promise<User> {
+async function createUser(userData: CreateUserDto): Promise<User> {
   // Implementation
 }
 ```
 
 **README for Components**:
-```markdown
+
+````markdown
 # UserProfile Component
 
 A reusable component for displaying and editing user profile information.
 
 ## Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| user | User | Yes | User object to display |
-| editable | boolean | No | Whether the profile is editable |
+| Prop     | Type    | Required | Description                     |
+| -------- | ------- | -------- | ------------------------------- |
+| user     | User    | Yes      | User object to display          |
+| editable | boolean | No       | Whether the profile is editable |
 
 ## Usage
 
 ```tsx
 <UserProfile user={user} editable={true} />
 ```
-```
+````
+
+````
 
 ### Architecture Decision Records (ADRs)
 
@@ -316,7 +317,7 @@ We will use TypeORM as our ORM.
 - Excellent migration system
 - Good developer experience
 - Additional dependency to maintain
-```
+````
 
 ## Performance Standards
 
@@ -361,7 +362,7 @@ Input validation is critical for security. We use `class-validator` decorators o
 
 ```typescript
 // Input validation with class-validator (example from DTO)
-import { IsEmail, IsString, MinLength, IsNotEmpty } from "class-validator";
+import { IsEmail, IsString, MinLength, IsNotEmpty } from 'class-validator';
 
 export class CreateUserDto {
   @IsEmail()
@@ -426,6 +427,7 @@ jobs:
 ### IDE Configuration
 
 **VS Code Settings**:
+
 ```json
 {
   "editor.formatOnSave": true,
@@ -438,6 +440,7 @@ jobs:
 ```
 
 **Recommended Extensions**:
+
 - ESLint
 - Prettier
 - TypeScript Importer
@@ -478,7 +481,7 @@ const qualityMetrics = {
   codeComplexity: getCodeComplexity(),
   technicalDebt: getTechnicalDebt(),
   securityIssues: getSecurityIssues(),
-  performanceMetrics: getPerformanceMetrics()
+  performanceMetrics: getPerformanceMetrics(),
 };
 ```
 
@@ -498,4 +501,4 @@ const qualityMetrics = {
 
 ---
 
-*This document is maintained by the engineering team and updated based on team feedback and industry best practices.*
+_This document is maintained by the engineering team and updated based on team feedback and industry best practices._

@@ -1,8 +1,8 @@
-import { Service } from "typedi";
-import { InjectRepository } from "typeorm-typedi-extensions";
-import { Repository } from "typeorm";
-import { BaseRepository } from "../../Repositories/BaseRepository";
-import { TimesheetApproval } from "../../Entities/Timesheets/TimesheetApproval";
+import { Service } from 'typedi';
+import { InjectRepository } from 'typeorm-typedi-extensions';
+import { Repository } from 'typeorm';
+import { BaseRepository } from '../../Repositories/BaseRepository';
+import { TimesheetApproval } from '../../Entities/Timesheets/TimesheetApproval';
 
 /**
  * @description Repository for managing TimesheetApproval entities. Extends BaseRepository to provide standard CRUD operations
@@ -14,9 +14,7 @@ export class TimesheetApprovalRepository extends BaseRepository<TimesheetApprova
    * @description Initializes the TimesheetApprovalRepository with a TypeORM Repository instance for TimesheetApproval.
    * @param repo The TypeORM Repository<TimesheetApproval> injected by TypeDI.
    */
-  constructor(
-    @InjectRepository(TimesheetApproval) repo: Repository<TimesheetApproval>,
-  ) {
+  constructor(@InjectRepository(TimesheetApproval) repo: Repository<TimesheetApproval>) {
     super(TimesheetApproval, repo);
   }
 
@@ -50,7 +48,7 @@ export class TimesheetApprovalRepository extends BaseRepository<TimesheetApprova
     return this.repository.find({
       where: { companyId: _companyId, timesheetId: _timesheetId },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      order: { createdAt: "DESC" } as any,
+      order: { createdAt: 'DESC' } as any,
     });
   }
 
@@ -62,7 +60,7 @@ export class TimesheetApprovalRepository extends BaseRepository<TimesheetApprova
   async findAllInCompany(companyId: string): Promise<TimesheetApproval[]> {
     return this.repository.find({
       where: { companyId }, // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      order: { createdAt: "DESC" } as any,
+      order: { createdAt: 'DESC' } as any,
     });
   }
 
@@ -72,14 +70,11 @@ export class TimesheetApprovalRepository extends BaseRepository<TimesheetApprova
    * @param approverId The unique identifier of the approver.
    * @returns A Promise that resolves to an array of TimesheetApproval entities, ordered by creation date.
    */
-  async findAllForApprover(
-    companyId: string,
-    approverId: string,
-  ): Promise<TimesheetApproval[]> {
+  async findAllForApprover(companyId: string, approverId: string): Promise<TimesheetApproval[]> {
     return this.repository.find({
       where: { companyId, approverId },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      order: { createdAt: "DESC" } as any,
+      order: { createdAt: 'DESC' } as any,
     });
   }
 }

@@ -8,7 +8,8 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "format": "prettier --write \"./**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\" --ignore-path .gitignore --config ./.prettierrc.json"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.3.0",

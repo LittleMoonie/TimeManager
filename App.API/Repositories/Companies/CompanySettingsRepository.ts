@@ -1,7 +1,7 @@
-import { Service } from "typedi";
-import { CompanySettings } from "../../Entities/Companies/CompanySettings";
-import { BaseRepository } from "../../Repositories/BaseRepository";
-import { NotFoundError } from "../../Errors/HttpErrors";
+import { Service } from 'typedi';
+import { CompanySettings } from '../../Entities/Companies/CompanySettings';
+import { BaseRepository } from '../../Repositories/BaseRepository';
+import { NotFoundError } from '../../Errors/HttpErrors';
 
 /**
  * @description Repository for managing CompanySettings entities. Extends BaseRepository to provide standard CRUD operations
@@ -26,7 +26,7 @@ export class CompanySettingsRepository extends BaseRepository<CompanySettings> {
   async getCompanySettings(companyId: string): Promise<CompanySettings> {
     const settings = await this.findById(companyId);
     if (!settings) {
-      throw new NotFoundError("Company settings not found");
+      throw new NotFoundError('Company settings not found');
     }
     return settings;
   }

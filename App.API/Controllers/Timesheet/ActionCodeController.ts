@@ -12,26 +12,23 @@ import {
   Request,
   Query,
   SuccessResponse,
-} from "tsoa";
-import { Request as ExpressRequest } from "express";
-import { Service } from "typedi";
+} from 'tsoa';
+import { Request as ExpressRequest } from 'express';
+import { Service } from 'typedi';
 
-import { ActionCodeService } from "../../Services/Timesheet/ActionCodeService";
-import {
-  CreateActionCodeDto,
-  UpdateActionCodeDto,
-} from "../../Dtos/Timesheet/TimesheetDto";
-import { ActionCode } from "../../Entities/Timesheets/ActionCode";
-import User from "../../Entities/Users/User";
+import { ActionCodeService } from '../../Services/Timesheet/ActionCodeService';
+import { CreateActionCodeDto, UpdateActionCodeDto } from '../../Dtos/Timesheet/TimesheetDto';
+import { ActionCode } from '../../Entities/Timesheets/ActionCode';
+import User from '../../Entities/Users/User';
 
 /**
  * @summary Controller for managing action codes.
  * @tags Action Codes
  * @security jwt
  */
-@Route("action-codes")
-@Tags("Action Codes")
-@Security("jwt")
+@Route('action-codes')
+@Tags('Action Codes')
+@Security('jwt')
 @Service()
 export class ActionCodeController extends Controller {
   constructor(private readonly actionCodeService: ActionCodeService) {
@@ -44,7 +41,7 @@ export class ActionCodeController extends Controller {
    * @param q Optional: The query string to search for.
    * @returns An array of matching action codes.
    */
-  @Get("/")
+  @Get('/')
   public async searchActionCodes(
     @Request() request: ExpressRequest,
     @Query() q?: string,
@@ -60,7 +57,7 @@ export class ActionCodeController extends Controller {
    * @returns The action code details.
    * @throws {NotFoundError} If the action code is not found or does not belong to the specified company.
    */
-  @Get("/{id}")
+  @Get('/{id}')
   public async getActionCode(
     @Path() id: string,
     @Request() request: ExpressRequest,
@@ -76,19 +73,15 @@ export class ActionCodeController extends Controller {
    * @returns The newly created action code.
    * @throws {UnprocessableEntityError} If validation of the DTO fails.
    */
-  @Post("/")
-  @Security("jwt", ["admin", "manager"])
-  @SuccessResponse("201", "Action code created successfully")
+  @Post('/')
+  @Security('jwt', ['admin', 'manager'])
+  @SuccessResponse('201', 'Action code created successfully')
   public async createActionCode(
     @Body() dto: CreateActionCodeDto,
     @Request() request: ExpressRequest,
   ): Promise<ActionCode> {
     const me = request.user as User;
-    const created = await this.actionCodeService.create(
-      me.companyId,
-      me.id,
-      dto,
-    );
+    const created = await this.actionCodeService.create(me.companyId, me.id, dto);
     this.setStatus(201);
     return created;
   }
@@ -102,8 +95,8 @@ export class ActionCodeController extends Controller {
    * @throws {UnprocessableEntityError} If validation of the DTO fails.
    * @throws {NotFoundError} If the action code is not found or does not belong to the specified company.
    */
-  @Put("/{id}")
-  @Security("jwt", ["admin", "manager"])
+  @Put('/{id}')
+  @Security('jwt', ['admin', 'manager'])
   public async updateActionCode(
     @Path() id: string,
     @Body() dto: UpdateActionCodeDto,
@@ -120,9 +113,9 @@ export class ActionCodeController extends Controller {
    * @returns A Promise that resolves upon successful deletion.
    * @throws {NotFoundError} If the action code is not found or does not belong to the specified company.
    */
-  @Delete("/{id}")
-  @Security("jwt", ["admin", "manager"])
-  @SuccessResponse("200", "Action code deleted successfully")
+  @Delete('/{id}')
+  @Security('jwt', ['admin', 'manager'])
+  @SuccessResponse('200', 'Action code deleted successfully')
   public async deleteActionCode(
     @Path() id: string,
     @Request() request: ExpressRequest,

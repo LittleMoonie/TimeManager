@@ -1,19 +1,12 @@
-import { Service } from "typedi";
-import { validate } from "class-validator";
+import { Service } from 'typedi';
+import { validate } from 'class-validator';
 
-import { Permission } from "../../Entities/Roles/Permission";
-import {
-  ForbiddenError,
-  NotFoundError,
-  UnprocessableEntityError,
-} from "../../Errors/HttpErrors";
-import { PermissionRepository } from "../../Repositories/Roles/PermissionRepository";
-import { RolePermissionService } from "../../Services/RoleService/RolePermissionService";
-import {
-  CreatePermissionDto,
-  UpdatePermissionDto,
-} from "../../Dtos/Roles/RoleDto";
-import User from "../../Entities/Users/User";
+import { Permission } from '../../Entities/Roles/Permission';
+import { ForbiddenError, NotFoundError, UnprocessableEntityError } from '../../Errors/HttpErrors';
+import { PermissionRepository } from '../../Repositories/Roles/PermissionRepository';
+import { RolePermissionService } from '../../Services/RoleService/RolePermissionService';
+import { CreatePermissionDto, UpdatePermissionDto } from '../../Dtos/Roles/RoleDto';
+import User from '../../Entities/Users/User';
 
 /**
  * @description Service layer for managing Permission entities. This service provides business logic
@@ -41,7 +34,7 @@ export class PermissionService {
     const errors = await validate(dto as object);
     if (errors.length > 0) {
       throw new UnprocessableEntityError(
-        `Validation error: ${errors.map((e) => e.toString()).join(", ")}`,
+        `Validation error: ${errors.map((e) => e.toString()).join(', ')}`,
       );
     }
   }
@@ -60,15 +53,8 @@ export class PermissionService {
     currentUser: User,
     dto: CreatePermissionDto,
   ): Promise<Permission> {
-    if (
-      !(await this.rolePermissionService.checkPermission(
-        currentUser,
-        "create_permission",
-      ))
-    ) {
-      throw new ForbiddenError(
-        "User does not have permission to create permissions.",
-      );
+    if (!(await this.rolePermissionService.checkPermission(currentUser, 'create_permission'))) {
+      throw new ForbiddenError('User does not have permission to create permissions.');
     }
 
     await this.ensureValidation(dto);
@@ -86,13 +72,10 @@ export class PermissionService {
    * @returns A Promise that resolves to the Permission entity.
    * @throws {NotFoundError} If the permission is not found or does not belong to the specified company.
    */
-  async getPermissionById(
-    companyId: string,
-    permissionId: string,
-  ): Promise<Permission> {
+  async getPermissionById(companyId: string, permissionId: string): Promise<Permission> {
     const permission = await this.permissionRepository.findById(permissionId);
     if (!permission || permission.companyId !== companyId) {
-      throw new NotFoundError("Permission not found");
+      throw new NotFoundError('Permission not found');
     }
     return permission;
   }
@@ -104,16 +87,10 @@ export class PermissionService {
    * @returns A Promise that resolves to the Permission entity.
    * @throws {NotFoundError} If the permission is not found.
    */
-  async getPermissionByName(
-    companyId: string,
-    name: string,
-  ): Promise<Permission> {
-    const permission = await this.permissionRepository.findByName(
-      companyId,
-      name,
-    );
+  async getPermissionByName(companyId: string, name: string): Promise<Permission> {
+    const permission = await this.permissionRepository.findByName(companyId, name);
     if (!permission) {
-      throw new NotFoundError("Permission not found");
+      throw new NotFoundError('Permission not found');
     }
     return permission;
   }
@@ -144,15 +121,8 @@ export class PermissionService {
     permissionId: string,
     dto: UpdatePermissionDto,
   ): Promise<Permission> {
-    if (
-      !(await this.rolePermissionService.checkPermission(
-        currentUser,
-        "update_permission",
-      ))
-    ) {
-      throw new ForbiddenError(
-        "User does not have permission to update permissions.",
-      );
+    if (!(await this.rolePermissionService.checkPermission(currentUser, 'update_permission'))) {
+      throw new ForbiddenError('User does not have permission to update permissions.');
     }
 
     await this.ensureValidation(dto);
@@ -163,7 +133,7 @@ export class PermissionService {
 
     const reloaded = await this.permissionRepository.findById(permissionId);
     if (!reloaded || reloaded.companyId !== companyId) {
-      throw new NotFoundError("Permission not found after update");
+      throw new NotFoundError('Permission not found after update');
     }
     return reloaded;
   }
@@ -182,15 +152,8 @@ export class PermissionService {
     currentUser: User,
     permissionId: string,
   ): Promise<void> {
-    if (
-      !(await this.rolePermissionService.checkPermission(
-        currentUser,
-        "delete_permission",
-      ))
-    ) {
-      throw new ForbiddenError(
-        "User does not have permission to delete permissions.",
-      );
+    if (!(await this.rolePermissionService.checkPermission(currentUser, 'delete_permission'))) {
+      throw new ForbiddenError('User does not have permission to delete permissions.');
     }
 
     const permission = await this.getPermissionById(companyId, permissionId);

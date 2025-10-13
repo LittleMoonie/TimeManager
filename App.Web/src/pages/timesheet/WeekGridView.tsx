@@ -45,12 +45,7 @@ import {
   Close,
 } from '@mui/icons-material';
 import { COUNTRIES } from '@/constants/countries';
-import type {
-  ActionCode,
-  TimesheetEntry,
-  TimesheetEntryDto,
-  WorkMode,
-} from '@/lib/api';
+import type { ActionCode, TimesheetEntry, TimesheetEntryDto, WorkMode } from '@/lib/api';
 import { alpha, useTheme } from '@mui/material/styles';
 import { addWeeks, Interval, isAfter, isWeekend, parseISO } from 'date-fns';
 import {
@@ -97,13 +92,13 @@ interface WeekGridViewProps {
   onUpdateCell: (params: {
     code: ActionCode['id'];
     dateISO: string;
-    entry: { minutes: number, note?: string, location: { mode: string, country: string } };
+    entry: { minutes: number; note?: string; location: { mode: string; country: string } };
   }) => Promise<void>;
   onClearCell: (code: ActionCode['id'], dateISO: string) => Promise<void>;
   onDuplicateForward: (params: {
     targetDateISO: string;
     code: ActionCode['id'];
-    entry: { minutes: number, note?: string, location: { mode: string, country: string } };
+    entry: { minutes: number; note?: string; location: { mode: string; country: string } };
   }) => Promise<void>;
   onRemoveActionCode: (code: ActionCode['id']) => Promise<void>;
   dailyTotals: Record<string, number>;
@@ -164,8 +159,11 @@ const INTERVAL_INVALID_ERROR =
   'Intervals must be valid HH:MM AM/PM ranges with the end time after the start.';
 const INTERVAL_INCOMPLETE_ERROR = 'Complete both start and end times for each interval.';
 
-const getCellEntry = (timesheet: TimesheetEntryDto | undefined, code: ActionCode['id'], dateISO: string) =>
-  timesheet?.entries?.[code]?.[dateISO] as Record<string, TimesheetEntry> | undefined;
+const getCellEntry = (
+  timesheet: TimesheetEntryDto | undefined,
+  code: ActionCode['id'],
+  dateISO: string,
+) => timesheet?.entries?.[code]?.[dateISO] as Record<string, TimesheetEntry> | undefined;
 
 export const WeekGridView = ({
   weekStart,
@@ -338,11 +336,7 @@ export const WeekGridView = ({
     });
   };
 
-  const handleIntervalPeriodChange = (
-    index: number,
-    field: 'start' | 'end',
-    period: Meridian,
-  ) => {
+  const handleIntervalPeriodChange = (index: number, field: 'start' | 'end', period: Meridian) => {
     updateIntervalAt(index, (current) => {
       const { time } = splitMeridianTime(current[field]);
       return {
@@ -406,7 +400,7 @@ export const WeekGridView = ({
       return;
     }
 
-    const entry: { minutes: number, note?: string, location: { mode: string, country: string } } = {
+    const entry: { minutes: number; note?: string; location: { mode: string; country: string } } = {
       minutes: nextMinutes,
       note: editorState.note || undefined,
       location: {
@@ -431,9 +425,7 @@ export const WeekGridView = ({
 
   const handleDuplicateNext = async () => {
     if (!editingKey) return;
-    const currentIndex = weekDates.findIndex(
-      (date) => toISODate(date) === editingKey.dateISO,
-    );
+    const currentIndex = weekDates.findIndex((date) => toISODate(date) === editingKey.dateISO);
     if (currentIndex === -1 || currentIndex === weekDates.length - 1) {
       setError('No next day available in this week');
       return;
@@ -449,7 +441,7 @@ export const WeekGridView = ({
       return;
     }
 
-    const entry: { minutes: number, note?: string, location: { mode: string, country: string } } = {
+    const entry: { minutes: number; note?: string; location: { mode: string; country: string } } = {
       minutes: copyMinutes,
       note: editorState.note || undefined,
       location: {
@@ -471,10 +463,7 @@ export const WeekGridView = ({
     const eligibleDates = weekDates
       .map((date) => ({ date, iso: toISODate(date) }))
       .filter(({ iso }) => iso !== editingKey.dateISO)
-      .filter(
-        ({ date, iso }) =>
-          !(isWeekend(date) && !weekendOverrideSet.has(iso)),
-      );
+      .filter(({ date, iso }) => !(isWeekend(date) && !weekendOverrideSet.has(iso)));
     if (!eligibleDates.length) {
       setError('No eligible days available in this week.');
       return;
@@ -488,7 +477,7 @@ export const WeekGridView = ({
       return;
     }
 
-    const entry: { minutes: number, note?: string, location: { mode: string, country: string } } = {
+    const entry: { minutes: number; note?: string; location: { mode: string; country: string } } = {
       minutes: copyMinutes,
       note: editorState.note || undefined,
       location: {
@@ -516,10 +505,9 @@ export const WeekGridView = ({
     if (!timesheet) return {};
     return Object.entries(timesheet.entries).reduce<Record<ActionCode['id'], number>>(
       (acc, [code, dayMap]) => {
-        acc[code as ActionCode['id']] = Object.values(dayMap as Record<string, TimesheetEntry>).reduce(
-          (sum, entry) => sum + (entry?.minutes ?? 0),
-          0,
-        );
+        acc[code as ActionCode['id']] = Object.values(
+          dayMap as Record<string, TimesheetEntry>,
+        ).reduce((sum, entry) => sum + (entry?.minutes ?? 0), 0);
         return acc;
       },
       {},
@@ -549,16 +537,18 @@ export const WeekGridView = ({
 
   return (
     <Stack spacing={2.5}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        flexWrap="wrap"
+        gap={2}
+      >
         <Box display="flex" alignItems="center" gap={1.5}>
-          <IconButton
-            aria-label="Previous week"
-            onClick={() => onNavigateWeek(-1)}
-            size="small"
-          >
+          <IconButton aria-label="Previous week" onClick={() => onNavigateWeek(-1)} size="small">
             <ChevronLeft fontSize="small" />
           </IconButton>
-        <Typography variant="subtitle1">{formatWeekRange(weekStart)}</Typography>
+          <Typography variant="subtitle1">{formatWeekRange(weekStart)}</Typography>
           <IconButton
             aria-label="Next week"
             onClick={() => onNavigateWeek(1)}
@@ -567,7 +557,7 @@ export const WeekGridView = ({
           >
             <ChevronRight fontSize="small" />
           </IconButton>
-      </Box>
+        </Box>
 
         <Box display="flex" gap={1}>
           <Button
@@ -607,7 +597,8 @@ export const WeekGridView = ({
               <Box>
                 <Typography variant="subtitle1">Add an action code to this week</Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Pick a code to track across the grid. You can adjust the hours for each day afterward.
+                  Pick a code to track across the grid. You can adjust the hours for each day
+                  afterward.
                 </Typography>
               </Box>
               <Button
@@ -707,21 +698,21 @@ export const WeekGridView = ({
                         {total ? formatMinutes(total) : '—'}
                       </Typography>
                       {isDeficit && (
-                <Typography variant="caption" color="warning.main">
-                  -{formatMinutes(dailyMin - total)}
-                </Typography>
-              )}
-              <Link
-                component="button"
-                variant="caption"
-                underline={isActive ? 'always' : 'hover'}
-                onClick={() => onViewDay(date)}
-                sx={{ fontWeight: isActive ? 600 : undefined }}
-              >
-                View day
-              </Link>
-            </Stack>
-          </TableCell>
+                        <Typography variant="caption" color="warning.main">
+                          -{formatMinutes(dailyMin - total)}
+                        </Typography>
+                      )}
+                      <Link
+                        component="button"
+                        variant="caption"
+                        underline={isActive ? 'always' : 'hover'}
+                        onClick={() => onViewDay(date)}
+                        sx={{ fontWeight: isActive ? 600 : undefined }}
+                      >
+                        View day
+                      </Link>
+                    </Stack>
+                  </TableCell>
                 );
               })}
               <TableCell align="center">Row total</TableCell>
@@ -733,157 +724,163 @@ export const WeekGridView = ({
               const accentColor = code.color ?? theme.palette.primary.main;
               return (
                 <TableRow key={code.id} hover>
-                <TableCell
-                  sx={{
-                    minWidth: 240,
-                    borderLeft: `4px solid ${alpha(accentColor, 0.55)}`,
-                    backgroundColor: alpha(accentColor, 0.04),
-                  }}
-                >
-                  <Stack spacing={1}>
-                    <Box
-                      display="flex"
-                      justifyContent="space-between"
-                      alignItems="flex-start"
-                      gap={1}
-                    >
-                      <Stack spacing={0.5}>
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <Box
-                            sx={{
-                              width: 10,
-                              height: 10,
-                              borderRadius: '50%',
-                              backgroundColor: accentColor,
-                            }}
-                          />
-                          <Typography variant="body2" fontWeight={600}>
-                            {code.id}
-                          </Typography>
-                        </Box>
-                        <Typography variant="body2" color="text.secondary">
-                          {code.label}
-                        </Typography>
-                      </Stack>
-                      <Tooltip
-                        title={
-                          readOnly
-                            ? 'Previous weeks cannot be modified'
-                            : 'Remove this code and all logged hours for the week'
-                        }
+                  <TableCell
+                    sx={{
+                      minWidth: 240,
+                      borderLeft: `4px solid ${alpha(accentColor, 0.55)}`,
+                      backgroundColor: alpha(accentColor, 0.04),
+                    }}
+                  >
+                    <Stack spacing={1}>
+                      <Box
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="flex-start"
+                        gap={1}
                       >
-                        <span>
-                          <IconButton
-                            edge="end"
-                            size="small"
-                            aria-label={`Remove ${code.id} from this week`}
-                            onClick={() => handleRequestRemoveCode(code)}
-                            disabled={readOnly || isSubmitting || isRemovingCode}
-                          >
-                            <DeleteForever fontSize="small" />
-                          </IconButton>
-                        </span>
-                      </Tooltip>
-                    </Box>
-                    {code.project && (
-                      <Chip
-                        label={code.project}
-                        size="small"
+                        <Stack spacing={0.5}>
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <Box
+                              sx={{
+                                width: 10,
+                                height: 10,
+                                borderRadius: '50%',
+                                backgroundColor: accentColor,
+                              }}
+                            />
+                            <Typography variant="body2" fontWeight={600}>
+                              {code.id}
+                            </Typography>
+                          </Box>
+                          <Typography variant="body2" color="text.secondary">
+                            {code.label}
+                          </Typography>
+                        </Stack>
+                        <Tooltip
+                          title={
+                            readOnly
+                              ? 'Previous weeks cannot be modified'
+                              : 'Remove this code and all logged hours for the week'
+                          }
+                        >
+                          <span>
+                            <IconButton
+                              edge="end"
+                              size="small"
+                              aria-label={`Remove ${code.id} from this week`}
+                              onClick={() => handleRequestRemoveCode(code)}
+                              disabled={readOnly || isSubmitting || isRemovingCode}
+                            >
+                              <DeleteForever fontSize="small" />
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+                      </Box>
+                      {code.project && (
+                        <Chip
+                          label={code.project}
+                          size="small"
+                          sx={{
+                            mt: 0.5,
+                            backgroundColor: alpha(accentColor, 0.16),
+                            color: accentColor,
+                          }}
+                        />
+                      )}
+                    </Stack>
+                  </TableCell>
+                  {weekDates.map((date) => {
+                    const iso = toISODate(date);
+                    const entry = getCellEntry(timesheet, code.id, iso);
+                    const minutes = entry?.minutes ?? 0;
+                    const missingLocation = entry && !entry.location?.country;
+                    const sent = entry?.sent;
+                    const weekendLocked = isWeekend(date) && !weekendOverrideSet.has(iso);
+                    const locked = readOnly || weekendLocked;
+                    return (
+                      <TableCell
+                        key={iso}
+                        align="center"
                         sx={{
-                          mt: 0.5,
-                          backgroundColor: alpha(accentColor, 0.16),
-                          color: accentColor,
+                          cursor: locked ? 'default' : 'pointer',
+                          backgroundColor: weekendLocked
+                            ? theme.palette.action.disabledBackground
+                            : sent
+                              ? alpha(accentColor, 0.14)
+                              : undefined,
+                          color: weekendLocked ? theme.palette.text.disabled : undefined,
                         }}
-                      />
-                    )}
-                  </Stack>
-                </TableCell>
-                {weekDates.map((date) => {
-                  const iso = toISODate(date);
-                  const entry = getCellEntry(timesheet, code.id, iso);
-                  const minutes = entry?.minutes ?? 0;
-                  const missingLocation = entry && !entry.location?.country;
-                  const sent = entry?.sent;
-                  const weekendLocked = isWeekend(date) && !weekendOverrideSet.has(iso);
-                  const locked = readOnly || weekendLocked;
-                  return (
-                    <TableCell
-                      key={iso}
-                      align="center"
-                      sx={{
-                        cursor: locked ? 'default' : 'pointer',
-                        backgroundColor: weekendLocked
-                          ? theme.palette.action.disabledBackground
-                          : sent
-                            ? alpha(accentColor, 0.14)
-                            : undefined,
-                        color: weekendLocked ? theme.palette.text.disabled : undefined,
-                      }}
-                    >
-                      <Stack spacing={0.5} alignItems="center">
-                        <Typography variant="body2" fontWeight={500}>
-                          {minutes ? formatMinutes(minutes as unknown as number) : '—'}
-                        </Typography>
-                        {entry?.location && (
-                          <Typography variant="caption" color="text.secondary">
-                            {entry.location.mode as WorkMode} · {entry.location.country}
+                      >
+                        <Stack spacing={0.5} alignItems="center">
+                          <Typography variant="body2" fontWeight={500}>
+                            {minutes ? formatMinutes(minutes as unknown as number) : '—'}
                           </Typography>
-                        )}
-                        {entry?.intervals?.length ? (
-                          <Typography variant="caption" color="text.secondary">
-                            {formatIntervals(entry.intervals as Interval[])}
-                          </Typography>
-                        ) : null}
-                        {entry?.note && (
-                          <Tooltip title={entry.note as unknown as string}>
-                            <NoteAdd fontSize="inherit" color="action" />
-                          </Tooltip>
-                        )}
-                        {missingLocation && (
-                          <Tooltip title="Location required">
-                            <ErrorOutline color="warning" fontSize="small" />
-                          </Tooltip>
-                        )}
-                        {locked && readOnly && !weekendLocked && (
-                          <Typography variant="caption" color="text.secondary">
-                            Read-only week
-                          </Typography>
-                        )}
-                        {!locked ? (
-                          <Button
-                            size="small"
-                            variant="text"
-                            onClick={(event) => handleOpenEditor(event, code.id, iso)}
-                            endIcon={<Edit fontSize="inherit" />}
-                            aria-label={`Edit ${code.id} on ${iso}`}
-                          >
-                            Edit
-                          </Button>
-                        ) : (
-                          !weekendLocked && (
-                            <Tooltip title={readOnly ? 'Previous weeks are read-only' : 'Weekend requires approval'}>
-                              <span>
-                                <Button
-                                  size="small"
-                                  variant="text"
-                                  disabled
-                                  endIcon={<Edit fontSize="inherit" />}
-                                >
-                                  Edit
-                                </Button>
-                              </span>
+                          {entry?.location && (
+                            <Typography variant="caption" color="text.secondary">
+                              {entry.location.mode as WorkMode} · {entry.location.country}
+                            </Typography>
+                          )}
+                          {entry?.intervals?.length ? (
+                            <Typography variant="caption" color="text.secondary">
+                              {formatIntervals(entry.intervals as Interval[])}
+                            </Typography>
+                          ) : null}
+                          {entry?.note && (
+                            <Tooltip title={entry.note as unknown as string}>
+                              <NoteAdd fontSize="inherit" color="action" />
                             </Tooltip>
-                          )
-                        )}
-                      </Stack>
-                    </TableCell>
-                  );
-                })}
-                <TableCell align="center">
-                  <Typography variant="body2" fontWeight={600}>
-                    {rowTotals[code.id] ? formatMinutes(rowTotals[code.id]) : '0m'}
-                  </Typography>
-                </TableCell>
+                          )}
+                          {missingLocation && (
+                            <Tooltip title="Location required">
+                              <ErrorOutline color="warning" fontSize="small" />
+                            </Tooltip>
+                          )}
+                          {locked && readOnly && !weekendLocked && (
+                            <Typography variant="caption" color="text.secondary">
+                              Read-only week
+                            </Typography>
+                          )}
+                          {!locked ? (
+                            <Button
+                              size="small"
+                              variant="text"
+                              onClick={(event) => handleOpenEditor(event, code.id, iso)}
+                              endIcon={<Edit fontSize="inherit" />}
+                              aria-label={`Edit ${code.id} on ${iso}`}
+                            >
+                              Edit
+                            </Button>
+                          ) : (
+                            !weekendLocked && (
+                              <Tooltip
+                                title={
+                                  readOnly
+                                    ? 'Previous weeks are read-only'
+                                    : 'Weekend requires approval'
+                                }
+                              >
+                                <span>
+                                  <Button
+                                    size="small"
+                                    variant="text"
+                                    disabled
+                                    endIcon={<Edit fontSize="inherit" />}
+                                  >
+                                    Edit
+                                  </Button>
+                                </span>
+                              </Tooltip>
+                            )
+                          )}
+                        </Stack>
+                      </TableCell>
+                    );
+                  })}
+                  <TableCell align="center">
+                    <Typography variant="body2" fontWeight={600}>
+                      {rowTotals[code.id] ? formatMinutes(rowTotals[code.id]) : '0m'}
+                    </Typography>
+                  </TableCell>
                 </TableRow>
               );
             })}
@@ -942,7 +939,12 @@ export const WeekGridView = ({
         </Table>
       </TableContainer>
 
-      <Dialog open={Boolean(removalTarget)} onClose={handleCloseRemoveDialog} maxWidth="xs" fullWidth>
+      <Dialog
+        open={Boolean(removalTarget)}
+        onClose={handleCloseRemoveDialog}
+        maxWidth="xs"
+        fullWidth
+      >
         <DialogTitle>Remove action code</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -950,7 +952,8 @@ export const WeekGridView = ({
             <Box component="span" fontWeight={600}>
               {removalTarget?.id}
             </Box>{' '}
-            will clear all logged hours for this code during the selected week. This cannot be undone.
+            will clear all logged hours for this code during the selected week. This cannot be
+            undone.
           </DialogContentText>
           {removalError && (
             <Typography variant="body2" color="error" sx={{ mt: 2 }}>
@@ -1077,9 +1080,7 @@ export const WeekGridView = ({
                   }))
                 }
                 fullWidth
-                renderInput={(params) => (
-                  <TextField {...params} label="Country" required />
-                )}
+                renderInput={(params) => <TextField {...params} label="Country" required />}
               />
             </Box>
 
@@ -1100,7 +1101,11 @@ export const WeekGridView = ({
             <Stack spacing={1}>
               <Box display="flex" justifyContent="space-between" alignItems="center">
                 <Typography variant="subtitle2">Intervals</Typography>
-                <Button size="small" onClick={handleAddInterval} startIcon={<Add fontSize="small" />}>
+                <Button
+                  size="small"
+                  onClick={handleAddInterval}
+                  startIcon={<Add fontSize="small" />}
+                >
                   Add interval
                 </Button>
               </Box>
@@ -1111,7 +1116,9 @@ export const WeekGridView = ({
               ) : (
                 <List dense disablePadding>
                   {editorState.intervals.map((interval, index) => {
-                    const { time: startTime, period: startPeriod } = splitMeridianTime(interval.start);
+                    const { time: startTime, period: startPeriod } = splitMeridianTime(
+                      interval.start,
+                    );
                     const { time: endTime, period: endPeriod } = splitMeridianTime(interval.end);
                     return (
                       <ListItem

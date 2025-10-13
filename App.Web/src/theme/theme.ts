@@ -1,5 +1,5 @@
-import { alpha, createTheme as muiCreateTheme, responsiveFontSizes } from '@mui/material/styles'
-import type { PaletteColor, Theme, ThemeOptions } from '@mui/material'
+import { alpha, createTheme as muiCreateTheme, responsiveFontSizes } from '@mui/material/styles';
+import type { PaletteColor, Theme, ThemeOptions } from '@mui/material';
 import {
   defaultThemeId,
   themePresetList,
@@ -7,34 +7,34 @@ import {
   type ThemeGroup,
   type ThemeId,
   type ThemePreset,
-} from './presets'
+} from './presets';
 
-export type DensitySetting = 'comfortable' | 'compact'
+export type DensitySetting = 'comfortable' | 'compact';
 
 declare module '@mui/material/styles' {
   interface Theme {
     app: {
-      id: ThemeId
-      label: string
-      description: string
-      group: ThemeGroup
+      id: ThemeId;
+      label: string;
+      description: string;
+      group: ThemeGroup;
       gradients: {
-        brand: string
-        soft: string
-      }
+        brand: string;
+        soft: string;
+      };
       surfaces: {
-        muted: string
-        elevated: string
-        translucent: string
-      }
-      focusRing: string
-    }
-    density: DensitySetting
+        muted: string;
+        elevated: string;
+        translucent: string;
+      };
+      focusRing: string;
+    };
+    density: DensitySetting;
   }
 
   interface ThemeOptions {
-    app?: Partial<Theme['app']>
-    density?: DensitySetting
+    app?: Partial<Theme['app']>;
+    density?: DensitySetting;
   }
 }
 
@@ -57,38 +57,38 @@ const typography: ThemeOptions['typography'] = {
     textTransform: 'uppercase',
   },
   button: { fontWeight: 600, textTransform: 'none' },
-}
+};
 
 const computeShadows = (theme: Theme) => {
-  const isLightMode = theme.palette.mode === 'light'
-  const soft = alpha(theme.palette.common.black, isLightMode ? 0.08 : 0.32)
-  const medium = alpha(theme.palette.common.black, isLightMode ? 0.12 : 0.45)
-  const strong = alpha(theme.palette.common.black, isLightMode ? 0.18 : 0.5)
+  const isLightMode = theme.palette.mode === 'light';
+  const soft = alpha(theme.palette.common.black, isLightMode ? 0.08 : 0.32);
+  const medium = alpha(theme.palette.common.black, isLightMode ? 0.12 : 0.45);
+  const strong = alpha(theme.palette.common.black, isLightMode ? 0.18 : 0.5);
 
-  const next = [...theme.shadows]
-  next[0] = 'none'
-  next[1] = `0px 1px 2px ${soft}`
-  next[2] = `0px 3px 10px ${soft}`
-  next[3] = `0px 6px 18px ${soft}`
-  next[4] = `0px 10px 30px ${medium}`
-  next[6] = `0px 14px 42px ${medium}`
-  next[8] = `0px 18px 50px ${strong}`
-  return next as Theme['shadows']
-}
+  const next = [...theme.shadows];
+  next[0] = 'none';
+  next[1] = `0px 1px 2px ${soft}`;
+  next[2] = `0px 3px 10px ${soft}`;
+  next[3] = `0px 6px 18px ${soft}`;
+  next[4] = `0px 10px 30px ${medium}`;
+  next[6] = `0px 14px 42px ${medium}`;
+  next[8] = `0px 18px 50px ${strong}`;
+  return next as Theme['shadows'];
+};
 
 const buildComponentOverrides = (
   theme: Theme,
-  density: DensitySetting
+  density: DensitySetting,
 ): ThemeOptions['components'] => {
-  const isLightMode = theme.palette.mode === 'light'
-  const focusRingColor = alpha(theme.palette.primary.main, isLightMode ? 0.28 : 0.42)
-  const hoverOverlay = alpha(theme.palette.primary.main, isLightMode ? 0.08 : 0.16)
+  const isLightMode = theme.palette.mode === 'light';
+  const focusRingColor = alpha(theme.palette.primary.main, isLightMode ? 0.28 : 0.42);
+  const hoverOverlay = alpha(theme.palette.primary.main, isLightMode ? 0.08 : 0.16);
   const scrollbarThumb = alpha(
     isLightMode ? theme.palette.text.secondary : theme.palette.primary.light,
-    0.32
-  )
+    0.32,
+  );
 
-  const fieldHeight = density === 'compact' ? 40 : 44
+  const fieldHeight = density === 'compact' ? 40 : 44;
 
   return {
     MuiCssBaseline: {
@@ -334,23 +334,23 @@ const buildComponentOverrides = (
         },
       },
     },
-  }
-}
+  };
+};
 
 const assignAppTokens = (theme: Theme, preset: ThemePreset) => {
-  const palette = theme.palette
-  const presetPrimary = preset.palette.primary as PaletteColor
-  const presetSecondary = preset.palette.secondary as PaletteColor
-  const primaryLight = presetPrimary?.light
-  const secondaryMain = presetSecondary?.main
+  const palette = theme.palette;
+  const presetPrimary = preset.palette.primary as PaletteColor;
+  const presetSecondary = preset.palette.secondary as PaletteColor;
+  const primaryLight = presetPrimary?.light;
+  const secondaryMain = presetSecondary?.main;
 
-  const brandGradient = `linear-gradient(135deg, ${primaryLight}, ${secondaryMain})`
-  const softPrimary = palette.primary.light ?? primaryLight
-  const softSecondary = palette.secondary.light ?? secondaryMain
+  const brandGradient = `linear-gradient(135deg, ${primaryLight}, ${secondaryMain})`;
+  const softPrimary = palette.primary.light ?? primaryLight;
+  const softSecondary = palette.secondary.light ?? secondaryMain;
   const softGradient = `linear-gradient(135deg, ${alpha(
     softPrimary,
-    palette.mode === 'light' ? 0.22 : 0.38
-  )}, ${alpha(softSecondary, palette.mode === 'light' ? 0.18 : 0.32)})`
+    palette.mode === 'light' ? 0.22 : 0.38,
+  )}, ${alpha(softSecondary, palette.mode === 'light' ? 0.18 : 0.32)})`;
 
   theme.app = {
     id: preset.id,
@@ -367,10 +367,10 @@ const assignAppTokens = (theme: Theme, preset: ThemePreset) => {
       translucent: alpha(palette.background.paper, palette.mode === 'light' ? 0.85 : 0.72),
     },
     focusRing: `0 0 0 3px ${alpha(palette.primary.main, palette.mode === 'light' ? 0.3 : 0.45)}`,
-  }
+  };
 
-  return theme
-}
+  return theme;
+};
 
 export const createAppTheme = (preset: ThemePreset, density: DensitySetting) => {
   let theme = muiCreateTheme({
@@ -380,27 +380,27 @@ export const createAppTheme = (preset: ThemePreset, density: DensitySetting) => 
     shape: {
       borderRadius: density === 'compact' ? 12 : 16,
     },
-  })
+  });
 
-  theme.shadows = computeShadows(theme)
+  theme.shadows = computeShadows(theme);
   theme = muiCreateTheme(theme as ThemeOptions, {
     components: buildComponentOverrides(theme, density),
-  })
+  });
 
-  const responsiveTheme = responsiveFontSizes(theme)
-  responsiveTheme.density = density
+  const responsiveTheme = responsiveFontSizes(theme);
+  responsiveTheme.density = density;
 
-  return assignAppTokens(responsiveTheme, preset)
-}
+  return assignAppTokens(responsiveTheme, preset);
+};
 
 export const getThemePreset = (id: ThemeId): ThemePreset =>
-  themePresets[id] ?? themePresets[defaultThemeId]
+  themePresets[id] ?? themePresets[defaultThemeId];
 export const getNextTheme = (currentId: ThemeId, direction: 1 | -1) => {
-  const index = themePresetList.findIndex(preset => preset.id === currentId)
-  if (index === -1) return themePresets[defaultThemeId]
-  const nextIndex = (index + direction + themePresetList.length) % themePresetList.length
-  return themePresetList[nextIndex]
-}
+  const index = themePresetList.findIndex((preset) => preset.id === currentId);
+  if (index === -1) return themePresets[defaultThemeId];
+  const nextIndex = (index + direction + themePresetList.length) % themePresetList.length;
+  return themePresetList[nextIndex];
+};
 
-export { themePresetList, themePresets, defaultThemeId }
-export type { ThemeId, ThemePreset, ThemeGroup } from './presets'
+export { themePresetList, themePresets, defaultThemeId };
+export type { ThemeId, ThemePreset, ThemeGroup } from './presets';

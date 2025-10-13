@@ -1,33 +1,33 @@
-import { Box, Typography, Stack, Button, Card, CardContent, Divider, Chip } from '@mui/material'
-import { Computer, PhoneAndroid, Tablet } from '@mui/icons-material'
-import { ActiveSession } from '@/types'
+import { Box, Typography, Stack, Button, Card, CardContent, Divider, Chip } from '@mui/material';
+import { Computer, PhoneAndroid, Tablet } from '@mui/icons-material';
+import { ActiveSession } from '@/types';
 
 interface ActiveSessionsListProps {
-  sessions: ActiveSession[]
-  onLogout: (sessionId: string) => void
-  onLogoutAllOthers: () => void
+  sessions: ActiveSession[];
+  onLogout: (sessionId: string) => void;
+  onLogoutAllOthers: () => void;
 }
 
 const getDeviceIcon = (deviceType: ActiveSession['deviceType']) => {
   switch (deviceType) {
     case 'desktop':
-      return <Computer fontSize="small" />
+      return <Computer fontSize="small" />;
     case 'mobile':
-      return <PhoneAndroid fontSize="small" />
+      return <PhoneAndroid fontSize="small" />;
     case 'tablet':
-      return <Tablet fontSize="small" />
+      return <Tablet fontSize="small" />;
     default:
-      return <Computer fontSize="small" />
+      return <Computer fontSize="small" />;
   }
-}
+};
 
 export const ActiveSessionsList = ({
   sessions,
   onLogout,
   onLogoutAllOthers,
 }: ActiveSessionsListProps) => {
-  const currentSession = sessions.find(session => session.current)
-  const otherSessions = sessions.filter(session => !session.current)
+  const currentSession = sessions.find((session) => session.current);
+  const otherSessions = sessions.filter((session) => !session.current);
 
   return (
     <Card>
@@ -69,7 +69,7 @@ export const ActiveSessionsList = ({
                 </Box>
               )}
 
-              {otherSessions.map(session => (
+              {otherSessions.map((session) => (
                 <Box
                   key={session.id}
                   display="flex"
@@ -108,5 +108,5 @@ export const ActiveSessionsList = ({
         </Stack>
       </CardContent>
     </Card>
-  )
-}
+  );
+};

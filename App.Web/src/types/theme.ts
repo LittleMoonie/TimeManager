@@ -2,21 +2,21 @@
  * Theme customization interface
  */
 export interface ThemeCustomization {
-  fontFamily?: string
-  borderRadius?: number
-  navType?: 'light' | 'dark'
-  isOpen?: string[]
-  opened?: boolean
+  fontFamily?: string;
+  borderRadius?: number;
+  navType?: 'light' | 'dark';
+  isOpen?: string[];
+  opened?: boolean;
 }
 
 /**
  * Store state for customization
  */
 export interface CustomizationState extends ThemeCustomization {
-  isOpen: string[]
-  fontFamily: string
-  borderRadius: number
-  opened: boolean
+  isOpen: string[];
+  fontFamily: string;
+  borderRadius: number;
+  opened: boolean;
 }
 
 /**
@@ -28,7 +28,7 @@ export const defaultThemeConfig: Required<ThemeCustomization> = {
   navType: 'light',
   isOpen: [],
   opened: true,
-}
+};
 
 /**
  * Theme action types
@@ -45,28 +45,28 @@ export enum ThemeActionTypes {
  * Theme actions
  */
 export interface MenuOpenAction {
-  type: ThemeActionTypes.MENU_OPEN
-  id: string
+  type: ThemeActionTypes.MENU_OPEN;
+  id: string;
 }
 
 export interface SetMenuAction {
-  type: ThemeActionTypes.SET_MENU
-  opened: boolean
+  type: ThemeActionTypes.SET_MENU;
+  opened: boolean;
 }
 
 export interface SetFontFamilyAction {
-  type: ThemeActionTypes.SET_FONT_FAMILY
-  fontFamily: string
+  type: ThemeActionTypes.SET_FONT_FAMILY;
+  fontFamily: string;
 }
 
 export interface SetBorderRadiusAction {
-  type: ThemeActionTypes.SET_BORDER_RADIUS
-  borderRadius: number
+  type: ThemeActionTypes.SET_BORDER_RADIUS;
+  borderRadius: number;
 }
 
 export interface SetNavTypeAction {
-  type: ThemeActionTypes.SET_NAV_TYPE
-  navType: 'light' | 'dark'
+  type: ThemeActionTypes.SET_NAV_TYPE;
+  navType: 'light' | 'dark';
 }
 
 export type ThemeAction =
@@ -74,4 +74,4 @@ export type ThemeAction =
   | SetMenuAction
   | SetFontFamilyAction
   | SetBorderRadiusAction
-  | SetNavTypeAction
+  | SetNavTypeAction;

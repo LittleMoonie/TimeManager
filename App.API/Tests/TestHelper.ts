@@ -1,20 +1,17 @@
-import express, { Application } from "express";
-import cors from "cors";
-import { errorHandler } from "../Middlewares/ErrorHandler";
-import logger from "../Utils/Logger";
-import "reflect-metadata";
-import { Container } from "typedi";
-import { Server } from "http";
+import express, { Application } from 'express';
+import cors from 'cors';
+import { errorHandler } from '../Middlewares/ErrorHandler';
+import logger from '../Utils/Logger';
+import 'reflect-metadata';
+import { Container } from 'typedi';
+import { Server } from 'http';
 
 let RegisterRoutes: (app: express.Application) => void;
 
 try {
   // Try importing TSOA routes
 } catch (err) {
-  console.warn(
-    "⚠️ Skipping TSOA route registration in test mode:",
-    (err as Error).message,
-  );
+  console.warn('⚠️ Skipping TSOA route registration in test mode:', (err as Error).message);
   RegisterRoutes = () => {};
 }
 
@@ -26,10 +23,10 @@ export const createTestApp = (mockSetup?: () => void): Application => {
   if (mockSetup) mockSetup();
 
   const corsOptions = {
-    origin: "*",
+    origin: '*',
     credentials: true,
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    allowedHeaders: "Content-Type, Authorization",
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type, Authorization',
   };
 
   app.use(cors(corsOptions));
@@ -37,7 +34,7 @@ export const createTestApp = (mockSetup?: () => void): Application => {
   app.use(express.urlencoded({ extended: false }));
 
   const apiApp = express();
-  app.use("/api", apiApp);
+  app.use('/api', apiApp);
 
   // ✅ This will now work even if tsoa routes aren’t compiled
   RegisterRoutes(apiApp);
@@ -47,10 +44,7 @@ export const createTestApp = (mockSetup?: () => void): Application => {
   return app;
 };
 
-export const startTestServer = async (
-  app: Application,
-  port = 0,
-): Promise<Server> => {
+export const startTestServer = async (app: Application, port = 0): Promise<Server> => {
   return new Promise((resolve) => {
     const server = app.listen(port, () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

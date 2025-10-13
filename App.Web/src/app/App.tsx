@@ -1,13 +1,13 @@
-import { ReactNode } from 'react'
-import { AppProviders } from '@/app/providers/AppProviders'
-import { AppRouter } from '@/app/router'
+import { ReactNode } from 'react';
+import { AppProviders } from '@/app/providers/AppProviders';
+import { AppRouter } from '@/app/router';
 
 interface AppProps {
-  children?: ReactNode
+  children?: ReactNode;
 }
 
 export const App = ({ children }: AppProps) => {
-  return <AppProviders>{children || <AppRouter />}</AppProviders>
-}
+  return <AppProviders>{children || <AppRouter />}</AppProviders>;
+};
 
-export default App
+export default App;

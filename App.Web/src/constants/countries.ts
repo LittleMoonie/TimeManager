@@ -248,4 +248,4 @@ export const COUNTRIES = [
   { code: 'YE', name: 'Yemen' },
   { code: 'ZM', name: 'Zambia' },
   { code: 'ZW', name: 'Zimbabwe' },
-]
+];

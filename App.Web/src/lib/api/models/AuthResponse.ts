@@ -4,10 +4,9 @@
 /* eslint-disable */
 import type { UserResponseDto } from './UserResponseDto';
 export type AuthResponse = {
-    /**
-     * JWT authentication token
-     */
-    token: string;
-    user: UserResponseDto;
+  /**
+   * JWT authentication token
+   */
+  token: string;
+  user: UserResponseDto;
 };
-

@@ -1,12 +1,5 @@
-import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
-import {
-  IsEmail,
-  IsString,
-  MinLength,
-  IsNotEmpty,
-  IsUUID,
-  Matches,
-} from "class-validator";
+import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
+import { IsEmail, IsString, MinLength, IsNotEmpty, IsUUID, Matches } from 'class-validator';
 
 /**
  * @description Data transfer object for authentication responses, used after successful login, registration, or token refresh.
@@ -115,6 +108,6 @@ export class RegisterDto {
    */
   @IsString()
   @IsNotEmpty()
-  @Matches(/^\+?[1-9]\d{1,14}$/, { message: "phoneNumber must be E.164" })
+  @Matches(/^\+?[1-9]\d{1,14}$/, { message: 'phoneNumber must be E.164' })
   public phoneNumber!: string;
 }

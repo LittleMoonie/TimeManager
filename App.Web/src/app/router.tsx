@@ -1,46 +1,46 @@
-import type { ReactNode } from 'react'
-import { Suspense } from 'react'
-import { BrowserRouter, Navigate, type RouteObject, useRoutes } from 'react-router-dom'
-import { AppLayout } from '@/components/layout/AppLayout'
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
-import { useAuth } from '@/hooks/useAuth'
-import HomePage from '@/pages/index'
-import LoginPage from '@/pages/login'
-import PeoplePage from '@/pages/people'
-import ProfilePage from '@/pages/profile'
-import ReportsPage from '@/pages/reports'
+import type { ReactNode } from 'react';
+import { Suspense } from 'react';
+import { BrowserRouter, Navigate, type RouteObject, useRoutes } from 'react-router-dom';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { useAuth } from '@/hooks/useAuth';
+import HomePage from '@/pages/index';
+import LoginPage from '@/pages/login';
+import PeoplePage from '@/pages/people';
+import ProfilePage from '@/pages/profile';
+import ReportsPage from '@/pages/reports';
 // import TasksPage from '@/pages/tasks'
-import TimesheetPage from '@/pages/timesheet'
+import TimesheetPage from '@/pages/timesheet';
 
-import ForgotPasswordPage from '@/pages/forgot-password'
+import ForgotPasswordPage from '@/pages/forgot-password';
 
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return <LoadingSpinner message="Checking your session..." />
+    return <LoadingSpinner message="Checking your session..." />;
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/login" replace />;
   }
 
-  return <>{children}</>
-}
+  return <>{children}</>;
+};
 
 const PublicRoute = ({ children }: { children: ReactNode }) => {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return <LoadingSpinner message="Preparing login..." />
+    return <LoadingSpinner message="Preparing login..." />;
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/" replace />;
   }
 
-  return <>{children}</>
-}
+  return <>{children}</>;
+};
 
 const routeConfig: RouteObject[] = [
   {
@@ -76,12 +76,12 @@ const routeConfig: RouteObject[] = [
     ],
   },
   { path: '*', element: <Navigate to="/" replace /> },
-]
+];
 
 const RoutesContainer = () => {
-  const element = useRoutes(routeConfig)
-  return element
-}
+  const element = useRoutes(routeConfig);
+  return element;
+};
 
 export const AppRouter = () => (
   <BrowserRouter>
@@ -89,6 +89,6 @@ export const AppRouter = () => (
       <RoutesContainer />
     </Suspense>
   </BrowserRouter>
-)
+);
 
-export default AppRouter
+export default AppRouter;

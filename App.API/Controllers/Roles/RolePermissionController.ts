@@ -1,32 +1,19 @@
-import {
-  Body,
-  Controller,
-  Post,
-  Delete,
-  Route,
-  Tags,
-  Path,
-  Security,
-  Request,
-} from "tsoa";
-import { Request as ExpressRequest } from "express";
-import { Service } from "typedi";
+import { Body, Controller, Post, Delete, Route, Tags, Path, Security, Request } from 'tsoa';
+import { Request as ExpressRequest } from 'express';
+import { Service } from 'typedi';
 
-import { RolePermissionService } from "../../Services/RoleService/RolePermissionService";
-import {
-  CreateRolePermissionDto,
-  RolePermissionResponseDto,
-} from "../../Dtos/Roles/RoleDto";
-import User from "../../Entities/Users/User";
+import { RolePermissionService } from '../../Services/RoleService/RolePermissionService';
+import { CreateRolePermissionDto, RolePermissionResponseDto } from '../../Dtos/Roles/RoleDto';
+import User from '../../Entities/Users/User';
 
 /**
  * @summary Controller for managing role-permission links within a company.
  * @tags Role Permissions
  * @security jwt
  */
-@Route("role-permissions")
-@Tags("Role Permissions")
-@Security("jwt")
+@Route('role-permissions')
+@Tags('Role Permissions')
+@Security('jwt')
 @Service()
 export class RolePermissionController extends Controller {
   constructor(private readonly rolePermissionService: RolePermissionService) {
@@ -40,18 +27,14 @@ export class RolePermissionController extends Controller {
    * @returns The newly created role-permission association.
    * @throws {ForbiddenError} If the current user does not have 'create_role_permission' permission.
    */
-  @Post("/")
-  @Security("jwt", ["admin"])
+  @Post('/')
+  @Security('jwt', ['admin'])
   public async createRolePermission(
     @Body() dto: CreateRolePermissionDto,
     @Request() request: ExpressRequest,
   ): Promise<RolePermissionResponseDto> {
     const me = request.user as User;
-    return this.rolePermissionService.createRolePermission(
-      me,
-      me.companyId,
-      dto,
-    );
+    return this.rolePermissionService.createRolePermission(me, me.companyId, dto);
   }
 
   /**
@@ -62,8 +45,8 @@ export class RolePermissionController extends Controller {
    * @throws {ForbiddenError} If the current user does not have 'delete_role_permission' permission.
    * @throws {NotFoundError} If the role-permission association is not found or does not belong to the specified company.
    */
-  @Delete("/{id}")
-  @Security("jwt", ["admin"])
+  @Delete('/{id}')
+  @Security('jwt', ['admin'])
   public async deleteRolePermission(
     @Path() id: string,
     @Request() request: ExpressRequest,

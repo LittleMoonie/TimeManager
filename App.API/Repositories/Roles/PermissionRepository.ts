@@ -1,9 +1,9 @@
-import { Service } from "typedi";
-import { InjectRepository } from "typeorm-typedi-extensions";
-import { Repository, FindOneOptions } from "typeorm";
+import { Service } from 'typedi';
+import { InjectRepository } from 'typeorm-typedi-extensions';
+import { Repository, FindOneOptions } from 'typeorm';
 
-import { Permission } from "../../Entities/Roles/Permission";
-import { BaseRepository } from "../../Repositories/BaseRepository";
+import { Permission } from '../../Entities/Roles/Permission';
+import { BaseRepository } from '../../Repositories/BaseRepository';
 
 /**
  * @description Repository for managing Permission entities. Extends BaseRepository to provide standard CRUD operations
@@ -28,10 +28,7 @@ export class PermissionRepository extends BaseRepository<Permission> {
    * @param name The name of the permission to find.
    * @returns A Promise that resolves to the Permission entity or null if not found.
    */
-  async findByName(
-    companyId: string,
-    name: string,
-  ): Promise<Permission | null> {
+  async findByName(companyId: string, name: string): Promise<Permission | null> {
     const options: FindOneOptions<Permission> = {
       where: { companyId, name },
     };

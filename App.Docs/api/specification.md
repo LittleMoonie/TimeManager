@@ -18,18 +18,16 @@ The API specification is automatically generated using **tsoa** from TypeScript 
 
 ```typescript
 // App.API/Controllers/Authentication/AuthenticationController.ts (Simplified)
-import { Body, Controller, Post, Route, Tags, SuccessResponse } from "tsoa";
-import { RegisterDto } from "../../Dtos/Authentication/AuthenticationDto";
-import { UserResponseDto } from "../../Dtos/Users/UserResponseDto";
+import { Body, Controller, Post, Route, Tags, SuccessResponse } from 'tsoa';
+import { RegisterDto } from '../../Dtos/Authentication/AuthenticationDto';
+import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
 
-@Route("auth")
-@Tags("Authentication")
+@Route('auth')
+@Tags('Authentication')
 export class AuthenticationController extends Controller {
-  @Post("/register")
-  @SuccessResponse("201", "User registered successfully")
-  public async register(
-    @Body() requestBody: RegisterDto,
-  ): Promise<UserResponseDto> {
+  @Post('/register')
+  @SuccessResponse('201', 'User registered successfully')
+  public async register(@Body() requestBody: RegisterDto): Promise<UserResponseDto> {
     // Implementation with automatic OpenAPI generation
     return {} as UserResponseDto;
   }
@@ -40,20 +38,22 @@ export class AuthenticationController extends Controller {
 
 ### Base URLs
 
-| Environment | Base URL | Swagger UI |
-|-------------|----------|------------|
-| Development | `http://localhost:4000/api` | `http://localhost:4000/api/docs` |
-| Staging | `https://api-staging.gogotime.com/api` | `https://api-staging.gogotime.com/api/docs` |
-| Production | `https://api.gogotime.com/api` | *Not Available* |
+| Environment | Base URL                               | Swagger UI                                  |
+| ----------- | -------------------------------------- | ------------------------------------------- |
+| Development | `http://localhost:4000/api`            | `http://localhost:4000/api/docs`            |
+| Staging     | `https://api-staging.gogotime.com/api` | `https://api-staging.gogotime.com/api/docs` |
+| Production  | `https://api.gogotime.com/api`         | _Not Available_                             |
 
 ### Authentication
 
 **JWT Bearer Token Authentication**:
+
 ```http
 Authorization: Bearer <jwt_token>
 ```
 
 **Security Scheme**:
+
 ```json
 {
   "jwt": {
@@ -70,6 +70,7 @@ Authorization: Bearer <jwt_token>
 ### User Management (`/users`)
 
 #### Register User
+
 - **Endpoint**: `POST /auth/register`
 - **Authentication**: None required
 - **Request Body**: `RegisterDto`
@@ -105,6 +106,7 @@ Authorization: Bearer <jwt_token>
   ```
 
 #### Login User
+
 - **Endpoint**: `POST /auth/login`
 - **Authentication**: None required
 - **Request Body**: `LoginDto`
@@ -126,27 +128,29 @@ Authorization: Bearer <jwt_token>
   ```
 
 #### Logout User
+
 - **Endpoint**: `POST /auth/logout`
 - **Authentication**: JWT Bearer token required
 - **Request Body**: None
 - **Response**: `ApiResponse`
   ```typescript
   {
-    success: boolean;        // Operation success status
-    msg: string;             // Response message
+    success: boolean; // Operation success status
+    msg: string; // Response message
   }
   ```
 
 ### System Endpoints
 
 #### Health Check
+
 - **Endpoint**: `GET /health`
 - **Authentication**: None required
 - **Response**:
   ```typescript
   {
-    status: string;          // "OK" if healthy
-    timestamp: string;       // ISO timestamp
+    status: string; // "OK" if healthy
+    timestamp: string; // ISO timestamp
   }
   ```
 
@@ -158,7 +162,7 @@ Our API uses Data Transfer Objects (DTOs) defined with `class-validator` for req
 
 ```typescript
 // App.API/Dtos/Authentication/AuthenticationDto.ts (LoginDto)
-import { IsEmail, IsString, MinLength } from "class-validator";
+import { IsEmail, IsString, MinLength } from 'class-validator';
 
 /**
  * @description Data transfer object for user login requests.
@@ -173,7 +177,7 @@ export class LoginDto {
 }
 
 // App.API/Dtos/Authentication/AuthenticationDto.ts (RegisterDto)
-import { IsEmail, IsString, MinLength, IsNotEmpty, IsUUID, Matches } from "class-validator";
+import { IsEmail, IsString, MinLength, IsNotEmpty, IsUUID, Matches } from 'class-validator';
 
 /**
  * @description Data transfer object for user registration requests.
@@ -208,14 +212,14 @@ export class RegisterDto {
 
   @IsString()
   @IsNotEmpty()
-  @Matches(/^\+?[1-9]\d{1,14}$/, { message: "phoneNumber must be E.164" })
+  @Matches(/^\+?[1-9]\d{1,14}$/, { message: 'phoneNumber must be E.164' })
   public phoneNumber!: string;
 }
 
 // App.API/Dtos/Users/UserResponseDto.ts (UserResponseDto)
-import { RoleResponse } from "../../Dtos/Roles/RoleDto";
-import { CompanyResponseDto } from "../../Dtos/Companies/CompanyDto";
-import { UserStatusResponseDto } from "../../Dtos/Users/UserStatusDto";
+import { RoleResponse } from '../../Dtos/Roles/RoleDto';
+import { CompanyResponseDto } from '../../Dtos/Companies/CompanyDto';
+import { UserStatusResponseDto } from '../../Dtos/Users/UserStatusDto';
 
 /**
  * @description Data transfer object for a user response. This DTO should be used when returning user information to clients, never return the entity directly.
@@ -280,7 +284,7 @@ const registerResult = await apiClient.authenticationRegister({
 // Login user (automatically stores JWT token)
 const loginResult = await apiClient.authenticationLogin({
   email: 'user@example.com',
-  password: 'securepassword'
+  password: 'securepassword',
 });
 
 // Logout user (automatically clears JWT token)
@@ -307,6 +311,7 @@ try {
 ## Development Workflow
 
 ### 1. Update API Routes
+
 ```typescript
 // Add new endpoint in controller
 // App.API/Controllers/Users/UserController.ts (Simplified)
@@ -324,12 +329,14 @@ public async getUser(
 ```
 
 ### 2. Generate Documentation
+
 ```bash
 # In App.API directory
 yarn api:sync              # Generates spec + frontend client
 ```
 
 ### 3. Validation
+
 ```bash
 # Validate generated files
 yarn typecheck             # TypeScript compilation check
@@ -341,6 +348,7 @@ yarn lint                  # ESLint validation
 ### Automated Generation
 
 The GitHub Actions workflow automatically:
+
 1. Generates OpenAPI specification from code changes
 2. Creates TypeScript client for frontend
 3. Validates generated files
@@ -397,4 +405,4 @@ The GitHub Actions workflow automatically:
 
 ---
 
-*This specification is automatically maintained and updated through the OpenAPI generation system. For the latest interactive documentation, visit the Swagger UI endpoint in your development environment.*
+_This specification is automatically maintained and updated through the OpenAPI generation system. For the latest interactive documentation, visit the Swagger UI endpoint in your development environment._

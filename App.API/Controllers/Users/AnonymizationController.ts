@@ -1,16 +1,7 @@
-import {
-  Controller,
-  Delete,
-  Path,
-  Request,
-  Route,
-  Security,
-  Tags,
-  SuccessResponse,
-} from "tsoa";
-import { AnonymizationService } from "../../Services/Users/AnonymizationService";
-import { Service } from "typedi";
-import { Request as ExpressRequest } from "express";
+import { Controller, Delete, Path, Request, Route, Security, Tags, SuccessResponse } from 'tsoa';
+import { AnonymizationService } from '../../Services/Users/AnonymizationService';
+import { Service } from 'typedi';
+import { Request as ExpressRequest } from 'express';
 
 /**
  * @summary Controller for managing user anonymization.
@@ -18,9 +9,9 @@ import { Request as ExpressRequest } from "express";
  * @security jwt
  */
 @Service()
-@Route("anonymization")
-@Tags("Anonymization")
-@Security("jwt")
+@Route('anonymization')
+@Tags('Anonymization')
+@Security('jwt')
 export class AnonymizationController extends Controller {
   constructor(private anonymizationService: AnonymizationService) {
     super();
@@ -33,9 +24,9 @@ export class AnonymizationController extends Controller {
    * @returns A Promise that resolves upon successful anonymization.
    * @throws {NotFoundError} If the user is not found or does not belong to the authenticated user's company.
    */
-  @Delete("/{userId}")
-  @Security("jwt", ["admin"])
-  @SuccessResponse(204, "User anonymized")
+  @Delete('/{userId}')
+  @Security('jwt', ['admin'])
+  @SuccessResponse(204, 'User anonymized')
   public async anonymizeUser(
     @Path() userId: string,
     @Request() request: ExpressRequest,

@@ -1,9 +1,9 @@
-import { Service } from "typedi";
-import { InjectRepository } from "typeorm-typedi-extensions";
-import { Repository } from "typeorm";
+import { Service } from 'typedi';
+import { InjectRepository } from 'typeorm-typedi-extensions';
+import { Repository } from 'typeorm';
 
-import { BaseRepository } from "../BaseRepository";
-import { UserStatus } from "../../Entities/Users/UserStatus";
+import { BaseRepository } from '../BaseRepository';
+import { UserStatus } from '../../Entities/Users/UserStatus';
 
 /**
  * @description Repository for UserStatus entities, extending BaseRepository for common CRUD operations.

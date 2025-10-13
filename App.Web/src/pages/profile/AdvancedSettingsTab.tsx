@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 import {
   Box,
   Card,
@@ -9,23 +9,23 @@ import {
   Stack,
   Snackbar,
   Alert,
-} from '@mui/material'
-import { RecognizedDevicesList } from './RecognizedDevicesList'
-import { ActiveSessionsList } from './ActiveSessionsList'
-import { ActiveSession, RecognizedDevice } from '@/types'
+} from '@mui/material';
+import { RecognizedDevicesList } from './RecognizedDevicesList';
+import { ActiveSessionsList } from './ActiveSessionsList';
+import { ActiveSession, RecognizedDevice } from '@/types';
 
 interface AdvancedSettingsTabProps {
   settings: {
-    loginNotificationsEnabled: boolean
-    loginApprovalsRequired: boolean
-  }
-  onToggle: (setting: keyof AdvancedSettingsTabProps['settings']) => void
-  feedbackMessage: string | null
-  devices: RecognizedDevice[]
-  sessions: ActiveSession[]
-  onRemoveDevice: (deviceId: string) => void
-  onLogoutSession: (sessionId: string) => void
-  onLogoutAllOthers: () => void
+    loginNotificationsEnabled: boolean;
+    loginApprovalsRequired: boolean;
+  };
+  onToggle: (setting: keyof AdvancedSettingsTabProps['settings']) => void;
+  feedbackMessage: string | null;
+  devices: RecognizedDevice[];
+  sessions: ActiveSession[];
+  onRemoveDevice: (deviceId: string) => void;
+  onLogoutSession: (sessionId: string) => void;
+  onLogoutAllOthers: () => void;
 }
 
 export const AdvancedSettingsTab = ({
@@ -38,17 +38,17 @@ export const AdvancedSettingsTab = ({
   onLogoutSession,
   onLogoutAllOthers,
 }: AdvancedSettingsTabProps) => {
-  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
     if (feedbackMessage) {
-      setSnackbarOpen(true)
+      setSnackbarOpen(true);
     }
-  }, [feedbackMessage])
+  }, [feedbackMessage]);
 
   const handleCloseSnackbar = () => {
-    setSnackbarOpen(false)
-  }
+    setSnackbarOpen(false);
+  };
 
   return (
     <>
@@ -114,5 +114,5 @@ export const AdvancedSettingsTab = ({
         </Alert>
       </Snackbar>
     </>
-  )
-}
+  );
+};

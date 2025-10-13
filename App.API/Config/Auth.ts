@@ -1,19 +1,18 @@
-import { Request } from "express";
-import User from "../Entities/Users/User";
-import { AuthenticationService } from "../Services/AuthenticationService/AuthenticationService";
-import { Container } from "typedi";
-import { AuthenticationError } from "../Errors/HttpErrors";
+import { Request } from 'express';
+import User from '../Entities/Users/User';
+import { AuthenticationService } from '../Services/AuthenticationService/AuthenticationService';
+import { Container } from 'typedi';
+import { AuthenticationError } from '../Errors/HttpErrors';
 
 export async function expressAuthentication(
   request: Request,
   securityName: string,
   scopes: string[] = [],
 ): Promise<User> {
-  const token =
-    request.cookies?.jwt || request.headers?.authorization?.split(" ")[1];
+  const token = request.cookies?.jwt || request.headers?.authorization?.split(' ')[1];
 
   if (!token) {
-    throw new AuthenticationError("No token provided");
+    throw new AuthenticationError('No token provided');
   }
 
   try {
@@ -22,7 +21,7 @@ export async function expressAuthentication(
 
     // Check scopes (roles)
     if (scopes.length > 0 && !scopes.includes(user.role.name)) {
-      throw new AuthenticationError("Forbidden: Insufficient permissions");
+      throw new AuthenticationError('Forbidden: Insufficient permissions');
     }
 
     // Attach the user object to the request for use in controllers
@@ -33,8 +32,7 @@ export async function expressAuthentication(
       throw error;
     }
     throw new AuthenticationError(
-      "Authentication failed: " +
-        (error instanceof Error ? error.message : "Unknown error"),
+      'Authentication failed: ' + (error instanceof Error ? error.message : 'Unknown error'),
     );
   }
 }

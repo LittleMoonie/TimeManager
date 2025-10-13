@@ -7,8 +7,8 @@ import {
   ListItem,
   ListItemText,
   Typography,
-} from '@mui/material'
-import { PageHeader } from '@/components/ui/PageHeader'
+} from '@mui/material';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 const reportSummaries = [
   {
@@ -26,7 +26,7 @@ const reportSummaries = [
     title: 'Project health',
     description: 'Shows progress, blockers, and upcoming milestones.',
   },
-]
+];
 
 const ReportsPage = () => (
   <Box display="flex" flexDirection="column" gap={3}>
@@ -66,6 +66,6 @@ const ReportsPage = () => (
       </CardContent>
     </Card>
   </Box>
-)
+);
 
-export default ReportsPage
+export default ReportsPage;

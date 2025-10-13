@@ -1,16 +1,16 @@
 interface Config {
-  basename: string
-  defaultPath: string
-  fontFamily: string
-  borderRadius: number
-  API_SERVER: string
+  basename: string;
+  defaultPath: string;
+  fontFamily: string;
+  borderRadius: number;
+  API_SERVER: string;
 }
 
-let BACKEND_SERVER: string
+let BACKEND_SERVER: string;
 if (process.env.REACT_APP_BACKEND_SERVER) {
-  BACKEND_SERVER = process.env.REACT_APP_BACKEND_SERVER
+  BACKEND_SERVER = process.env.REACT_APP_BACKEND_SERVER;
 } else {
-  BACKEND_SERVER = 'http://localhost:4000/api/'
+  BACKEND_SERVER = 'http://localhost:4000/api/';
 }
 
 const config: Config = {
@@ -19,6 +19,6 @@ const config: Config = {
   fontFamily: `'Roboto', sans-serif`,
   borderRadius: 12,
   API_SERVER: BACKEND_SERVER,
-}
+};
 
-export default config
+export default config;

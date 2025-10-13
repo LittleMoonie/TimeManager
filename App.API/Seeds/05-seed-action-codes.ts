@@ -1,32 +1,32 @@
-import { DataSource } from "typeorm";
-import { ActionCode, ActionCodeType } from "../Entities/Timesheets/ActionCode";
-import { Company } from "../Entities/Companies/Company";
+import { DataSource } from 'typeorm';
+import { ActionCode, ActionCodeType } from '../Entities/Timesheets/ActionCode';
+import { Company } from '../Entities/Companies/Company';
 
 export async function seedActionCodes(ds: DataSource, company: Company) {
   const repo = ds.getRepository(ActionCode);
 
   const rows = [
     {
-      code: "REGULAR",
-      name: "Regular Work",
+      code: 'REGULAR',
+      name: 'Regular Work',
       type: ActionCodeType.BILLABLE,
       active: true,
     },
     {
-      code: "VACATION",
-      name: "Vacation",
+      code: 'VACATION',
+      name: 'Vacation',
       type: ActionCodeType.NON_BILLABLE,
       active: true,
     },
     {
-      code: "SICK",
-      name: "Sick Leave",
+      code: 'SICK',
+      name: 'Sick Leave',
       type: ActionCodeType.NON_BILLABLE,
       active: true,
     },
     {
-      code: "HOLIDAY",
-      name: "Holiday",
+      code: 'HOLIDAY',
+      name: 'Holiday',
       type: ActionCodeType.NON_BILLABLE,
       active: true,
     },
@@ -34,17 +34,14 @@ export async function seedActionCodes(ds: DataSource, company: Company) {
 
   await repo.upsert(
     rows.map((r) => ({ companyId: company.id, ...r })),
-    { conflictPaths: ["companyId", "code"] },
+    { conflictPaths: ['companyId', 'code'] },
   );
 
   const map = new Map<string, ActionCode>();
   for (const r of rows) {
-    map.set(
-      r.code,
-      await repo.findOneByOrFail({ companyId: company.id, code: r.code }),
-    );
+    map.set(r.code, await repo.findOneByOrFail({ companyId: company.id, code: r.code }));
   }
 
-  console.log("✅ Seeded ActionCodes:", rows.map((r) => r.code).join(", "));
+  console.log('✅ Seeded ActionCodes:', rows.map((r) => r.code).join(', '));
   return { actionCodes: map };
 }

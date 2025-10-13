@@ -10,26 +10,26 @@ import {
   Path,
   Security,
   Request,
-} from "tsoa";
-import { Request as ExpressRequest } from "express";
-import { Service } from "typedi";
+} from 'tsoa';
+import { Request as ExpressRequest } from 'express';
+import { Service } from 'typedi';
 
-import { TimesheetEntryService } from "../../Services/Timesheet/TimesheetEntryService";
+import { TimesheetEntryService } from '../../Services/Timesheet/TimesheetEntryService';
 import {
   CreateTimesheetEntryDto,
   UpdateTimesheetEntryDto,
-} from "../../Dtos/Timesheet/TimesheetDto";
-import { TimesheetEntry } from "../../Entities/Timesheets/TimesheetEntry";
-import User from "../../Entities/Users/User";
+} from '../../Dtos/Timesheet/TimesheetDto';
+import { TimesheetEntry } from '../../Entities/Timesheets/TimesheetEntry';
+import User from '../../Entities/Users/User';
 
 /**
  * @summary Controller for managing timesheet entries.
  * @tags Timesheet Entries
  * @security jwt
  */
-@Route("timesheet-entries")
-@Tags("Timesheet Entries")
-@Security("jwt")
+@Route('timesheet-entries')
+@Tags('Timesheet Entries')
+@Security('jwt')
 @Service()
 export class TimesheetEntryController extends Controller {
   constructor(private readonly timesheetEntryService: TimesheetEntryService) {
@@ -43,17 +43,13 @@ export class TimesheetEntryController extends Controller {
    * @returns The newly created timesheet entry.
    * @throws {UnprocessableEntityError} If validation of the DTO fails.
    */
-  @Post("/")
+  @Post('/')
   public async createTimesheetEntry(
     @Body() dto: CreateTimesheetEntryDto,
     @Request() request: ExpressRequest,
   ): Promise<TimesheetEntry> {
     const me = request.user as User;
-    return this.timesheetEntryService.createTimesheetEntry(
-      me.companyId,
-      me.id,
-      dto,
-    );
+    return this.timesheetEntryService.createTimesheetEntry(me.companyId, me.id, dto);
   }
 
   /**
@@ -62,7 +58,7 @@ export class TimesheetEntryController extends Controller {
    * @returns The timesheet entry details.
    * @throws {NotFoundError} If the timesheet entry is not found.
    */
-  @Get("/{id}")
+  @Get('/{id}')
   public async getTimesheetEntry(@Path() id: string): Promise<TimesheetEntry> {
     return this.timesheetEntryService.getTimesheetEntryById(id);
   }
@@ -75,7 +71,7 @@ export class TimesheetEntryController extends Controller {
    * @throws {UnprocessableEntityError} If validation of the DTO fails.
    * @throws {NotFoundError} If the timesheet entry to update is not found.
    */
-  @Put("/{id}")
+  @Put('/{id}')
   public async updateTimesheetEntry(
     @Path() id: string,
     @Body() dto: UpdateTimesheetEntryDto,
@@ -89,7 +85,7 @@ export class TimesheetEntryController extends Controller {
    * @returns A Promise that resolves upon successful deletion.
    * @throws {NotFoundError} If the timesheet entry to delete is not found.
    */
-  @Delete("/{id}")
+  @Delete('/{id}')
   public async deleteTimesheetEntry(@Path() id: string): Promise<void> {
     await this.timesheetEntryService.deleteTimesheetEntry(id);
   }
