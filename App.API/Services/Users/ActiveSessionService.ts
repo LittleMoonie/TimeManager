@@ -9,15 +9,14 @@ import { ActiveSessionRepository } from '../../Repositories/Users/ActiveSessionR
  * creation upon login, updating last-seen timestamps, and revocation upon logout or security events.
  * All public methods are designed to be company-scoped to enforce multi-tenant safety.
  */
-@Service('ActiveSessionService')
+@Service()
 export class ActiveSessionService {
   /**
    * @description Initializes the ActiveSessionService with the ActiveSessionRepository.
    * @param activeSessionRepository The repository for ActiveSession entities, injected by TypeDI.
    */
   constructor(
-    @Inject('ActiveSessionRepository')
-    private readonly activeSessionRepository: ActiveSessionRepository,
+    @Inject('ActiveSessionRepository') private readonly activeSessionRepository: ActiveSessionRepository,
   ) {}
 
   /**

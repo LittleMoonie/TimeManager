@@ -51,6 +51,7 @@
     "tsoa": "^6.0.0",
     "typedi": "^0.10.0",
     "typeorm": "^0.3.27",
+    "typeorm-typedi-extensions": "^0.4.1",
     "uuid": "^13.0.0",
     "winston": "^3.18.3"
   },

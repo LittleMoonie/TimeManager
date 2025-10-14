@@ -12,7 +12,7 @@ import { BaseRepository } from '../../Repositories/BaseRepository';
 export class ActiveSessionRepository extends BaseRepository<ActiveSession> {
   /**
    * @description Initializes the ActiveSessionRepository with a TypeORM Repository instance for ActiveSession.
-   * @param repo The TypeORM Repository<ActiveSession> injected by TypeDI.
+   * @param repository The TypeORM Repository<ActiveSession> injected by TypeDI.
    */
   constructor() {
     super(ActiveSession);

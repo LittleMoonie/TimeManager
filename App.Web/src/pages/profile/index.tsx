@@ -3,12 +3,12 @@ import { useEffect, useState } from 'react';
 
 import { AppBreadcrumbs } from '@/components/ui/Breadcrumbs';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { RecognizedDevice, ActiveSession } from '@/types';
 
+import { AboutMeSection } from './AboutMeSection';
 import { AdvancedSettingsTab } from './AdvancedSettingsTab';
 import { ChangePasswordTab } from './ChangePasswordTab';
-import { AboutMeSection } from './AboutMeSection';
 import { ProfileSummaryCard } from './ProfileTab';
-import { RecognizedDevice, ActiveSession } from '@/types';
 
 type TabValue = 'profile' | 'advanced' | 'password';
 

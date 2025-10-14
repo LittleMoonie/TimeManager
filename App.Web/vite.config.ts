@@ -1,5 +1,6 @@
-import { defineConfig, type Plugin } from 'vite';
 import path from 'path';
+
+import { defineConfig, type Plugin } from 'vite';
 
 const runtimeConfig = (): Plugin => ({
   name: 'runtime-config',

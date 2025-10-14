@@ -1,4 +1,3 @@
-import User from 'Entities/Users/User';
 import { Request as ExpressRequest } from 'express';
 import {
   Body,
@@ -18,6 +17,7 @@ import { Service } from 'typedi';
 import { CreateLeaveRequestDto, UpdateLeaveRequestDto } from '../../Dtos/Companies/CompanyDto';
 import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
 import { LeaveRequest } from '../../Entities/Companies/LeaveRequest';
+import User from '../../Entities/Users/User';
 import { LeaveRequestService } from '../../Services/Companies/LeaveRequestService';
 import { UserService } from '../../Services/Users/UserService';
 

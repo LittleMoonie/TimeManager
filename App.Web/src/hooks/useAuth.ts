@@ -13,7 +13,7 @@ export const useAuth = () => {
 
   const {
     data: user,
-    isLoading,
+    isLoading: isUserLoading,
     error,
   } = useQuery<UserResponseDto | undefined>({
     queryKey: ['auth', 'user'],
@@ -58,11 +58,12 @@ export const useAuth = () => {
     return logoutMutation.mutateAsync();
   };
 
-  const isAuthenticated = Boolean(user); // Authenticated if user data is present
+  const isAuthenticated = Boolean(user && !error); // Authenticated if user data is present and no error
 
   return {
     user,
-    isLoading: isLoading || loginMutation.isPending || logoutMutation.isPending,
+    isUserLoading,
+    isLoading: isUserLoading || loginMutation.isPending || logoutMutation.isPending,
     error,
     isAuthenticated,
     login,

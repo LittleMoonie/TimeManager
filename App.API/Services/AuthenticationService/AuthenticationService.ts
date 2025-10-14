@@ -2,7 +2,6 @@ import * as crypto from 'crypto';
 
 import * as argon2 from 'argon2';
 import { add } from 'date-fns';
-import { UserStatus } from 'Entities/Users/UserStatus';
 import { sign } from 'jsonwebtoken';
 import { Inject, Service } from 'typedi';
 
@@ -13,6 +12,7 @@ import {
 } from '../../Dtos/Authentication/AuthenticationDto';
 import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
 import User from '../../Entities/Users/User';
+import { UserStatus } from '../../Entities/Users/UserStatus';
 import { AuthenticationError, NotFoundError } from '../../Errors/HttpErrors';
 import { AuthenticationRepository } from '../../Repositories/Authentication/AuthenticationRepository';
 import { UserRepository } from '../../Repositories/Users/UserRepository';

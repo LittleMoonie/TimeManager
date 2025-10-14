@@ -18,7 +18,10 @@ export async function expressAuthentication(
 
   try {
     const authenticationService = Container.get(AuthenticationService);
-    const user = await authenticationService.getCurrentUser(token);
+    const user = await authenticationService.getCurrentUser(
+      request.body.userId,
+      request.body.companyId,
+    );
 
     // Check scopes (roles)
     if (scopes.length > 0 && !scopes.includes(user.role.name)) {

@@ -1,8 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-
-import App from '@/app/App';
 import { OpenAPI } from '@/lib/api';
+import App from './App';
 
 const root = createRoot(document.getElementById('root')!);
 
@@ -17,7 +16,6 @@ const renderApp = () => {
 fetch('/api/config')
   .then((response) => response.json())
   .then((config) => {
-    console.log('API Server URL from config:', config.API_SERVER);
     OpenAPI.BASE = config.API_SERVER;
     OpenAPI.WITH_CREDENTIALS = true;
     renderApp();

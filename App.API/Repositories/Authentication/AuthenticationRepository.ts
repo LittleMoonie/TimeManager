@@ -4,23 +4,24 @@ import { Repository } from 'typeorm';
 import ActiveSession from '../../Entities/Users/ActiveSessions';
 import User from '../../Entities/Users/User';
 import { getInitializedDataSource } from '../../Server/Database';
+import { BaseRepository } from 'Repositories/BaseRepository';
 
 /**
  * @description Repository for handling authentication-related database operations.
  * This includes managing User and ActiveSession entities for login, registration, and session management.
  */
 @Service('AuthenticationRepository')
-export class AuthenticationRepository {
-  private get userRepo(): Repository<User> {
-    return getInitializedDataSource().getRepository(User);
-  }
-
-  private get activeSessionRepo(): Repository<ActiveSession> {
-    return getInitializedDataSource().getRepository(ActiveSession);
+export class AuthenticationRepository extends BaseRepository<User> {
+  constructor() {
+    /**
+     * @description Initializes the AuthenticationRepository with a TypeORM Repository instance for User.
+     * @param repository The TypeORM Repository<User> injected by TypeDI.
+     */
+    super(User);
   }
 
   async findUserByEmailWithAuthRelations(email: string): Promise<User | null> {
-    return this.userRepo.findOne({
+    return this.repository.findOne({
       where: { email },
       relations: [
         'status',
@@ -33,18 +34,20 @@ export class AuthenticationRepository {
   }
 
   async saveUser(user: User): Promise<User> {
-    return this.userRepo.save(user);
+    return this.repository.save(user);
   }
 
   async findUserByIdWithBasicRelations(id: string): Promise<User | null> {
-    return this.userRepo.findOne({
+    return this.repository.findOne({
       where: { id },
       relations: ['status', 'company', 'role'],
     });
   }
 
   async createAndSaveActiveSessionPartial(data: Partial<ActiveSession>): Promise<ActiveSession> {
-    const entity = this.activeSessionRepo.create(data);
-    return this.activeSessionRepo.save(entity);
+    const dataSource = getInitializedDataSource();
+    const activeSessionRepo = dataSource.getRepository(ActiveSession);
+    const entity = activeSessionRepo.create(data);
+    return activeSessionRepo.save(entity);
   }
 }

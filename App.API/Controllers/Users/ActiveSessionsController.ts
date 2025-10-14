@@ -16,7 +16,7 @@ import { ActiveSessionService } from '../../Services/Users/ActiveSessionService'
 @Security('jwt')
 @Service()
 export class ActiveSessionsController extends Controller {
-  constructor(private readonly activeSessionService: ActiveSessionService) {
+  constructor(private activeSessionService: ActiveSessionService) {
     super();
   }
 

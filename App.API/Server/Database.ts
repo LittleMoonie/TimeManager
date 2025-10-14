@@ -1,8 +1,7 @@
 import 'reflect-metadata';
+import { Container } from 'typedi';
 import { DataSource, DataSourceOptions } from 'typeorm';
 
-import { InitialDatabase1760310538461 } from '../Migrations/1760310538461-InitialDatabase';
-import { AddColorToActionCode1760366359842 } from '../Migrations/1760366359842-AddColorToActionCode';
 import { seedUserStatuses } from '../Seeds/01-seed-user-statuses';
 import { seedCompany } from '../Seeds/02-seed-company';
 import { seedRolesAndPermissions } from '../Seeds/03-seed-roles-permissions';
@@ -23,13 +22,13 @@ const dataSourceOptions: DataSourceOptions = {
   username: DB_USER,
   password: DB_PASS,
   database: DB_NAME,
-  synchronize: false,
+  synchronize: true,
   logging: true,
   entities: [
     './Entities/BaseEntity.ts',
     './Entities/**/**/**/**/**/**/**/**/**/**/**/**/**/**/**/**/**/**/*.ts',
   ],
-  migrations: [InitialDatabase1760310538461, AddColorToActionCode1760366359842],
+  migrations: [],
   subscribers: [],
   ssl: DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
 };
