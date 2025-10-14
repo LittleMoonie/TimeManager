@@ -1,26 +1,26 @@
-# 🐳 GoGoTime API - Dev Dockerfile
-FROM node:24-alpine
+# 🐳 GoGoTime Web - Dev Dockerfile
+FROM node:24-alpine AS base
 
-# Install native build tools for bcrypt, etc.
+# 1️⃣ Build tools
 RUN apk add --no-cache curl g++ make python3
 
-WORKDIR /app/App.Web
+WORKDIR /app
 
-# Pin Yarn to 4.10.3 (latest stable)
+# 2️⃣ Pin Yarn
 RUN corepack enable && corepack prepare yarn@stable --activate
 
-# Copy dependency manifests first (cache layer)
-COPY yarn.lock ./
-COPY App.Web/package.json ./
+# 3️⃣ Copy dependency manifests (within App.Web)
+COPY package.json yarn.lock ./
 
-# Install dependencies with strict mode (fallback for dev env)
-RUN yarn install
+# 4️⃣ Install dependencies (immutable but fallback-safe)
+RUN yarn install --immutable || yarn install
 
-# Copy source code
-COPY App.Web/. .
+# 5️⃣ Copy source
+COPY . .
 
-# Expose API port
-EXPOSE 4000
+# 6️⃣ Expose Vite port
+ENV NODE_ENV=development
+EXPOSE 3000
 
-# Default dev command
+# 7️⃣ Default dev command
 CMD ["yarn", "dev"]

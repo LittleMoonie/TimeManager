@@ -8,14 +8,18 @@ import { BaseRepository } from '../../Repositories/BaseRepository';
  * @description Repository for managing ActiveSession entities. Extends BaseRepository to provide standard CRUD operations
  * and includes specific methods for querying active sessions by token hash and for a specific user.
  */
-@Service('ActiveSessionRepository')
+@Service()
 export class ActiveSessionRepository extends BaseRepository<ActiveSession> {
-  /**
-   * @description Initializes the ActiveSessionRepository with a TypeORM Repository instance for ActiveSession.
-   * @param repository The TypeORM Repository<ActiveSession> injected by TypeDI.
-   */
   constructor() {
+    /**
+     * @description Initializes the ActiveSessionRepository with a TypeORM Repository instance for ActiveSession.
+     * @param repository The TypeORM Repository<ActiveSession> injected by TypeDI.
+     */
     super(ActiveSession);
+  }
+
+  async getActiveSessionByUserId(companyId: string, userId: string): Promise<ActiveSession | null> {
+    return this.repository.findOne({ where: { companyId, userId } });
   }
 
   /**
@@ -24,7 +28,7 @@ export class ActiveSessionRepository extends BaseRepository<ActiveSession> {
    * @param tokenHash The SHA-256 hash of the refresh token.
    * @returns A Promise that resolves to the ActiveSession entity or null if not found.
    */
-  async findByTokenHashInCompany(
+  async getActiveSessionByTokenHashInCompany(
     companyId: string,
     tokenHash: string,
   ): Promise<ActiveSession | null> {
@@ -40,7 +44,7 @@ export class ActiveSessionRepository extends BaseRepository<ActiveSession> {
    * @param tokenHash The SHA-256 hash of the refresh token.
    * @returns A Promise that resolves to the ActiveSession entity or null if not found.
    */
-  async findByTokenHash(tokenHash: string): Promise<ActiveSession | null> {
+  async getActiveSessionByTokenHash(tokenHash: string): Promise<ActiveSession | null> {
     return this.repository.findOne({ where: { tokenHash } });
   }
 
@@ -50,7 +54,7 @@ export class ActiveSessionRepository extends BaseRepository<ActiveSession> {
    * @param userId The unique identifier of the user.
    * @returns A Promise that resolves to an array of ActiveSession entities, ordered by last seen time.
    */
-  async findAllForUser(companyId: string, userId: string): Promise<ActiveSession[]> {
+  async getAllActiveSessionsForUser(companyId: string, userId: string): Promise<ActiveSession[]> {
     return this.repository.find({
       where: { companyId, userId },
       order: { lastSeenAt: 'DESC' },

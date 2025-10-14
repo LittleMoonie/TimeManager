@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-import { Container } from 'typedi';
 import { DataSource, DataSourceOptions } from 'typeorm';
 
 import { seedUserStatuses } from '../Seeds/01-seed-user-statuses';
@@ -46,13 +45,13 @@ export const runSeeds = async (opts?: { force?: boolean }): Promise<void> => {
     throw new Error('Data source has not been initialised yet');
   }
 
-  console.log('🌱 Running seeders…');
+  console.warn('🌱 Running seeders…');
   const { statuses } = await seedUserStatuses(AppDataSource);
   const { company } = await seedCompany(AppDataSource);
   const { roles } = await seedRolesAndPermissions(AppDataSource, company);
   await seedUsers(AppDataSource, company, roles, statuses);
   await seedActionCodes(AppDataSource, company);
-  console.log('✅ Seeders complete');
+  console.warn('✅ Seeders complete');
 
   seedsRun = true;
 };
@@ -69,13 +68,13 @@ export const connectDB = async (): Promise<void> => {
   try {
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
-      console.log(
+      console.warn(
         `✅ PostgreSQL connected: ${AppDataSource.options.database} (${AppDataSource.driver.database as string})`,
       );
 
       if (process.env.RUN_MIGRATIONS_ON_BOOT !== 'false') {
         await AppDataSource.runMigrations();
-        console.log('✅ Database migrations executed');
+        console.warn('✅ Database migrations executed');
       }
 
       if (process.env.RUN_SEEDERS_ON_BOOT !== 'false') {

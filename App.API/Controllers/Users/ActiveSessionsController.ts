@@ -1,5 +1,15 @@
 import { Request as ExpressRequest } from 'express';
-import { Controller, Get, Route, Tags, Security, Request, Path, Delete } from 'tsoa';
+import {
+  Controller,
+  Get,
+  Route,
+  Tags,
+  Security,
+  Request,
+  Path,
+  Delete,
+  SuccessResponse,
+} from 'tsoa';
 import { Service } from 'typedi';
 
 import { ActiveSessionResponseDto } from '../../Dtos/Users/UserDto';
@@ -17,6 +27,10 @@ import { ActiveSessionService } from '../../Services/Users/ActiveSessionService'
 @Service()
 export class ActiveSessionsController extends Controller {
   constructor(private activeSessionService: ActiveSessionService) {
+    /**
+     * @description Initializes the ActiveSessionsController with the ActiveSessionService.
+     * @param activeSessionService The ActiveSessionService injected by TypeDI.
+     */
     super();
   }
 
@@ -26,6 +40,7 @@ export class ActiveSessionsController extends Controller {
    * @returns An array of active session details.
    */
   @Get('/')
+  @SuccessResponse('200', 'Active sessions retrieved successfully')
   public async getAllUserSessions(
     @Request() request: ExpressRequest,
   ): Promise<ActiveSessionResponseDto[]> {
@@ -41,6 +56,7 @@ export class ActiveSessionsController extends Controller {
    * @throws {NotFoundError} If the session is not found.
    */
   @Delete('/{tokenHash}')
+  @SuccessResponse('204', 'Active session revoked successfully')
   public async revokeActiveSession(
     @Path() tokenHash: string,
     @Request() request: ExpressRequest,

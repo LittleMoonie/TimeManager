@@ -9,7 +9,7 @@ import { request as __request } from '../core/request';
 export class ActiveSessionsService {
     /**
      * Retrieves all active sessions for the authenticated user within their company.
-     * @returns ActiveSessionResponseDto An array of active session details.
+     * @returns ActiveSessionResponseDto Active sessions retrieved successfully
      * @throws ApiError
      */
     public static getAllUserSessions(): CancelablePromise<Array<ActiveSessionResponseDto>> {

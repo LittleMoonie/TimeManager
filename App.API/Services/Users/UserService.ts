@@ -44,7 +44,7 @@ export class UserService {
     @Inject('UserRepository') private readonly userRepository: UserRepository,
     @Inject('RoleService') private readonly roleService: RoleService,
     @Inject('RolePermissionService') private readonly rolePermissionService: RolePermissionService,
-    @Inject('ActiveSessionRepository') private readonly activeSessionRepository: ActiveSessionRepository,
+    private readonly activeSessionRepository: ActiveSessionRepository,
   ) {}
 
   private get userStatusRepository(): Repository<UserStatus> {

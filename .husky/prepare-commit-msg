@@ -1,24 +1,46 @@
 #!/usr/bin/env bash
-# Auto-insert Conventional Commit template if message is empty (not merge/squash)
+# 🧱 Husky prepare-commit-msg — GoGoTime
+# Auto-insert Conventional Commit template if message is empty
+# Skips merge/squash commits
 
 set -euo pipefail
 
 MSGFILE="$1"
 SOURCE="${2:-}"
 
+# Ignore merge/squash commits
 case "$SOURCE" in
   merge|squash) exit 0 ;;
 esac
 
-# If message already has content, do nothing
+# If a message already exists (e.g. via -m), skip
 [ -s "$MSGFILE" ] && exit 0
 
-cat > "$MSGFILE" <<'TEMPLATE'
-feat(scope): short summary
+# --- Smart scope detection (optional)
+# Detect if commit affects App.Web or App.API
+scope="core"
+if git diff --cached --name-only | grep -q '^App\.Web/'; then
+  scope="web"
+elif git diff --cached --name-only | grep -q '^App\.API/'; then
+  scope="api"
+fi
 
-- why
-- what
-- how
-
-BREAKING CHANGE: details (if any)
-TEMPLATE
+# --- Insert template at top
+{
+  echo "feat(${scope}): short summary"
+  echo ""
+  echo "What:"
+  echo "- Describe what changed"
+  echo ""
+  echo "Why:"
+  echo "- Explain the motivation"
+  echo ""
+  echo "How:"
+  echo "- Summarize how it was done"
+  echo ""
+  echo "Impact:"
+  echo "- Mention side effects or implications"
+  echo ""
+  echo ""
+  cat "$MSGFILE" 2>/dev/null || true
+} > "${MSGFILE}.tmp" && mv "${MSGFILE}.tmp" "$MSGFILE"

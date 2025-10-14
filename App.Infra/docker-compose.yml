@@ -28,8 +28,9 @@ services:
   api:
     container_name: gogotime-api
     build:
-      context: ..
-      dockerfile: ./App.API/Dockerfile
+      context: ../App.API
+      dockerfile: Dockerfile
+    user: '${UID:-1000}:${GID:-1000}'
     ports:
       - '${API_PORT}:4000'
     env_file:
@@ -44,7 +45,7 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - ../App.API:/app99<<22
+      - ../App.API:/app
     command: yarn dev
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:4000/api/system/health']
@@ -71,8 +72,9 @@ services:
   web:
     container_name: gogotime-web
     build:
-      context: ..
-      dockerfile: ./App.Web/Dockerfile
+      context: ../App.Web
+      dockerfile: Dockerfile
+    user: '${UID:-1000}:${GID:-1000}'
     ports:
       - '${WEB_PORT}:3000'
     env_file:
@@ -118,8 +120,6 @@ services:
           target: /app/package.json
         - action: rebuild
           path: ../App.Web/yarn.lock
-
-
 
 # 📦 Named Volumes for Persistent Data and Cache Isolation
 volumes:

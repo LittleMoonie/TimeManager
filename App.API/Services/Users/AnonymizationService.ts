@@ -1,10 +1,8 @@
 import { Inject, Service } from 'typedi';
 
-import ActiveSession from '../../Entities/Users/ActiveSessions';
 import { NotFoundError } from '../../Errors/HttpErrors';
+import { ActiveSessionRepository } from '../../Repositories/Users/ActiveSessionRepository';
 import { UserRepository } from '../../Repositories/Users/UserRepository';
-import { getInitializedDataSource } from '../../Server/Database';
-import { ActiveSessionRepository } from 'Repositories/Users/ActiveSessionRepository';
 
 /**
  * @description Service layer for handling user data anonymization. This service provides functionality
@@ -19,7 +17,7 @@ export class AnonymizationService {
    */
   constructor(
     @Inject('UserRepository') private readonly userRepository: UserRepository,
-    @Inject('ActiveSessionRepository') private readonly activeSessionRepository: ActiveSessionRepository,
+    private readonly activeSessionRepository: ActiveSessionRepository,
   ) {}
 
   /**

@@ -1,6 +1,9 @@
 node_modules
-dist
+.yarn/cache
+.yarn/install-state.gz
 .git
-.gitignore
-.env
-*.log
+Dockerfile
+build
+dist
+coverage
+playwright-report

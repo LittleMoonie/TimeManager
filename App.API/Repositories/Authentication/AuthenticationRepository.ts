@@ -1,10 +1,9 @@
 import { Service } from 'typedi';
-import { Repository } from 'typeorm';
 
 import ActiveSession from '../../Entities/Users/ActiveSessions';
 import User from '../../Entities/Users/User';
+import { BaseRepository } from '../../Repositories/BaseRepository';
 import { getInitializedDataSource } from '../../Server/Database';
-import { BaseRepository } from 'Repositories/BaseRepository';
 
 /**
  * @description Repository for handling authentication-related database operations.

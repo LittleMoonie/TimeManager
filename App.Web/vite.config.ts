@@ -1,5 +1,5 @@
 import path from 'path';
-
+import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig, type Plugin } from 'vite';
 
 const runtimeConfig = (): Plugin => ({
@@ -13,7 +13,7 @@ const runtimeConfig = (): Plugin => ({
 });
 
 export default defineConfig({
-  plugins: [runtimeConfig()],
+  plugins: [runtimeConfig(), tsconfigPaths()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

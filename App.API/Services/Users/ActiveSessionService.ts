@@ -1,4 +1,4 @@
-import { Inject, Service } from 'typedi';
+import { Service } from 'typedi';
 
 import ActiveSession from '../../Entities/Users/ActiveSessions';
 import { NotFoundError } from '../../Errors/HttpErrors';
@@ -15,9 +15,49 @@ export class ActiveSessionService {
    * @description Initializes the ActiveSessionService with the ActiveSessionRepository.
    * @param activeSessionRepository The repository for ActiveSession entities, injected by TypeDI.
    */
-  constructor(
-    @Inject('ActiveSessionRepository') private readonly activeSessionRepository: ActiveSessionRepository,
-  ) {}
+  constructor(private readonly activeSessionRepository: ActiveSessionRepository) {}
+
+  /**
+   * @description Retrieves an active session by its token hash within a specific company scope.
+   * @param companyId The unique identifier of the company.
+   * @param tokenHash The SHA-256 hash of the refresh token.
+   * @returns A Promise that resolves to the ActiveSession entity.
+   * @throws {NotFoundError} If no active session is found for the given token hash and company ID.
+   */
+  async getActiveSession(companyId: string, tokenHash: string): Promise<ActiveSession> {
+    return this.activeSessionRepository.getActiveSessionByTokenHashInCompany(companyId, tokenHash);
+  }
+
+  /**
+   * @description Retrieves an active session by its token hash globally (without company scope).
+   * @param tokenHash The SHA-256 hash of the refresh token.
+   * @returns A Promise that resolves to the ActiveSession entity.
+   * @throws {NotFoundError} If no active session is found for the given token hash.
+   */
+  async getActiveSessionByTokenHash(tokenHash: string): Promise<ActiveSession> {
+    return this.activeSessionRepository.getActiveSessionByTokenHash(tokenHash);
+  }
+
+  /**
+   * @description Retrieves an active session by its user ID within a specific company scope.
+   * @param companyId The unique identifier of the company.
+   * @param userId The unique identifier of the user.
+   * @returns A Promise that resolves to the ActiveSession entity.
+   * @throws {NotFoundError} If no active session is found for the given user ID and company ID.
+   */
+  async getActiveSessionByUserId(companyId: string, userId: string): Promise<ActiveSession> {
+    return this.activeSessionRepository.getActiveSessionByUserId(companyId, userId);
+  }
+
+  /**
+   * @description Finds all active sessions for a specific user within a given company.
+   * @param companyId The unique identifier of the company.
+   * @param userId The unique identifier of the user.
+   * @returns A Promise that resolves to an array of ActiveSession entities.
+   */
+  async getAllActiveSessionsForUser(companyId: string, userId: string): Promise<ActiveSession[]> {
+    return this.activeSessionRepository.getAllActiveSessionsForUser(companyId, userId);
+  }
 
   /**
    * @description Creates a new active session record upon successful user login.
@@ -61,7 +101,7 @@ export class ActiveSessionService {
     companyId: string,
     tokenHash: string,
   ): Promise<ActiveSession> {
-    const activeSession = await this.activeSessionRepository.findByTokenHashInCompany(
+    const activeSession = await this.activeSessionRepository.getActiveSessionByTokenHashInCompany(
       companyId,
       tokenHash,
     );
@@ -108,6 +148,6 @@ export class ActiveSessionService {
    * @returns A Promise that resolves to an array of ActiveSession entities.
    */
   async getAllUserSessions(companyId: string, userId: string): Promise<ActiveSession[]> {
-    return this.activeSessionRepository.findAllForUser(companyId, userId);
+    return this.activeSessionRepository.getAllActiveSessionsForUser(companyId, userId);
   }
 }
