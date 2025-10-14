@@ -42,9 +42,7 @@ const ProtectedRoute = ({
 const PublicRoute = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
-  if (isLoading) {
-    return <LoadingSpinner message="Preparing login..." />;
-  }
+
 
   if (isAuthenticated) {
     return <Navigate to="/" replace />;

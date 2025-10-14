@@ -5,57 +5,15 @@ import { AppBreadcrumbs } from '@/components/ui/Breadcrumbs';
 import { ProfileSummaryCard } from './ProfileTab';
 import { AdvancedSettingsTab } from './AdvancedSettingsTab';
 import { ChangePasswordTab } from './ChangePasswordTab';
-import { AboutMeSection } from './AboutMeSection';
-import { RecognizedDevice, ActiveSession } from '@/types';
+
+
 
 type TabValue = 'profile' | 'advanced' | 'password';
 
-// Mock data - in real app, this would come from API
-const mockRecognizedDevices: RecognizedDevice[] = [
-  {
-    id: '1',
-    name: 'Cent Desktop',
-    location: '4351 Deans Lane, Chelmsford',
-    lastActive: new Date(Date.now() - 0).toISOString(),
-    deviceType: 'desktop',
-  },
-  {
-    id: '2',
-    name: 'Imho Tablet',
-    location: '4185 Michigan Avenue',
-    lastActive: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    deviceType: 'tablet',
-  },
-  {
-    id: '3',
-    name: 'Albs Mobile',
-    location: '3462 Fairfax Drive, Montcalm',
-    lastActive: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-    deviceType: 'mobile',
-  },
-];
 
-const mockActiveSessions: ActiveSession[] = [
-  {
-    id: '1',
-    name: 'Ceto Desktop',
-    location: '4351 Deans Lane, Chelmsford',
-    current: true,
-    deviceType: 'desktop',
-  },
-  {
-    id: '2',
-    name: 'Moon Tablet',
-    location: '4185 Michigan Avenue',
-    current: false,
-    deviceType: 'tablet',
-  },
-];
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState<TabValue>('profile');
-  const [recognizedDevices, setRecognizedDevices] = useState(mockRecognizedDevices);
-  const [activeSessions, setActiveSessions] = useState(mockActiveSessions);
   const [securitySettings, setSecuritySettings] = useState({
     loginNotificationsEnabled: true,
     loginApprovalsRequired: false,
@@ -66,17 +24,7 @@ const ProfilePage = () => {
     setActiveTab(newValue);
   };
 
-  const handleRemoveDevice = (deviceId: string) => {
-    setRecognizedDevices((devices) => devices.filter((device) => device.id !== deviceId));
-  };
 
-  const handleLogoutSession = (sessionId: string) => {
-    setActiveSessions((sessions) => sessions.filter((session) => session.id !== sessionId));
-  };
-
-  const handleLogoutAllOthers = () => {
-    setActiveSessions((sessions) => sessions.filter((session) => session.current));
-  };
 
   const handleSecurityToggle = (setting: keyof typeof securitySettings) => {
     setSecuritySettings((prev) => {
@@ -133,18 +81,19 @@ const ProfilePage = () => {
           </Grid>
 
           <Grid size={{ xs: 12, lg: 8 }}>
-            {activeTab === 'profile' && <AboutMeSection />}
+            {activeTab === 'profile' && <div />}
+
 
             {activeTab === 'advanced' && (
               <AdvancedSettingsTab
                 settings={securitySettings}
                 onToggle={handleSecurityToggle}
                 feedbackMessage={feedbackMessage}
-                devices={recognizedDevices}
-                sessions={activeSessions}
-                onRemoveDevice={handleRemoveDevice}
-                onLogoutSession={handleLogoutSession}
-                onLogoutAllOthers={handleLogoutAllOthers}
+                devices={[]}
+                sessions={[]}
+                onRemoveDevice={() => {}}
+                onLogoutSession={() => {}}
+                onLogoutAllOthers={() => {}}
               />
             )}
 

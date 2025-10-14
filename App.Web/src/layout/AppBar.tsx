@@ -28,12 +28,19 @@ type LayoutAppBarProps = {
 
 export const LayoutAppBar = ({ onMenuClick }: LayoutAppBarProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
   const handleMenuClose = () => setAnchorEl(null);
+
+  const handleLogout = () => {
+    logout();
+    handleMenuClose();
+  };
+
+  const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : '';
 
   return (
     <AppBar
@@ -74,7 +81,7 @@ export const LayoutAppBar = ({ onMenuClick }: LayoutAppBarProps) => {
               }}
             >
               <Typography variant="subtitle2" fontWeight={700} color="common.white">
-                A
+                {user?.company?.name[0].toUpperCase()}
               </Typography>
             </Box>
             <Typography
@@ -83,8 +90,7 @@ export const LayoutAppBar = ({ onMenuClick }: LayoutAppBarProps) => {
               color="text.primary"
               sx={{ fontSize: '1.25rem' }}
             >
-              {/* Connected User's company name */}
-              {user?.companyName}
+              {user?.company?.name}
             </Typography>
           </Box>
 
@@ -159,7 +165,7 @@ export const LayoutAppBar = ({ onMenuClick }: LayoutAppBarProps) => {
             onClick={handleAvatarClick}
             sx={{ p: 0, ml: 1 }}
           >
-            <Avatar sx={{ width: 36, height: 36, fontSize: '0.95rem', fontWeight: 600 }}>HJ</Avatar>
+            <Avatar sx={{ width: 36, height: 36, fontSize: '0.95rem', fontWeight: 600 }}>{initials}</Avatar>
           </IconButton>
         </Box>
       </Toolbar>
@@ -183,17 +189,17 @@ export const LayoutAppBar = ({ onMenuClick }: LayoutAppBarProps) => {
       >
         <Box sx={{ px: 2, py: 1.5 }}>
           <Typography variant="subtitle2" fontWeight={600}>
-            Haley James
+            {user?.firstName} {user?.lastName}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            haley.james@gogotime.com
+            {user?.email}
           </Typography>
         </Box>
         <MenuItem onClick={handleMenuClose}>
           <PersonRounded fontSize="small" sx={{ mr: 1.5 }} />
           Profile
         </MenuItem>
-        <MenuItem onClick={handleMenuClose}>
+        <MenuItem onClick={handleLogout}>
           <LogoutRounded fontSize="small" sx={{ mr: 1.5 }} />
           Logout
         </MenuItem>
