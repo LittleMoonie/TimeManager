@@ -870,6 +870,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "email": {"dataType":"string","required":true},
             "password": {"dataType":"string","required":true},
+            "rememberMe": {"dataType":"boolean"},
         },
         "additionalProperties": false,
     },

@@ -41,6 +41,12 @@ export class LoginDto {
   @IsString()
   @MinLength(6)
   public password!: string;
+
+  /**
+   * @description Whether the user wants to stay logged in for an extended period.
+   * @example true
+   */
+  public rememberMe?: boolean;
 }
 
 /**

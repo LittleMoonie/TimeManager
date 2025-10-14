@@ -101,12 +101,16 @@ export class AuthenticationService {
       throw new AuthenticationError('JWT secret is not configured');
     }
 
+    const expiresIn = loginDto.rememberMe ? '7d' : '1d';
+
     // Access token (JWT)
     const token = sign(
       { id: user.id, companyId: user.companyId, role: user.role?.name },
       jwtSecret,
-      { expiresIn: '1d' },
+      { expiresIn },
     );
+
+    const refreshTokenExpiresInDays = loginDto.rememberMe ? 7 : 1;
 
     // Refresh token: return raw token to caller; store only hash
     const {
@@ -114,7 +118,7 @@ export class AuthenticationService {
       tokenHash,
       deviceId,
       expiresAt,
-    } = await this.generateRefreshTokenMaterial();
+    } = await this.generateRefreshTokenMaterial(refreshTokenExpiresInDays);
 
     await this.activeSessionService.createActiveSession(
       user.companyId,
@@ -217,7 +221,7 @@ export class AuthenticationService {
    * @description Generates a new random raw refresh token, hashes it, and returns all necessary material for persistence.
    * @returns A Promise that resolves to an object containing the raw token, its SHA-256 hash, a device ID, and its expiration date.
    */
-  private async generateRefreshTokenMaterial(): Promise<{
+  private async generateRefreshTokenMaterial(expiresInDays = 7): Promise<{
     rawToken: string;
     tokenHash: string;
     deviceId: string;
@@ -226,7 +230,7 @@ export class AuthenticationService {
     const rawToken = crypto.randomBytes(48).toString('base64url');
     const tokenHash = this.hashToken(rawToken);
     const deviceId = crypto.randomUUID();
-    const expiresAt = add(new Date(), { days: 7 });
+    const expiresAt = add(new Date(), { days: expiresInDays });
     return { rawToken, tokenHash, deviceId, expiresAt };
   }
 

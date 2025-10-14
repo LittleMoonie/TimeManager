@@ -2523,6 +2523,10 @@
 					"password": {
 						"type": "string",
 						"example": "mysecretpassword"
+					},
+					"rememberMe": {
+						"type": "boolean",
+						"example": true
 					}
 				},
 				"required": [
