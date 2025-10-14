@@ -1,0 +1,23 @@
+fix(api): Resolve TypeDI dependency injection errors
+
+What:
+- Removed an incorrect `iocLoader()` function call and its import from `App.API/Server/index.ts`, as it was causing a `TypeError` and was not part of the intended IoC setup.
+- Deleted the redundant and problematic `App.API/Config/IocResolver.ts` file, which was no longer needed.
+- Added the `@Service()` decorator to all missing service classes in `App.API/Services` to ensure they are properly registered with the TypeDI container.
+- Added the `@Service()` decorator to all missing repository classes in `App.API/Repositories` to ensure their correct registration.
+- Added the `@Inject('TimesheetHistoryRepository')` decorator to the `historyRepo` parameter in the constructor of `App.API/Controllers/Timesheet/TimesheetHistoryController.ts` to correctly inject the dependency.
+
+Why:
+- To resolve persistent "Service with 'MaybeConstructable<...>' identifier was not found" errors during API startup.
+- To ensure proper dependency injection setup across the API service.
+
+How:
+- Identified all service and repository classes missing the `@Service()` decorator through comprehensive file content searches.
+- Applied the `@Service()` decorator to each identified class.
+- Corrected a missing `@Inject()` decorator in `TimesheetHistoryController.ts`.
+- Removed an unused `iocLoader()` call and its associated file, which were causing runtime errors.
+
+Impact:
+- The API service should now start correctly without TypeDI-related dependency injection errors.
+- Improved code quality and adherence to TypeDI best practices.
+- No breaking changes to external API consumers or database schema.

@@ -171,7 +171,7 @@ export const DayLogView = ({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timesheets', timesheet?.id] });
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       console.error('Failed to create timesheet entry:', err);
     },
   });
@@ -182,7 +182,7 @@ export const DayLogView = ({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timesheets', timesheet?.id] });
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       console.error('Failed to update timesheet entry:', err);
     },
   });
@@ -192,7 +192,7 @@ export const DayLogView = ({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timesheets', timesheet?.id] });
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       console.error('Failed to delete timesheet entry:', err);
     },
   });

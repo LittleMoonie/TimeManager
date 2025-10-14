@@ -9,6 +9,7 @@ import { AnonymizationService } from '../../Services/Users/AnonymizationService'
  * @tags Anonymization
  * @security jwt
  */
+@Route('anonymization')
 @Tags('Anonymization')
 @Security('jwt')
 @Service()

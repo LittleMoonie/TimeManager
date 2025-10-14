@@ -4,6 +4,7 @@ import { CreateUserActivityLogDto } from '../../../Dtos/Logs/Users/UserActivityL
 import { UserActivityLog } from '../../../Entities/Logs/Users/UserActivityLog';
 import { UserActivityLogRepository } from '../../../Repositories/Logs/Users/UserActivityLogRepository';
 
+@Service()
 export class UserActivityLogService {
   constructor(
     @Inject('UserActivityLogRepository')
@@ -20,7 +21,7 @@ export class UserActivityLogService {
     } as UserActivityLog);
   }
 
-  public async getLogs(companyId: string): Promise<UserActivityLog[]> {
+  public async getLogs(): Promise<UserActivityLog[]> {
     return this.userActivityLogRepository.findAll();
   }
 }

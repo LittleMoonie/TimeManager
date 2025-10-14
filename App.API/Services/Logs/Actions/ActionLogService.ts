@@ -3,6 +3,7 @@ import { Inject, Service } from 'typedi';
 import { ActionLog, ActionLogType } from '../../../Entities/Logs/Actions/ActionLog';
 import { ActionLogRepository } from '../../../Repositories/Logs/Actions/ActionLogRepository';
 
+@Service()
 export class ActionLogService {
   constructor(
     @Inject('ActionLogRepository')
@@ -25,7 +26,7 @@ export class ActionLogService {
     } as ActionLog);
   }
 
-  public async getLogs(companyId: string): Promise<ActionLog[]> {
+  public async getLogs(): Promise<ActionLog[]> {
     return this.actionLogRepository.findAll();
   }
 }

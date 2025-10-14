@@ -21,8 +21,10 @@ fetch('/api/config')
     OpenAPI.BASE = config.API_SERVER;
     OpenAPI.WITH_CREDENTIALS = true;
     renderApp();
+    return void 0; // Explicitly return void
   })
   .catch((error) => {
     console.error('Could not load configuration:', error);
     // You might want to render an error message here
+    return void 0; // Explicitly return void
   });

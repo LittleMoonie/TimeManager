@@ -55,7 +55,7 @@ const CreateTimesheetPage = () => {
       queryClient.invalidateQueries({ queryKey: ['timesheets'] });
       navigate('/timesheet');
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       console.error('Failed to create timesheet:', err);
       // Optionally, set a form error or show a global alert
     },

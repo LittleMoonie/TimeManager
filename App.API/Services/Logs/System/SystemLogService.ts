@@ -4,6 +4,7 @@ import { CreateSystemLogDto } from '../../../Dtos/Logs/System/SystemLogDto';
 import { SystemLog } from '../../../Entities/Logs/System/SystemLog';
 import { SystemLogRepository } from '../../../Repositories/Logs/System/SystemLogRepository';
 
+@Service()
 export class SystemLogService {
   constructor(
     @Inject('SystemLogRepository') private readonly systemLogRepository: SystemLogRepository,
@@ -16,7 +17,7 @@ export class SystemLogService {
     } as SystemLog);
   }
 
-  public async getLogs(companyId: string): Promise<SystemLog[]> {
+  public async getLogs(): Promise<SystemLog[]> {
     return this.systemLogRepository.findAll();
   }
 }

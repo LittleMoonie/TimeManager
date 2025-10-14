@@ -4,6 +4,7 @@ import { AuditLog } from '../../Entities/Logs/Actions/AuditLog';
 import { DataLogAction } from '../../Entities/Logs/Data/DataLog';
 import { AuditLogRepository } from '../../Repositories/Logs/AuditLogRepository';
 
+@Service()
 export class AuditLogService {
   constructor(
     @Inject('AuditLogRepository') private readonly auditLogRepository: AuditLogRepository,

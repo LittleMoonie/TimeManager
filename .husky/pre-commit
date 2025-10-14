@@ -85,7 +85,7 @@ SECRET_RE='(AWS_SECRET_ACCESS_KEY|AWS_ACCESS_KEY_ID|BEGIN RSA PRIVATE KEY|BEGIN 
 SAFE_ENV='(^|/)(\.env\.example$|\.env\.sample$|example\.env$|README|docs/)'
 
 # build list of staged files once
-FILES=$(echo "$FILES" | grep -vE '^\.husky/pre-commit$' || true)
+FILES=$(echo "$STAGED_FILES" | grep -vE '^\\.husky/pre-commit$' || true)
 
 FOUND=0
 for f in $FILES; do

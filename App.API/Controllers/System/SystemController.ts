@@ -59,9 +59,11 @@ export class SystemController extends Controller {
           } else {
             console.error('❌ Auto-generation failed:', result.message);
           }
+          return void 0; // Explicitly return void
         })
         .catch((error) => {
           console.error('❌ Auto-generation error:', error);
+          return void 0; // Explicitly return void
         });
     }
 

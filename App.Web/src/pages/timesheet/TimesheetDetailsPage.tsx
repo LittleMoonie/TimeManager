@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Delete, CheckCircle, Cancel, Send } from '@mui/icons-material';
-import { Edit, Delete, CheckCircle, Cancel, Send, Add } from '@mui/icons-material';
 import {
   Box,
   Typography,
@@ -10,7 +9,6 @@ import {
   TextField,
   Button,
   Stack,
-  Divider,
   List,
   ListItem,
   ListItemText,
@@ -23,16 +21,10 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { z } from 'zod';
 
-import TimesheetEntryFormModal from '@/components/timesheet/TimesheetEntryFormModal';
-import {
-  TimesheetsService,
-  TimesheetEntriesService,
-  UpdateTimesheetDto,
-  TimesheetEntryResponseDto,
-} from '@/lib/api';
+import { TimesheetsService, UpdateTimesheetDto } from '@/lib/api';
 
 const updateTimesheetSchema = z
   .object({
@@ -55,7 +47,6 @@ type UpdateTimesheetFormInputs = z.infer<typeof updateTimesheetSchema>;
 
 const TimesheetDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [openRejectDialog, setOpenRejectDialog] = useState(false);
@@ -103,7 +94,7 @@ const TimesheetDetailsPage = () => {
       queryClient.invalidateQueries({ queryKey: ['timesheets', id] });
       setIsEditing(false);
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       console.error('Failed to update timesheet:', err);
     },
   });
@@ -113,7 +104,7 @@ const TimesheetDetailsPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timesheets', id] });
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       console.error('Failed to submit timesheet:', err);
     },
   });
@@ -123,7 +114,7 @@ const TimesheetDetailsPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timesheets', id] });
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       console.error('Failed to approve timesheet:', err);
     },
   });
@@ -136,7 +127,7 @@ const TimesheetDetailsPage = () => {
       setOpenRejectDialog(false);
       setRejectionReason('');
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       console.error('Failed to reject timesheet:', err);
     },
   });
