@@ -7,9 +7,9 @@
     "prepare": "husky install",
     "format": "prettier --write \"{App.API,App.Web}/**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\" \"./*.{js,json,md,yml,yaml}\" --ignore-path .gitignore --config ./.prettierrc.json --ignore-unknown --exclude '**/package.json'",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
-  "typecheck:web": "yarn tsc -p App.Web/tsconfig.json --noEmit --skipLibCheck",
-  "typecheck:api": "yarn tsc -p App.API/tsconfig.json --noEmit --skipLibCheck",
-  "typecheck": "yarn typecheck:web && yarn typecheck:api"
+    "typecheck:web": "yarn tsc -p App.Web/tsconfig.json --noEmit --skipLibCheck",
+    "typecheck:api": "yarn tsc -p App.API/tsconfig.json --noEmit --skipLibCheck",
+    "typecheck": "yarn typecheck:web && yarn typecheck:api"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",

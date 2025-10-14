@@ -4,14 +4,15 @@
 /* eslint-disable */
 import type { CreateTimesheetDto } from '../models/CreateTimesheetDto';
 import type { CreateTimesheetEntryDto } from '../models/CreateTimesheetEntryDto';
-import type { Timesheet } from '../models/Timesheet';
+import type { TimesheetResponseDto } from '../models/TimesheetResponseDto';
+import type { UpdateTimesheetDto } from '../models/UpdateTimesheetDto';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class TimesheetsService {
   /**
    * Creates a new timesheet for the authenticated user.
-   * @returns Timesheet The newly created timesheet.
+   * @returns TimesheetResponseDto The newly created timesheet.
    * @throws ApiError
    */
   public static createTimesheet({
@@ -21,7 +22,7 @@ export class TimesheetsService {
      * The data for creating the timesheet.
      */
     requestBody: CreateTimesheetDto;
-  }): CancelablePromise<Timesheet> {
+  }): CancelablePromise<TimesheetResponseDto> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/timesheets',
@@ -30,8 +31,19 @@ export class TimesheetsService {
     });
   }
   /**
+   * Retrieves all timesheets for the authenticated user.
+   * @returns TimesheetResponseDto An array of timesheet details.
+   * @throws ApiError
+   */
+  public static getAllTimesheetsForUser(): CancelablePromise<Array<TimesheetResponseDto>> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/timesheets',
+    });
+  }
+  /**
    * Retrieves a single timesheet by its ID.
-   * @returns Timesheet The timesheet details.
+   * @returns TimesheetResponseDto The timesheet details.
    * @throws ApiError
    */
   public static getTimesheet({
@@ -41,7 +53,7 @@ export class TimesheetsService {
      * The ID of the timesheet to retrieve.
      */
     id: string;
-  }): CancelablePromise<Timesheet> {
+  }): CancelablePromise<TimesheetResponseDto> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/timesheets/{id}',
@@ -51,8 +63,36 @@ export class TimesheetsService {
     });
   }
   /**
+   * Updates an existing timesheet.
+   * @returns TimesheetResponseDto The updated timesheet.
+   * @throws ApiError
+   */
+  public static updateTimesheet({
+    id,
+    requestBody,
+  }: {
+    /**
+     * The ID of the timesheet to update.
+     */
+    id: string;
+    /**
+     * The data for updating the timesheet.
+     */
+    requestBody: UpdateTimesheetDto;
+  }): CancelablePromise<TimesheetResponseDto> {
+    return __request(OpenAPI, {
+      method: 'PUT',
+      url: '/timesheets/{id}',
+      path: {
+        id: id,
+      },
+      body: requestBody,
+      mediaType: 'application/json',
+    });
+  }
+  /**
    * Adds a new entry to an existing timesheet.
-   * @returns Timesheet The updated timesheet with the new entry.
+   * @returns TimesheetResponseDto The updated timesheet with the new entry.
    * @throws ApiError
    */
   public static addTimesheetEntry({
@@ -67,7 +107,7 @@ export class TimesheetsService {
      * The data for creating the timesheet entry.
      */
     requestBody: CreateTimesheetEntryDto;
-  }): CancelablePromise<Timesheet> {
+  }): CancelablePromise<TimesheetResponseDto> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/timesheets/{id}/entries',
@@ -80,7 +120,7 @@ export class TimesheetsService {
   }
   /**
    * Submits a timesheet for approval.
-   * @returns Timesheet The updated timesheet.
+   * @returns TimesheetResponseDto The updated timesheet.
    * @throws ApiError
    */
   public static submitTimesheet({
@@ -90,7 +130,7 @@ export class TimesheetsService {
      * The ID of the timesheet to submit.
      */
     id: string;
-  }): CancelablePromise<Timesheet> {
+  }): CancelablePromise<TimesheetResponseDto> {
     return __request(OpenAPI, {
       method: 'PUT',
       url: '/timesheets/{id}/submit',
@@ -101,7 +141,7 @@ export class TimesheetsService {
   }
   /**
    * Approves a submitted timesheet.
-   * @returns Timesheet The updated timesheet.
+   * @returns TimesheetResponseDto The updated timesheet.
    * @throws ApiError
    */
   public static approveTimesheet({
@@ -111,7 +151,7 @@ export class TimesheetsService {
      * The ID of the timesheet to approve.
      */
     id: string;
-  }): CancelablePromise<Timesheet> {
+  }): CancelablePromise<TimesheetResponseDto> {
     return __request(OpenAPI, {
       method: 'PUT',
       url: '/timesheets/{id}/approve',
@@ -122,7 +162,7 @@ export class TimesheetsService {
   }
   /**
    * Rejects a submitted timesheet.
-   * @returns Timesheet The updated timesheet.
+   * @returns TimesheetResponseDto The updated timesheet.
    * @throws ApiError
    */
   public static rejectTimesheet({
@@ -139,7 +179,7 @@ export class TimesheetsService {
     requestBody: {
       reason: string;
     };
-  }): CancelablePromise<Timesheet> {
+  }): CancelablePromise<TimesheetResponseDto> {
     return __request(OpenAPI, {
       method: 'PUT',
       url: '/timesheets/{id}/reject',

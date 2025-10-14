@@ -1,12 +1,10 @@
-import { Service } from "typedi";
-import { AppDataSource } from "../../../Server/Database";
-import { UserActivityLog } from "../../../Entities/Logs/Users/UserActivityLog";
-import { CreateUserActivityLogDto } from "Dtos/Logs/Users/UserActivityLogDto";
+import { Inject, Service } from 'typedi';
+import { UserActivityLog } from '../../../Entities/Logs/Users/UserActivityLog';
+import { CreateUserActivityLogDto } from '../../../Dtos/Logs/Users/UserActivityLogDto';
+import { UserActivityLogRepository } from '../../../Repositories/Logs/Users/UserActivityLogRepository';
 
-@Service()
 export class UserActivityLogService {
-  private userActivityLogRepository =
-    AppDataSource.getRepository(UserActivityLog);
+  constructor(@Inject("UserActivityLogRepository") private readonly userActivityLogRepository: UserActivityLogRepository) {}
 
   public async log(
     companyId: string,
@@ -15,10 +13,10 @@ export class UserActivityLogService {
     await this.userActivityLogRepository.save({
       companyId,
       ...createUserActivityLogDto,
-    });
+    } as UserActivityLog);
   }
 
   public async getLogs(companyId: string): Promise<UserActivityLog[]> {
-    return this.userActivityLogRepository.find({ where: { companyId } });
+    return this.userActivityLogRepository.findAll();
   }
 }

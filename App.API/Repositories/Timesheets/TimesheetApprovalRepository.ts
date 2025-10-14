@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 import { InjectRepository } from 'typeorm-typedi-extensions';
 import { Repository } from 'typeorm';
 import { BaseRepository } from '../../Repositories/BaseRepository';
@@ -8,7 +8,6 @@ import { TimesheetApproval } from '../../Entities/Timesheets/TimesheetApproval';
  * @description Repository for managing TimesheetApproval entities. Extends BaseRepository to provide standard CRUD operations
  * and includes specific methods for querying timesheet approvals.
  */
-@Service()
 export class TimesheetApprovalRepository extends BaseRepository<TimesheetApproval> {
   /**
    * @description Initializes the TimesheetApprovalRepository with a TypeORM Repository instance for TimesheetApproval.

@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { validate } from 'class-validator';
 
 import { RoleRepository } from '../../Repositories/Roles/RoleRepository';
@@ -16,7 +16,6 @@ import { CreateRoleDto, UpdateRoleDto } from '../../Dtos/Roles/RoleDto';
  * @description Service layer for managing Role entities and their associated permissions. This service provides business logic
  * for role-related operations, including CRUD for roles, and assigning/removing permissions, with integrated permission checks.
  */
-@Service()
 export class RoleService {
   /**
    * @description Initializes the RoleService with necessary repositories.
@@ -24,7 +23,8 @@ export class RoleService {
    * @param rolePermissionRepository The repository for RolePermission entities.
    */
   constructor(
-    private readonly roleRepository: RoleRepository,
+    @Inject('RoleRepository') private readonly roleRepository: RoleRepository,
+    @Inject('RolePermissionRepository')
     private readonly rolePermissionRepository: RolePermissionRepository,
   ) {}
 

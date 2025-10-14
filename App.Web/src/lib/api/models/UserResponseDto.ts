@@ -1,7 +1,7 @@
 /* generated using openapi-typescript-codegen -- do not edit */
 /* istanbul ignore file */
 /* tslint:disable */
-
+/* eslint-disable */
 import type { CompanyResponseDto } from './CompanyResponseDto';
 import type { RoleResponse } from './RoleResponse';
 import type { UserStatusResponseDto } from './UserStatusResponseDto';

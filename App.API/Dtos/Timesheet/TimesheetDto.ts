@@ -36,6 +36,14 @@ export class CreateActionCodeDto {
   @IsString()
   @IsNotEmpty()
   code!: string;
+
+  /**
+   * @description Optional: A color associated with the action code, in hexadecimal format (e.g., #RRGGBB).
+   * @example "#FF5733"
+   */
+  @IsString()
+  @IsOptional()
+  color?: string;
 }
 
 /**
@@ -47,16 +55,60 @@ export class UpdateActionCodeDto {
    * @example "Bug Fixing"
    */
   @IsString()
-  @IsNotEmpty()
-  name!: string;
+  @IsOptional()
+  name?: string;
 
   /**
    * @description The updated unique code for the action code.
    * @example "BUG"
    */
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
+  code?: string;
+
+  /**
+   * @description Optional: A color associated with the action code, in hexadecimal format (e.g., #RRGGBB).
+   * @example "#FF5733"
+   */
+  @IsString()
+  @IsOptional()
+  color?: string;
+}
+
+/**
+ * @description Data transfer object for an action code response.
+ */
+export class ActionCodeResponseDto {
+  /**
+   * @description The unique identifier of the action code.
+   * @example "a1c2t3i4-o5n6-7890-1234-567890abcdef"
+   */
+  id!: string;
+  /**
+   * @description A unique short code for the action (e.g., "DEV", "MEETING").
+   * @example "DEV"
+   */
   code!: string;
+  /**
+   * @description The display name of the action code (e.g., "Development", "Team Meeting").
+   * @example "Development"
+   */
+  name!: string;
+  /**
+   * @description The type of the action code, indicating if it's billable or non-billable.
+   * @example "billable"
+   */
+  type!: string;
+  /**
+   * @description Indicates if the action code is currently active.
+   * @example true
+   */
+  active!: boolean;
+  /**
+   * @description A color associated with the action code, in hexadecimal format (e.g., #RRGGBB).
+   * @example "#FF5733"
+   */
+  color?: string;
 }
 
 /* -------------------------------- Timesheet(s) -------------------------------- */
@@ -240,6 +292,80 @@ export class TimesheetEntryResponseDto {
    * @example "Worked on feature Y"
    */
   note?: string;
+}
+
+/**
+ * @description Data transfer object for a timesheet response.
+ */
+export class TimesheetResponseDto {
+  /**
+   * @description The unique identifier of the timesheet.
+   * @example "t1i2m3e4-s5h6e7e8-9012-3456-7890abcdef"
+   */
+  id!: string;
+  /**
+   * @description The unique identifier of the user who owns this timesheet.
+   * @example "u1s2e3r4-i5d6-7890-1234-567890abcdef"
+   */
+  userId!: string;
+  /**
+   * @description The start date of the timesheet period in ISO date format (YYYY-MM-DD).
+   * @example "2024-01-01"
+   */
+  periodStart!: string;
+  /**
+   * @description The end date of the timesheet period in ISO date format (YYYY-MM-DD).
+   * @example "2024-01-07"
+   */
+  periodEnd!: string;
+  /**
+   * @description The current status of the timesheet.
+   * @example "DRAFT"
+   */
+  status!: string;
+  /**
+   * @description The total duration in minutes of all entries in this timesheet.
+   * @example 480
+   */
+  totalMinutes!: number;
+  /**
+   * @description Optional: Any general notes or comments for the timesheet.
+   * @example "Weekly report for Project Alpha"
+   */
+  notes?: string;
+  /**
+   * @description List of individual timesheet entries belonging to this timesheet.
+   */
+  entries?: TimesheetEntryResponseDto[];
+}
+
+/**
+ * @description Data transfer object for updating an existing timesheet.
+ */
+export class UpdateTimesheetDto {
+  /**
+   * @description Optional: The updated start date of the timesheet period in ISO 8601 format.
+   * @example "2024-01-01"
+   */
+  @IsDateString()
+  @IsOptional()
+  periodStart?: string;
+
+  /**
+   * @description Optional: The updated end date of the timesheet period in ISO 8601 format.
+   * @example "2024-01-07"
+   */
+  @IsDateString()
+  @IsOptional()
+  periodEnd?: string;
+
+  /**
+   * @description Optional: Any updated notes related to the timesheet.
+   * @example "Updated weekly report for project X"
+   */
+  @IsString()
+  @IsOptional()
+  notes?: string;
 }
 
 /* ---------------------------- Timesheet Approvals ----------------------------- */

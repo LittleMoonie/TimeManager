@@ -1,13 +1,16 @@
 import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ActionCode, TimesheetEntriesService } from '@/lib/api';
-  import { ActionCodesService, TimesheetsService, TimesheetHistory } from '@/lib/api';
-  import { TimesheetEntry, CreateTimesheetEntryDto } from '@/lib/api';
+import { ActionCodesService, TimesheetsService, TimesheetHistory } from '@/lib/api';
+import { TimesheetEntry, CreateTimesheetEntryDto } from '@/lib/api';
 
 export const useActionCodes = () => {
   return useQuery<ActionCode[]>({
     queryKey: ['timesheet', 'action-codes'],
-    queryFn: () => ActionCodesService.getActionCode({ id: '1' }) as Promise<ActionCode[]>,
+    queryFn: async () => {
+      const result = await ActionCodesService.getActionCode({ id: '1' });
+      return Array.isArray(result) ? result : [result];
+    },
     staleTime: Infinity,
   });
 };
@@ -22,7 +25,15 @@ export const useTimesheet = (weekStartISO: string, page: number, limit: number) 
     data: TimesheetEntry[];
   }>({
     queryKey: ['timesheet', weekStartISO, page, limit],
-    queryFn: () => TimesheetsService.getTimesheet({ id: '1' }),
+    queryFn: async () => {
+      const result = await TimesheetsService.getTimesheet({ id: '1' });
+      return {
+        lastPage: result.lastPage,
+        page: result.page,
+        total: result.total,
+        data: result.data,
+      };
+    },
     staleTime: 0,
     select: (data) => ({
       lastPage: data.lastPage,
@@ -56,7 +67,11 @@ export const useTimesheet = (weekStartISO: string, page: number, limit: number) 
   });
 
   const approveTimeEntry = useMutation({
-    mutationFn: async (id: string) => TimesheetEntriesService.approveTimesheetEntry({ id }),
+    mutationFn: async (id: string) =>
+      TimesheetEntriesService.approveTimesheetEntry({
+        id: id,
+        requestBody: { reason: 'Approved' },
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO, page, limit] });
     },

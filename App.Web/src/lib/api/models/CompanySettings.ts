@@ -1,7 +1,7 @@
 /* generated using openapi-typescript-codegen -- do not edit */
 /* istanbul ignore file */
 /* tslint:disable */
-
+/* eslint-disable */
 import type { ApproverPolicy } from './ApproverPolicy';
 import type { Company } from './Company';
 import type { Record_string_number_Array_ } from './Record_string_number_Array_';

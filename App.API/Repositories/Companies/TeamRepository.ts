@@ -1,12 +1,11 @@
 import { Team } from '../../Entities/Companies/Team';
 import { BaseRepository } from '../../Repositories/BaseRepository';
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 
 /**
  * @description Repository for managing Team entities. Extends BaseRepository to provide standard CRUD operations
  * and includes specific methods for querying teams within a company scope.
  */
-@Service()
 export class TeamRepository extends BaseRepository<Team> {
   /**
    * @description Initializes the TeamRepository.
@@ -25,3 +24,5 @@ export class TeamRepository extends BaseRepository<Team> {
     return this.repository.find({ where: { companyId } });
   }
 }
+
+Container.set('TeamRepository', TeamRepository);

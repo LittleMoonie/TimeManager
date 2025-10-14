@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { validate } from 'class-validator';
 
 import { Permission } from '../../Entities/Roles/Permission';
@@ -20,8 +20,8 @@ export class PermissionService {
    * @param rolePermissionService The service for checking user permissions.
    */
   constructor(
-    private readonly permissionRepository: PermissionRepository,
-    private readonly rolePermissionService: RolePermissionService,
+    @Inject('PermissionRepository') private readonly permissionRepository: PermissionRepository,
+    @Inject('RolePermissionService') private readonly rolePermissionService: RolePermissionService,
   ) {}
 
   /**

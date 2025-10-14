@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { validate } from 'class-validator';
 
 import { TeamRepository } from '../../Repositories/Companies/TeamRepository';
@@ -14,7 +14,6 @@ import { RolePermissionService } from '../../Services/RoleService/RolePermission
  * @description Service layer for managing Team and TeamMember entities. This service provides business logic
  * for team-related operations, including CRUD for teams and managing team members, with integrated permission checks.
  */
-@Service()
 export class TeamService {
   /**
    * @description Initializes the TeamService with necessary repositories and services.
@@ -23,9 +22,9 @@ export class TeamService {
    * @param rolePermissionService The service for checking user permissions.
    */
   constructor(
-    private readonly teamRepository: TeamRepository,
-    private readonly teamMemberRepository: TeamMemberRepository,
-    private readonly rolePermissionService: RolePermissionService,
+    @Inject('TeamRepository') private readonly teamRepository: TeamRepository,
+    @Inject('TeamMemberRepository') private readonly teamMemberRepository: TeamMemberRepository,
+    @Inject('RolePermissionService') private readonly rolePermissionService: RolePermissionService,
   ) {}
 
   /**

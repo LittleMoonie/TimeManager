@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { validate } from 'class-validator';
 
 import { LeaveRequestRepository } from '../../Repositories/Companies/LeaveRequestRepository';
@@ -12,7 +12,6 @@ import { RolePermissionService } from '../../Services/RoleService/RolePermission
  * @description Service layer for managing LeaveRequest entities. This service provides business logic
  * for leave request operations, including creation, updates, and deletion, with integrated permission checks.
  */
-@Service()
 export class LeaveRequestService {
   /**
    * @description Initializes the LeaveRequestService with necessary repositories and services.
@@ -20,8 +19,9 @@ export class LeaveRequestService {
    * @param rolePermissionService The service for checking user permissions.
    */
   constructor(
+    @Inject('LeaveRequestRepository')
     private readonly leaveRequestRepository: LeaveRequestRepository,
-    private readonly rolePermissionService: RolePermissionService,
+    @Inject('RolePermissionService') private readonly rolePermissionService: RolePermissionService,
   ) {}
 
   /**

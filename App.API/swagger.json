@@ -1148,6 +1148,10 @@
             "type": "string",
             "example": "Development"
           },
+          "color": {
+            "type": "string",
+            "example": "#FF5733"
+          },
           "type": {
             "$ref": "#/components/schemas/ActionCodeType",
             "example": "billable"
@@ -1166,6 +1170,7 @@
           "company",
           "code",
           "name",
+          "color",
           "type",
           "active"
         ],
@@ -1680,6 +1685,84 @@
         "type": "object",
         "additionalProperties": false
       },
+      "TimesheetEntryResponseDto": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "e1n2t3r4-y5i6d7-8901-2345-67890abcdef"
+          },
+          "actionCodeId": {
+            "type": "string",
+            "example": "a1c2t3i4-o5n6-7890-1234-567890abcdef"
+          },
+          "day": {
+            "type": "string",
+            "example": "2024-01-01"
+          },
+          "durationMin": {
+            "type": "number",
+            "format": "double",
+            "example": 480
+          },
+          "country": {
+            "type": "string",
+            "example": "US"
+          },
+          "workMode": {
+            "$ref": "#/components/schemas/WorkMode",
+            "example": "office"
+          },
+          "note": {
+            "type": "string",
+            "example": "Worked on feature Y"
+          }
+        },
+        "required": ["id", "actionCodeId", "day", "durationMin", "country", "workMode"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "TimesheetResponseDto": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "t1i2m3e4-s5h6e7e8-9012-3456-7890abcdef"
+          },
+          "userId": {
+            "type": "string",
+            "example": "u1s2e3r4-i5d6-7890-1234-567890abcdef"
+          },
+          "periodStart": {
+            "type": "string",
+            "example": "2024-01-01"
+          },
+          "periodEnd": {
+            "type": "string",
+            "example": "2024-01-07"
+          },
+          "status": {
+            "type": "string",
+            "example": "DRAFT"
+          },
+          "totalMinutes": {
+            "type": "number",
+            "format": "double",
+            "example": 480
+          },
+          "notes": {
+            "type": "string",
+            "example": "Weekly report for Project Alpha"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/TimesheetEntryResponseDto"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["id", "userId", "periodStart", "periodEnd", "status", "totalMinutes"],
+        "type": "object",
+        "additionalProperties": false
+      },
       "CreateTimesheetDto": {
         "properties": {
           "periodStart": {
@@ -1696,6 +1779,24 @@
           }
         },
         "required": ["periodStart", "periodEnd"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "UpdateTimesheetDto": {
+        "properties": {
+          "periodStart": {
+            "type": "string",
+            "example": "2024-01-01"
+          },
+          "periodEnd": {
+            "type": "string",
+            "example": "2024-01-07"
+          },
+          "notes": {
+            "type": "string",
+            "example": "Updated weekly report for project X"
+          }
+        },
         "type": "object",
         "additionalProperties": false
       },
@@ -1827,6 +1928,10 @@
           "code": {
             "type": "string",
             "example": "DEV"
+          },
+          "color": {
+            "type": "string",
+            "example": "#FF5733"
           }
         },
         "required": ["name", "code"],
@@ -1842,9 +1947,12 @@
           "code": {
             "type": "string",
             "example": "BUG"
+          },
+          "color": {
+            "type": "string",
+            "example": "#FF5733"
           }
         },
-        "required": ["name", "code"],
         "type": "object",
         "additionalProperties": false
       },
@@ -2939,7 +3047,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Timesheet"
+                  "$ref": "#/components/schemas/TimesheetResponseDto"
                 }
               }
             }
@@ -2965,6 +3073,32 @@
             }
           }
         }
+      },
+      "get": {
+        "operationId": "GetAllTimesheetsForUser",
+        "responses": {
+          "200": {
+            "description": "An array of timesheet details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TimesheetResponseDto"
+                  },
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieves all timesheets for the authenticated user.",
+        "tags": ["Timesheets"],
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "parameters": []
       }
     },
     "/timesheets/{id}": {
@@ -2976,7 +3110,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Timesheet"
+                  "$ref": "#/components/schemas/TimesheetResponseDto"
                 }
               }
             }
@@ -3000,6 +3134,51 @@
             }
           }
         ]
+      },
+      "put": {
+        "operationId": "UpdateTimesheet",
+        "responses": {
+          "200": {
+            "description": "The updated timesheet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimesheetResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Updates an existing timesheet.",
+        "tags": ["Timesheets"],
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "parameters": [
+          {
+            "description": "The ID of the timesheet to update.",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The data for updating the timesheet.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTimesheetDto",
+                "description": "The data for updating the timesheet."
+              }
+            }
+          }
+        }
       }
     },
     "/timesheets/{id}/entries": {
@@ -3011,7 +3190,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Timesheet"
+                  "$ref": "#/components/schemas/TimesheetResponseDto"
                 }
               }
             }
@@ -3058,7 +3237,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Timesheet"
+                  "$ref": "#/components/schemas/TimesheetResponseDto"
                 }
               }
             }
@@ -3093,7 +3272,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Timesheet"
+                  "$ref": "#/components/schemas/TimesheetResponseDto"
                 }
               }
             }
@@ -3128,7 +3307,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Timesheet"
+                  "$ref": "#/components/schemas/TimesheetResponseDto"
                 }
               }
             }

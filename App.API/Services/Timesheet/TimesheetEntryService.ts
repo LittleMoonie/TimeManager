@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { TimesheetEntryRepository } from '../../Repositories/Timesheets/TimesheetEntryRepository';
 import { TimesheetEntry } from '../../Entities/Timesheets/TimesheetEntry';
 import { NotFoundError } from '../../Errors/HttpErrors';
@@ -13,13 +13,15 @@ import { UnprocessableEntityError } from '../../Errors/HttpErrors';
  * @description Service layer for managing TimesheetEntry entities. This service provides business logic
  * for creating, retrieving, updating, and deleting timesheet entries.
  */
-@Service()
 export class TimesheetEntryService {
   /**
    * @description Initializes the TimesheetEntryService with the TimesheetEntryRepository.
    * @param timesheetEntryRepository The repository for TimesheetEntry entities, injected by TypeDI.
    */
-  constructor(private readonly timesheetEntryRepository: TimesheetEntryRepository) {}
+  constructor(
+    @Inject('TimesheetEntryRepository')
+    private readonly timesheetEntryRepository: TimesheetEntryRepository,
+  ) {}
 
   /**
    * @description Ensures that a given DTO (Data Transfer Object) is valid by performing class-validator validation.

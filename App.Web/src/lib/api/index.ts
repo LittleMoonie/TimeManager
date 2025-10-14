@@ -1,7 +1,7 @@
 /* generated using openapi-typescript-codegen -- do not edit */
 /* istanbul ignore file */
 /* tslint:disable */
-
+/* eslint-disable */
 export { ApiError } from './core/ApiError';
 export { CancelablePromise, CancelError } from './core/CancelablePromise';
 export { OpenAPI } from './core/OpenAPI';
@@ -47,7 +47,9 @@ export type { TeamMember } from './models/TeamMember';
 export type { Timesheet } from './models/Timesheet';
 export type { TimesheetApproval } from './models/TimesheetApproval';
 export type { TimesheetEntry } from './models/TimesheetEntry';
+export type { TimesheetEntryResponseDto } from './models/TimesheetEntryResponseDto';
 export { TimesheetHistory } from './models/TimesheetHistory';
+export type { TimesheetResponseDto } from './models/TimesheetResponseDto';
 export { TimesheetStatus } from './models/TimesheetStatus';
 export type { UpdateActionCodeDto } from './models/UpdateActionCodeDto';
 export type { UpdateCompanyDto } from './models/UpdateCompanyDto';
@@ -57,6 +59,7 @@ export type { UpdatePermissionDto } from './models/UpdatePermissionDto';
 export type { UpdateRoleDto } from './models/UpdateRoleDto';
 export type { UpdateTeamDto } from './models/UpdateTeamDto';
 export type { UpdateTimesheetApprovalDto } from './models/UpdateTimesheetApprovalDto';
+export type { UpdateTimesheetDto } from './models/UpdateTimesheetDto';
 export type { UpdateTimesheetEntryDto } from './models/UpdateTimesheetEntryDto';
 export type { UpdateUserDto } from './models/UpdateUserDto';
 export type { UpdateUserStatusDto } from './models/UpdateUserStatusDto';

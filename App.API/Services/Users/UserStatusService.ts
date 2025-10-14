@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { validate } from 'class-validator';
 
 import { UserStatusRepository } from '../../Repositories/Users/UserStatusRepository';
@@ -15,13 +15,14 @@ import {
  * for user status-related operations, acting as a thin layer over the UserStatusRepository.
  * It handles data validation, entity-to-DTO conversion, and error handling.
  */
-@Service()
 export class UserStatusService {
   /**
    * @description Initializes the UserStatusService with the UserStatusRepository.
    * @param userStatusRepository The repository for UserStatus entities, injected by TypeDI.
    */
-  constructor(private readonly userStatusRepository: UserStatusRepository) {}
+  constructor(
+    @Inject('UserStatusRepository') private readonly userStatusRepository: UserStatusRepository,
+  ) {}
 
   // -------------------------------------------------------------------
   // Helpers

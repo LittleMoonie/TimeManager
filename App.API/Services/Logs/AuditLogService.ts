@@ -1,9 +1,10 @@
-import { AppDataSource } from "../../Server/Database";
-import { AuditLog } from "../../Entities/Logs/Actions/AuditLog";
-import { DataLogAction } from "../../Entities/Logs/Data/DataLog";
+import { AuditLog } from '../../Entities/Logs/Actions/AuditLog';
+import { DataLogAction } from '../../Entities/Logs/Data/DataLog';
+import { Inject, Service } from 'typedi';
+import { AuditLogRepository } from '../../Repositories/Logs/AuditLogRepository';
 
 export class AuditLogService {
-  private auditLogRepository = AppDataSource.getRepository(AuditLog);
+  constructor(@Inject("AuditLogRepository") private readonly auditLogRepository: AuditLogRepository) {}
 
   public async logEvent(
     actorUserId: string,

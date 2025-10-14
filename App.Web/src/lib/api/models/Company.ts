@@ -1,7 +1,7 @@
 /* generated using openapi-typescript-codegen -- do not edit */
 /* istanbul ignore file */
 /* tslint:disable */
-
+/* eslint-disable */
 import type { ActionCode } from './ActionCode';
 import type { CompanySettings } from './CompanySettings';
 import type { Team } from './Team';

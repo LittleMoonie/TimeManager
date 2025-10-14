@@ -1,7 +1,5 @@
-import { Service } from 'typedi';
 import { InjectRepository } from 'typeorm-typedi-extensions';
 import { Repository } from 'typeorm';
-
 import { BaseRepository } from '../BaseRepository';
 import { UserStatus } from '../../Entities/Users/UserStatus';
 
@@ -9,7 +7,7 @@ import { UserStatus } from '../../Entities/Users/UserStatus';
  * @description Repository for UserStatus entities, extending BaseRepository for common CRUD operations.
  * It provides specific methods for querying user statuses, such as finding by code.
  */
-@Service()
+
 export class UserStatusRepository extends BaseRepository<UserStatus> {
   /**
    * @description Initializes the UserStatusRepository with a TypeORM Repository instance for UserStatus.

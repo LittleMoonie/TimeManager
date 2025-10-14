@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 import { InjectRepository } from 'typeorm-typedi-extensions';
 import { Repository, FindOneOptions } from 'typeorm';
 
@@ -9,7 +9,6 @@ import { BaseRepository } from '../../Repositories/BaseRepository';
  * @description Repository for managing Permission entities. Extends BaseRepository to provide standard CRUD operations
  * and includes specific methods for querying permissions within a company scope.
  */
-@Service()
 export class PermissionRepository extends BaseRepository<Permission> {
   /**
    * @description Initializes the PermissionRepository with a TypeORM Repository instance for Permission.
@@ -44,3 +43,5 @@ export class PermissionRepository extends BaseRepository<Permission> {
     return this.repository.find({ where: { companyId } });
   }
 }
+
+Container.set('PermissionRepository', PermissionRepository);

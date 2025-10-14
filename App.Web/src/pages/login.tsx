@@ -22,7 +22,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useAuth } from '@/hooks/useAuth';
 
 const loginSchema = z.object({
-  identifier: z.string().min(1, 'Email address or username is required'),
+  email: z.string().email('Must be a valid email').min(1, 'Email address is required'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
@@ -44,7 +44,7 @@ const LoginPage = () => {
 
   const onSubmit = async (data: LoginFormInputs) => {
     try {
-      await login({ identifier: data.identifier, password: data.password, rememberMe });
+      await login({ email: data.email, password: data.password, rememberMe });
     } catch {
       // Errors surfaced via loginError state
     }
@@ -99,11 +99,11 @@ const LoginPage = () => {
               gap={2}
             >
               <TextField
-                label="Email Address / Username"
-                type="text"
-                {...register('identifier')}
-                error={!!errors.identifier}
-                helperText={errors.identifier?.message}
+                label="Email Address"
+                type="email"
+                {...register('email')}
+                error={!!errors.email}
+                helperText={errors.email?.message}
                 autoFocus
                 required
                 fullWidth

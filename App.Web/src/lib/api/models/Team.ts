@@ -1,7 +1,7 @@
 /* generated using openapi-typescript-codegen -- do not edit */
 /* istanbul ignore file */
 /* tslint:disable */
-
+/* eslint-disable */
 import type { Company } from './Company';
 import type { TeamMember } from './TeamMember';
 export type Team = {

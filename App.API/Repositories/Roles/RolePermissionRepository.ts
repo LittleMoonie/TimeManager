@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 import { InjectRepository } from 'typeorm-typedi-extensions';
 import { Repository } from 'typeorm';
 
@@ -9,7 +9,6 @@ import { RolePermission } from '../../Entities/Roles/RolePermission';
  * @description Repository for managing RolePermission entities. Extends BaseRepository to provide standard CRUD operations
  * and includes specific methods for querying and managing role-permission associations.
  */
-@Service()
 export class RolePermissionRepository extends BaseRepository<RolePermission> {
   /**
    * @description Initializes the RolePermissionRepository with a TypeORM Repository instance for RolePermission.
@@ -65,3 +64,5 @@ export class RolePermissionRepository extends BaseRepository<RolePermission> {
     await this.repository.delete({ companyId, id });
   }
 }
+
+Container.set('RolePermissionRepository', RolePermissionRepository);

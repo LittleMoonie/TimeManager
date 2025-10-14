@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 import { InjectRepository } from 'typeorm-typedi-extensions';
 import { Repository } from 'typeorm';
 import User from '../../Entities/Users/User';
@@ -8,7 +8,6 @@ import { BaseRepository } from '../../Repositories/BaseRepository';
  * @description Repository for managing User entities. Extends BaseRepository to provide standard CRUD operations
  * and includes specific methods for querying users within a company scope.
  */
-@Service()
 export class UserRepository extends BaseRepository<User> {
   /**
    * @description Initializes the UserRepository with a TypeORM Repository instance for User.

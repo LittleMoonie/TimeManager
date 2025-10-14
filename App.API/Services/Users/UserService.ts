@@ -1,7 +1,7 @@
 import { UnprocessableEntityError, NotFoundError, ForbiddenError } from '../../Errors/HttpErrors';
 import { validate } from 'class-validator';
 import * as argon2 from 'argon2';
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { InjectRepository } from 'typeorm-typedi-extensions';
 import { Repository } from 'typeorm';
 
@@ -33,7 +33,6 @@ import { UserStatusResponseDto } from '../../Dtos/Users/UserStatusDto';
  * for user-related operations, including CRUD, profile updates, password changes, and session management,
  * with integrated permission checks and DTO conversions.
  */
-@Service()
 export class UserService {
   /**
    * @description Initializes the UserService with necessary repositories and services.
@@ -46,7 +45,7 @@ export class UserService {
    */
   constructor(
     // Inject custom repository (DI)
-    private readonly userRepository: UserRepository,
+    @Inject('UserRepository') private readonly userRepository: UserRepository,
 
     @InjectRepository(UserStatus)
     private readonly userStatusRepository: Repository<UserStatus>,

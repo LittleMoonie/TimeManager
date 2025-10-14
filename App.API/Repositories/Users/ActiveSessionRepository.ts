@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 import { InjectRepository } from 'typeorm-typedi-extensions';
 import { Repository, FindOneOptions } from 'typeorm';
 
@@ -9,7 +9,6 @@ import { BaseRepository } from '../../Repositories/BaseRepository';
  * @description Repository for managing ActiveSession entities. Extends BaseRepository to provide standard CRUD operations
  * and includes specific methods for querying active sessions by token hash and for a specific user.
  */
-@Service()
 export class ActiveSessionRepository extends BaseRepository<ActiveSession> {
   /**
    * @description Initializes the ActiveSessionRepository with a TypeORM Repository instance for ActiveSession.

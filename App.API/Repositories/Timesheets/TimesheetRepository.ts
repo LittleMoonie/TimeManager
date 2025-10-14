@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 import { InjectRepository } from 'typeorm-typedi-extensions';
 import { FindOneOptions, Repository } from 'typeorm';
 import { Timesheet } from '../../Entities/Timesheets/Timesheet';
@@ -8,7 +8,6 @@ import { BaseRepository } from '../BaseRepository';
  * @description Repository for managing Timesheet entities. Extends BaseRepository to provide standard CRUD operations
  * and includes specific methods for querying timesheets by period and for a specific user.
  */
-@Service()
 export class TimesheetRepository extends BaseRepository<Timesheet> {
   /**
    * @description Initializes the TimesheetRepository with a TypeORM Repository instance for Timesheet.
@@ -52,5 +51,18 @@ export class TimesheetRepository extends BaseRepository<Timesheet> {
       where: { companyId, userId },
       relations: ['entries', 'entries.actionCode'],
     });
+  }
+
+  /**
+   * @description Finds a single timesheet by its ID, including its related entries and their action codes.
+   * @param id The unique identifier of the timesheet.
+   * @returns A Promise that resolves to the Timesheet entity or null if not found.
+   */
+  async findByIdWithEntries(id: string): Promise<Timesheet | null> {
+    const options: FindOneOptions<Timesheet> = {
+      where: { id },
+      relations: ['entries', 'entries.actionCode'],
+    };
+    return this.repository.findOne(options);
   }
 }

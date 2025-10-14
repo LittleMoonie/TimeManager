@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { validate } from 'class-validator';
 import { TimesheetApprovalRepository } from '../../Repositories/Timesheets/TimesheetApprovalRepository';
 import { TimesheetApproval } from '../../Entities/Timesheets/TimesheetApproval';
@@ -12,13 +12,15 @@ import {
  * @description Service layer for managing TimesheetApproval entities. This service provides business logic
  * for creating, retrieving, updating, and deleting timesheet approvals.
  */
-@Service()
 export class TimesheetApprovalService {
   /**
    * @description Initializes the TimesheetApprovalService with the TimesheetApprovalRepository.
    * @param timesheetApprovalRepository The repository for TimesheetApproval entities, injected by TypeDI.
    */
-  constructor(private readonly timesheetApprovalRepository: TimesheetApprovalRepository) {}
+  constructor(
+    @Inject('TimesheetApprovalRepository')
+    private readonly timesheetApprovalRepository: TimesheetApprovalRepository,
+  ) {}
 
   /**
    * @description Ensures that a given DTO (Data Transfer Object) is valid by performing class-validator validation.

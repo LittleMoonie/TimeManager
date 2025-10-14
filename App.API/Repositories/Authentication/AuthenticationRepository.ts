@@ -9,7 +9,7 @@ import ActiveSession from '../../Entities/Users/ActiveSessions';
  * @description Repository for handling authentication-related database operations.
  * This includes managing User and ActiveSession entities for login, registration, and session management.
  */
-@Service()
+@Service('AuthenticationRepository')
 export class AuthenticationRepository {
   /**
    * @description Initializes the AuthenticationRepository with injected TypeORM Repositories for User and ActiveSession.

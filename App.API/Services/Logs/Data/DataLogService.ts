@@ -1,10 +1,9 @@
-import { Service } from "typedi";
+import { Inject, Service } from "typedi";
 import { DataLog, DataLogAction } from "../../../Entities/Logs/Data/DataLog";
-import { AppDataSource } from "../../../Server/Database";
+import { DataLogRepository } from "../../../Repositories/Logs/Data/DataLogRepository";
 
-@Service()
 export class DataLogService {
-  private dataLogRepository = AppDataSource.getRepository(DataLog);
+  constructor(@Inject("DataLogRepository") private readonly dataLogRepository: DataLogRepository) {}
 
   public async log(
     companyId: string,
@@ -12,8 +11,8 @@ export class DataLogService {
     entityType: string,
     entityId: string,
     userId?: string,
-    oldValue?: object,
-    newValue?: object,
+    oldValue?: Record<string, string>,
+    newValue?: Record<string, string>,
     description?: string,
   ): Promise<void> {
     await this.dataLogRepository.save({
@@ -25,10 +24,10 @@ export class DataLogService {
       oldValue,
       newValue,
       description,
-    });
+    } as DataLog);
   }
 
   public async getLogs(companyId: string): Promise<DataLog[]> {
-    return this.dataLogRepository.find({ where: { companyId } });
+    return this.dataLogRepository.findAll();
   }
 }

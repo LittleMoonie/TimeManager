@@ -447,6 +447,7 @@ const models: TsoaRoute.Models = {
       company: { ref: 'Company', required: true },
       code: { dataType: 'string', required: true },
       name: { dataType: 'string', required: true },
+      color: { dataType: 'string', required: true },
       type: { ref: 'ActionCodeType', required: true },
       active: { dataType: 'boolean', required: true },
     },
@@ -638,11 +639,53 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  TimesheetEntryResponseDto: {
+    dataType: 'refObject',
+    properties: {
+      id: { dataType: 'string', required: true },
+      actionCodeId: { dataType: 'string', required: true },
+      day: { dataType: 'string', required: true },
+      durationMin: { dataType: 'double', required: true },
+      country: { dataType: 'string', required: true },
+      workMode: { ref: 'WorkMode', required: true },
+      note: { dataType: 'string' },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  TimesheetResponseDto: {
+    dataType: 'refObject',
+    properties: {
+      id: { dataType: 'string', required: true },
+      userId: { dataType: 'string', required: true },
+      periodStart: { dataType: 'string', required: true },
+      periodEnd: { dataType: 'string', required: true },
+      status: { dataType: 'string', required: true },
+      totalMinutes: { dataType: 'double', required: true },
+      notes: { dataType: 'string' },
+      entries: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'TimesheetEntryResponseDto' },
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   CreateTimesheetDto: {
     dataType: 'refObject',
     properties: {
       periodStart: { dataType: 'string', required: true },
       periodEnd: { dataType: 'string', required: true },
+      notes: { dataType: 'string' },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UpdateTimesheetDto: {
+    dataType: 'refObject',
+    properties: {
+      periodStart: { dataType: 'string' },
+      periodEnd: { dataType: 'string' },
       notes: { dataType: 'string' },
     },
     additionalProperties: false,
@@ -699,6 +742,7 @@ const models: TsoaRoute.Models = {
     properties: {
       name: { dataType: 'string', required: true },
       code: { dataType: 'string', required: true },
+      color: { dataType: 'string' },
     },
     additionalProperties: false,
   },
@@ -706,8 +750,9 @@ const models: TsoaRoute.Models = {
   UpdateActionCodeDto: {
     dataType: 'refObject',
     properties: {
-      name: { dataType: 'string', required: true },
-      code: { dataType: 'string', required: true },
+      name: { dataType: 'string' },
+      code: { dataType: 'string' },
+      color: { dataType: 'string' },
     },
     additionalProperties: false,
   },
@@ -1879,6 +1924,55 @@ export function RegisterRoutes(app: Router) {
     },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsTimesheetController_getAllTimesheetsForUser: Record<string, TsoaRoute.ParameterSchema> =
+    {
+      request: { in: 'request', name: 'request', required: true, dataType: 'object' },
+    };
+  app.get(
+    '/timesheets',
+    authenticateMiddleware([{ jwt: [] }]),
+    ...fetchMiddlewares<RequestHandler>(TimesheetController),
+    ...fetchMiddlewares<RequestHandler>(TimesheetController.prototype.getAllTimesheetsForUser),
+
+    async function TimesheetController_getAllTimesheetsForUser(
+      request: ExRequest,
+      response: ExResponse,
+      next: any,
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsTimesheetController_getAllTimesheetsForUser,
+          request,
+          response,
+        });
+
+        const container: IocContainer =
+          typeof iocContainer === 'function'
+            ? (iocContainer as IocContainerFactory)(request)
+            : iocContainer;
+
+        const controller: any = await container.get<TimesheetController>(TimesheetController);
+        if (typeof controller['setStatus'] === 'function') {
+          controller.setStatus(undefined);
+        }
+
+        await templateService.apiHandler({
+          methodName: 'getAllTimesheetsForUser',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: undefined,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    },
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   const argsTimesheetController_getTimesheet: Record<string, TsoaRoute.ParameterSchema> = {
     id: { in: 'path', name: 'id', required: true, dataType: 'string' },
   };
@@ -1915,6 +2009,56 @@ export function RegisterRoutes(app: Router) {
 
         await templateService.apiHandler({
           methodName: 'getTimesheet',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: undefined,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    },
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsTimesheetController_updateTimesheet: Record<string, TsoaRoute.ParameterSchema> = {
+    id: { in: 'path', name: 'id', required: true, dataType: 'string' },
+    dto: { in: 'body', name: 'dto', required: true, ref: 'UpdateTimesheetDto' },
+    request: { in: 'request', name: 'request', required: true, dataType: 'object' },
+  };
+  app.put(
+    '/timesheets/:id',
+    authenticateMiddleware([{ jwt: [] }]),
+    ...fetchMiddlewares<RequestHandler>(TimesheetController),
+    ...fetchMiddlewares<RequestHandler>(TimesheetController.prototype.updateTimesheet),
+
+    async function TimesheetController_updateTimesheet(
+      request: ExRequest,
+      response: ExResponse,
+      next: any,
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsTimesheetController_updateTimesheet,
+          request,
+          response,
+        });
+
+        const container: IocContainer =
+          typeof iocContainer === 'function'
+            ? (iocContainer as IocContainerFactory)(request)
+            : iocContainer;
+
+        const controller: any = await container.get<TimesheetController>(TimesheetController);
+        if (typeof controller['setStatus'] === 'function') {
+          controller.setStatus(undefined);
+        }
+
+        await templateService.apiHandler({
+          methodName: 'updateTimesheet',
           controller,
           response,
           next,

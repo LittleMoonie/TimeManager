@@ -1,7 +1,7 @@
 /* generated using openapi-typescript-codegen -- do not edit */
 /* istanbul ignore file */
 /* tslint:disable */
-
+/* eslint-disable */
 import type { ActionCodeType } from './ActionCodeType';
 import type { Company } from './Company';
 export type ActionCode = {
@@ -16,6 +16,7 @@ export type ActionCode = {
   company: Company;
   code: string;
   name: string;
+  color: string;
   type: ActionCodeType;
   active: boolean;
 };
