@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type UpdatePermissionDto = {
-  name?: string;
-  description?: string;
+    name?: string;
+    description?: string;
 };
+

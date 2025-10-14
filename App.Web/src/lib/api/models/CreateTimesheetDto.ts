@@ -3,7 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export type CreateTimesheetDto = {
-  periodStart: string;
-  periodEnd: string;
-  notes?: string;
+    periodStart: string;
+    periodEnd: string;
+    notes?: string;
 };
+

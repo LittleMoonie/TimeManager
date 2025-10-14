@@ -3,11 +3,12 @@
 /* tslint:disable */
 /* eslint-disable */
 export type HealthResponse = {
-  status: string;
-  timestamp: string;
-  uptime: number;
-  openapi?: {
-    needsRegeneration?: boolean;
-    lastGenerated?: string;
-  };
+    status: string;
+    timestamp: string;
+    uptime: number;
+    openapi?: {
+        needsRegeneration?: boolean;
+        lastGenerated?: string;
+    };
 };
+

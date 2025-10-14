@@ -3,7 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export type UpdateActionCodeDto = {
-  name?: string;
-  code?: string;
-  color?: string;
+    name?: string;
+    code?: string;
+    color?: string;
 };
+

@@ -14,7 +14,7 @@ COPY yarn.lock ./
 COPY App.API/package.json ./
 
 # Install dependencies with strict mode (fallback for dev env)
-RUN yarn install --immutable || yarn install
+RUN yarn install
 
 # Copy source code
 COPY App.API/. .

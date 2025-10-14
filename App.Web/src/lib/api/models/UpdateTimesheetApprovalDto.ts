@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { ApprovalStatus } from './ApprovalStatus';
 export type UpdateTimesheetApprovalDto = {
-  status: ApprovalStatus;
-  reason?: string;
+    status: ApprovalStatus;
+    reason?: string;
 };
+

@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export enum LeaveType {
-  PTO = 'PTO',
-  SICK = 'SICK',
-  UNPAID = 'UNPAID',
+    PTO = 'PTO',
+    SICK = 'SICK',
+    UNPAID = 'UNPAID',
 }

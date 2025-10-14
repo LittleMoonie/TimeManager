@@ -1,6 +1,5 @@
-import Container, { Service } from 'typedi';
-import { InjectRepository } from 'typeorm-typedi-extensions';
-import { FindOneOptions, Repository } from 'typeorm';
+import { Service } from 'typedi';
+import { FindOneOptions } from 'typeorm';
 import { Timesheet } from '../../Entities/Timesheets/Timesheet';
 import { BaseRepository } from '../BaseRepository';
 
@@ -8,13 +7,14 @@ import { BaseRepository } from '../BaseRepository';
  * @description Repository for managing Timesheet entities. Extends BaseRepository to provide standard CRUD operations
  * and includes specific methods for querying timesheets by period and for a specific user.
  */
+@Service('TimesheetRepository')
 export class TimesheetRepository extends BaseRepository<Timesheet> {
   /**
    * @description Initializes the TimesheetRepository with a TypeORM Repository instance for Timesheet.
    * @param repo The TypeORM Repository<Timesheet> injected by TypeDI.
    */
-  constructor(@InjectRepository(Timesheet) repo: Repository<Timesheet>) {
-    super(Timesheet, repo);
+  constructor() {
+    super(Timesheet);
   }
 
   /**

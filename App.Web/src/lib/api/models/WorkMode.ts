@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export enum WorkMode {
-  OFFICE = 'office',
-  REMOTE = 'remote',
-  HYBRID = 'hybrid',
+    OFFICE = 'office',
+    REMOTE = 'remote',
+    HYBRID = 'hybrid',
 }

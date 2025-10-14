@@ -3214,9 +3214,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.5.227":
-  version: 1.5.234
-  resolution: "electron-to-chromium@npm:1.5.234"
-  checksum: 10c0/e27a46ff9af818adeb4b01fb9d346c5bd550049dfd18cfab222fe10ae7ce98ec18e4eb8630d4ca116b756b813ca14f2880f5ee9e76abcd85144c63060de636b2
+  version: 1.5.235
+  resolution: "electron-to-chromium@npm:1.5.235"
+  checksum: 10c0/2de9b3e4138457ee627d9f88c5773129cf36f4d5fa5d8983ed7b8abf3c6a6bf19575355bc001c4af1497ada503ade519025903aff4e9b2b38a0f4957a2525bf0
   languageName: node
   linkType: hard
 
@@ -3993,6 +3993,7 @@ __metadata:
     passport: "npm:^0.7.0"
     passport-jwt: "npm:^4.0.1"
     pg: "npm:^8.16.3"
+    pg-query-stream: "npm:^4.10.3"
     pm2: "npm:^5.4.3"
     prettier: "npm:^3.6.2"
     reflect-metadata: "npm:^0.2.2"
@@ -5972,6 +5973,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pg-cursor@npm:^2.15.3":
+  version: 2.15.3
+  resolution: "pg-cursor@npm:2.15.3"
+  peerDependencies:
+    pg: ^8
+  checksum: 10c0/60ea02689af0b6bd89946a7abb123260506e6fe9be1ea3c547e7d6fbbde5a6c8ca066f4114d6bd6699a87c47c93c9c5d7bfa6ff39bb62290221f5a3c0e1516b2
+  languageName: node
+  linkType: hard
+
 "pg-int8@npm:1.0.1":
   version: 1.0.1
   resolution: "pg-int8@npm:1.0.1"
@@ -5992,6 +6002,17 @@ __metadata:
   version: 1.10.3
   resolution: "pg-protocol@npm:1.10.3"
   checksum: 10c0/f7ef54708c93ee6d271e37678296fc5097e4337fca91a88a3d99359b78633dbdbf6e983f0adb34b7cdd261b7ec7266deb20c3233bf3dfdb498b3e1098e8750b9
+  languageName: node
+  linkType: hard
+
+"pg-query-stream@npm:^4.10.3":
+  version: 4.10.3
+  resolution: "pg-query-stream@npm:4.10.3"
+  dependencies:
+    pg-cursor: "npm:^2.15.3"
+  peerDependencies:
+    pg: ^8
+  checksum: 10c0/b39231104ed9c511036ac0abb402cc9a3d145503c93a69cbc7cef7ebfed1b323a9b8b98a7685620675da68fd48d5404e20e95a2804edd32fad09df18b5192c69
   languageName: node
   linkType: hard
 

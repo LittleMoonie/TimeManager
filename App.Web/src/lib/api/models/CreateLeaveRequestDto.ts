@@ -4,9 +4,10 @@
 /* eslint-disable */
 import type { LeaveType } from './LeaveType';
 export type CreateLeaveRequestDto = {
-  userId: string;
-  startDate: string;
-  endDate: string;
-  leaveType: LeaveType;
-  reason?: string;
+    userId: string;
+    startDate: string;
+    endDate: string;
+    leaveType: LeaveType;
+    reason?: string;
 };
+

@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type UpdateRoleDto = {
-  name?: string;
-  description?: string;
+    name?: string;
+    description?: string;
 };
+

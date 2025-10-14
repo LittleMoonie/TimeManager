@@ -9,105 +9,105 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class UserStatusesService {
-  /**
-   * Creates a new user status.
-   * @returns UserStatusResponseDto The newly created user status.
-   * @throws ApiError
-   */
-  public static createUserStatus({
-    requestBody,
-  }: {
     /**
-     * The data for creating the user status.
+     * Creates a new user status.
+     * @returns UserStatusResponseDto The newly created user status.
+     * @throws ApiError
      */
-    requestBody: CreateUserStatusDto;
-  }): CancelablePromise<UserStatusResponseDto> {
-    return __request(OpenAPI, {
-      method: 'POST',
-      url: '/user-statuses',
-      body: requestBody,
-      mediaType: 'application/json',
-    });
-  }
-  /**
-   * Retrieves all user statuses.
-   * @returns UserStatusResponseDto An array of user status details.
-   * @throws ApiError
-   */
-  public static listUserStatuses(): CancelablePromise<Array<UserStatusResponseDto>> {
-    return __request(OpenAPI, {
-      method: 'GET',
-      url: '/user-statuses',
-    });
-  }
-  /**
-   * Retrieves a user status by its ID.
-   * @returns any The user status details.
-   * @throws ApiError
-   */
-  public static getUserStatus({
-    id,
-  }: {
+    public static createUserStatus({
+        requestBody,
+    }: {
+        /**
+         * The data for creating the user status.
+         */
+        requestBody: CreateUserStatusDto,
+    }): CancelablePromise<UserStatusResponseDto> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/user-statuses',
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
     /**
-     * The ID of the user status to retrieve.
+     * Retrieves all user statuses.
+     * @returns UserStatusResponseDto An array of user status details.
+     * @throws ApiError
      */
-    id: string;
-  }): CancelablePromise<UserStatusResponseDto | null> {
-    return __request(OpenAPI, {
-      method: 'GET',
-      url: '/user-statuses/{id}',
-      path: {
-        id: id,
-      },
-    });
-  }
-  /**
-   * Updates an existing user status.
-   * @returns UserStatusResponseDto The updated user status details.
-   * @throws ApiError
-   */
-  public static updateUserStatus({
-    id,
-    requestBody,
-  }: {
+    public static listUserStatuses(): CancelablePromise<Array<UserStatusResponseDto>> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/user-statuses',
+        });
+    }
     /**
-     * The ID of the user status to update.
+     * Retrieves a user status by its ID.
+     * @returns any The user status details.
+     * @throws ApiError
      */
-    id: string;
+    public static getUserStatus({
+        id,
+    }: {
+        /**
+         * The ID of the user status to retrieve.
+         */
+        id: string,
+    }): CancelablePromise<UserStatusResponseDto | null> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/user-statuses/{id}',
+            path: {
+                'id': id,
+            },
+        });
+    }
     /**
-     * The data for updating the user status.
+     * Updates an existing user status.
+     * @returns UserStatusResponseDto The updated user status details.
+     * @throws ApiError
      */
-    requestBody: UpdateUserStatusDto;
-  }): CancelablePromise<UserStatusResponseDto> {
-    return __request(OpenAPI, {
-      method: 'PUT',
-      url: '/user-statuses/{id}',
-      path: {
-        id: id,
-      },
-      body: requestBody,
-      mediaType: 'application/json',
-    });
-  }
-  /**
-   * Soft-deletes a user status.
-   * @returns void
-   * @throws ApiError
-   */
-  public static deleteUserStatus({
-    id,
-  }: {
+    public static updateUserStatus({
+        id,
+        requestBody,
+    }: {
+        /**
+         * The ID of the user status to update.
+         */
+        id: string,
+        /**
+         * The data for updating the user status.
+         */
+        requestBody: UpdateUserStatusDto,
+    }): CancelablePromise<UserStatusResponseDto> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/user-statuses/{id}',
+            path: {
+                'id': id,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
     /**
-     * The ID of the user status to soft-delete.
+     * Soft-deletes a user status.
+     * @returns void
+     * @throws ApiError
      */
-    id: string;
-  }): CancelablePromise<void> {
-    return __request(OpenAPI, {
-      method: 'DELETE',
-      url: '/user-statuses/{id}',
-      path: {
-        id: id,
-      },
-    });
-  }
+    public static deleteUserStatus({
+        id,
+    }: {
+        /**
+         * The ID of the user status to soft-delete.
+         */
+        id: string,
+    }): CancelablePromise<void> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/user-statuses/{id}',
+            path: {
+                'id': id,
+            },
+        });
+    }
 }

@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type CreateTimesheetApprovalDto = {
-  timesheetId: string;
-  approverId: string;
+    timesheetId: string;
+    approverId: string;
 };
+

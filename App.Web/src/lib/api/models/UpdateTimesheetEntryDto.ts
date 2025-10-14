@@ -4,10 +4,11 @@
 /* eslint-disable */
 import type { WorkMode } from './WorkMode';
 export type UpdateTimesheetEntryDto = {
-  actionCodeId?: string;
-  day?: string;
-  durationMin?: number;
-  country?: string;
-  workMode?: WorkMode;
-  note?: string;
+    actionCodeId?: string;
+    day?: string;
+    durationMin?: number;
+    country?: string;
+    workMode?: WorkMode;
+    note?: string;
 };
+

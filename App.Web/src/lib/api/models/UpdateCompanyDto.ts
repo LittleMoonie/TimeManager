@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type UpdateCompanyDto = {
-  name?: string;
-  timezone?: string;
+    name?: string;
+    timezone?: string;
 };
+

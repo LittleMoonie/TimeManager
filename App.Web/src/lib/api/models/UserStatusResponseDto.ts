@@ -3,10 +3,11 @@
 /* tslint:disable */
 /* eslint-disable */
 export type UserStatusResponseDto = {
-  id: string;
-  code: string;
-  name: string;
-  description?: string;
-  canLogin: boolean;
-  isTerminal: boolean;
+    id: string;
+    code: string;
+    name: string;
+    description?: string;
+    canLogin: boolean;
+    isTerminal: boolean;
 };
+

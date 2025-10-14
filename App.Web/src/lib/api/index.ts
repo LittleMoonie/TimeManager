@@ -72,7 +72,6 @@ export { WorkMode } from './models/WorkMode';
 
 export { ActionCodesService } from './services/ActionCodesService';
 export { ActiveSessionsService } from './services/ActiveSessionsService';
-export { AnonymizationService } from './services/AnonymizationService';
 export { AuthenticationService } from './services/AuthenticationService';
 export { CompaniesService } from './services/CompaniesService';
 export { CompanySettingsService } from './services/CompanySettingsService';

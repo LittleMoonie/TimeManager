@@ -3,8 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 export type RoleResponse = {
-  id: string;
-  name: string;
-  description?: string;
-  companyId: string;
+    id: string;
+    name: string;
+    description?: string;
+    companyId: string;
 };
+

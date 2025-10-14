@@ -9,73 +9,73 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class CompaniesService {
-  /**
-   * Creates a new company.
-   * @returns Company Company created successfully
-   * @throws ApiError
-   */
-  public static createCompany({
-    requestBody,
-  }: {
     /**
-     * The data for creating the company.
+     * Creates a new company.
+     * @returns Company Company created successfully
+     * @throws ApiError
      */
-    requestBody: CreateCompanyDto;
-  }): CancelablePromise<Company> {
-    return __request(OpenAPI, {
-      method: 'POST',
-      url: '/companies',
-      body: requestBody,
-      mediaType: 'application/json',
-    });
-  }
-  /**
-   * Retrieves a company by its ID.
-   * @returns Company The company details.
-   * @throws ApiError
-   */
-  public static getCompany({
-    id,
-  }: {
+    public static createCompany({
+        requestBody,
+    }: {
+        /**
+         * The data for creating the company.
+         */
+        requestBody: CreateCompanyDto,
+    }): CancelablePromise<Company> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/companies',
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
     /**
-     * The ID of the company to retrieve.
+     * Retrieves a company by its ID.
+     * @returns Company The company details.
+     * @throws ApiError
      */
-    id: string;
-  }): CancelablePromise<Company> {
-    return __request(OpenAPI, {
-      method: 'GET',
-      url: '/companies/{id}',
-      path: {
-        id: id,
-      },
-    });
-  }
-  /**
-   * Updates an existing company.
-   * @returns Company The updated company details.
-   * @throws ApiError
-   */
-  public static updateCompany({
-    id,
-    requestBody,
-  }: {
+    public static getCompany({
+        id,
+    }: {
+        /**
+         * The ID of the company to retrieve.
+         */
+        id: string,
+    }): CancelablePromise<Company> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/companies/{id}',
+            path: {
+                'id': id,
+            },
+        });
+    }
     /**
-     * The ID of the company to update.
+     * Updates an existing company.
+     * @returns Company The updated company details.
+     * @throws ApiError
      */
-    id: string;
-    /**
-     * The data for updating the company.
-     */
-    requestBody: UpdateCompanyDto;
-  }): CancelablePromise<Company> {
-    return __request(OpenAPI, {
-      method: 'PUT',
-      url: '/companies/{id}',
-      path: {
-        id: id,
-      },
-      body: requestBody,
-      mediaType: 'application/json',
-    });
-  }
+    public static updateCompany({
+        id,
+        requestBody,
+    }: {
+        /**
+         * The ID of the company to update.
+         */
+        id: string,
+        /**
+         * The data for updating the company.
+         */
+        requestBody: UpdateCompanyDto,
+    }): CancelablePromise<Company> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/companies/{id}',
+            path: {
+                'id': id,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
 }

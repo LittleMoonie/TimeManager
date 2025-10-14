@@ -2,7 +2,6 @@ import { UnprocessableEntityError, NotFoundError, ForbiddenError } from '../../E
 import { validate } from 'class-validator';
 import * as argon2 from 'argon2';
 import { Inject, Service } from 'typedi';
-import { InjectRepository } from 'typeorm-typedi-extensions';
 import { Repository } from 'typeorm';
 
 import { UserRepository } from '../../Repositories/Users/UserRepository';
@@ -27,12 +26,14 @@ import { Role } from '../../Entities/Roles/Role';
 import { RoleService } from '../../Services/RoleService/RoleService';
 import { RolePermissionService } from '../../Services/RoleService/RolePermissionService';
 import { UserStatusResponseDto } from '../../Dtos/Users/UserStatusDto';
+import { getInitializedDataSource } from '../../Server/Database';
 
 /**
  * @description Service layer for managing User entities. This service provides business logic
  * for user-related operations, including CRUD, profile updates, password changes, and session management,
  * with integrated permission checks and DTO conversions.
  */
+@Service()
 export class UserService {
   /**
    * @description Initializes the UserService with necessary repositories and services.
@@ -44,20 +45,19 @@ export class UserService {
    * @param activeSessionRepository The repository for ActiveSession entities.
    */
   constructor(
-    // Inject custom repository (DI)
     @Inject('UserRepository') private readonly userRepository: UserRepository,
-
-    @InjectRepository(UserStatus)
-    private readonly userStatusRepository: Repository<UserStatus>,
-
-    @InjectRepository(Role)
-    private readonly roleRepository: Repository<Role>,
-
     private readonly roleService: RoleService,
     private readonly rolePermissionService: RolePermissionService,
-
     private readonly activeSessionRepository: ActiveSessionRepository,
   ) {}
+
+  private get userStatusRepository(): Repository<UserStatus> {
+    return getInitializedDataSource().getRepository(UserStatus);
+  }
+
+  private get roleRepository(): Repository<Role> {
+    return getInitializedDataSource().getRepository(Role);
+  }
 
   // -------------------------------------------------------------------
   // Helpers

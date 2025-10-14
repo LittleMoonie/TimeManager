@@ -3,7 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export type CompanyResponseDto = {
-  id: string;
-  name: string;
-  timezone?: string;
+    id: string;
+    name: string;
+    timezone?: string;
 };
+

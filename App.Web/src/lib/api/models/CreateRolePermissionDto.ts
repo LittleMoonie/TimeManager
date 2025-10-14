@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type CreateRolePermissionDto = {
-  roleId: string;
-  permissionId: string;
+    roleId: string;
+    permissionId: string;
 };
+

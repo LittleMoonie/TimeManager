@@ -10,6 +10,10 @@ import { connectDB } from '../Server/Database';
 import { errorHandler } from '../Middlewares/ErrorHandler';
 import logger from '../Utils/Logger';
 import { RegisterRoutes } from '../Routes/Generated/routes'; // Import the generated routes
+// import { iocLoader } from '../Config/IocResolver';
+
+// Initialize TypeDI container
+// iocLoader();
 
 // Instantiate express
 const server: Application = express();
@@ -20,13 +24,15 @@ server.use(compression());
 // @ts-expect-error - TypeScript compatibility issue with passport types
 server.use(passport.initialize());
 
-// Connect to PostgreSQL database
-if (process.env.NODE_ENV !== 'test') {
-  connectDB();
-}
+// Connect to PostgreSQL database (exported promise lets the entrypoint await readiness before serving traffic)
+export const dbReady = process.env.NODE_ENV !== 'test' ? connectDB() : Promise.resolve();
+
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
+  : ['http://localhost:3000', 'http://localhost:4000'];
 
 const corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: allowedOrigins,
   credentials: true,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   allowedHeaders: 'Content-Type, Authorization',

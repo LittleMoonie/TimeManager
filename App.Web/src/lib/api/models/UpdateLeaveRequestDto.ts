@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { LeaveRequestStatus } from './LeaveRequestStatus';
 export type UpdateLeaveRequestDto = {
-  status?: LeaveRequestStatus;
-  rejectionReason?: string;
+    status?: LeaveRequestStatus;
+    rejectionReason?: string;
 };
+

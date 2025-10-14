@@ -3,7 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export type GenerateResponse = {
-  success: boolean;
-  message: string;
-  generatedAt?: string;
+    success: boolean;
+    message: string;
+    generatedAt?: string;
 };
+

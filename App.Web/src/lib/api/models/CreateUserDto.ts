@@ -3,10 +3,11 @@
 /* tslint:disable */
 /* eslint-disable */
 export type CreateUserDto = {
-  email: string;
-  firstName: string;
-  lastName: string;
-  password: string;
-  roleId: string;
-  phoneNumber?: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    password: string;
+    roleId: string;
+    phoneNumber?: string;
 };
+

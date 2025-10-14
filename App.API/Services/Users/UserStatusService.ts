@@ -15,6 +15,7 @@ import {
  * for user status-related operations, acting as a thin layer over the UserStatusRepository.
  * It handles data validation, entity-to-DTO conversion, and error handling.
  */
+@Service('UserStatusService')
 export class UserStatusService {
   /**
    * @description Initializes the UserStatusService with the UserStatusRepository.

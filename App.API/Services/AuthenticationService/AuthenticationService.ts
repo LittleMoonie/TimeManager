@@ -125,18 +125,6 @@ export class AuthenticationService {
       deviceId,
     );
 
-    // Optionally persist a lightweight row for analytics/consistency (not required by ActiveSessionService).
-    await this.authRepo.createAndSaveActiveSessionPartial({
-      tokenHash,
-      deviceId,
-      expiresAt,
-      userId: user.id,
-      companyId: user.companyId,
-      lastSeenAt: new Date(),
-      userAgent,
-      ip: ipAddress,
-    });
-
     // Update last login
     user.lastLogin = new Date();
     await this.authRepo.saveUser(user);

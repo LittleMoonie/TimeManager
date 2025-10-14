@@ -4,8 +4,9 @@
 /* eslint-disable */
 import type { UserResponseDto } from './UserResponseDto';
 export type UsersPage = {
-  limit: number;
-  page: number;
-  total: number;
-  data: Array<UserResponseDto>;
+    limit: number;
+    page: number;
+    total: number;
+    data: Array<UserResponseDto>;
 };
+
