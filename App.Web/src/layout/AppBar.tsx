@@ -31,11 +31,24 @@ type LayoutAppBarProps = {
 export const LayoutAppBar = ({ onMenuClick }: LayoutAppBarProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { user } = useAuth();
+  const navigate = useNavigate();
   const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
+  const logout = useAuth().logout;
+
   const handleMenuClose = () => setAnchorEl(null);
+
+  const handleLogout = () => {
+    logout();
+    handleMenuClose();
+  };
+
+  const handleProfile = () => {
+    navigate('/profile');
+    handleMenuClose();
+  };
 
   return (
     <AppBar
@@ -160,7 +173,10 @@ export const LayoutAppBar = ({ onMenuClick }: LayoutAppBarProps) => {
             onClick={handleAvatarClick}
             sx={{ p: 0, ml: 1 }}
           >
-            <Avatar sx={{ width: 36, height: 36, fontSize: '0.95rem', fontWeight: 600 }}>HJ</Avatar>
+            <Avatar sx={{ width: 36, height: 36, fontSize: '0.95rem', fontWeight: 600 }}>
+              {user?.firstName[0]}
+              {user?.lastName[0]}
+            </Avatar>
           </IconButton>
         </Box>
       </Toolbar>
