@@ -1,21 +1,21 @@
 import { Service } from 'typedi';
 import { Repository } from 'typeorm';
-import { InjectRepository } from 'typeorm-typedi-extensions';
 
 import { MenuResponseDto, MenuCategoryDto } from '../../Dtos/Menu/MenuDto';
 import { MenuCard } from '../../Entities/Menu/MenuCard';
 import { MenuCategory } from '../../Entities/Menu/MenuCategory';
 import User from '../../Entities/Users/User';
-import { RolePermissionService } from '../RoleService/RolePermissionService';
+import { getInitializedDataSource } from '../../Server/Database';
 
 @Service()
 export class MenuService {
-  constructor(
-    @InjectRepository(MenuCategory)
-    private menuCategoryRepository: Repository<MenuCategory>,
-    @InjectRepository(MenuCard)
-    private menuCardRepository: Repository<MenuCard>,
-  ) {}
+  private get menuCategoryRepository(): Repository<MenuCategory> {
+    return getInitializedDataSource().getRepository(MenuCategory);
+  }
+
+  private get menuCardRepository(): Repository<MenuCard> {
+    return getInitializedDataSource().getRepository(MenuCard);
+  }
 
   public async getMenuForUser(companyId: string, user: User): Promise<MenuResponseDto> {
     const userPermissionKeys = new Set(

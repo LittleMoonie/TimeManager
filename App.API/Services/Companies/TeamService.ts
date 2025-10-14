@@ -25,7 +25,7 @@ export class TeamService {
   constructor(
     @Inject('TeamRepository') private readonly teamRepository: TeamRepository,
     @Inject('TeamMemberRepository') private readonly teamMemberRepository: TeamMemberRepository,
-    @Inject('RolePermissionService') private readonly rolePermissionService: RolePermissionService,
+    private readonly rolePermissionService: RolePermissionService,
   ) {}
 
   /**

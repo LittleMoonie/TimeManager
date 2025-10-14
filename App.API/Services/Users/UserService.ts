@@ -42,8 +42,8 @@ export class UserService {
    */
   constructor(
     @Inject('UserRepository') private readonly userRepository: UserRepository,
-    @Inject('RoleService') private readonly roleService: RoleService,
-    @Inject('RolePermissionService') private readonly rolePermissionService: RolePermissionService,
+    private readonly roleService: RoleService,
+    private readonly rolePermissionService: RolePermissionService,
     private readonly activeSessionRepository: ActiveSessionRepository,
   ) {}
 

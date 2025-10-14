@@ -22,7 +22,7 @@ export class CompanySettingsService {
   constructor(
     @Inject('CompanySettingsRepository')
     private readonly companySettingsRepository: CompanySettingsRepository,
-    @Inject('RolePermissionService') private readonly rolePermissionService: RolePermissionService,
+    private readonly rolePermissionService: RolePermissionService,
   ) {}
 
   /**

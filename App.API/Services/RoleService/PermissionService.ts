@@ -21,7 +21,7 @@ export class PermissionService {
    */
   constructor(
     @Inject('PermissionRepository') private readonly permissionRepository: PermissionRepository,
-    @Inject('RolePermissionService') private readonly rolePermissionService: RolePermissionService,
+    private readonly rolePermissionService: RolePermissionService,
   ) {}
 
   /**
