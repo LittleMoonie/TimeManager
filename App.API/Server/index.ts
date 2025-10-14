@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import cors from 'cors';
 import express, { Application, NextFunction, Request, Response } from 'express';
@@ -18,6 +19,8 @@ import { RegisterRoutes } from '../Routes/Generated/routes'; // Import the gener
 // Instantiate express
 const server: Application = express();
 
+server.use(cookieParser());
+
 //@ts-expect-error - TypeScript compatibility issue with compression types
 server.use(compression());
 
@@ -32,12 +35,17 @@ const allowedOrigins = process.env.CORS_ORIGIN
   : ['http://localhost:3000', 'http://localhost:4000'];
 
 const corsOptions = {
-  origin: allowedOrigins,
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   allowedHeaders: 'Content-Type, Authorization',
 };
-server.use(cors(corsOptions));
 server.use(express.json());
 
 // Setup Swagger UI with dynamic loading
@@ -72,6 +80,8 @@ server.get('/api/docs', (req: Request, res: Response, next: NextFunction) => {
 
 // Mount all API routes under /api prefix
 const apiApp = express();
+apiApp.use(cookieParser());
+apiApp.use(cors(corsOptions));
 server.use('/api', apiApp);
 
 RegisterRoutes(apiApp); // Register tsoa-generated routes with apiApp

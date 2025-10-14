@@ -1527,6 +1527,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/cookie-parser@npm:^1.4.9":
+  version: 1.4.9
+  resolution: "@types/cookie-parser@npm:1.4.9"
+  peerDependencies:
+    "@types/express": "*"
+  checksum: 10c0/ff7eee7b028ee3943ea92a1771d5587daf54ef038a6a24c034018956a6d0e045a16817b612c0bd53da4162c8037e1c1b8142f9f4bfe6708e20982993704fdb18
+  languageName: node
+  linkType: hard
+
 "@types/cookiejar@npm:^2.1.5":
   version: 2.1.5
   resolution: "@types/cookiejar@npm:2.1.5"
@@ -2875,6 +2884,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cookie-parser@npm:^1.4.7":
+  version: 1.4.7
+  resolution: "cookie-parser@npm:1.4.7"
+  dependencies:
+    cookie: "npm:0.7.2"
+    cookie-signature: "npm:1.0.6"
+  checksum: 10c0/46bef553de409031b69a6074ce512d131a98e4fa12612669f1a9c3dd98d56897a31db86a3f4338d4a3a895c6f8d5cfd6fa4d99cdf588e0e8eda655efc3f384dc
+  languageName: node
+  linkType: hard
+
 "cookie-signature@npm:1.0.6":
   version: 1.0.6
   resolution: "cookie-signature@npm:1.0.6"
@@ -2896,7 +2915,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cookie@npm:^0.7.1":
+"cookie@npm:0.7.2, cookie@npm:^0.7.1":
   version: 0.7.2
   resolution: "cookie@npm:0.7.2"
   checksum: 10c0/9596e8ccdbf1a3a88ae02cf5ee80c1c50959423e1022e4e60b91dd87c622af1da309253d8abdb258fb5e3eacb4f08e579dc58b4897b8087574eee0fd35dfa5d2
@@ -3965,6 +3984,7 @@ __metadata:
   dependencies:
     "@tsoa/runtime": "npm:^6.6.0"
     "@types/compression": "npm:^1.7.5"
+    "@types/cookie-parser": "npm:^1.4.9"
     "@types/cors": "npm:^2.8.17"
     "@types/express": "npm:^4.17.21"
     "@types/jest": "npm:^30.0.0"
@@ -3984,6 +4004,7 @@ __metadata:
     class-validator: "npm:^0.14.0"
     compression: "npm:^1.7.4"
     concurrently: "npm:^8.2.2"
+    cookie-parser: "npm:^1.4.7"
     cors: "npm:^2.8.5"
     dotenv: "npm:^17.2.3"
     express: "npm:^5.1.0"
@@ -4007,7 +4028,6 @@ __metadata:
     tsoa: "npm:^6.0.0"
     typedi: "npm:^0.10.0"
     typeorm: "npm:^0.3.27"
-    typeorm-typedi-extensions: "npm:^0.4.1"
     typescript: "npm:^5.6.3"
     uuid: "npm:^13.0.0"
     winston: "npm:^3.18.3"
@@ -7479,16 +7499,6 @@ __metadata:
   version: 0.10.0
   resolution: "typedi@npm:0.10.0"
   checksum: 10c0/99f8227f3670321ff5a0dfaf28a03155757d9e2d5ed184cba8fcf26f03188e7eb46e44d69fab118f89aecafaa4f8cb2860272b597d0a175e2b9a0d136cdcddde
-  languageName: node
-  linkType: hard
-
-"typeorm-typedi-extensions@npm:^0.4.1":
-  version: 0.4.1
-  resolution: "typeorm-typedi-extensions@npm:0.4.1"
-  peerDependencies:
-    typedi: ">=0.10.0"
-    typeorm: ">=0.2.30"
-  checksum: 10c0/239c1fdad4b3d13320b0b94ad9e97cd2fdf38d2322ab1eb12723df82b02974e5c6753f03dae1b844ed5a1644079218f629f8d618b6e6ed936962dcc40d5c5970
   languageName: node
   linkType: hard
 

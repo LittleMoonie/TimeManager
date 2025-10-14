@@ -35,9 +35,14 @@ export async function expressAuthentication(
     throw new InternalServerError('Unsupported security scheme');
   }
 
-  const token = request.headers.authorization?.startsWith('Bearer ')
-    ? request.headers.authorization.slice(7)
-    : request.cookies?.jwt;
+  let token = request.headers.authorization;
+  if (token?.startsWith('Bearer ')) {
+    token = token.slice(7);
+  }
+
+  if (!token) {
+    token = request.cookies?.jwt;
+  }
 
   if (!token) {
     throw new AuthenticationError('No token provided');
