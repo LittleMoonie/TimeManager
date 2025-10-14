@@ -1,21 +1,23 @@
+import { validate } from 'class-validator';
 import { Inject, Service } from 'typedi';
-import { TimesheetRepository } from '../../Repositories/Timesheets/TimesheetRepository';
-import { TimesheetEntryRepository } from '../../Repositories/Timesheets/TimesheetEntryRepository';
-import { TimesheetHistoryRepository } from '../../Repositories/Timesheets/TimesheetHistoryRepository';
-import { Timesheet, TimesheetStatus } from '../../Entities/Timesheets/Timesheet';
-import { NotFoundError, UnprocessableEntityError } from '../../Errors/HttpErrors';
+
 import {
   CreateTimesheetDto,
   CreateTimesheetEntryDto,
   UpdateTimesheetDto,
 } from '../../Dtos/Timesheet/TimesheetDto';
-import { validate } from 'class-validator';
+import { Timesheet, TimesheetStatus } from '../../Entities/Timesheets/Timesheet';
+import { NotFoundError, UnprocessableEntityError } from '../../Errors/HttpErrors';
+import { TimesheetEntryRepository } from '../../Repositories/Timesheets/TimesheetEntryRepository';
+import { TimesheetHistoryRepository } from '../../Repositories/Timesheets/TimesheetHistoryRepository';
+import { TimesheetRepository } from '../../Repositories/Timesheets/TimesheetRepository';
 
 /**
  * @description Service layer for managing Timesheet entities. This service provides business logic
  * for timesheet operations, including creation, entry management, submission, approval, and rejection.
  * It also integrates with TimesheetHistoryRepository to record events.
  */
+@Service()
 export class TimesheetService {
   /**
    * @description Initializes the TimesheetService with necessary repositories.

@@ -1,11 +1,7 @@
-import { UnprocessableEntityError, NotFoundError, ForbiddenError } from '../../Errors/HttpErrors';
-import { validate } from 'class-validator';
 import * as argon2 from 'argon2';
+import { validate } from 'class-validator';
 import { Inject, Service } from 'typedi';
 import { Repository } from 'typeorm';
-
-import { UserRepository } from '../../Repositories/Users/UserRepository';
-import { ActiveSessionRepository } from '../../Repositories/Users/ActiveSessionRepository';
 
 import {
   CreateUserDto,
@@ -16,17 +12,17 @@ import {
   RevokeSessionDto,
   ActiveSessionResponseDto,
 } from '../../Dtos/Users/UserDto';
-
 import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
-
+import { UserStatusResponseDto } from '../../Dtos/Users/UserStatusDto';
+import { Role } from '../../Entities/Roles/Role';
 import User from '../../Entities/Users/User';
 import { UserStatus } from '../../Entities/Users/UserStatus';
-import { Role } from '../../Entities/Roles/Role';
-
-import { RoleService } from '../../Services/RoleService/RoleService';
-import { RolePermissionService } from '../../Services/RoleService/RolePermissionService';
-import { UserStatusResponseDto } from '../../Dtos/Users/UserStatusDto';
+import { UnprocessableEntityError, NotFoundError, ForbiddenError } from '../../Errors/HttpErrors';
+import { ActiveSessionRepository } from '../../Repositories/Users/ActiveSessionRepository';
+import { UserRepository } from '../../Repositories/Users/UserRepository';
 import { getInitializedDataSource } from '../../Server/Database';
+import { RolePermissionService } from '../../Services/RoleService/RolePermissionService';
+import { RoleService } from '../../Services/RoleService/RoleService';
 
 /**
  * @description Service layer for managing User entities. This service provides business logic

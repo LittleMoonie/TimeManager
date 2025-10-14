@@ -1,6 +1,6 @@
-import { useId } from 'react';
-import { alpha, useTheme } from '@mui/material/styles';
 import { Box } from '@mui/material';
+import { alpha, useTheme } from '@mui/material/styles';
+import { useId } from 'react';
 import { Area, AreaChart, ResponsiveContainer, Tooltip, type TooltipProps } from 'recharts';
 
 export type SparklineDatum = {

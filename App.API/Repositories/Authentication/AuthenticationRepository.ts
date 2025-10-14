@@ -1,8 +1,8 @@
 import { Service } from 'typedi';
 import { Repository } from 'typeorm';
 
-import User from '../../Entities/Users/User';
 import ActiveSession from '../../Entities/Users/ActiveSessions';
+import User from '../../Entities/Users/User';
 import { getInitializedDataSource } from '../../Server/Database';
 
 /**

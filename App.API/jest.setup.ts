@@ -1,5 +1,6 @@
-import { createTestApp, startTestServer, closeTestServer } from './Tests/TestHelper';
 import { Server } from 'http';
+
+import { createTestApp, startTestServer, closeTestServer } from './Tests/TestHelper';
 
 declare global {
   var testServer: Server;

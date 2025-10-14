@@ -9,94 +9,94 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class TimesheetApprovalsService {
+  /**
+   * Creates a new timesheet approval.
+   * @returns TimesheetApproval The newly created timesheet approval.
+   * @throws ApiError
+   */
+  public static createTimesheetApproval({
+    requestBody,
+  }: {
     /**
-     * Creates a new timesheet approval.
-     * @returns TimesheetApproval The newly created timesheet approval.
-     * @throws ApiError
+     * The data for creating the timesheet approval.
      */
-    public static createTimesheetApproval({
-        requestBody,
-    }: {
-        /**
-         * The data for creating the timesheet approval.
-         */
-        requestBody: CreateTimesheetApprovalDto,
-    }): CancelablePromise<TimesheetApproval> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/timesheet-approvals',
-            body: requestBody,
-            mediaType: 'application/json',
-        });
-    }
+    requestBody: CreateTimesheetApprovalDto;
+  }): CancelablePromise<TimesheetApproval> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/timesheet-approvals',
+      body: requestBody,
+      mediaType: 'application/json',
+    });
+  }
+  /**
+   * Retrieves a timesheet approval by its ID.
+   * @returns TimesheetApproval The timesheet approval details.
+   * @throws ApiError
+   */
+  public static getTimesheetApproval({
+    id,
+  }: {
     /**
-     * Retrieves a timesheet approval by its ID.
-     * @returns TimesheetApproval The timesheet approval details.
-     * @throws ApiError
+     * The ID of the timesheet approval to retrieve.
      */
-    public static getTimesheetApproval({
-        id,
-    }: {
-        /**
-         * The ID of the timesheet approval to retrieve.
-         */
-        id: string,
-    }): CancelablePromise<TimesheetApproval> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/timesheet-approvals/{id}',
-            path: {
-                'id': id,
-            },
-        });
-    }
+    id: string;
+  }): CancelablePromise<TimesheetApproval> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/timesheet-approvals/{id}',
+      path: {
+        id: id,
+      },
+    });
+  }
+  /**
+   * Updates an existing timesheet approval.
+   * @returns TimesheetApproval The updated timesheet approval details.
+   * @throws ApiError
+   */
+  public static updateTimesheetApproval({
+    id,
+    requestBody,
+  }: {
     /**
-     * Updates an existing timesheet approval.
-     * @returns TimesheetApproval The updated timesheet approval details.
-     * @throws ApiError
+     * The ID of the timesheet approval to update.
      */
-    public static updateTimesheetApproval({
-        id,
-        requestBody,
-    }: {
-        /**
-         * The ID of the timesheet approval to update.
-         */
-        id: string,
-        /**
-         * The data for updating the timesheet approval.
-         */
-        requestBody: UpdateTimesheetApprovalDto,
-    }): CancelablePromise<TimesheetApproval> {
-        return __request(OpenAPI, {
-            method: 'PUT',
-            url: '/timesheet-approvals/{id}',
-            path: {
-                'id': id,
-            },
-            body: requestBody,
-            mediaType: 'application/json',
-        });
-    }
+    id: string;
     /**
-     * Deletes a timesheet approval by its ID.
-     * @returns void
-     * @throws ApiError
+     * The data for updating the timesheet approval.
      */
-    public static deleteTimesheetApproval({
-        id,
-    }: {
-        /**
-         * The ID of the timesheet approval to delete.
-         */
-        id: string,
-    }): CancelablePromise<void> {
-        return __request(OpenAPI, {
-            method: 'DELETE',
-            url: '/timesheet-approvals/{id}',
-            path: {
-                'id': id,
-            },
-        });
-    }
+    requestBody: UpdateTimesheetApprovalDto;
+  }): CancelablePromise<TimesheetApproval> {
+    return __request(OpenAPI, {
+      method: 'PUT',
+      url: '/timesheet-approvals/{id}',
+      path: {
+        id: id,
+      },
+      body: requestBody,
+      mediaType: 'application/json',
+    });
+  }
+  /**
+   * Deletes a timesheet approval by its ID.
+   * @returns void
+   * @throws ApiError
+   */
+  public static deleteTimesheetApproval({
+    id,
+  }: {
+    /**
+     * The ID of the timesheet approval to delete.
+     */
+    id: string;
+  }): CancelablePromise<void> {
+    return __request(OpenAPI, {
+      method: 'DELETE',
+      url: '/timesheet-approvals/{id}',
+      path: {
+        id: id,
+      },
+    });
+  }
 }

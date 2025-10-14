@@ -1,8 +1,9 @@
 import { Request } from 'express';
-import User from '../Entities/Users/User';
-import { AuthenticationService } from '../Services/AuthenticationService/AuthenticationService';
 import { Container } from 'typedi';
+
+import User from '../Entities/Users/User';
 import { AuthenticationError } from '../Errors/HttpErrors';
+import { AuthenticationService } from '../Services/AuthenticationService/AuthenticationService';
 
 export async function expressAuthentication(
   request: Request,

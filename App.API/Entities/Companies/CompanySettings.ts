@@ -1,6 +1,8 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
-import { Company } from './Company';
+
 import { BaseEntity } from '../BaseEntity';
+
+import { Company } from './Company';
 
 /**
  * @description Defines the possible policies for timesheet approvers.

@@ -1,19 +1,20 @@
-import { Inject, Service } from 'typedi';
 import { validate } from 'class-validator';
+import { Inject, Service } from 'typedi';
 
-import { TeamRepository } from '../../Repositories/Companies/TeamRepository';
-import { TeamMemberRepository } from '../../Repositories/Companies/TeamMemberRepository';
+import { AddTeamMemberDto, CreateTeamDto, UpdateTeamDto } from '../../Dtos/Companies/CompanyDto';
 import { Team } from '../../Entities/Companies/Team';
 import { TeamMember } from '../../Entities/Companies/TeamMember';
-import { ForbiddenError, NotFoundError, UnprocessableEntityError } from '../../Errors/HttpErrors';
 import User from '../../Entities/Users/User';
-import { AddTeamMemberDto, CreateTeamDto, UpdateTeamDto } from '../../Dtos/Companies/CompanyDto';
+import { ForbiddenError, NotFoundError, UnprocessableEntityError } from '../../Errors/HttpErrors';
+import { TeamMemberRepository } from '../../Repositories/Companies/TeamMemberRepository';
+import { TeamRepository } from '../../Repositories/Companies/TeamRepository';
 import { RolePermissionService } from '../../Services/RoleService/RolePermissionService';
 
 /**
  * @description Service layer for managing Team and TeamMember entities. This service provides business logic
  * for team-related operations, including CRUD for teams and managing team members, with integrated permission checks.
  */
+@Service()
 export class TeamService {
   /**
    * @description Initializes the TeamService with necessary repositories and services.

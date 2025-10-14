@@ -1,12 +1,12 @@
-import globals from 'globals';
-import pluginJs from '@eslint/js';
-import tseslint from 'typescript-eslint';
-import pluginReactConfig from 'eslint-plugin-react/configs/recommended.js';
 import { fixupConfigRules } from '@eslint/compat';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
-import eslintPluginReactHooks from 'eslint-plugin-react-hooks';
+import pluginJs from '@eslint/js';
 import eslintPluginImport from 'eslint-plugin-import';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import eslintPluginPromise from 'eslint-plugin-promise';
+import pluginReactConfig from 'eslint-plugin-react/configs/recommended.js';
+import eslintPluginReactHooks from 'eslint-plugin-react-hooks';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
 export default [
   { files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'] },

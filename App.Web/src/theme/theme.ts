@@ -1,5 +1,5 @@
 import { alpha, createTheme as muiCreateTheme, responsiveFontSizes } from '@mui/material/styles';
-import type { PaletteColor, Theme, ThemeOptions } from '@mui/material';
+
 import {
   defaultThemeId,
   themePresetList,
@@ -8,6 +8,8 @@ import {
   type ThemeId,
   type ThemePreset,
 } from './presets';
+
+import type { PaletteColor, Theme, ThemeOptions } from '@mui/material';
 
 export type DensitySetting = 'comfortable' | 'compact';
 

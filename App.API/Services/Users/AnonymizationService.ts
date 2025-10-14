@@ -1,5 +1,6 @@
 import { Inject, Service } from 'typedi';
 import { Repository } from 'typeorm';
+
 import ActiveSession from '../../Entities/Users/ActiveSessions';
 import { NotFoundError } from '../../Errors/HttpErrors';
 import { UserRepository } from '../../Repositories/Users/UserRepository';

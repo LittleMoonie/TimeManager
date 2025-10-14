@@ -1,22 +1,23 @@
 import 'reflect-metadata';
+import * as fs from 'fs';
+import * as path from 'path';
+
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Application, NextFunction, Request, Response } from 'express';
 import passport from 'passport';
 import swaggerUi from 'swagger-ui-express';
-import * as fs from 'fs';
-import * as path from 'path';
-import { connectDB } from '../Server/Database';
-import { errorHandler } from '../Middlewares/ErrorHandler';
-import logger from '../Utils/Logger';
-import { RegisterRoutes } from '../Routes/Generated/routes'; // Import the generated routes
-// import { iocLoader } from '../Config/IocResolver';
 
-// Initialize TypeDI container
-// iocLoader();
+import { errorHandler } from '../Middlewares/ErrorHandler';
+import { RegisterRoutes } from '../Routes/Generated/routes'; // Import the generated routes
+import { connectDB } from '../Server/Database';
+import logger from '../Utils/Logger';
 
 // Instantiate express
 const server: Application = express();
+
+server.use(cookieParser());
 
 //@ts-expect-error - TypeScript compatibility issue with compression types
 server.use(compression());
@@ -32,12 +33,17 @@ const allowedOrigins = process.env.CORS_ORIGIN
   : ['http://localhost:3000', 'http://localhost:4000'];
 
 const corsOptions = {
-  origin: allowedOrigins,
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   allowedHeaders: 'Content-Type, Authorization',
 };
-server.use(cors(corsOptions));
 server.use(express.json());
 
 // Setup Swagger UI with dynamic loading
@@ -72,6 +78,8 @@ server.get('/api/docs', (req: Request, res: Response, next: NextFunction) => {
 
 // Mount all API routes under /api prefix
 const apiApp = express();
+apiApp.use(cookieParser());
+apiApp.use(cors(corsOptions));
 server.use('/api', apiApp);
 
 RegisterRoutes(apiApp); // Register tsoa-generated routes with apiApp

@@ -1,3 +1,4 @@
+import { Request as ExpressRequest } from 'express';
 import {
   Body,
   Controller,
@@ -11,16 +12,15 @@ import {
   Security,
   Request,
 } from 'tsoa';
-import { Request as ExpressRequest } from 'express';
 import { Service } from 'typedi';
 
-import { TimesheetEntryService } from '../../Services/Timesheet/TimesheetEntryService';
 import {
   CreateTimesheetEntryDto,
   UpdateTimesheetEntryDto,
 } from '../../Dtos/Timesheet/TimesheetDto';
 import { TimesheetEntry } from '../../Entities/Timesheets/TimesheetEntry';
 import User from '../../Entities/Users/User';
+import { TimesheetEntryService } from '../../Services/Timesheet/TimesheetEntryService';
 
 /**
  * @summary Controller for managing timesheet entries.

@@ -1,6 +1,8 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+
 import { BaseEntity } from '../BaseEntity';
 import User from '../Users/User';
+
 import { Company } from './Company';
 
 /**

@@ -1,7 +1,9 @@
 import { Entity, Column, OneToMany, Index, JoinColumn, ManyToOne } from 'typeorm';
+
 import { BaseEntity } from '../BaseEntity';
-import { RolePermission } from './RolePermission';
 import { Company } from '../Companies/Company';
+
+import { RolePermission } from './RolePermission';
 
 /**
  * @description Represents a specific permission that can be assigned to roles within a company.

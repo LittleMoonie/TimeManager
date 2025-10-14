@@ -1,18 +1,20 @@
+import { validate } from 'class-validator';
 import { Inject, Service } from 'typedi';
-import { TimesheetEntryRepository } from '../../Repositories/Timesheets/TimesheetEntryRepository';
-import { TimesheetEntry } from '../../Entities/Timesheets/TimesheetEntry';
-import { NotFoundError } from '../../Errors/HttpErrors';
+
 import {
   CreateTimesheetEntryDto,
   UpdateTimesheetEntryDto,
 } from '../../Dtos/Timesheet/TimesheetDto';
-import { validate } from 'class-validator';
+import { TimesheetEntry } from '../../Entities/Timesheets/TimesheetEntry';
+import { NotFoundError } from '../../Errors/HttpErrors';
 import { UnprocessableEntityError } from '../../Errors/HttpErrors';
+import { TimesheetEntryRepository } from '../../Repositories/Timesheets/TimesheetEntryRepository';
 
 /**
  * @description Service layer for managing TimesheetEntry entities. This service provides business logic
  * for creating, retrieving, updating, and deleting timesheet entries.
  */
+@Service()
 export class TimesheetEntryService {
   /**
    * @description Initializes the TimesheetEntryService with the TimesheetEntryRepository.

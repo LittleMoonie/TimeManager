@@ -1,13 +1,15 @@
-import { Controller, Delete, Path, Request, Route, Security, Tags, SuccessResponse } from 'tsoa';
-import { AnonymizationService } from '../../Services/Users/AnonymizationService';
-import { Service } from 'typedi';
 import { Request as ExpressRequest } from 'express';
+import { Controller, Delete, Path, Request, Route, Security, Tags, SuccessResponse } from 'tsoa';
+import { Service } from 'typedi';
+
+import { AnonymizationService } from '../../Services/Users/AnonymizationService';
 
 /**
  * @summary Controller for managing user anonymization.
  * @tags Anonymization
  * @security jwt
  */
+@Route('anonymization')
 @Tags('Anonymization')
 @Security('jwt')
 @Service()

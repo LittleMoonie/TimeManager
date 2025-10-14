@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm';
+
 import { Company } from '../Entities/Companies/Company';
 
 export async function seedCompany(ds: DataSource) {

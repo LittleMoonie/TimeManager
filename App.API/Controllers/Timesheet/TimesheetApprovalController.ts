@@ -1,3 +1,4 @@
+import { Request as ExpressRequest } from 'express';
 import {
   Body,
   Controller,
@@ -11,16 +12,15 @@ import {
   Security,
   Request,
 } from 'tsoa';
-import { Request as ExpressRequest } from 'express';
 import { Service } from 'typedi';
 
-import { TimesheetApprovalService } from '../../Services/Timesheet/TimesheetApprovalService';
 import {
   CreateTimesheetApprovalDto,
   UpdateTimesheetApprovalDto,
 } from '../../Dtos/Timesheet/TimesheetDto';
 import { TimesheetApproval } from '../../Entities/Timesheets/TimesheetApproval';
 import User from '../../Entities/Users/User';
+import { TimesheetApprovalService } from '../../Services/Timesheet/TimesheetApprovalService';
 
 /**
  * @summary Manage timesheet approvals (company-scoped).

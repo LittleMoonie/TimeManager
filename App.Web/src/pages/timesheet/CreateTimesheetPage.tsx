@@ -1,9 +1,4 @@
-import React from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import {
   Box,
   Button,
@@ -14,6 +9,12 @@ import {
   CircularProgress,
   Paper,
 } from '@mui/material';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
+
 import { TimesheetsService } from '@/lib/api';
 
 const createTimesheetSchema = z
@@ -54,7 +55,7 @@ const CreateTimesheetPage = () => {
       queryClient.invalidateQueries({ queryKey: ['timesheets'] });
       navigate('/timesheet');
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       console.error('Failed to create timesheet:', err);
       // Optionally, set a form error or show a global alert
     },

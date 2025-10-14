@@ -1,17 +1,18 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { CssBaseline } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { CssBaseline } from '@mui/material';
-import { AppThemeProvider } from '@/theme/ThemeProvider';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
 import { AppLayout } from '@/components/layout/AppLayout';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { useAuth } from '@/hooks/useAuth';
+import Login from '@/pages/authentication/login';
 import HomePage from '@/pages/index';
-import Login from '@/pages/login';
-import TimesheetList from '@/pages/timesheet/TimesheetList';
+import ManagerDashboard from '@/pages/manager/ManagerDashboard';
 import CreateTimesheetPage from '@/pages/timesheet/CreateTimesheetPage';
 import TimesheetDetailsPage from '@/pages/timesheet/TimesheetDetailsPage';
-import { useAuth } from '@/hooks/useAuth';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import ManagerDashboard from '@/pages/manager/ManagerDashboard';
+import TimesheetList from '@/pages/timesheet/TimesheetList';
+import { AppThemeProvider } from '@/theme/ThemeProvider';
 
 const queryClient = new QueryClient({
   defaultOptions: {

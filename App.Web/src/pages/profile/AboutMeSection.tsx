@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Edit, Save, Cancel } from '@mui/icons-material';
 import {
   Box,
   Card,
@@ -9,7 +9,8 @@ import {
   Button,
   Stack,
 } from '@mui/material';
-import { Edit, Save, Cancel } from '@mui/icons-material';
+import { useState } from 'react';
+
 import { useAuth } from '@/hooks/useAuth';
 
 export const AboutMeSection = () => {

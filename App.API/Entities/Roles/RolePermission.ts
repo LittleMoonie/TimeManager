@@ -1,8 +1,10 @@
 import { Entity, ManyToOne, JoinColumn, Index, Column } from 'typeorm';
-import { Role } from './Role';
-import { Permission } from './Permission';
-import { Company } from '../Companies/Company';
+
 import { BaseEntity } from '../BaseEntity';
+import { Company } from '../Companies/Company';
+
+import { Permission } from './Permission';
+import { Role } from './Role';
 
 /**
  * @description Represents the many-to-many relationship between roles and permissions within a company.

@@ -1,8 +1,9 @@
-import { MemoryRouter } from 'react-router-dom';
 import { render } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
-import { AppThemeProvider } from '@/theme';
+
 import { Navigation } from '@/layout/Navigation';
+import { AppThemeProvider } from '@/theme';
 
 const renderNavigation = () =>
   render(

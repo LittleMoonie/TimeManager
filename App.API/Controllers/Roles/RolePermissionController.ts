@@ -1,10 +1,10 @@
-import { Body, Controller, Post, Delete, Route, Tags, Path, Security, Request } from 'tsoa';
 import { Request as ExpressRequest } from 'express';
+import { Body, Controller, Post, Delete, Route, Tags, Path, Security, Request } from 'tsoa';
 import { Service } from 'typedi';
 
-import { RolePermissionService } from '../../Services/RoleService/RolePermissionService';
 import { CreateRolePermissionDto, RolePermissionResponseDto } from '../../Dtos/Roles/RoleDto';
 import User from '../../Entities/Users/User';
+import { RolePermissionService } from '../../Services/RoleService/RolePermissionService';
 
 /**
  * @summary Controller for managing role-permission links within a company.

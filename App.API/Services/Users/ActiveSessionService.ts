@@ -1,4 +1,5 @@
 import { Inject, Service } from 'typedi';
+
 import ActiveSession from '../../Entities/Users/ActiveSessions';
 import { NotFoundError } from '../../Errors/HttpErrors';
 import { ActiveSessionRepository } from '../../Repositories/Users/ActiveSessionRepository';

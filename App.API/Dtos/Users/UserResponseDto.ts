@@ -1,5 +1,5 @@
-import { RoleResponse } from '../../Dtos/Roles/RoleDto';
 import { CompanyResponseDto } from '../../Dtos/Companies/CompanyDto';
+import { RoleResponse } from '../../Dtos/Roles/RoleDto';
 import { UserStatusResponseDto } from '../../Dtos/Users/UserStatusDto';
 
 /**

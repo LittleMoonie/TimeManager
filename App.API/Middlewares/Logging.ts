@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import logger from '../Utils/Logger';
+
 import User from '../Entities/Users/User';
+import logger from '../Utils/Logger';
 
 export const loggingMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const requestId = uuidv4();

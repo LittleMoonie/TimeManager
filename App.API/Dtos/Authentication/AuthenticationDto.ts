@@ -1,5 +1,6 @@
-import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
 import { IsEmail, IsString, MinLength, IsNotEmpty, IsUUID, Matches } from 'class-validator';
+
+import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
 
 /**
  * @description Data transfer object for authentication responses, used after successful login, registration, or token refresh.
@@ -41,6 +42,12 @@ export class LoginDto {
   @IsString()
   @MinLength(6)
   public password!: string;
+
+  /**
+   * @description Whether the user wants to stay logged in for an extended period.
+   * @example true
+   */
+  public rememberMe?: boolean;
 }
 
 /**

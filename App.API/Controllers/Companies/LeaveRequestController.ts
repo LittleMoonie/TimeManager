@@ -1,3 +1,5 @@
+import User from 'Entities/Users/User';
+import { Request as ExpressRequest } from 'express';
 import {
   Body,
   Controller,
@@ -11,15 +13,13 @@ import {
   Security,
   Request,
 } from 'tsoa';
-import { Request as ExpressRequest } from 'express';
 import { Service } from 'typedi';
 
-import { LeaveRequestService } from '../../Services/Companies/LeaveRequestService';
 import { CreateLeaveRequestDto, UpdateLeaveRequestDto } from '../../Dtos/Companies/CompanyDto';
-import { LeaveRequest } from '../../Entities/Companies/LeaveRequest';
 import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
+import { LeaveRequest } from '../../Entities/Companies/LeaveRequest';
+import { LeaveRequestService } from '../../Services/Companies/LeaveRequestService';
 import { UserService } from '../../Services/Users/UserService';
-import User from 'Entities/Users/User';
 
 /**
  * @summary Controller for managing leave requests.

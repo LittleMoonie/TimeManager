@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
+import { FindOptionsWhere } from 'typeorm';
 
 import ActiveSession from '../Entities/Users/ActiveSessions';
 import { AppDataSource } from '../Server/Database';
-import { FindOptionsWhere } from 'typeorm';
 
 export const checkToken = (req: Request, res: Response, next: NextFunction) => {
   const token = String(req.headers.authorization || req.body.token);

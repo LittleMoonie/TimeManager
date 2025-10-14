@@ -1,5 +1,6 @@
-import { Box, Typography, Stack, Button, Card, CardContent, Divider, Chip } from '@mui/material';
 import { Computer, PhoneAndroid, Tablet } from '@mui/icons-material';
+import { Box, Typography, Stack, Button, Card, CardContent, Divider, Chip } from '@mui/material';
+
 import { ActiveSession } from '@/types';
 
 interface ActiveSessionsListProps {

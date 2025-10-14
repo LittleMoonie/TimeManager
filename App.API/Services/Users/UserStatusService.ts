@@ -1,14 +1,14 @@
-import { Inject, Service } from 'typedi';
 import { validate } from 'class-validator';
+import { Inject, Service } from 'typedi';
 
-import { UserStatusRepository } from '../../Repositories/Users/UserStatusRepository';
-import { UserStatus } from '../../Entities/Users/UserStatus';
-import { NotFoundError, UnprocessableEntityError } from '../../Errors/HttpErrors';
 import {
   CreateUserStatusDto,
   UpdateUserStatusDto,
   UserStatusResponseDto,
 } from '../../Dtos/Users/UserStatusDto';
+import { UserStatus } from '../../Entities/Users/UserStatus';
+import { NotFoundError, UnprocessableEntityError } from '../../Errors/HttpErrors';
+import { UserStatusRepository } from '../../Repositories/Users/UserStatusRepository';
 
 /**
  * @description Service layer for managing UserStatus entities. This service provides business logic

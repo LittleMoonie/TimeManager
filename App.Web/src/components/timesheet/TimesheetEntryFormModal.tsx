@@ -1,7 +1,4 @@
-import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import {
   Dialog,
   DialogTitle,
@@ -16,107 +13,11 @@ import {
   FormHelperText,
   CircularProgress,
   Alert,
+  Typography,
+  Box,
 } from '@mui/material';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  TimesheetsService,
-  TimesheetEntriesService,
-  ActionCodesService,
-  WorkMode,
-  CreateTimesheetEntryDto,
-  UpdateTimesheetEntryDto,
-  TimesheetEntryResponseDto,
-} from '@/lib/api';
-
-interface TimesheetEntryFormModalProps {
-  open: boolean;
-  onClose: () => void;
-  timesheetId: string;
-  entry?: TimesheetEntryResponseDto; // Optional, for editing existing entries
-}
-
-const timesheetEntrySchema = z.object({
-  actionCodeId: z.string().min(1, 'Action code is required'),
-  day: z
-    .string()
-    .min(1, 'Day is required')
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
-  durationMin: z
-    .number()
-    .min(1, 'Duration must be at least 1 minute')
-    .max(1440, 'Duration cannot exceed 1440 minutes (24 hours)'),
-  country: z.string().min(1, 'Country is required'),
-  workMode: z.nativeEnum(WorkMode, { required_error: 'Work mode is required' }),
-  note: z.string().optional(),
-});
-
-type TimesheetEntryFormInputs = z.infer<typeof timesheetEntrySchema>;
-
-const TimesheetEntryFormModal: React.FC<TimesheetEntryFormModalProps> = ({
-  open,
-  onClose,
-  timesheetId,
-  entry,
-}) => {
-  const queryClient = useQueryClient();
-
-  const {
-    data: actionCodes,
-    isLoading: isLoadingActionCodes,
-    error: actionCodesError,
-  } = useQuery({
-    queryKey: ['actionCodes'],
-    queryFn: () => ActionCodesService.searchActionCodes({}),
-  });
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isValid },
-  } = useForm<TimesheetEntryFormInputs>({
-    resolver: zodResolver(timesheetEntrySchema),
-    mode: 'onChange',
-    defaultValues: {
-      actionCodeId: entry?.actionCodeId || '',
-      day: entry?.day || '',
-      durationMin: entry?.durationMin || 0,
-      country: entry?.country || '',
-      workMode: entry?.workMode || WorkMode.OFFICE,
-      note: entry?.note || '',
-    },
-  });
-
-  useEffect(() => {
-    if (entry) {
-      reset({
-        actionCodeId: entry.actionCodeId,
-        day: entry.day,
-        durationMin: entry.durationMin,
-        country: entry.country,
-        workMode: entry.workMode,
-        note: entry.note,
-      });
-    } else {
-      reset({
-        actionCodeId: '',
-        day: '',
-        durationMin: 0,
-        country: '',
-        workMode: WorkMode.OFFICE,
-        note: '',
-      });
-    }
-  }, [entry, reset]);
-
-  const createEntryMutation = useMutation({
-    mutationFn: (dto: CreateTimesheetEntryDto) =>
-      TimesheetsService.addTimesheetEntry({ id: timesheetId, requestBody: dto }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['timesheets', timesheetId] });
-      onClose();
-    },
-    onError: (err: any) => {
+// ...
+    onError: (err: Error) => {
       console.error('Failed to create timesheet entry:', err);
     },
   });
@@ -128,10 +29,12 @@ const TimesheetEntryFormModal: React.FC<TimesheetEntryFormModalProps> = ({
       queryClient.invalidateQueries({ queryKey: ['timesheets', timesheetId] });
       onClose();
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       console.error('Failed to update timesheet entry:', err);
     },
   });
+
+  const isSubmitting = createEntryMutation.isPending || updateEntryMutation.isPending;
 
   const onSubmit = async (data: TimesheetEntryFormInputs) => {
     if (entry) {
@@ -140,8 +43,6 @@ const TimesheetEntryFormModal: React.FC<TimesheetEntryFormModalProps> = ({
       createEntryMutation.mutate(data);
     }
   };
-
-  const isSubmitting = createEntryMutation.isPending || updateEntryMutation.isPending;
 
   if (isLoadingActionCodes) {
     return (

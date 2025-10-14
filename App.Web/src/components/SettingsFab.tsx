@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { SettingsRounded } from '@mui/icons-material';
 import {
   ButtonBase,
   Box,
@@ -12,8 +12,9 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { SettingsRounded } from '@mui/icons-material';
 import { alpha, useTheme } from '@mui/material/styles';
+import { useMemo, useState } from 'react';
+
 import { useThemeController, type ThemePreset } from '@/themes';
 
 const getPresetGradient = (preset: ThemePreset) => {

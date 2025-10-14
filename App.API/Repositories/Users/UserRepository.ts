@@ -1,4 +1,5 @@
 import { Service } from 'typedi';
+
 import User from '../../Entities/Users/User';
 import { BaseRepository } from '../../Repositories/BaseRepository';
 
@@ -28,7 +29,7 @@ export class UserRepository extends BaseRepository<User> {
       where: { email, companyId },
       relations: ['role', 'status'],
     });
-}
+  }
   /**
    * @description Finds all users belonging to a specific company.
    * Includes related role and status information.
@@ -57,7 +58,7 @@ export class UserRepository extends BaseRepository<User> {
     return this.repository.findOne({
       where: { id: userId, companyId },
       withDeleted,
-      relations: ['role', 'status'],
+      relations: ['role', 'status', 'company'],
     });
   }
 
