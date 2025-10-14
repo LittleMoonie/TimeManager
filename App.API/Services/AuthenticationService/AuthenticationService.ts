@@ -35,7 +35,7 @@ export class AuthenticationService {
   constructor(
     @Inject('AuthenticationRepository') private readonly authRepo: AuthenticationRepository,
     @Inject('UserStatusService') private readonly userStatusService: UserStatusService,
-    @Inject('ActiveSessionService') private readonly activeSessionService: ActiveSessionService,
+    private readonly activeSessionService: ActiveSessionService,
     @Inject('UserRepository') private readonly userRepository: UserRepository,
   ) {}
 
