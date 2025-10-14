@@ -25,7 +25,9 @@ export const ProfileSummaryCard = () => {
     <Card>
       <CardContent>
         <Stack spacing={3} alignItems="center" textAlign="center">
-          <Avatar sx={{ width: 96, height: 96, fontSize: '2rem' }}>{initials}</Avatar>
+          <Avatar sx={{ width: 96, height: 96, fontSize: '2rem' }}>
+            {initials}
+          </Avatar>
 
           <Box>
             <Typography variant="h6">{fullName}</Typography>

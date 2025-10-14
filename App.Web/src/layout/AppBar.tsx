@@ -30,25 +30,12 @@ type LayoutAppBarProps = {
 
 export const LayoutAppBar = ({ onMenuClick }: LayoutAppBarProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
   const handleMenuClose = () => setAnchorEl(null);
-
-  const handleLogout = () => {
-    logout();
-    handleMenuClose();
-  };
-
-  const handleProfile = () => {
-    navigate('/profile');
-    handleMenuClose();
-  };
-
-  const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : '';
 
   return (
     <AppBar
@@ -89,9 +76,7 @@ export const LayoutAppBar = ({ onMenuClick }: LayoutAppBarProps) => {
               }}
             >
               <Typography variant="subtitle2" fontWeight={700} color="common.white">
-                {user?.company?.name && user.company.name.length > 0
-                  ? user.company.name[0].toUpperCase()
-                  : ''}
+                A
               </Typography>
             </Box>
             <Typography
@@ -175,9 +160,7 @@ export const LayoutAppBar = ({ onMenuClick }: LayoutAppBarProps) => {
             onClick={handleAvatarClick}
             sx={{ p: 0, ml: 1 }}
           >
-            <Avatar sx={{ width: 36, height: 36, fontSize: '0.95rem', fontWeight: 600 }}>
-              {initials}
-            </Avatar>
+            <Avatar sx={{ width: 36, height: 36, fontSize: '0.95rem', fontWeight: 600 }}>HJ</Avatar>
           </IconButton>
         </Box>
       </Toolbar>

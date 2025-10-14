@@ -6,7 +6,9 @@ import { PageHeader } from '@/components/ui/PageHeader';
 
 import { AdvancedSettingsTab } from './AdvancedSettingsTab';
 import { ChangePasswordTab } from './ChangePasswordTab';
+import { AboutMeSection } from './AboutMeSection';
 import { ProfileSummaryCard } from './ProfileTab';
+import { RecognizedDevice, ActiveSession } from '@/types';
 
 type TabValue = 'profile' | 'advanced' | 'password';
 
@@ -77,7 +79,7 @@ const ProfilePage = () => {
           </Grid>
 
           <Grid size={{ xs: 12, lg: 8 }}>
-            {activeTab === 'profile' && <div />}
+            {activeTab === 'profile' && <AboutMeSection />}
 
             {activeTab === 'advanced' && (
               <AdvancedSettingsTab
