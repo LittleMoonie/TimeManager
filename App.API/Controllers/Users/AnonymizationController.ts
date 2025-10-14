@@ -8,10 +8,9 @@ import { Request as ExpressRequest } from 'express';
  * @tags Anonymization
  * @security jwt
  */
-@Service()
-@Route('anonymization')
 @Tags('Anonymization')
 @Security('jwt')
+@Service()
 export class AnonymizationController extends Controller {
   constructor(private anonymizationService: AnonymizationService) {
     super();

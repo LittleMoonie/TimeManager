@@ -1,26 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AuthenticationService, LoginDto, UserResponse } from '@/lib/api';
 
-interface AuthResult {
-  success: boolean;
+import { AuthenticationService, LoginDto, UserResponseDto } from '@/lib/api';
+
+interface AuthResponse {
   token?: string;
-  user?: UserResponse;
+  user?: UserResponseDto;
+  success: boolean;
 }
 
 export const useAuth = () => {
   const queryClient = useQueryClient();
-  // const token = typeof window !== 'undefined' ? window.localStorage.getItem('auth_token') : null
 
   const {
     data: user,
     isLoading,
     error,
-  } = useQuery<UserResponse | undefined>({
-    // Explicitly type user as UserResponse
+  } = useQuery<UserResponseDto | undefined>({
     queryKey: ['auth', 'user'],
     queryFn: async () => {
-      const response = (await AuthenticationService.getCurrentUser()) as AuthResult; // Cast response to AuthResult
-      return response.user;
+      return await AuthenticationService.getCurrentUser();
     },
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -28,13 +26,15 @@ export const useAuth = () => {
   });
 
   const loginMutation = useMutation({
-    mutationFn: async (credentials: { requestBody: LoginDto }) => {
-      const response = await AuthenticationService.login(credentials);
-      return response as AuthResult;
+    mutationFn: async (credentials: { requestBody: LoginDto }): Promise<AuthResponse> => {
+      return await AuthenticationService.login(credentials).then((response) => ({
+        success: true,
+        user: response.user,
+        token: response.token,
+      }));
     },
-    onSuccess: (data: AuthResult) => {
+    onSuccess: (data: AuthResponse) => {
       if (data.user) {
-        // Token is now in HttpOnly cookie, no need to store in localStorage
         queryClient.setQueryData(['auth', 'user'], data.user);
         queryClient.invalidateQueries({ queryKey: ['auth'] });
       }
@@ -62,7 +62,7 @@ export const useAuth = () => {
 
   return {
     user,
-    isLoading: loginMutation.isPending || logoutMutation.isPending,
+    isLoading: isLoading || loginMutation.isPending || logoutMutation.isPending,
     error,
     isAuthenticated,
     login,

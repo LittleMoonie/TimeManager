@@ -1,20 +1,19 @@
-import { Service } from "typedi";
+import { Inject, Service } from 'typedi';
 import {
   WebhookLog,
   WebhookLogType,
 } from "../../../Entities/Logs/Webhooks/WebhookLog";
-import { AppDataSource } from "../../../Server/Database";
+import { WebhookLogRepository } from "../../../Repositories/Logs/Webhooks/WebhookLogRepository";
 
-@Service()
 export class WebhookLogService {
-  private webhookLogRepository = AppDataSource.getRepository(WebhookLog);
+  constructor(@Inject("WebhookLogRepository") private readonly webhookLogRepository: WebhookLogRepository) {}
 
   public async log(
     companyId: string,
     type: WebhookLogType,
     event: string,
-    payload?: object,
-    response?: object,
+    payload?: Record<string, string>,
+    response?: Record<string, string>,
     statusCode?: number,
     url?: string,
     error?: string,
@@ -28,10 +27,10 @@ export class WebhookLogService {
       statusCode,
       url,
       error,
-    });
+    } as WebhookLog);
   }
 
   public async getLogs(companyId: string): Promise<WebhookLog[]> {
-    return this.webhookLogRepository.find({ where: { companyId } });
+    return this.webhookLogRepository.findAll();
   }
 }

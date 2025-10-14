@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import bcrypt from 'bcryptjs';
+import argon2 from 'argon2';
 import User from '../Entities/Users/User';
 import { Company } from '../Entities/Companies/Company';
 import { Role } from '../Entities/Roles/Role';
@@ -17,7 +17,7 @@ export async function seedUsers(
   const userRepo = ds.getRepository(User);
 
   const defaultPassword = 'ChangeMe123!'; // dev-only; rotate in CI if needed
-  const passwordHash = await bcrypt.hash(defaultPassword, 12);
+  const passwordHash = await argon2.hash(defaultPassword);
 
   const makeUser = async (email: string, firstName: string, lastName: string, roleName: string) => {
     const role = roles.get(roleName)!;
@@ -39,7 +39,16 @@ export async function seedUsers(
       await userRepo.save(user);
       console.log(`👤 Created ${roleName}: ${email}`);
     } else {
-      console.log(`👤 User exists: ${email}`);
+      Object.assign(user, {
+        firstName,
+        lastName,
+        roleId: role.id,
+        statusId: status.id,
+        passwordHash,
+        mustChangePasswordAtNextLogin: true,
+      });
+      await userRepo.save(user);
+      console.log(`👤 Refreshed ${roleName}: ${email}`);
     }
     return user;
   };

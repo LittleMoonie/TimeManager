@@ -1,10 +1,14 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { TimesheetRepository } from '../../Repositories/Timesheets/TimesheetRepository';
 import { TimesheetEntryRepository } from '../../Repositories/Timesheets/TimesheetEntryRepository';
 import { TimesheetHistoryRepository } from '../../Repositories/Timesheets/TimesheetHistoryRepository';
 import { Timesheet, TimesheetStatus } from '../../Entities/Timesheets/Timesheet';
 import { NotFoundError, UnprocessableEntityError } from '../../Errors/HttpErrors';
-import { CreateTimesheetDto, CreateTimesheetEntryDto } from '../../Dtos/Timesheet/TimesheetDto';
+import {
+  CreateTimesheetDto,
+  CreateTimesheetEntryDto,
+  UpdateTimesheetDto,
+} from '../../Dtos/Timesheet/TimesheetDto';
 import { validate } from 'class-validator';
 
 /**
@@ -12,7 +16,6 @@ import { validate } from 'class-validator';
  * for timesheet operations, including creation, entry management, submission, approval, and rejection.
  * It also integrates with TimesheetHistoryRepository to record events.
  */
-@Service()
 export class TimesheetService {
   /**
    * @description Initializes the TimesheetService with necessary repositories.
@@ -21,8 +24,10 @@ export class TimesheetService {
    * @param historyRepository The repository for TimesheetHistory entities.
    */
   constructor(
-    private readonly timesheetRepository: TimesheetRepository,
+    @Inject('TimesheetRepository') private readonly timesheetRepository: TimesheetRepository,
+    @Inject('TimesheetEntryRepository')
     private readonly timesheetEntryRepository: TimesheetEntryRepository,
+    @Inject('TimesheetHistoryRepository')
     private readonly historyRepository: TimesheetHistoryRepository,
   ) {}
 
@@ -46,7 +51,7 @@ export class TimesheetService {
       userId: string;
       targetType: 'Timesheet' | 'TimesheetEntry';
       targetId: string;
-      action: 'created' | 'submitted' | 'approved' | 'rejected';
+      action: 'created' | 'submitted' | 'approved' | 'rejected' | 'updated';
       actorUserId?: string;
       reason?: string;
       diff?: Record<string, string>;
@@ -94,13 +99,13 @@ export class TimesheetService {
   }
 
   /**
-   * @description Retrieves a single timesheet by its unique identifier.
+   * @description Retrieves a single timesheet by its unique identifier, including its entries.
    * @param timesheetId The unique identifier of the timesheet.
    * @returns A Promise that resolves to the Timesheet entity.
    * @throws {NotFoundError} If the timesheet is not found.
    */
   public async getTimesheet(timesheetId: string): Promise<Timesheet> {
-    const timesheet = await this.timesheetRepository.findById(timesheetId);
+    const timesheet = await this.timesheetRepository.findByIdWithEntries(timesheetId);
     if (!timesheet) {
       throw new NotFoundError('Timesheet not found');
     }
@@ -115,6 +120,48 @@ export class TimesheetService {
    */
   public async getAllTimesheetsForUser(companyId: string, userId: string): Promise<Timesheet[]> {
     return this.timesheetRepository.findAllForUser(companyId, userId);
+  }
+
+  /**
+   * @description Updates an existing timesheet.
+   * @param companyId The unique identifier of the company.
+   * @param timesheetId The unique identifier of the timesheet to update.
+   * @param userId The unique identifier of the user performing the update.
+   * @param dto The UpdateTimesheetDto containing the updated timesheet details.
+   * @returns A Promise that resolves to the updated Timesheet entity.
+   * @throws {NotFoundError} If the timesheet is not found.
+   * @throws {UnprocessableEntityError} If validation of the DTO fails or timesheet is not in DRAFT status.
+   */
+  public async updateTimesheet(
+    companyId: string,
+    timesheetId: string,
+    userId: string,
+    dto: UpdateTimesheetDto,
+  ): Promise<Timesheet> {
+    const timesheet = await this.getTimesheet(timesheetId);
+
+    if (timesheet.status !== TimesheetStatus.DRAFT) {
+      throw new UnprocessableEntityError('Only timesheets in DRAFT status can be updated.');
+    }
+
+    const errors = await validate(dto as object);
+    if (errors.length > 0) {
+      throw new UnprocessableEntityError(
+        `Validation error: ${errors.map((e) => e.toString()).join(', ')}`,
+      );
+    }
+
+    const updated = await this.timesheetRepository.update(timesheetId, dto);
+
+    await this.recordEvent(companyId, {
+      userId,
+      targetType: 'Timesheet',
+      targetId: timesheetId,
+      action: 'updated',
+      diff: dto as Record<string, string>,
+    });
+
+    return updated!;
   }
 
   /**

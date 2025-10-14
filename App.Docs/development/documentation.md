@@ -10,7 +10,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 | --------------------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | **[README.md](#readme)**                                              | Executive summary, stack overview, quick start guide | Project overview, technology stack, getting started, development setup                             |
 | **[ARCHITECTURE.md](#architecture)**                                  | System design, layers, and architectural decisions   | Frontend/backend separation, database design, infrastructure components, design patterns           |
-| **[CODE_QUALITY.md](#code-quality)**                                  | Monorepo hygiene and development standards           | yarn workspaces, conventional commits, linting, code formatting, quality gates                     |
+| **[CODE_QUALITY.md](#code-quality)**                                  | <Hygiene and development standards           | yarn workspaces, conventional commits, linting, code formatting, quality gates                     |
 | **[API_VERSIONING.md](#api-versioning)**                              | API versioning strategy and compatibility            | URL path versioning, deprecation policy, backward compatibility, changelog management              |
 | **[DATABASE.md](#database)**                                          | Database design, migrations, and operations          | TypeORM entities, migration strategy, indexing, backups, audit trails, GDPR compliance             |
 | **[AUTH_SECURITY.md](#auth-security)**                                | Authentication, authorization, and security policies | JWT authentication, RBAC, class-validator, security headers, rate limiting, secrets management     |
@@ -35,7 +35,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 - Technology stack summary (React + Vite, Node.js, PostgreSQL, Docker)
 - Quick start instructions for developers
 - Development environment setup
-- Project structure and monorepo structure
+- Project structure
 - Contributing guidelines and code of conduct
 
 ---
@@ -60,7 +60,7 @@ This comprehensive documentation suite provides enterprise-grade technical docum
 
 ## CODE_QUALITY.md
 
-**Purpose**: Monorepo hygiene standards and development best practices.
+**Purpose**: Hygiene standards and development best practices.
 
 **Key Topics**:
 

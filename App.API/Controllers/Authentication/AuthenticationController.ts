@@ -5,15 +5,10 @@ import { AuthenticationService } from '../../Services/AuthenticationService/Auth
 import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
 import { Service } from 'typedi';
 import { ForbiddenError, NotFoundError, UnprocessableEntityError } from '../../Errors/HttpErrors';
-import { validate } from 'class-validator';
 import { Body, Controller, Post, Route, Tags, SuccessResponse, Get, Security, Request } from 'tsoa';
 
 @Route('auth')
 @Tags('Authentication')
-/**
- * @summary Controller for handling user authentication, including registration, login, and logout.
- * @tags Authentication
- */
 @Service()
 export class AuthenticationController extends Controller {
   constructor(private authenticationService: AuthenticationService) {
@@ -30,13 +25,6 @@ export class AuthenticationController extends Controller {
   @Post('/register')
   @SuccessResponse('201', 'User registered successfully')
   public async register(@Body() requestBody: RegisterDto): Promise<UserResponseDto> {
-    const errors = await validate(requestBody);
-    if (errors.length > 0) {
-      throw new UnprocessableEntityError(
-        `Validation error: ${errors.map((e) => e.toString()).join(', ')}`,
-      );
-    }
-
     const user = await this.authenticationService.register(requestBody);
     this.setStatus(201);
     return {
@@ -64,13 +52,6 @@ export class AuthenticationController extends Controller {
   @Post('/login')
   @SuccessResponse('200', 'User logged in successfully')
   public async login(@Body() requestBody: LoginDto, @Request() request: ExpressRequest) {
-    const errors = await validate(requestBody);
-    if (errors.length > 0) {
-      throw new UnprocessableEntityError(
-        `Validation error: ${errors.map((e) => e.toString()).join(', ')}`,
-      );
-    }
-
     const authResponse = await this.authenticationService.login(
       requestBody,
       request.ip,

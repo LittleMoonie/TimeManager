@@ -3,7 +3,7 @@
 [ -z "${BASH_VERSION:-}" ] && exec /usr/bin/env bash "$0" "$@"
 
 # ------------------------------------------
-# 🧩 Husky pre-commit hook — GoGoTime Monorepo
+# 🧩 Husky pre-commit hook — GoGoTime
 # Runs staged checks, blocks secrets, enforces branch policy,
 # formats & lints code, typechecks & optional tests
 # ------------------------------------------

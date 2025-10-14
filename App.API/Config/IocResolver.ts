@@ -2,9 +2,9 @@ import { Container } from 'typedi';
 import { IocContainer } from 'tsoa';
 
 export const iocContainer: IocContainer = {
-  get: <T>(controller: { prototype: T }): T | Promise<T> => {
-    // typedi expects a constructor function (class), same as tsoa's expected { prototype: T }
-    // The 'as any' is required due to typedi typings not matching tsoa directly.
+  get: <T>(controller: import('tsoa').ServiceIdentifier<T>): T | Promise<T> => {
+    // TypeDI expects a constructor function or string token. TSOA's ServiceIdentifier covers both.
+    // This cast is necessary due to mismatches between tsoa and typedi typings.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return Container.get<T>(controller as any);
   },

@@ -1,10 +1,9 @@
-import { Service } from "typedi";
+import { Inject, Service } from "typedi";
 import { TimesheetHistoryRepository } from "../../../Repositories/Timesheets/TimesheetHistoryRepository";
 import { CreateTimesheetHistoryDto } from "../../../Dtos/Logs/Timesheet/TimesheetHistoryDto";
 
-@Service()
 export class TimesheetHistoryService {
-  constructor(private timesheetHistoryRepository: TimesheetHistoryRepository) {}
+  constructor(@Inject("TimesheetHistoryRepository") private readonly timesheetHistoryRepository: TimesheetHistoryRepository) {}
 
   public async recordEvent(
     companyId: string,
