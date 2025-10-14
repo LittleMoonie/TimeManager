@@ -1,3 +1,4 @@
+import { Request as ExpressRequest } from 'express';
 import {
   Body,
   Controller,
@@ -12,13 +13,12 @@ import {
   Request,
   Query,
 } from 'tsoa';
-import { Request as ExpressRequest } from 'express';
 import { Service } from 'typedi';
 
-import { UserService } from '../../Services/Users/UserService';
 import { CreateUserDto, UpdateUserDto } from '../../Dtos/Users/UserDto';
 import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
 import User from '../../Entities/Users/User';
+import { UserService } from '../../Services/Users/UserService';
 
 type UsersPage = {
   data: UserResponseDto[];

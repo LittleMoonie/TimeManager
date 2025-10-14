@@ -1,7 +1,7 @@
 import { Box, Button, Container, TextField, Typography } from '@mui/material';
+import { useFormik } from 'formik';
 import { Link } from 'react-router-dom';
 import * as yup from 'yup';
-import { useFormik } from 'formik';
 
 const validationSchema = yup.object({
   email: yup.string().email('Enter a valid email').required('Email is required'),

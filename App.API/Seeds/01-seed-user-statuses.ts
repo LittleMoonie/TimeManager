@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm';
+
 import { UserStatus } from '../Entities/Users/UserStatus';
 
 export async function seedUserStatuses(ds: DataSource) {

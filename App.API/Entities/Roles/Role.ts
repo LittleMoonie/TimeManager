@@ -1,8 +1,10 @@
 import { Entity, Column, OneToMany, ManyToOne, JoinColumn, Index } from 'typeorm';
+
 import { BaseEntity } from '../BaseEntity';
-import { RolePermission } from './RolePermission';
-import User from '../Users/User';
 import { Company } from '../Companies/Company';
+import User from '../Users/User';
+
+import { RolePermission } from './RolePermission';
 
 /**
  * @description Represents a user role within a company, defining a set of permissions.

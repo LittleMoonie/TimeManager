@@ -1,4 +1,5 @@
 import { alpha } from '@mui/material/styles';
+
 import type { PaletteMode, PaletteOptions } from '@mui/material';
 
 export type ThemeGroup = 'aurora' | 'ember' | 'lagoon';

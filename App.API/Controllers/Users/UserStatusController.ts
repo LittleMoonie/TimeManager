@@ -1,12 +1,12 @@
 import { Body, Controller, Get, Post, Put, Delete, Route, Tags, Path, Security } from 'tsoa';
 import { Service } from 'typedi';
 
-import { UserStatusService } from '../../Services/Users/UserStatusService';
 import {
   CreateUserStatusDto,
   UserStatusResponseDto,
   UpdateUserStatusDto,
 } from '../../Dtos/Users/UserStatusDto';
+import { UserStatusService } from '../../Services/Users/UserStatusService';
 
 /**
  * @summary Controller for managing user statuses (global catalog).

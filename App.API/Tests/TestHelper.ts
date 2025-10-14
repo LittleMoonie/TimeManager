@@ -1,9 +1,12 @@
-import express, { Application } from 'express';
 import cors from 'cors';
+import express, { Application } from 'express';
+
 import { errorHandler } from '../Middlewares/ErrorHandler';
 import logger from '../Utils/Logger';
+
 import 'reflect-metadata';
 import { Container } from 'typedi';
+
 import { Server } from 'http';
 
 let RegisterRoutes: (app: express.Application) => void;

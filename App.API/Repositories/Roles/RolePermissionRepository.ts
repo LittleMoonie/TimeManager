@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 
-import { BaseRepository } from '../../Repositories/BaseRepository';
 import { RolePermission } from '../../Entities/Roles/RolePermission';
+import { BaseRepository } from '../../Repositories/BaseRepository';
 
 /**
  * @description Repository for managing RolePermission entities. Extends BaseRepository to provide standard CRUD operations

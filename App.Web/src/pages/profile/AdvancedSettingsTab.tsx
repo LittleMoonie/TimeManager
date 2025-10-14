@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import {
   Box,
   Card,
@@ -10,9 +9,12 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
-import { RecognizedDevicesList } from './RecognizedDevicesList';
-import { ActiveSessionsList } from './ActiveSessionsList';
+import { useEffect, useState } from 'react';
+
 import { ActiveSession, RecognizedDevice } from '@/types';
+
+import { ActiveSessionsList } from './ActiveSessionsList';
+import { RecognizedDevicesList } from './RecognizedDevicesList';
 
 interface AdvancedSettingsTabProps {
   settings: {

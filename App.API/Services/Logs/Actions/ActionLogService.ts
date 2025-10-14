@@ -1,13 +1,11 @@
 import { Inject, Service } from 'typedi';
-import {
-  ActionLog,
-  ActionLogType,
-} from '../../../Entities/Logs/Actions/ActionLog';
+
+import { ActionLog, ActionLogType } from '../../../Entities/Logs/Actions/ActionLog';
 import { ActionLogRepository } from '../../../Repositories/Logs/Actions/ActionLogRepository';
 
 export class ActionLogService {
   constructor(
-    @Inject("ActionLogRepository")
+    @Inject('ActionLogRepository')
     private readonly actionLogRepository: ActionLogRepository,
   ) {}
 

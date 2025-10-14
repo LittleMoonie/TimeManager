@@ -1,15 +1,15 @@
-import { Inject, Service } from "typedi";
-import { SystemLog } from "../../../Entities/Logs/System/SystemLog";
-import { SystemLogRepository } from "../../../Repositories/Logs/System/SystemLogRepository";
-import { CreateSystemLogDto } from "../../../Dtos/Logs/System/SystemLogDto";
+import { Inject, Service } from 'typedi';
+
+import { CreateSystemLogDto } from '../../../Dtos/Logs/System/SystemLogDto';
+import { SystemLog } from '../../../Entities/Logs/System/SystemLog';
+import { SystemLogRepository } from '../../../Repositories/Logs/System/SystemLogRepository';
 
 export class SystemLogService {
-  constructor(@Inject("SystemLogRepository") private readonly systemLogRepository: SystemLogRepository) {}
+  constructor(
+    @Inject('SystemLogRepository') private readonly systemLogRepository: SystemLogRepository,
+  ) {}
 
-  public async log(
-    companyId: string,
-    createSystemLogDto: CreateSystemLogDto,
-  ): Promise<void> {
+  public async log(companyId: string, createSystemLogDto: CreateSystemLogDto): Promise<void> {
     await this.systemLogRepository.save({
       companyId,
       ...createSystemLogDto,

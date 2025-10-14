@@ -1,9 +1,11 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+
 import { BaseEntity } from '../BaseEntity';
 import { Company } from '../Companies/Company';
 import { Role } from '../Roles/Role';
-import { UserStatus } from './UserStatus';
+
 import ActiveSession from './ActiveSessions';
+import { UserStatus } from './UserStatus';
 
 /**
  * @description Represents a user in the system.

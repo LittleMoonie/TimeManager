@@ -1,5 +1,5 @@
-import { Container } from 'typedi';
 import { IocContainer, ServiceIdentifier } from 'tsoa';
+import { Container } from 'typedi';
 
 export const iocContainer: IocContainer = {
   get: <T>(someClass: ServiceIdentifier<T>): T => {

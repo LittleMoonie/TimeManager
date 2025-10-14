@@ -1,7 +1,9 @@
-import Container, { Service } from 'typedi';
+import { Service } from 'typedi';
+
 import { TimesheetHistory } from '../../Entities/Timesheets/TimesheetHistory';
 import { BaseRepository } from '../BaseRepository';
 
+@Service()
 export class TimesheetHistoryRepository extends BaseRepository<TimesheetHistory> {
   constructor() {
     super(TimesheetHistory);

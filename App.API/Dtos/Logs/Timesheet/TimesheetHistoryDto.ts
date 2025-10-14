@@ -1,11 +1,6 @@
-import {
-  IsNotEmpty,
-  IsString,
-  IsOptional,
-  IsIn,
-  IsUUID,
-} from "class-validator";
-import { IStringToStringDictionary } from "../../../Entities/Timesheets/TimesheetHistory";
+import { IsNotEmpty, IsString, IsOptional, IsIn, IsUUID } from 'class-validator';
+
+import { IStringToStringDictionary } from '../../../Entities/Timesheets/TimesheetHistory';
 
 export class FilterTimesheetHistoryDto {
   @IsUUID()
@@ -14,12 +9,8 @@ export class FilterTimesheetHistoryDto {
 
   @IsString()
   @IsOptional()
-  @IsIn(["Timesheet", "TimesheetEntry", "TimesheetApproval", "ActionCode"])
-  targetType?:
-    | "Timesheet"
-    | "TimesheetEntry"
-    | "TimesheetApproval"
-    | "ActionCode";
+  @IsIn(['Timesheet', 'TimesheetEntry', 'TimesheetApproval', 'ActionCode'])
+  targetType?: 'Timesheet' | 'TimesheetEntry' | 'TimesheetApproval' | 'ActionCode';
 
   @IsUUID()
   @IsOptional()
@@ -33,12 +24,8 @@ export class CreateTimesheetHistoryDto {
 
   @IsString()
   @IsNotEmpty()
-  @IsIn(["Timesheet", "TimesheetEntry", "TimesheetApproval", "ActionCode"])
-  targetType!:
-    | "Timesheet"
-    | "TimesheetEntry"
-    | "TimesheetApproval"
-    | "ActionCode";
+  @IsIn(['Timesheet', 'TimesheetEntry', 'TimesheetApproval', 'ActionCode'])
+  targetType!: 'Timesheet' | 'TimesheetEntry' | 'TimesheetApproval' | 'ActionCode';
 
   @IsUUID()
   @IsNotEmpty()
@@ -46,13 +33,7 @@ export class CreateTimesheetHistoryDto {
 
   @IsString()
   @IsNotEmpty()
-  action!:
-    | "created"
-    | "updated"
-    | "submitted"
-    | "approved"
-    | "rejected"
-    | "deleted";
+  action!: 'created' | 'updated' | 'submitted' | 'approved' | 'rejected' | 'deleted';
 
   @IsOptional()
   diff?: IStringToStringDictionary;
@@ -72,19 +53,9 @@ export class CreateTimesheetHistoryDto {
 export class TimesheetHistoryResponseDto {
   id!: string;
   userId!: string;
-  targetType!:
-    | "Timesheet"
-    | "TimesheetEntry"
-    | "TimesheetApproval"
-    | "ActionCode";
+  targetType!: 'Timesheet' | 'TimesheetEntry' | 'TimesheetApproval' | 'ActionCode';
   targetId!: string;
-  action!:
-    | "created"
-    | "updated"
-    | "submitted"
-    | "approved"
-    | "rejected"
-    | "deleted";
+  action!: 'created' | 'updated' | 'submitted' | 'approved' | 'rejected' | 'deleted';
   diff?: IStringToStringDictionary;
   metadata?: IStringToStringDictionary;
   reason?: string;

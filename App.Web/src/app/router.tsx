@@ -5,13 +5,13 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useAuth } from '@/hooks/useAuth';
 import DashboardPage from '@/pages';
-import ForgotPasswordPage from '@/pages/forgot-password';
-import LoginPage from '@/pages/login';
+import ForgotPasswordPage from '@/pages/authentication/forgot-password';
+import LoginPage from '@/pages/authentication/login';
+import UnauthorizedPage from '@/pages/authentication/unauthorized';
 import PeoplePage from '@/pages/people';
 import ProfilePage from '@/pages/profile';
 import ReportsPage from '@/pages/reports';
 import TimesheetPage from '@/pages/timesheet';
-import UnauthorizedPage from '@/pages/unauthorized';
 
 const ProtectedRoute = ({
   children,
@@ -40,11 +40,7 @@ const ProtectedRoute = ({
 };
 
 const PublicRoute = ({ children }: { children: ReactNode }) => {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
-    return <LoadingSpinner message="Preparing login..." />;
-  }
+  const { isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
     return <Navigate to="/" replace />;

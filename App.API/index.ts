@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 
 import http from 'http';
+
 import server, { dbReady } from './Server/index';
 
 const { PORT } = process.env;
@@ -13,7 +14,6 @@ const startServer = async (): Promise<void> => {
     httpServer.listen(PORT, () => {
       console.log(`🚀 Server is listening on port ${PORT}`);
       console.log(`📖 API Documentation available at: http://localhost:${PORT}/api/docs`);
-      
     });
   } catch (error) {
     console.error('❌ Failed to initialise database connection:', error);

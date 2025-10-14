@@ -1,4 +1,11 @@
 import {
+  AssessmentRounded,
+  DashboardRounded,
+  PeopleAltRounded,
+  TaskAltRounded,
+  PersonRounded,
+} from '@mui/icons-material';
+import {
   Box,
   Drawer,
   List,
@@ -9,15 +16,8 @@ import {
   Typography,
   alpha,
 } from '@mui/material';
-import {
-  AssessmentRounded,
-  DashboardRounded,
-  PeopleAltRounded,
-  TaskAltRounded,
-  PersonRounded,
-} from '@mui/icons-material';
-import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const DRAWER_WIDTH = 260;
 

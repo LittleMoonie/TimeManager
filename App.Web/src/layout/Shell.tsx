@@ -1,11 +1,12 @@
-import { useState } from 'react';
 import { Box, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Navigation } from '@/layout/Navigation';
-import { LayoutAppBar } from '@/layout/AppBar';
+
 import { SettingsFab } from '@/components/SettingsFab';
 import { APP_BAR_HEIGHT, DRAWER_WIDTH } from '@/constants/layout';
+import { LayoutAppBar } from '@/layout/AppBar';
+import { Navigation } from '@/layout/Navigation';
 
 export const Shell = () => {
   const theme = useTheme();

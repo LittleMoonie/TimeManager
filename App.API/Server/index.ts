@@ -1,20 +1,18 @@
 import 'reflect-metadata';
-import cookieParser from 'cookie-parser';
+import * as fs from 'fs';
+import * as path from 'path';
+
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Application, NextFunction, Request, Response } from 'express';
 import passport from 'passport';
 import swaggerUi from 'swagger-ui-express';
-import * as fs from 'fs';
-import * as path from 'path';
-import { connectDB } from '../Server/Database';
-import { errorHandler } from '../Middlewares/ErrorHandler';
-import logger from '../Utils/Logger';
-import { RegisterRoutes } from '../Routes/Generated/routes'; // Import the generated routes
-// import { iocLoader } from '../Config/IocResolver';
 
-// Initialize TypeDI container
-// iocLoader();
+import { errorHandler } from '../Middlewares/ErrorHandler';
+import { RegisterRoutes } from '../Routes/Generated/routes'; // Import the generated routes
+import { connectDB } from '../Server/Database';
+import logger from '../Utils/Logger';
 
 // Instantiate express
 const server: Application = express();

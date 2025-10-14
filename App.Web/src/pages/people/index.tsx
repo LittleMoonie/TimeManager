@@ -1,4 +1,5 @@
 import { Avatar, Box, Card, CardContent, Chip, Grid, Typography } from '@mui/material';
+
 import type { Person, PersonStatus } from '@/types';
 
 const mockPeople: Person[] = [

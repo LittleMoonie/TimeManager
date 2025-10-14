@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
-import { ActionCode, ActionCodeType } from '../Entities/Timesheets/ActionCode';
+
 import { Company } from '../Entities/Companies/Company';
+import { ActionCode, ActionCodeType } from '../Entities/Timesheets/ActionCode';
 
 export async function seedActionCodes(ds: DataSource, company: Company) {
   const repo = ds.getRepository(ActionCode);

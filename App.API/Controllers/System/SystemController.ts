@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Route, Tags, SuccessResponse, Response, Query } from 'tsoa';
-import { OpenApiService } from '../../Services/OpenApiService';
 import { Service } from 'typedi';
+
+import { OpenApiService } from '../../Services/OpenApiService';
 
 interface HealthResponse {
   status: string;

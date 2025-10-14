@@ -1,3 +1,4 @@
+import { Close } from '@mui/icons-material';
 import {
   Box,
   Chip,
@@ -11,7 +12,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { Close } from '@mui/icons-material';
+
 import { formatWeekRange, getWeekStart } from './utils';
 
 export interface TimesheetHistoryItem {

@@ -1,3 +1,5 @@
+import { beforeEach, describe, it } from 'node:test';
+
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
@@ -7,7 +9,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { AuthenticationService } from '@/lib/api';
 
 import { AuthProvider } from '../AuthProvider';
-import { beforeEach, describe, it } from 'node:test';
 
 // Mock the AuthenticationService
 vi.mock('@/lib/api', () => ({

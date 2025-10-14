@@ -1,8 +1,10 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+
 import { BaseEntity } from '../BaseEntity';
+import User from '../Users/User';
+
 import { Company } from './Company';
 import { Team } from './Team';
-import User from '../Users/User';
 
 /**
  * @description Represents a member of a team, linking a user to a team within a company.

@@ -1,4 +1,17 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  Add,
+  ChevronLeft,
+  ChevronRight,
+  Clear,
+  ContentCopy,
+  Edit,
+  ErrorOutline,
+  NoteAdd,
+  Save,
+  DeleteForever,
+  CalendarViewWeek,
+  Close,
+} from '@mui/icons-material';
 import {
   Autocomplete,
   Box,
@@ -30,24 +43,13 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import {
-  Add,
-  ChevronLeft,
-  ChevronRight,
-  Clear,
-  ContentCopy,
-  Edit,
-  ErrorOutline,
-  NoteAdd,
-  Save,
-  DeleteForever,
-  CalendarViewWeek,
-  Close,
-} from '@mui/icons-material';
-import { COUNTRIES } from '@/constants/countries';
-import type { ActionCode, TimesheetEntry, TimesheetEntryDto, WorkMode } from '@/lib/api';
 import { alpha, useTheme } from '@mui/material/styles';
 import { addWeeks, Interval, isAfter, isWeekend, parseISO } from 'date-fns';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { COUNTRIES } from '@/constants/countries';
+import type { ActionCode, TimesheetEntry, TimesheetEntryDto, WorkMode } from '@/lib/api';
+
 import {
   analyzeIntervals,
   buildMeridianTime,
@@ -60,6 +62,7 @@ import {
   splitMeridianTime,
   toISODate,
 } from './utils';
+
 import type { IntervalAnalysis, Meridian } from './utils';
 
 type QuickIncrement = 5 | 15 | 30 | 60;

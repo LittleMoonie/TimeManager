@@ -1,5 +1,6 @@
 import { Request } from 'express';
 import jwt from 'jsonwebtoken';
+
 import { AuthenticationError, ForbiddenError, InternalServerError } from '../Errors/HttpErrors';
 
 // Define the shape of the JWT payload

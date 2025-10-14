@@ -1,6 +1,7 @@
 import { Service } from 'typedi';
-import { BaseRepository } from '../../Repositories/BaseRepository';
+
 import { TimesheetApproval } from '../../Entities/Timesheets/TimesheetApproval';
+import { BaseRepository } from '../../Repositories/BaseRepository';
 
 /**
  * @description Repository for managing TimesheetApproval entities. Extends BaseRepository to provide standard CRUD operations

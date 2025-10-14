@@ -1,8 +1,10 @@
-import { Inject, Service } from 'typedi';
-import { add } from 'date-fns';
-import { sign } from 'jsonwebtoken';
-import * as argon2 from 'argon2';
 import * as crypto from 'crypto';
+
+import * as argon2 from 'argon2';
+import { add } from 'date-fns';
+import { UserStatus } from 'Entities/Users/UserStatus';
+import { sign } from 'jsonwebtoken';
+import { Inject, Service } from 'typedi';
 
 import {
   LoginDto,
@@ -10,14 +12,12 @@ import {
   AuthResponseDto,
 } from '../../Dtos/Authentication/AuthenticationDto';
 import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
-
 import User from '../../Entities/Users/User';
-
 import { AuthenticationError, NotFoundError } from '../../Errors/HttpErrors';
-import { UserStatusService } from '../../Services/Users/UserStatusService';
-import { ActiveSessionService } from '../../Services/Users/ActiveSessionService';
 import { AuthenticationRepository } from '../../Repositories/Authentication/AuthenticationRepository';
-import { UserStatus } from '../../Entities/Users/UserStatus';
+import { UserRepository } from '../../Repositories/Users/UserRepository';
+import { ActiveSessionService } from '../../Services/Users/ActiveSessionService';
+import { UserStatusService } from '../../Services/Users/UserStatusService';
 
 /**
  * @description Service layer for handling user authentication processes, including registration, login, logout,
@@ -36,6 +36,7 @@ export class AuthenticationService {
     @Inject('AuthenticationRepository') private readonly authRepo: AuthenticationRepository,
     @Inject('UserStatusService') private readonly userStatusService: UserStatusService,
     @Inject('ActiveSessionService') private readonly activeSessionService: ActiveSessionService,
+    @Inject('UserRepository') private readonly userRepository: UserRepository,
   ) {}
 
   /**
@@ -117,7 +118,6 @@ export class AuthenticationService {
       rawToken: _refreshTokenRaw,
       tokenHash,
       deviceId,
-      expiresAt,
     } = await this.generateRefreshTokenMaterial(refreshTokenExpiresInDays);
 
     await this.activeSessionService.createActiveSession(
@@ -199,14 +199,8 @@ export class AuthenticationService {
    * @returns A Promise that resolves to the User entity associated with the refresh token.
    * @throws {NotFoundError} If the active session or the user is not found.
    */
-  public async getCurrentUser(companyId: string, refreshToken: string): Promise<User> {
-    const tokenHash = this.hashToken(refreshToken);
-    const active = await this.activeSessionService.getActiveSessionByTokenInCompany(
-      companyId,
-      tokenHash,
-    );
-
-    const user = await this.authRepo.findUserByIdWithBasicRelations(active.userId);
+  public async getCurrentUser(userId: string, companyId: string): Promise<User> {
+    const user = await this.userRepository.findByIdInCompany(userId, companyId);
     if (!user) {
       throw new NotFoundError('User not found');
     }

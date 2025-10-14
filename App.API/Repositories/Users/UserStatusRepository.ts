@@ -1,6 +1,7 @@
 import { Service } from 'typedi';
-import { BaseRepository } from '../BaseRepository';
+
 import { UserStatus } from '../../Entities/Users/UserStatus';
+import { BaseRepository } from '../BaseRepository';
 
 /**
  * @description Repository for UserStatus entities, extending BaseRepository for common CRUD operations.

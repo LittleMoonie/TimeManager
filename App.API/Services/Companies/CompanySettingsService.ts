@@ -1,11 +1,11 @@
-import { Inject, Service } from 'typedi';
 import { validate } from 'class-validator';
+import { Inject, Service } from 'typedi';
 
-import { CompanySettingsRepository } from '../../Repositories/Companies/CompanySettingsRepository';
 import { UpdateCompanySettingsDto } from '../../Dtos/Companies/CompanyDto';
 import { CompanySettings } from '../../Entities/Companies/CompanySettings';
-import { ForbiddenError, UnprocessableEntityError } from '../../Errors/HttpErrors';
 import User from '../../Entities/Users/User';
+import { ForbiddenError, UnprocessableEntityError } from '../../Errors/HttpErrors';
+import { CompanySettingsRepository } from '../../Repositories/Companies/CompanySettingsRepository';
 import { RolePermissionService } from '../../Services/RoleService/RolePermissionService';
 
 /**

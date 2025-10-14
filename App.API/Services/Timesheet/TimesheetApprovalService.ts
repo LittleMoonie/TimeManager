@@ -1,17 +1,19 @@
-import { Inject, Service } from 'typedi';
 import { validate } from 'class-validator';
-import { TimesheetApprovalRepository } from '../../Repositories/Timesheets/TimesheetApprovalRepository';
-import { TimesheetApproval } from '../../Entities/Timesheets/TimesheetApproval';
-import { NotFoundError, UnprocessableEntityError } from '../../Errors/HttpErrors';
+import { Inject, Service } from 'typedi';
+
 import {
   CreateTimesheetApprovalDto,
   UpdateTimesheetApprovalDto,
 } from '../../Dtos/Timesheet/TimesheetDto';
+import { TimesheetApproval } from '../../Entities/Timesheets/TimesheetApproval';
+import { NotFoundError, UnprocessableEntityError } from '../../Errors/HttpErrors';
+import { TimesheetApprovalRepository } from '../../Repositories/Timesheets/TimesheetApprovalRepository';
 
 /**
  * @description Service layer for managing TimesheetApproval entities. This service provides business logic
  * for creating, retrieving, updating, and deleting timesheet approvals.
  */
+@Service()
 export class TimesheetApprovalService {
   /**
    * @description Initializes the TimesheetApprovalService with the TimesheetApprovalRepository.

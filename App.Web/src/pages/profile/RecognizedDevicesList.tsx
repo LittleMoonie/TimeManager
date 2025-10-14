@@ -1,5 +1,6 @@
-import { Box, Typography, Stack, IconButton, Card, CardContent, Divider } from '@mui/material';
 import { Computer, PhoneAndroid, Tablet, Close } from '@mui/icons-material';
+import { Box, Typography, Stack, IconButton, Card, CardContent, Divider } from '@mui/material';
+
 import { RecognizedDevice } from '@/types';
 
 interface RecognizedDevicesListProps {

@@ -1,12 +1,14 @@
-import Container, { Service } from 'typedi';
+import { Service } from 'typedi';
+
 import { Company } from '../../Entities/Companies/Company';
-import { BaseRepository } from '../../Repositories/BaseRepository';
 import { NotFoundError } from '../../Errors/HttpErrors';
+import { BaseRepository } from '../../Repositories/BaseRepository';
 
 /**
  * @description Repository for managing Company entities. Extends BaseRepository to provide standard CRUD operations
  * and includes specific methods for retrieving company information.
  */
+@Service('CompanyRepository')
 export class CompanyRepository extends BaseRepository<Company> {
   /**
    * @description Initializes the CompanyRepository.

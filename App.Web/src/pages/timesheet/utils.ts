@@ -9,6 +9,7 @@ import {
   startOfWeek,
 } from 'date-fns';
 import { enUS } from 'date-fns/locale';
+
 import { TimesheetEntry, TimesheetEntryDto } from '@/lib/api';
 
 const defaultLocale = typeof navigator !== 'undefined' ? navigator.language : 'en-US';

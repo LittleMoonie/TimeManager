@@ -1,8 +1,9 @@
 import { DataSource } from 'typeorm';
-import { Role } from '../Entities/Roles/Role';
-import { Permission } from '../Entities/Roles/Permission';
-import { RolePermission } from '../Entities/Roles/RolePermission';
+
 import { Company } from '../Entities/Companies/Company';
+import { Permission } from '../Entities/Roles/Permission';
+import { Role } from '../Entities/Roles/Role';
+import { RolePermission } from '../Entities/Roles/RolePermission';
 
 export async function seedRolesAndPermissions(ds: DataSource, company: Company) {
   const roleRepo = ds.getRepository(Role);

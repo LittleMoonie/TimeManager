@@ -1,9 +1,10 @@
-import { Inject, Service } from "typedi";
-import { DataLog, DataLogAction } from "../../../Entities/Logs/Data/DataLog";
-import { DataLogRepository } from "../../../Repositories/Logs/Data/DataLogRepository";
+import { Inject, Service } from 'typedi';
+
+import { DataLog, DataLogAction } from '../../../Entities/Logs/Data/DataLog';
+import { DataLogRepository } from '../../../Repositories/Logs/Data/DataLogRepository';
 
 export class DataLogService {
-  constructor(@Inject("DataLogRepository") private readonly dataLogRepository: DataLogRepository) {}
+  constructor(@Inject('DataLogRepository') private readonly dataLogRepository: DataLogRepository) {}
 
   public async log(
     companyId: string,

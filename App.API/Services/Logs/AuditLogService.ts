@@ -1,10 +1,13 @@
+import { Inject, Service } from 'typedi';
+
 import { AuditLog } from '../../Entities/Logs/Actions/AuditLog';
 import { DataLogAction } from '../../Entities/Logs/Data/DataLog';
-import { Inject, Service } from 'typedi';
 import { AuditLogRepository } from '../../Repositories/Logs/AuditLogRepository';
 
 export class AuditLogService {
-  constructor(@Inject("AuditLogRepository") private readonly auditLogRepository: AuditLogRepository) {}
+  constructor(
+    @Inject('AuditLogRepository') private readonly auditLogRepository: AuditLogRepository,
+  ) {}
 
   public async logEvent(
     actorUserId: string,

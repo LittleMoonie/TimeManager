@@ -1,10 +1,10 @@
-import { Controller, Get, Route, Tags, Security, Request, Path, Delete } from 'tsoa';
 import { Request as ExpressRequest } from 'express';
+import { Controller, Get, Route, Tags, Security, Request, Path, Delete } from 'tsoa';
 import { Service } from 'typedi';
 
-import { ActiveSessionService } from '../../Services/Users/ActiveSessionService';
 import { ActiveSessionResponseDto } from '../../Dtos/Users/UserDto';
 import User from '../../Entities/Users/User';
+import { ActiveSessionService } from '../../Services/Users/ActiveSessionService';
 
 /**
  * @summary Controller for managing active refresh-token sessions.
