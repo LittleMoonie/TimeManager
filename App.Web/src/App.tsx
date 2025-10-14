@@ -6,8 +6,12 @@ import { AppThemeProvider } from '@/theme/ThemeProvider';
 import { AppLayout } from '@/components/layout/AppLayout';
 import HomePage from '@/pages/index';
 import Login from '@/pages/login';
+import TimesheetList from '@/pages/timesheet/TimesheetList';
+import CreateTimesheetPage from '@/pages/timesheet/CreateTimesheetPage';
+import TimesheetDetailsPage from '@/pages/timesheet/TimesheetDetailsPage';
 import { useAuth } from '@/hooks/useAuth';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import ManagerDashboard from '@/pages/manager/ManagerDashboard';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,6 +31,30 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+const RoleProtectedRoute = ({
+  children,
+  allowedRoles,
+}: {
+  children: React.ReactNode;
+  allowedRoles: string[];
+}) => {
+  const { user, isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <LoadingSpinner message="Checking permissions..." />;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!user || !allowedRoles.includes(user.role?.name ?? '')) {
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
@@ -52,11 +80,21 @@ const AppRoutes = () => {
       >
         <Route index element={<HomePage />} />
         {/* <Route path="tasks" element={<Tasks />} /> */}
-        <Route path="timesheet" element={<div>Timesheet Page</div>} />
-        {/* <Route path="people" element={<People />} /> */}
+        <Route path="timesheet" element={<TimesheetList />} />
+        <Route path="timesheet/new" element={<CreateTimesheetPage />} />
+        <Route path="timesheet/:id" element={<TimesheetDetailsPage />} />
+        {/* <Route path="people" element={<People />} */}
         <Route path="reports" element={<div>Reports Page</div>} />
         <Route path="settings" element={<div>Settings Page</div>} />
         <Route path="profile" element={<div>Profile Page</div>} />
+        <Route
+          path="/manager-dashboard"
+          element={
+            <RoleProtectedRoute allowedRoles={['MANAGER']}>
+              <ManagerDashboard />
+            </RoleProtectedRoute>
+          }
+        />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

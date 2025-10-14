@@ -132,10 +132,10 @@ cd App.API && yarn test
 # Run frontend tests
 cd App.Web && yarn test
 
-# Check monorepo code quality (linting)
+# Check code quality (linting)
 yarn lint
 
-# Check monorepo code quality (type-checking)
+# Check code quality (type-checking)
 yarn typecheck
 ```
 

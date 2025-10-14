@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { validate } from 'class-validator';
 
 import { LeaveRequestRepository } from '../../Repositories/Companies/LeaveRequestRepository';
@@ -12,7 +12,6 @@ import { UpdateLeaveRequestDto } from '../../Dtos/Companies/CompanyDto';
  * @description Service layer for handling approval-related business logic, specifically for leave requests.
  * It integrates with LeaveRequestRepository and RolePermissionService to manage approval workflows and permissions.
  */
-@Service()
 export class ApprovalService {
   /**
    * @description Initializes the ApprovalService with necessary repositories and services.
@@ -20,8 +19,9 @@ export class ApprovalService {
    * @param rolePermissionService The service for checking user permissions.
    */
   constructor(
+    @Inject('LeaveRequestRepository')
     private readonly leaveRequestRepository: LeaveRequestRepository,
-    private readonly rolePermissionService: RolePermissionService,
+    @Inject('RolePermissionService') private readonly rolePermissionService: RolePermissionService,
   ) {}
 
   /**

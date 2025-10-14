@@ -1,6 +1,5 @@
 import { Service } from 'typedi';
-import { InjectRepository } from 'typeorm-typedi-extensions';
-import { ILike, Repository } from 'typeorm';
+import { ILike } from 'typeorm';
 import { BaseRepository } from '../../Repositories/BaseRepository';
 import { ActionCode } from '../../Entities/Timesheets/ActionCode';
 
@@ -8,14 +7,14 @@ import { ActionCode } from '../../Entities/Timesheets/ActionCode';
  * @description Repository for managing ActionCode entities. Extends BaseRepository to provide standard CRUD operations
  * and includes specific methods for querying action codes by code, and searching within a company scope.
  */
-@Service()
+@Service('ActionCodeRepository')
 export class ActionCodeRepository extends BaseRepository<ActionCode> {
   /**
    * @description Initializes the ActionCodeRepository with a TypeORM Repository instance for ActionCode.
    * @param repo The TypeORM Repository<ActionCode> injected by TypeDI.
    */
-  constructor(@InjectRepository(ActionCode) repo: Repository<ActionCode>) {
-    super(ActionCode, repo);
+  constructor() {
+    super(ActionCode);
   }
 
   /**

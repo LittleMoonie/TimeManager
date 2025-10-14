@@ -1,13 +1,15 @@
-import { Service } from "typedi";
-import { AppDataSource } from "../../../Server/Database";
+import { Inject, Service } from 'typedi';
 import {
   ActionLog,
   ActionLogType,
-} from "../../../Entities/Logs/Actions/ActionLog";
+} from '../../../Entities/Logs/Actions/ActionLog';
+import { ActionLogRepository } from '../../../Repositories/Logs/Actions/ActionLogRepository';
 
-@Service()
 export class ActionLogService {
-  private actionLogRepository = AppDataSource.getRepository(ActionLog);
+  constructor(
+    @Inject("ActionLogRepository")
+    private readonly actionLogRepository: ActionLogRepository,
+  ) {}
 
   public async log(
     companyId: string,
@@ -22,10 +24,10 @@ export class ActionLogService {
       actionType,
       description,
       metadata,
-    });
+    } as ActionLog);
   }
 
   public async getLogs(companyId: string): Promise<ActionLog[]> {
-    return this.actionLogRepository.find({ where: { companyId } });
+    return this.actionLogRepository.findAll();
   }
 }

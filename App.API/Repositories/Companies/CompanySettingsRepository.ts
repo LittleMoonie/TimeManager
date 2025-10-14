@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 import { CompanySettings } from '../../Entities/Companies/CompanySettings';
 import { BaseRepository } from '../../Repositories/BaseRepository';
 import { NotFoundError } from '../../Errors/HttpErrors';
@@ -7,7 +7,6 @@ import { NotFoundError } from '../../Errors/HttpErrors';
  * @description Repository for managing CompanySettings entities. Extends BaseRepository to provide standard CRUD operations
  * and includes specific methods for retrieving company settings.
  */
-@Service()
 export class CompanySettingsRepository extends BaseRepository<CompanySettings> {
   /**
    * @description Initializes the CompanySettingsRepository.
@@ -31,3 +30,5 @@ export class CompanySettingsRepository extends BaseRepository<CompanySettings> {
     return settings;
   }
 }
+
+Container.set('CompanySettingsRepository', CompanySettingsRepository);

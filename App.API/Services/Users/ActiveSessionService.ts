@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import ActiveSession from '../../Entities/Users/ActiveSessions';
 import { NotFoundError } from '../../Errors/HttpErrors';
 import { ActiveSessionRepository } from '../../Repositories/Users/ActiveSessionRepository';
@@ -8,13 +8,16 @@ import { ActiveSessionRepository } from '../../Repositories/Users/ActiveSessionR
  * creation upon login, updating last-seen timestamps, and revocation upon logout or security events.
  * All public methods are designed to be company-scoped to enforce multi-tenant safety.
  */
-@Service()
+@Service('ActiveSessionService')
 export class ActiveSessionService {
   /**
    * @description Initializes the ActiveSessionService with the ActiveSessionRepository.
    * @param activeSessionRepository The repository for ActiveSession entities, injected by TypeDI.
    */
-  constructor(private readonly activeSessionRepository: ActiveSessionRepository) {}
+  constructor(
+    @Inject('ActiveSessionRepository')
+    private readonly activeSessionRepository: ActiveSessionRepository,
+  ) {}
 
   /**
    * @description Creates a new active session record upon successful user login.

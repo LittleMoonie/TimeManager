@@ -1,5 +1,11 @@
 import { AppDataSource } from '../Server/Database';
-import { DeepPartial, FindOneOptions, FindOptionsWhere, Repository, EntityTarget } from 'typeorm';
+import {
+  DeepPartial,
+  EntityTarget,
+  FindOneOptions,
+  FindOptionsWhere,
+  Repository,
+} from 'typeorm';
 import { BaseEntity } from '../Entities/BaseEntity';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { InternalServerError } from '../Errors/HttpErrors';
@@ -13,7 +19,8 @@ import { InternalServerError } from '../Errors/HttpErrors';
  * - Supports optional Dependency Injection (DI): a pre-initialized `Repository<T>` can be passed during construction.
  */
 export class BaseRepository<T extends BaseEntity> {
-  protected repository: Repository<T>;
+  private readonly entity: EntityTarget<T>;
+  private repositoryInstance?: Repository<T>;
 
   /**
    * @description Creates a new instance of the BaseRepository for a given entity.
@@ -21,7 +28,21 @@ export class BaseRepository<T extends BaseEntity> {
    * @param repo Optional: A pre-initialized TypeORM `Repository<T>` instance. If not provided, one will be obtained from `AppDataSource`.
    */
   constructor(entity: EntityTarget<T>, repo?: Repository<T>) {
-    this.repository = repo ?? AppDataSource.getRepository<T>(entity);
+    this.entity = entity;
+    this.repositoryInstance = repo;
+  }
+
+  protected get repository(): Repository<T> {
+    if (this.repositoryInstance) {
+      return this.repositoryInstance;
+    }
+
+    if (!AppDataSource.isInitialized) {
+      throw new InternalServerError('Database connection is not initialized');
+    }
+
+    this.repositoryInstance = AppDataSource.getRepository<T>(this.entity);
+    return this.repositoryInstance;
   }
 
   /**

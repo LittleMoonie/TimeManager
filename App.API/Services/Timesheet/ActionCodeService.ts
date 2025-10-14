@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { validate } from 'class-validator';
 import { ActionCodeRepository } from '../../Repositories/Timesheets/ActionCodeRepository';
 import { TimesheetHistoryRepository } from '../../Repositories/Timesheets/TimesheetHistoryRepository';
@@ -10,7 +10,6 @@ import { CreateActionCodeDto, UpdateActionCodeDto } from '../../Dtos/Timesheet/T
  * @description Service layer for managing ActionCode entities. This service provides business logic
  * for creating, retrieving, updating, and deleting action codes, and records these events in the timesheet history.
  */
-@Service()
 export class ActionCodeService {
   /**
    * @description Initializes the ActionCodeService with necessary repositories.
@@ -18,7 +17,8 @@ export class ActionCodeService {
    * @param historyRepository The repository for TimesheetHistory entities.
    */
   constructor(
-    private readonly actionCodeRepository: ActionCodeRepository,
+    @Inject('ActionCodeRepository') private readonly actionCodeRepository: ActionCodeRepository,
+    @Inject('TimesheetHistoryRepository')
     private readonly historyRepository: TimesheetHistoryRepository,
   ) {}
 

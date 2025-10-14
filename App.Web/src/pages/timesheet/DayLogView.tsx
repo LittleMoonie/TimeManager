@@ -18,9 +18,18 @@ import {
 import { alpha, useTheme } from '@mui/material/styles';
 import { Add, ChevronLeft, ChevronRight, Clear, Delete, DeleteForever } from '@mui/icons-material';
 import { COUNTRIES } from '@/constants/countries';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import type { Meridian } from './utils';
-import { ActionCode, TimesheetEntry, TimesheetEntryDto, WorkMode } from '@/lib/api';
+import {
+  ActionCode,
+  TimesheetEntryResponseDto,
+  TimesheetResponseDto,
+  WorkMode,
+  CreateTimesheetEntryDto,
+  UpdateTimesheetEntryDto,
+  TimesheetEntriesService,
+} from '@/lib/api';
 import {
   getWeekDates,
   isPastDeadline,
@@ -34,20 +43,19 @@ import {
 
 type DayEntryRow = {
   internalId: string;
-  code: ActionCode['id'] | '';
+  actionCodeId: ActionCode['id'] | '';
   minutes: number;
   mode: WorkMode;
   country: string;
   note: string;
   intervals: { start: string; end: string }[];
   existing: boolean;
-  sent?: boolean;
-  deficitReason?: string;
+  entryId?: string; // To store the actual entry ID if it exists in the backend
 };
 
 interface DayLogViewProps {
   date: Date;
-  timesheet?: TimesheetEntryDto;
+  timesheet?: TimesheetResponseDto;
   actionCodes: ActionCode[];
   onChangeDate: (date: Date) => void;
 
@@ -76,26 +84,21 @@ const buildMeridianTime = (time: string, period: Meridian): string => {
   return `${nextHours}:${minutes.toString().padStart(2, '0')} ${period}`;
 };
 
-const createRowFromEntry = (code: ActionCode['id'], entry: TimesheetEntry): DayEntryRow => ({
-  internalId: `${code}-${entry.location.mode}-${entry.location.country}`,
-  code,
-  minutes: entry.minutes,
-  mode: entry.location.mode,
-  country: entry.location.country,
+const createRowFromEntry = (entry: TimesheetEntryResponseDto): DayEntryRow => ({
+  internalId: entry.id,
+  entryId: entry.id,
+  actionCodeId: entry.actionCodeId,
+  minutes: entry.durationMin,
+  mode: entry.workMode,
+  country: entry.country,
   note: entry.note ?? '',
-  intervals:
-    entry.intervals?.map((interval: TimesheetEntry['intervals'][number]) => ({
-      start: ensureMeridianTime(interval.start),
-      end: ensureMeridianTime(interval.end),
-    })) ?? [],
+  intervals: [], // Intervals are not directly from DTO, will be derived or managed on frontend
   existing: true,
-  sent: entry.sent,
-  deficitReason: entry.deficitReason,
 });
 
 const createEmptyRow = (): DayEntryRow => ({
   internalId: crypto.randomUUID(),
-  code: '',
+  actionCodeId: '',
   minutes: 0,
   mode: WorkMode.OFFICE,
   country: 'US',
@@ -113,6 +116,7 @@ export const DayLogView = ({
   weekStart,
 }: DayLogViewProps) => {
   const theme = useTheme();
+  const queryClient = useQueryClient();
   const [rows, setRows] = useState<DayEntryRow[]>([createEmptyRow()]);
   const [reason, setReason] = useState('');
 
@@ -124,14 +128,19 @@ export const DayLogView = ({
   const now = new Date();
   const locked = isPastDeadline(weekStart, now);
   const readOnly =
-    isPastWeek(weekStart, now) && !isAttentionRequired(timesheet ?? { status: 'pending' });
+    isPastWeek(weekStart, now) && !isAttentionRequired(timesheet ?? { status: 'DRAFT' });
 
   const analyzeIntervals = (
     intervals: DayEntryRow['intervals'],
   ): { kind: 'ok' | 'warning' | 'error'; totalMinutes: number } => {
     const totalMinutes = intervals.reduce((sum, interval) => {
-      const [start, end] = interval.start.split(':').map(Number);
-      return sum + (end - start);
+      // Assuming intervals are in HH:MM format and represent duration
+      // This needs to be properly calculated from start and end times if they are actual timestamps
+      const [startHour, startMinute] = interval.start.split(':').map(Number);
+      const [endHour, endMinute] = interval.end.split(':').map(Number);
+      const startTotalMinutes = startHour * 60 + startMinute;
+      const endTotalMinutes = endHour * 60 + endMinute;
+      return sum + (endTotalMinutes - startTotalMinutes);
     }, 0);
     return { kind: 'ok', totalMinutes };
   };
@@ -142,19 +151,76 @@ export const DayLogView = ({
   }, [actionCodes]);
 
   useEffect(() => {
-    if (!timesheet) return;
+    if (!timesheet || !timesheet.entries) return;
     const dayRows: DayEntryRow[] = [];
 
-    Object.entries(timesheet.entries).forEach(([code, dayMap]) => {
-      if (typeof dayMap !== 'object' || dayMap === null) return;
-      const entry = (dayMap as Record<string, TimesheetEntry>)[dateISO];
-      if (entry) {
-        dayRows.push(createRowFromEntry(code as ActionCode['id'], entry));
+    timesheet.entries.forEach((entry) => {
+      if (entry.day === dateISO) {
+        dayRows.push(createRowFromEntry(entry));
       }
     });
     setRows(dayRows.length ? dayRows : [createEmptyRow()]);
     setReason('');
   }, [timesheet, dateISO]);
+
+  const createEntryMutation = useMutation({
+    mutationFn: (dto: CreateTimesheetEntryDto) =>
+      TimesheetEntriesService.createTimesheetEntry({ requestBody: dto }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['timesheets', timesheet?.id] });
+    },
+    onError: (err: any) => {
+      console.error('Failed to create timesheet entry:', err);
+    },
+  });
+
+  const updateEntryMutation = useMutation({
+    mutationFn: ({ entryId, dto }: { entryId: string; dto: UpdateTimesheetEntryDto }) =>
+      TimesheetEntriesService.updateTimesheetEntry({ id: entryId, requestBody: dto }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['timesheets', timesheet?.id] });
+    },
+    onError: (err: any) => {
+      console.error('Failed to update timesheet entry:', err);
+    },
+  });
+
+  const deleteEntryMutation = useMutation({
+    mutationFn: (entryId: string) => TimesheetEntriesService.deleteTimesheetEntry({ id: entryId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['timesheets', timesheet?.id] });
+    },
+    onError: (err: any) => {
+      console.error('Failed to delete timesheet entry:', err);
+    },
+  });
+
+  const handleSaveDayEntries = async () => {
+    if (!timesheet?.id) return;
+
+    for (const row of rows) {
+      if (!row.actionCodeId || row.minutes === 0) continue; // Skip empty or incomplete rows
+
+      const entryData = {
+        actionCodeId: row.actionCodeId,
+        day: dateISO,
+        durationMin: row.minutes,
+        country: row.country,
+        workMode: row.mode,
+        note: row.note,
+      };
+
+      if (row.existing && row.entryId) {
+        // Assuming we need to check if the row has actually changed to avoid unnecessary updates
+        // For simplicity, we'll update if it's an existing row and not empty
+        await updateEntryMutation.mutateAsync({ entryId: row.entryId, dto: entryData });
+      } else if (!row.existing) {
+        await createEntryMutation.mutateAsync(entryData);
+      }
+    }
+    // After saving, re-fetch the timesheet to get updated entries and totals
+    queryClient.invalidateQueries({ queryKey: ['timesheets', timesheet.id] });
+  };
 
   const handleRowChange = <Key extends keyof DayEntryRow>(
     rowIndex: number,
@@ -317,8 +383,14 @@ export const DayLogView = ({
         </Box>
 
         <Chip
-          label={timesheet?.status ?? 'pending'}
-          color={timesheet?.status === 'attention-required' ? 'error' : 'success'}
+          label={timesheet?.status ?? 'DRAFT'}
+          color={
+            timesheet?.status === 'REJECTED'
+              ? 'error'
+              : timesheet?.status === 'SUBMITTED'
+                ? 'warning'
+                : 'success'
+          }
           variant="filled"
         />
       </Box>
@@ -373,11 +445,13 @@ export const DayLogView = ({
                   disabledCodes={
                     rows
                       .filter((_, idx) => idx !== index)
-                      .map((item) => item.code)
+                      .map((item) => item.actionCodeId)
                       .filter(Boolean) as ActionCode['id'][]
                   }
                   accentColor={
-                    row.code ? codeById.get(row.code as ActionCode['id'])?.color : undefined
+                    row.actionCodeId
+                      ? codeById.get(row.actionCodeId as ActionCode['id'])?.color
+                      : undefined
                   }
                 />
               ))}
@@ -398,29 +472,6 @@ export const DayLogView = ({
               <Typography variant="body1">{formatMinutes(dailyMin)}</Typography>
               {rows.reduce((sum, row) => sum + row.minutes, 0) < dailyMin && (
                 <Typography variant="caption" color="warning.main">
-                  Short by{' '}
-                  {formatMinutes(dailyMin - rows.reduce((sum, row) => sum + row.minutes, 0))}
-                </Typography>
-              )}
-              {rows.reduce((sum, row) => sum + row.minutes, 0) > dailyMin && (
-                <Typography variant="caption" color="success.main">
-                  +{formatMinutes(rows.reduce((sum, row) => sum + row.minutes, 0) - dailyMin)}{' '}
-                  overtime
-                </Typography>
-              )}
-              {rows.reduce((sum, row) => sum + row.minutes, 0) < dailyMin && (
-                <Typography variant="caption" color="warning.main">
-                  +{formatMinutes(rows.reduce((sum, row) => sum + row.minutes, 0) - dailyMin)}{' '}
-                  overtime
-                </Typography>
-              )}
-              {rows.reduce((sum, row) => sum + row.minutes, 0) > MAX_DAY_MINUTES && (
-                <Typography variant="caption" color="error.main">
-                  Cannot exceed 24h (1440 minutes)
-                </Typography>
-              )}
-              {rows.reduce((sum, row) => sum + row.minutes, 0) > MAX_DAY_MINUTES && (
-                <Typography variant="caption" color="error.main">
                   Short by{' '}
                   {formatMinutes(dailyMin - rows.reduce((sum, row) => sum + row.minutes, 0))}
                 </Typography>
@@ -456,19 +507,21 @@ export const DayLogView = ({
             />
           )}
 
-          {reason.length > 0 && reason.length < 10 && (
-            <Typography variant="caption" color="error">
-              {reason.length > 0 && reason.length < 10
-                ? 'Minimum 10 characters required.'
-                : 'Minimum 10 characters. Saved with this day.'}
-            </Typography>
-          )}
-
-          <Stack
-            direction={{ xs: 'column', sm: 'row' }}
-            spacing={2}
-            justifyContent="flex-end"
-          ></Stack>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="flex-end">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSaveDayEntries}
+              disabled={
+                locked ||
+                createEntryMutation.isPending ||
+                updateEntryMutation.isPending ||
+                deleteEntryMutation.isPending
+              }
+            >
+              Save Day Entries
+            </Button>
+          </Stack>
         </Stack>
       </Paper>
 
@@ -478,13 +531,13 @@ export const DayLogView = ({
         </Typography>
         {rows.length === 0 ? (
           <Typography variant="body2" color="text.secondary">
-            {rows.length === 0 ? 'No hours done.' : 'Nothing logged yet.'}
+            No hours done.
           </Typography>
         ) : (
           <Stack spacing={1.5}>
             {rows.map((item) => (
               <Stack
-                key={`${item.code}-${item.country}-${item.minutes}`}
+                key={`${item.actionCodeId}-${item.country}-${item.minutes}`}
                 direction={{ xs: 'column', sm: 'row' }}
                 justifyContent="space-between"
                 alignItems={{ sm: 'center' }}
@@ -498,13 +551,13 @@ export const DayLogView = ({
                         height: 10,
                         borderRadius: '50%',
                         backgroundColor:
-                          codeById.get(item.code as ActionCode['id'])?.color ??
+                          codeById.get(item.actionCodeId as ActionCode['id'])?.color ??
                           theme.palette.text.disabled,
                         border: `1px solid ${alpha(theme.palette.common.black, 0.12)}`,
                       }}
                     />
                     <Typography variant="body2" fontWeight={600}>
-                      {item.code}
+                      {codeById.get(item.actionCodeId as ActionCode['id'])?.name}
                     </Typography>
                   </Stack>
                   <Typography variant="caption" color="text.secondary">
@@ -596,10 +649,10 @@ const PaperRow = ({
         <Grid size={{ xs: 12, md: 4 }}>
           <Autocomplete
             options={actionCodes}
-            getOptionLabel={(option) => `${option.id} — ${option.name}`}
-            value={actionCodes.find((code) => code.id === row.code) ?? null}
+            getOptionLabel={(option) => `${option.name} (${option.code})`}
+            value={actionCodes.find((code) => code.id === row.actionCodeId) ?? null}
             onChange={(_, value) =>
-              onFieldChange(index, 'code', (value?.id as ActionCode['id']) ?? '')
+              onFieldChange(index, 'actionCodeId', (value?.id as ActionCode['id']) ?? '')
             }
             getOptionDisabled={(option) => disabledCodes.includes(option.id)}
             renderOption={(props, option) => (
@@ -619,10 +672,10 @@ const PaperRow = ({
                 />
                 <Stack spacing={0.25}>
                   <Typography variant="body2" fontWeight={600}>
-                    {option.id}
+                    {option.name}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {option.label}
+                    {option.code}
                   </Typography>
                 </Stack>
               </Box>
@@ -638,7 +691,7 @@ const PaperRow = ({
                   ...params.InputProps,
                   startAdornment: (
                     <>
-                      {row.code && (
+                      {row.actionCodeId && (
                         <Box
                           sx={{
                             width: 10,
@@ -668,8 +721,11 @@ const PaperRow = ({
             fullWidth
             disabled={disabled}
           >
-            <MenuItem value="Office">Office</MenuItem>
-            <MenuItem value="Homeworking">Homeworking</MenuItem>
+            {Object.values(WorkMode).map((mode) => (
+              <MenuItem key={mode} value={mode}>
+                {mode.charAt(0).toUpperCase() + mode.slice(1)}
+              </MenuItem>
+            ))}
           </TextField>
         </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
@@ -705,7 +761,7 @@ const PaperRow = ({
               </IconButton>
             </span>
           </Tooltip>
-          {row.code && onRemoveFromWeek && (
+          {row.actionCodeId && onRemoveFromWeek && (
             <Tooltip title="Remove this code from the entire week">
               <span>
                 <IconButton

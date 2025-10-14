@@ -43,8 +43,8 @@ services:
   api:
     container_name: gogotime-api
     build:
-      context: ../App.API
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: ./App.API/Dockerfile
     ports:
       - '${API_PORT}:4000'
     env_file:
@@ -86,8 +86,8 @@ services:
   web:
     container_name: gogotime-web
     build:
-      context: ../App.Web
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: ./App.Web/Dockerfile
     ports:
       - '${WEB_PORT}:3000'
     env_file:

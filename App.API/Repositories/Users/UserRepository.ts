@@ -1,6 +1,4 @@
 import { Service } from 'typedi';
-import { InjectRepository } from 'typeorm-typedi-extensions';
-import { Repository } from 'typeorm';
 import User from '../../Entities/Users/User';
 import { BaseRepository } from '../../Repositories/BaseRepository';
 
@@ -8,14 +6,14 @@ import { BaseRepository } from '../../Repositories/BaseRepository';
  * @description Repository for managing User entities. Extends BaseRepository to provide standard CRUD operations
  * and includes specific methods for querying users within a company scope.
  */
-@Service()
+@Service('UserRepository')
 export class UserRepository extends BaseRepository<User> {
   /**
    * @description Initializes the UserRepository with a TypeORM Repository instance for User.
    * @param repo The TypeORM Repository<User> injected by TypeDI.
    */
-  constructor(@InjectRepository(User) repo: Repository<User>) {
-    super(User, repo);
+  constructor() {
+    super(User);
   }
 
   /**
@@ -30,8 +28,7 @@ export class UserRepository extends BaseRepository<User> {
       where: { email, companyId },
       relations: ['role', 'status'],
     });
-  }
-
+}
   /**
    * @description Finds all users belonging to a specific company.
    * Includes related role and status information.

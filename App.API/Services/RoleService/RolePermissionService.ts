@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { RolePermissionRepository } from '../../Repositories/Roles/RolePermissionRepository';
 import { RolePermission } from '../../Entities/Roles/RolePermission';
 import { ForbiddenError, NotFoundError } from '../../Errors/HttpErrors';
@@ -9,13 +9,15 @@ import User from '../../Entities/Users/User';
  * @description Service layer for managing RolePermission entities. This service provides business logic
  * for checking user permissions and managing role-permission associations.
  */
-@Service()
 export class RolePermissionService {
   /**
    * @description Initializes the RolePermissionService with the RolePermissionRepository.
    * @param rolePermissionRepository The repository for RolePermission entities, injected by TypeDI.
    */
-  constructor(private readonly rolePermissionRepository: RolePermissionRepository) {}
+  constructor(
+    @Inject('RolePermissionRepository')
+    private readonly rolePermissionRepository: RolePermissionRepository,
+  ) {}
 
   /**
    * @description Checks if a given user has a specific permission.

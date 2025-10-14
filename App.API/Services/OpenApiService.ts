@@ -2,6 +2,7 @@ import { exec } from 'child_process';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { InternalServerError } from '../Errors/HttpErrors';
+import { Service } from 'typedi';
 
 let isGenerating = false;
 let lastGeneratedAt: Date | null = null;
@@ -10,6 +11,7 @@ let lastGeneratedAt: Date | null = null;
  * @description Service for managing OpenAPI specification generation. This service handles the logic
  * for checking the status of generation, determining if regeneration is needed, and executing the generation process.
  */
+@Service()
 export class OpenApiService {
   /**
    * @description Retrieves the current status of the OpenAPI specification generation process.
@@ -26,7 +28,7 @@ export class OpenApiService {
   static async needsRegeneration(): Promise<boolean> {
     // Simple check: if spec file doesn't exist, it needs generation
     try {
-      await fs.access(path.join(__dirname, '../../dist/swagger.json'));
+      await fs.access(path.join(__dirname, '../swagger.json'));
       return false; // File exists
     } catch {
       return true; // File does not exist
