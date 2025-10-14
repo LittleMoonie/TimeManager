@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { add } from 'date-fns';
 import { sign } from 'jsonwebtoken';
 import * as argon2 from 'argon2';
@@ -33,9 +33,9 @@ export class AuthenticationService {
    * @param activeSessionService The service for managing active user sessions.
    */
   constructor(
-    private readonly authRepo: AuthenticationRepository,
-    private readonly userStatusService: UserStatusService,
-    private readonly activeSessionService: ActiveSessionService,
+    @Inject('AuthenticationRepository') private readonly authRepo: AuthenticationRepository,
+    @Inject('UserStatusService') private readonly userStatusService: UserStatusService,
+    @Inject('ActiveSessionService') private readonly activeSessionService: ActiveSessionService,
   ) {}
 
   /**
@@ -124,18 +124,6 @@ export class AuthenticationService {
       userAgent,
       deviceId,
     );
-
-    // Optionally persist a lightweight row for analytics/consistency (not required by ActiveSessionService).
-    await this.authRepo.createAndSaveActiveSessionPartial({
-      tokenHash,
-      deviceId,
-      expiresAt,
-      userId: user.id,
-      companyId: user.companyId,
-      lastSeenAt: new Date(),
-      userAgent,
-      ip: ipAddress,
-    });
 
     // Update last login
     user.lastLogin = new Date();

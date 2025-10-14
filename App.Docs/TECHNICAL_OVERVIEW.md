@@ -4,7 +4,7 @@ _A high-level technical roadmap for enterprise-grade development practices._
 
 ## 📐 Architecture & Code Quality
 
-### Monorepo Hygiene
+### Hygiene
 
 - **Package Management**: Yarn workspaces with proper dependency isolation
 - **Versioning**: Conventional commits with automated changelog generation

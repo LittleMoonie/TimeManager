@@ -1,21 +1,26 @@
-import type { ReactNode } from 'react';
-import { Suspense } from 'react';
-import { BrowserRouter, Navigate, type RouteObject, useRoutes } from 'react-router-dom';
+import { Suspense, type ReactNode } from 'react';
+import { BrowserRouter, Navigate, RouteObject, useRoutes } from 'react-router-dom';
+
 import { AppLayout } from '@/components/layout/AppLayout';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useAuth } from '@/hooks/useAuth';
-import HomePage from '@/pages/index';
+import DashboardPage from '@/pages';
+import ForgotPasswordPage from '@/pages/forgot-password';
 import LoginPage from '@/pages/login';
 import PeoplePage from '@/pages/people';
 import ProfilePage from '@/pages/profile';
 import ReportsPage from '@/pages/reports';
-// import TasksPage from '@/pages/tasks'
 import TimesheetPage from '@/pages/timesheet';
+import UnauthorizedPage from '@/pages/unauthorized';
 
-import ForgotPasswordPage from '@/pages/forgot-password';
-
-const ProtectedRoute = ({ children }: { children: ReactNode }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+const ProtectedRoute = ({
+  children,
+  allowedRoles,
+}: {
+  children: ReactNode;
+  allowedRoles?: string[];
+}) => {
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
     return <LoadingSpinner message="Checking your session..." />;
@@ -23,6 +28,12 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  const userRoleName = user?.role?.name;
+
+  if (allowedRoles && (!userRoleName || !allowedRoles.includes(userRoleName))) {
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return <>{children}</>;
@@ -60,6 +71,10 @@ const routeConfig: RouteObject[] = [
     ),
   },
   {
+    path: '/unauthorized',
+    element: <UnauthorizedPage />,
+  },
+  {
     path: '/',
     element: (
       <ProtectedRoute>
@@ -67,11 +82,18 @@ const routeConfig: RouteObject[] = [
       </ProtectedRoute>
     ),
     children: [
-      { index: true, element: <HomePage /> },
+      { index: true, element: <DashboardPage /> },
       // { path: 'tasks', element: <TasksPage /> },
       { path: 'timesheet', element: <TimesheetPage /> },
       { path: 'people', element: <PeoplePage /> },
-      { path: 'reports', element: <ReportsPage /> },
+      {
+        path: 'reports',
+        element: (
+          <ProtectedRoute allowedRoles={['MANAGER']}>
+            <ReportsPage />
+          </ProtectedRoute>
+        ),
+      },
       { path: 'profile', element: <ProfilePage /> },
     ],
   },

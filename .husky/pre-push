@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 🧱 Husky pre-push hook — GoGoTime Monorepo
+# 🧱 Husky pre-push hook — GoGoTime
 # Blocks pushes to or from protected branches unless ALLOW_PROTECTED_PUSH=1
 
 [ -z "${BASH_VERSION:-}" ] && exec /usr/bin/env bash "$0" "$@"

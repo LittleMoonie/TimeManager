@@ -1,6 +1,4 @@
 import { Service } from 'typedi';
-import { InjectRepository } from 'typeorm-typedi-extensions';
-import { Repository } from 'typeorm';
 
 import { BaseRepository } from '../../Repositories/BaseRepository';
 import { RolePermission } from '../../Entities/Roles/RolePermission';
@@ -9,17 +7,14 @@ import { RolePermission } from '../../Entities/Roles/RolePermission';
  * @description Repository for managing RolePermission entities. Extends BaseRepository to provide standard CRUD operations
  * and includes specific methods for querying and managing role-permission associations.
  */
-@Service()
+@Service('RolePermissionRepository')
 export class RolePermissionRepository extends BaseRepository<RolePermission> {
   /**
    * @description Initializes the RolePermissionRepository with a TypeORM Repository instance for RolePermission.
    * @param repo The TypeORM Repository<RolePermission> injected by TypeDI.
    */
-  constructor(
-    @InjectRepository(RolePermission)
-    repo: Repository<RolePermission>,
-  ) {
-    super(RolePermission, repo);
+  constructor() {
+    super(RolePermission);
   }
 
   /**

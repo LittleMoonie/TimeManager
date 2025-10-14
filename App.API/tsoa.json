@@ -3,7 +3,7 @@
   "controllerPathGlobs": ["Controllers/**/*.ts", "Dtos/**/*.ts"],
   "noImplicitAdditionalProperties": "silently-remove-extras",
   "spec": {
-    "outputDirectory": "./dist",
+    "outputDirectory": ".",
     "specVersion": 3,
     "basePath": "/api",
     "specFileBaseName": "swagger",

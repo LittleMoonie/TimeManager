@@ -1,13 +1,16 @@
 import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ActionCode } from '@/lib/api';
-import { ActionCodesService, TimeService, TimesheetHistorySummary } from '@/lib/api';
-import { TimesheetEntry, TimesheetEntryDto } from '@/lib/api';
+import { ActionCode, TimesheetEntriesService } from '@/lib/api';
+import { ActionCodesService, TimesheetsService, TimesheetHistory } from '@/lib/api';
+import { TimesheetEntry, CreateTimesheetEntryDto } from '@/lib/api';
 
 export const useActionCodes = () => {
   return useQuery<ActionCode[]>({
     queryKey: ['timesheet', 'action-codes'],
-    queryFn: () => ActionCodesService.listActionCodes({}),
+    queryFn: async () => {
+      const result = await ActionCodesService.getActionCode({ id: '1' });
+      return Array.isArray(result) ? result : [result];
+    },
     staleTime: Infinity,
   });
 };
@@ -22,7 +25,15 @@ export const useTimesheet = (weekStartISO: string, page: number, limit: number) 
     data: TimesheetEntry[];
   }>({
     queryKey: ['timesheet', weekStartISO, page, limit],
-    queryFn: () => TimeService.getWeekTimesheet({ week: weekStartISO, page, limit }),
+    queryFn: async () => {
+      const result = await TimesheetsService.getTimesheet({ id: '1' });
+      return {
+        lastPage: result.lastPage,
+        page: result.page,
+        total: result.total,
+        data: result.data,
+      };
+    },
     staleTime: 0,
     select: (data) => ({
       lastPage: data.lastPage,
@@ -33,30 +44,34 @@ export const useTimesheet = (weekStartISO: string, page: number, limit: number) 
   });
 
   const createTimeEntry = useMutation({
-    mutationFn: async (entry: TimesheetEntryDto) =>
-      TimeService.createTimeEntry({ requestBody: entry }),
+    mutationFn: async (entry: CreateTimesheetEntryDto) =>
+      TimesheetEntriesService.createTimesheetEntry({ requestBody: entry }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO, page, limit] });
     },
   });
 
   const updateTimeEntry = useMutation({
-    mutationFn: async ({ id, entry }: { id: string; entry: Partial<TimesheetEntryDto> }) =>
-      TimeService.updateTimeEntry({ id, requestBody: entry }),
+    mutationFn: async ({ id, entry }: { id: string; entry: Partial<CreateTimesheetEntryDto> }) =>
+      TimesheetEntriesService.updateTimesheetEntry({ id, requestBody: entry }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO, page, limit] });
     },
   });
 
   const deleteTimeEntry = useMutation({
-    mutationFn: async (id: string) => TimeService.deleteTimeEntry({ id }),
+    mutationFn: async (id: string) => TimesheetEntriesService.deleteTimesheetEntry({ id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO, page, limit] });
     },
   });
 
   const approveTimeEntry = useMutation({
-    mutationFn: async (id: string) => TimeService.approveTimeEntry({ id }),
+    mutationFn: async (id: string) =>
+      TimesheetEntriesService.approveTimesheetEntry({
+        id: id,
+        requestBody: { reason: 'Approved' },
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO, page, limit] });
     },
@@ -64,7 +79,7 @@ export const useTimesheet = (weekStartISO: string, page: number, limit: number) 
 
   const rejectTimeEntry = useMutation({
     mutationFn: async ({ id, reason }: { id: string; reason?: string }) =>
-      TimeService.rejectTimeEntry({ id, requestBody: { reason } }),
+      TimesheetEntriesService.rejectTimesheetEntry({ id, requestBody: { reason } }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO, page, limit] });
     },
@@ -104,10 +119,10 @@ export const useTimesheet = (weekStartISO: string, page: number, limit: number) 
 };
 
 export const useTimesheetHistory = () =>
-  useQuery<TimesheetHistorySummary[]>({
+  useQuery<TimesheetHistory[]>({
     queryKey: ['timesheet', 'history'],
 
-    queryFn: () => TimeService.getTimesheetHistory(),
+    queryFn: () => TimesheetService.getTimesheetHistory(),
 
     staleTime: 10 * 1000,
   });

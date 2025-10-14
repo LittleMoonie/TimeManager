@@ -42,6 +42,12 @@ export class ActionCode extends BaseEntity {
   @Column({ type: 'varchar', length: 255 }) name!: string;
 
   /**
+   * @description A color associated with the action code, in hexadecimal format (e.g., #RRGGBB).
+   * @example "#FF5733"
+   */
+  @Column({ type: 'varchar', length: 7, default: '#000000' }) color!: string;
+
+  /**
    * @description The type of the action code, indicating if it's billable or non-billable.
    * @example "billable"
    */

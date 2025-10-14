@@ -289,10 +289,10 @@ docker compose restart api
 2. **Fix common issues**:
 
    ```bash
-   # Auto-fix ESLint issues across the monorepo
+   # Auto-fix ESLint issues 
    yarn lint --fix
 
-   # Check TypeScript issues across the monorepo
+   # Check TypeScript issues
    yarn typecheck
    ```
 

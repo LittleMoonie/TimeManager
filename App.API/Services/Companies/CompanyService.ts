@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { validate } from 'class-validator';
 
 import { CompanyRepository } from '../../Repositories/Companies/CompanyRepository';
@@ -10,13 +10,12 @@ import { UnprocessableEntityError } from '../../Errors/HttpErrors';
  * @description Service layer for managing Company entities. This service provides business logic
  * for creating and updating company information.
  */
-@Service()
 export class CompanyService {
   /**
    * @description Initializes the CompanyService with the CompanyRepository.
    * @param companyRepository The repository for Company entities, injected by TypeDI.
    */
-  constructor(private readonly companyRepository: CompanyRepository) {}
+  constructor(@Inject('CompanyRepository') private readonly companyRepository: CompanyRepository) {}
 
   /**
    * @description Ensures that a given DTO (Data Transfer Object) is valid by performing class-validator validation.

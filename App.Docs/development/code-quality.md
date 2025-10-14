@@ -4,7 +4,7 @@
 
 This document defines the code quality standards, development practices, and tooling configuration for the NCY_8 project. Our goal is to maintain high code quality, consistency, and developer productivity through automated tooling and clear guidelines.
 
-## Monorepo Structure
+## Structure
 
 ### Yarn Workspace Configuration
 
@@ -13,7 +13,7 @@ Our project utilizes Yarn workspaces for managing multiple packages within a sin
 ```json
 // package.json (root)
 {
-  "name": "gogotime-monorepo",
+  "name": "gogotime",
   "version": "1.0.0",
   "private": true,
   "workspaces": ["App.API", "App.Web"],
@@ -53,7 +53,7 @@ Our project utilizes Yarn workspaces for managing multiple packages within a sin
 
 ### ESLint Configuration
 
-Our ESLint configuration is now unified at the root of the monorepo in `eslint.config.js`. This single configuration applies to both `App.API` and `App.Web` workspaces, ensuring consistent linting rules across the entire project. Individual workspaces reference this root configuration.
+Our ESLint configuration is now unified at the root in `eslint.config.js`. This single configuration applies to both `App.API` and `App.Web` workspaces, ensuring consistent linting rules across the entire project. Individual workspaces reference this root configuration.
 
 ```javascript
 // eslint.config.js (Root)
@@ -147,7 +147,7 @@ export default [
 
 ### Prettier Configuration
 
-Our Prettier configuration is defined at the root of the monorepo in `.prettierrc.json`. This ensures consistent code formatting across all files in both `App.API` and `App.Web` workspaces.
+Our Prettier configuration is defined at the root in `.prettierrc.json`. This ensures consistent code formatting across all files in both `App.API` and `App.Web` workspaces.
 
 ```json
 // .prettierrc.json (Root)
@@ -287,7 +287,7 @@ Impact:
 
 ### Commitlint Configuration
 
-Our Commitlint configuration is defined at the root of the monorepo in `commitlint.config.cjs`. It extends `@commitlint/config-conventional` and includes a custom plugin to enforce the "What/Why/How/Impact" sections in commit messages.
+Our Commitlint configuration is defined at the root in `commitlint.config.cjs`. It extends `@commitlint/config-conventional` and includes a custom plugin to enforce the "What/Why/How/Impact" sections in commit messages.
 
 ```javascript
 // commitlint.config.cjs (Root)
@@ -332,7 +332,7 @@ module.exports = {
 
 ### Husky Configuration
 
-Husky hooks are configured through individual script files located in the `.husky/` directory at the root of the monorepo.
+Husky hooks are configured through individual script files located in the `.husky/` directory at the root.
 
 #### `pre-commit` Hook
 
@@ -344,7 +344,7 @@ This hook runs `lint-staged` to format and lint staged files, blocks commits on 
 [ -z "${BASH_VERSION:-}" ] && exec /usr/bin/env bash "$0" "$@"
 
 # ------------------------------------------
-# 🧩 Husky pre-commit hook — GoGoTime Monorepo
+# 🧩 Husky pre-commit hook — GoGoTime
 # Runs staged checks, blocks secrets, enforces branch policy,
 # formats & lints code, typechecks & optional tests
 # ------------------------------------------
@@ -575,7 +575,7 @@ exit 0
 
 ### lint-staged Configuration
 
-Our `lint-staged` configuration is defined at the root of the monorepo in `.lintstagedrc.mjs`. It specifies which commands to run on staged files based on their location and type, ensuring that only relevant files are processed and root configuration files are skipped.
+Our `lint-staged` configuration is defined at the root in `.lintstagedrc.mjs`. It specifies which commands to run on staged files based on their location and type, ensuring that only relevant files are processed and root configuration files are skipped.
 
 ```javascript
 // .lintstagedrc.mjs (Root)

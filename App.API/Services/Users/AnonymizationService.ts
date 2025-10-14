@@ -1,9 +1,9 @@
-import { Service } from 'typedi';
-import { InjectRepository } from 'typeorm-typedi-extensions';
+import { Inject, Service } from 'typedi';
 import { Repository } from 'typeorm';
 import ActiveSession from '../../Entities/Users/ActiveSessions';
 import { NotFoundError } from '../../Errors/HttpErrors';
 import { UserRepository } from '../../Repositories/Users/UserRepository';
+import { getInitializedDataSource } from '../../Server/Database';
 
 /**
  * @description Service layer for handling user data anonymization. This service provides functionality
@@ -16,12 +16,11 @@ export class AnonymizationService {
    * @param userRepository The repository for User entities.
    * @param activeSessionRepository The TypeORM repository for ActiveSession entities.
    */
-  constructor(
-    private readonly userRepository: UserRepository,
+  constructor(@Inject('UserRepository') private readonly userRepository: UserRepository) {}
 
-    @InjectRepository(ActiveSession)
-    private readonly activeSessionRepository: Repository<ActiveSession>,
-  ) {}
+  private get activeSessionRepository(): Repository<ActiveSession> {
+    return getInitializedDataSource().getRepository(ActiveSession);
+  }
 
   /**
    * @description Anonymizes a user's personal data and hard deletes their active sessions.

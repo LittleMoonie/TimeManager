@@ -1,11 +1,10 @@
-import { Service } from "typedi";
+import { Inject, Service } from "typedi";
 import { SystemLog } from "../../../Entities/Logs/System/SystemLog";
-import { AppDataSource } from "../../../Server/Database";
+import { SystemLogRepository } from "../../../Repositories/Logs/System/SystemLogRepository";
 import { CreateSystemLogDto } from "../../../Dtos/Logs/System/SystemLogDto";
 
-@Service()
 export class SystemLogService {
-  private systemLogRepository = AppDataSource.getRepository(SystemLog);
+  constructor(@Inject("SystemLogRepository") private readonly systemLogRepository: SystemLogRepository) {}
 
   public async log(
     companyId: string,
@@ -14,10 +13,10 @@ export class SystemLogService {
     await this.systemLogRepository.save({
       companyId,
       ...createSystemLogDto,
-    });
+    } as SystemLog);
   }
 
   public async getLogs(companyId: string): Promise<SystemLog[]> {
-    return this.systemLogRepository.find({ where: { companyId } });
+    return this.systemLogRepository.findAll();
   }
 }

@@ -3,12 +3,13 @@
 /* tslint:disable */
 /* eslint-disable */
 export type RegisterDto = {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  companyId: string;
-  roleId: string;
-  statusId: string;
-  phoneNumber: string;
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    companyId: string;
+    roleId: string;
+    statusId: string;
+    phoneNumber: string;
 };
+

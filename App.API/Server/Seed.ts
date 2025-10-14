@@ -1,29 +1,22 @@
 import 'reflect-metadata';
-import { AppDataSource } from './Database';
-import { seedUserStatuses } from '../Seeds/01-seed-user-statuses';
-import { seedCompany } from '../Seeds/02-seed-company';
-import { seedRolesAndPermissions } from '../Seeds/03-seed-roles-permissions';
-import { seedUsers } from '../Seeds/04-seed-users';
-import { seedActionCodes } from '../Seeds/05-seed-action-codes';
+import { AppDataSource, connectDB, runSeeds } from './Database';
 
 const seedDatabase = async () => {
-  await AppDataSource.initialize();
+  await connectDB();
   try {
-    console.log('🌱 Seeding…');
-
-    const { statuses } = await seedUserStatuses(AppDataSource);
-    const { company } = await seedCompany(AppDataSource);
-    const { roles } = await seedRolesAndPermissions(AppDataSource, company);
-    await seedUsers(AppDataSource, company, roles, statuses);
-    await seedActionCodes(AppDataSource, company);
-
-    console.log('✅ Seeding complete');
+    await runSeeds({ force: true });
   } finally {
-    await AppDataSource.destroy();
+    if (AppDataSource.isInitialized) {
+      await AppDataSource.destroy();
+    }
   }
 };
 
-seedDatabase().catch((err) => {
-  console.error('❌ Error seeding database:', err);
-  process.exit(1);
-});
+seedDatabase()
+  .then(() => {
+    console.log('✅ Seeding complete');
+  })
+  .catch((err) => {
+    console.error('❌ Error seeding database:', err);
+    process.exit(1);
+  });

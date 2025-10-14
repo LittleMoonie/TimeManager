@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { validate } from 'class-validator';
 
 import { CompanySettingsRepository } from '../../Repositories/Companies/CompanySettingsRepository';
@@ -20,8 +20,9 @@ export class CompanySettingsService {
    * @param rolePermissionService The service for checking user permissions.
    */
   constructor(
+    @Inject('CompanySettingsRepository')
     private readonly companySettingsRepository: CompanySettingsRepository,
-    private readonly rolePermissionService: RolePermissionService,
+    @Inject('RolePermissionService') private readonly rolePermissionService: RolePermissionService,
   ) {}
 
   /**

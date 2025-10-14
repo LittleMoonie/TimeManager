@@ -4,7 +4,6 @@
   "private": true,
   "author": "Lazaro, Alexy, Massi, Lounis",
   "description": "API for T-DEV-700 Project for Epitech",
-  "main": "build/index.js",
   "scripts": {
     "eslint": "...",
     "eslint-*": "...",
@@ -13,8 +12,8 @@
     "@typescript-eslint/*": "...",
     "husky": "...",
     "test": "jest --coverage --runInBand --detectOpenHandles",
-    "dev": "ts-node-dev --respawn --transpile-only index.ts",
-    "seed": "ts-node server/seed.ts",
+    "dev": "ts-node-dev --respawn --transpile-only ./index.ts",
+    "seed": "ts-node Server/Seed.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "pm2 start ecosystem.config.cjs --only GoGoTime-API",
     "start:dev": "pm2 start ecosystem.cjs --only GoGoTime-API-dev",
@@ -23,13 +22,16 @@
     "migrate:show": "yarn typeorm migration:show -d ./Server/Database.ts",
     "migrate:up": "yarn typeorm migration:run -d ./Server/Database.ts",
     "migrate:down": "yarn typeorm migration:revert -d ./Server/Database.ts",
+    "api:client": "yarn dlx openapi-typescript-codegen --input swagger.json --output ../App.Web/src/lib/api --client axios --useOptions",
     "api:generate": "ts-node -r tsconfig-paths/register ./node_modules/.bin/tsoa routes && ts-node -r tsconfig-paths/register ./node_modules/.bin/tsoa spec",
     "api:sync": "yarn api:generate && cd ../App.Web && yarn api:client"
   },
   "dependencies": {
+    "@tsoa/runtime": "^6.6.0",
     "@types/uuid": "^11.0.0",
     "argon2": "^0.44.0",
     "bcryptjs": "^3.0.2",
+    "class-transformer": "^0.5.1",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
     "express": "^5.1.0",
@@ -38,6 +40,7 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.16.3",
+    "pg-query-stream": "^4.10.3",
     "pm2": "^5.4.3",
     "prettier": "^3.6.2",
     "reflect-metadata": "^0.2.2",
@@ -47,7 +50,6 @@
     "tsoa": "^6.0.0",
     "typedi": "^0.10.0",
     "typeorm": "^0.3.27",
-    "typeorm-typedi-extensions": "^0.4.1",
     "uuid": "^13.0.0",
     "winston": "^3.18.3"
   },
@@ -82,6 +84,5 @@
   },
   "eslintConfig": {
     "extends": "../../eslint.config.js"
-  },
-  "prettier": "../../.prettierrc.json"
+  }
 }
