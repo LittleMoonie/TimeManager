@@ -9,6 +9,7 @@ import Login from '@/pages/authentication/login';
 import UnauthorizedPage from '@/pages/authentication/unauthorized';
 import HomePage from '@/pages/index';
 import ManagerDashboard from '@/pages/manager/ManagerDashboard';
+import ProfilePage from '@/pages/ProfilePage';
 import CreateTimesheetPage from '@/pages/timesheet/CreateTimesheetPage';
 import TimesheetDetailsPage from '@/pages/timesheet/TimesheetDetailsPage';
 import TimesheetList from '@/pages/timesheet/TimesheetList';
@@ -110,7 +111,7 @@ export const AppRoutes = () => {
         {/* <Route path="people" element={<People />} */}
         <Route path="reports" element={<div>Reports Page</div>} />
         <Route path="settings" element={<div>Settings Page</div>} />
-        <Route path="profile" element={<div>Profile Page</div>} />
+        <Route path="profile" element={<ProfilePage />} />
         <Route
           path="manager-dashboard"
           element={

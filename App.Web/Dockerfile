@@ -10,8 +10,8 @@ WORKDIR /app
 RUN corepack enable && corepack prepare yarn@stable --activate
 
 # Copy dependency manifests first (cache layer)
-COPY App.Web/yarn.lock ./
-COPY App.Web/package.json ./
+COPY yarn.lock ./
+COPY package.json ./
 
 # 4️⃣ Install dependencies (immutable but fallback-safe)
 RUN yarn install --immutable || yarn install

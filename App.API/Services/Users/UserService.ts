@@ -88,10 +88,14 @@ export class UserService {
   /**
    * @description Converts a User entity to a UserResponseDto.
    * @param user The User entity to convert.
+   * @param options Optional: { withPermissions: boolean } to include user permissions.
    * @returns The converted UserResponseDto.
    */
-  private toResponse(user: User): UserResponseDto {
-    return {
+  private async toResponse(
+    user: User,
+    options?: { withPermissions?: boolean },
+  ): Promise<UserResponseDto> {
+    const response: UserResponseDto = {
       id: user.id,
       email: user.email,
       firstName: user.firstName,
@@ -129,6 +133,15 @@ export class UserService {
       lastLogin: user.lastLogin ?? undefined,
       deletedAt: user.deletedAt ?? undefined,
     };
+
+    if (options?.withPermissions) {
+      response.permissions = await this.rolePermissionService.getPermissionsForRole(
+        user.roleId,
+        user.companyId,
+      );
+    }
+
+    return response;
   }
 
   // -------------------------------------------------------------------
@@ -213,7 +226,7 @@ export class UserService {
     }
     const user = await this.userRepository.findByIdInCompany(userId, companyId);
     if (!user) throw new NotFoundError('User not found');
-    return this.toResponse(user);
+    return this.toResponse(user, { withPermissions: true });
   }
 
   /**

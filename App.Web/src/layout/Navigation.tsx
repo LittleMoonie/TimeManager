@@ -96,10 +96,6 @@ const NavListItem = ({
         </ListItemIcon>
         {!collapsed && (
           <ListItemText
-            primaryTypographyProps={{
-              variant: 'body2',
-              fontWeight: active ? 600 : 500,
-            }}
             primary={item.label}
           />
         )}
