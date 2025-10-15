@@ -707,7 +707,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hookform/resolvers@npm:^3.9.1":
+"@hookform/resolvers@npm:^3.10.0":
   version: 3.10.0
   resolution: "@hookform/resolvers@npm:3.10.0"
   peerDependencies:
@@ -968,7 +968,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/x-data-grid@npm:^8.13.1":
+"@mui/x-data-grid@npm:^8.14.0":
   version: 8.14.0
   resolution: "@mui/x-data-grid@npm:8.14.0"
   dependencies:
@@ -995,7 +995,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/x-date-pickers@npm:^8.12.0":
+"@mui/x-date-pickers@npm:^8.14.0":
   version: 8.14.0
   resolution: "@mui/x-date-pickers@npm:8.14.0"
   dependencies:
@@ -1301,7 +1301,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:^5.59.0":
+"@tanstack/react-query-devtools@npm:^5.90.2":
   version: 5.90.2
   resolution: "@tanstack/react-query-devtools@npm:5.90.2"
   dependencies:
@@ -1313,7 +1313,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.59.0":
+"@tanstack/react-query@npm:^5.90.3":
   version: 5.90.3
   resolution: "@tanstack/react-query@npm:5.90.3"
   dependencies:
@@ -1324,7 +1324,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/dom@npm:^10.0.0":
+"@testing-library/dom@npm:^10.4.1":
   version: 10.4.1
   resolution: "@testing-library/dom@npm:10.4.1"
   dependencies:
@@ -1374,7 +1374,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/user-event@npm:^14.5.2":
+"@testing-library/user-event@npm:^14.6.1":
   version: 14.6.1
   resolution: "@testing-library/user-event@npm:14.6.1"
   peerDependencies:
@@ -1653,7 +1653,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitest/coverage-v8@npm:^2.1.4":
+"@vitest/coverage-v8@npm:^2.1.9":
   version: 2.1.9
   resolution: "@vitest/coverage-v8@npm:2.1.9"
   dependencies:
@@ -1889,7 +1889,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.7.9":
+"axios@npm:^1.12.2":
   version: 1.12.2
   resolution: "axios@npm:1.12.2"
   dependencies:
@@ -2274,7 +2274,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dayjs@npm:^1.11.13":
+"dayjs@npm:^1.11.18":
   version: 1.11.18
   resolution: "dayjs@npm:1.11.18"
   checksum: 10c0/83b67f5d977e2634edf4f5abdd91d9041a696943143638063016915d2cd8c7e57e0751e40379a07ebca8be7a48dd380bef8752d22a63670f2d15970e34f96d7a
@@ -2824,37 +2824,37 @@ __metadata:
   dependencies:
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.1"
-    "@hookform/resolvers": "npm:^3.9.1"
+    "@hookform/resolvers": "npm:^3.10.0"
     "@mui/icons-material": "npm:^7.3.4"
     "@mui/material": "npm:^7.3.4"
     "@mui/system": "npm:^7.3.3"
-    "@mui/x-data-grid": "npm:^8.13.1"
-    "@mui/x-date-pickers": "npm:^8.12.0"
+    "@mui/x-data-grid": "npm:^8.14.0"
+    "@mui/x-date-pickers": "npm:^8.14.0"
     "@playwright/test": "npm:^1.56.0"
     "@rollup/rollup-linux-x64-gnu": "npm:^4.52.4"
-    "@tanstack/react-query": "npm:^5.59.0"
-    "@tanstack/react-query-devtools": "npm:^5.59.0"
-    "@testing-library/dom": "npm:^10.0.0"
+    "@tanstack/react-query": "npm:^5.90.3"
+    "@tanstack/react-query-devtools": "npm:^5.90.2"
+    "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^6.9.1"
     "@testing-library/react": "npm:^16.3.0"
-    "@testing-library/user-event": "npm:^14.5.2"
+    "@testing-library/user-event": "npm:^14.6.1"
     "@types/jsdom": "npm:^27.0.0"
     "@types/node": "npm:^24.7.2"
     "@types/react": "npm:^19.2.2"
     "@types/react-dom": "npm:^19.2.2"
     "@vitejs/plugin-react": "npm:^5.0.4"
-    "@vitest/coverage-v8": "npm:^2.1.4"
-    axios: "npm:^1.7.9"
+    "@vitest/coverage-v8": "npm:^2.1.9"
+    axios: "npm:^1.12.2"
     date-fns: "npm:^4.1.0"
-    dayjs: "npm:^1.11.13"
+    dayjs: "npm:^1.11.18"
     formik: "npm:^2.4.6"
     jsdom: "npm:^27.0.0"
     playwright: "npm:^1.56.0"
     react: "npm:^19.2.0"
     react-dom: "npm:^19.2.0"
-    react-hook-form: "npm:^7.53.2"
-    react-router-dom: "npm:^6.28.0"
-    recharts: "npm:^2.12.7"
+    react-hook-form: "npm:^7.65.0"
+    react-router-dom: "npm:^6.30.1"
+    recharts: "npm:^2.15.4"
     swagger-parser: "npm:^10.0.3"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^5.9.3"
@@ -2862,7 +2862,7 @@ __metadata:
     vite-tsconfig-paths: "npm:^5.1.4"
     vitest: "npm:^3.2.4"
     yup: "npm:^1.7.1"
-    zod: "npm:^3.23.8"
+    zod: "npm:^3.25.76"
   languageName: unknown
   linkType: soft
 
@@ -3736,7 +3736,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-hook-form@npm:^7.53.2":
+"react-hook-form@npm:^7.65.0":
   version: 7.65.0
   resolution: "react-hook-form@npm:7.65.0"
   peerDependencies:
@@ -3780,7 +3780,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:^6.28.0":
+"react-router-dom@npm:^6.30.1":
   version: 6.30.1
   resolution: "react-router-dom@npm:6.30.1"
   dependencies:
@@ -3849,7 +3849,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"recharts@npm:^2.12.7":
+"recharts@npm:^2.15.4":
   version: 2.15.4
   resolution: "recharts@npm:2.15.4"
   dependencies:
@@ -4896,7 +4896,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:^3.23.8":
+"zod@npm:^3.25.76":
   version: 3.25.76
   resolution: "zod@npm:3.25.76"
   checksum: 10c0/5718ec35e3c40b600316c5b4c5e4976f7fee68151bc8f8d90ec18a469be9571f072e1bbaace10f1e85cf8892ea12d90821b200e980ab46916a6166a4260a983c

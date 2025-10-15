@@ -293,28 +293,6 @@
         "type": "object",
         "additionalProperties": false
       },
-      "UpdateSelfDto": {
-        "properties": {
-          "email": {
-            "type": "string",
-            "example": "current.user@example.com"
-          },
-          "firstName": {
-            "type": "string",
-            "example": "Current"
-          },
-          "lastName": {
-            "type": "string",
-            "example": "User"
-          },
-          "phoneNumber": {
-            "type": "string",
-            "example": "+15551112222"
-          }
-        },
-        "type": "object",
-        "additionalProperties": false
-      },
       "UsersPage": {
         "properties": {
           "limit": {
@@ -361,16 +339,12 @@
             "type": "string",
             "example": "r1o2l3e4-i5d6-7890-1234-567890abcdef"
           },
-          "companyId": {
-            "type": "string",
-            "example": "c1o2m3p4-a5n6-7890-1234-567890abcdef"
-          },
           "phoneNumber": {
             "type": "string",
             "example": "+15551234567"
           }
         },
-        "required": ["email", "firstName", "lastName", "password", "roleId", "companyId"],
+        "required": ["email", "firstName", "lastName", "password", "roleId"],
         "type": "object",
         "additionalProperties": false
       },
@@ -2885,7 +2859,7 @@
             }
           }
         },
-        "summary": "Retrieves the personalized menu for the authenticated user.",
+        "summary": "Retrieves the personalized menu for the authenticated user within their company.",
         "tags": ["Users"],
         "security": [
           {
@@ -2893,71 +2867,11 @@
           }
         ],
         "parameters": []
-      }
-    },
-    "/users/me": {
-      "get": {
-        "operationId": "GetMe",
-        "responses": {
-          "200": {
-            "description": "The user's profile information.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "summary": "Retrieves the profile of the currently authenticated user.",
-        "tags": ["Users"],
-        "security": [
-          {
-            "jwt": []
-          }
-        ],
-        "parameters": []
-      },
-      "put": {
-        "operationId": "UpdateMe",
-        "responses": {
-          "200": {
-            "description": "The updated user profile.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "summary": "Updates the profile of the currently authenticated user.",
-        "tags": ["Users"],
-        "security": [
-          {
-            "jwt": []
-          }
-        ],
-        "parameters": [],
-        "requestBody": {
-          "description": "The data for updating the user's profile.",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateSelfDto",
-                "description": "The data for updating the user's profile."
-              }
-            }
-          }
-        }
       }
     },
     "/users": {
       "get": {
-        "operationId": "GetUsers",
+        "operationId": "ListUsers",
         "responses": {
           "200": {
             "description": "A paginated list of user details.",
@@ -2970,7 +2884,7 @@
             }
           }
         },
-        "summary": "Retrieves a paginated list of all users. [ADMIN]",
+        "summary": "Retrieves a paginated list of users within the authenticated user's company.",
         "tags": ["Users"],
         "security": [
           {
@@ -2997,33 +2911,6 @@
               "format": "double",
               "type": "number"
             }
-          },
-          {
-            "description": "Optional: A search query string.",
-            "in": "query",
-            "name": "q",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "Optional: Filter by role ID.",
-            "in": "query",
-            "name": "roleId",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "Optional: Filter by status ID.",
-            "in": "query",
-            "name": "statusId",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ]
       },
@@ -3041,7 +2928,7 @@
             }
           }
         },
-        "summary": "Creates a new user.",
+        "summary": "Creates a new user within the authenticated user's company.",
         "tags": ["Users"],
         "security": [
           {
@@ -3063,88 +2950,6 @@
         }
       }
     },
-    "/users/company/{companyId}": {
-      "get": {
-        "operationId": "GetUsersInCompany",
-        "responses": {
-          "200": {
-            "description": "A paginated list of user details.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UsersPage"
-                }
-              }
-            }
-          }
-        },
-        "summary": "Retrieves a paginated list of users within a company. [MANAGER]",
-        "tags": ["Users"],
-        "security": [
-          {
-            "jwt": []
-          }
-        ],
-        "parameters": [
-          {
-            "description": "The ID of the company.",
-            "in": "path",
-            "name": "companyId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "Optional: The page number for pagination.",
-            "in": "query",
-            "name": "page",
-            "required": false,
-            "schema": {
-              "format": "double",
-              "type": "number"
-            }
-          },
-          {
-            "description": "Optional: The number of items per page for pagination.",
-            "in": "query",
-            "name": "limit",
-            "required": false,
-            "schema": {
-              "format": "double",
-              "type": "number"
-            }
-          },
-          {
-            "description": "Optional: A search query string.",
-            "in": "query",
-            "name": "q",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "Optional: Filter by role ID.",
-            "in": "query",
-            "name": "roleId",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "Optional: Filter by status ID.",
-            "in": "query",
-            "name": "statusId",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ]
-      }
-    },
     "/users/{id}": {
       "get": {
         "operationId": "GetUserById",
@@ -3160,7 +2965,7 @@
             }
           }
         },
-        "summary": "Retrieves a single user's details by ID. [ADMIN]",
+        "summary": "Retrieves a single user's details by ID within the authenticated user's company.",
         "tags": ["Users"],
         "security": [
           {
@@ -3193,7 +2998,7 @@
             }
           }
         },
-        "summary": "Updates an existing user's details.",
+        "summary": "Updates an existing user's details within the authenticated user's company.",
         "tags": ["Users"],
         "security": [
           {
@@ -3231,7 +3036,7 @@
             "description": "No content"
           }
         },
-        "summary": "Deletes a user by anonymizing their data.",
+        "summary": "Soft-deletes a user within the authenticated user's company.",
         "tags": ["Users"],
         "security": [
           {
@@ -3240,7 +3045,7 @@
         ],
         "parameters": [
           {
-            "description": "The ID of the user to delete.",
+            "description": "The ID of the user to soft-delete.",
             "in": "path",
             "name": "id",
             "required": true,
@@ -4375,7 +4180,7 @@
         "tags": ["Roles"],
         "security": [
           {
-            "jwt": []
+            "jwt": ["admin"]
           }
         ],
         "parameters": []
@@ -5384,3 +5189,4 @@
     }
   ]
 }
+

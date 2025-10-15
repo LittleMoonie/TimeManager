@@ -55,839 +55,724 @@ const expressAuthenticationRecasted = expressAuthentication as (
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
-  UserStatusResponseDto: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      code: { dataType: 'string', required: true },
-      name: { dataType: 'string', required: true },
-      description: { dataType: 'string' },
-      canLogin: { dataType: 'boolean', required: true },
-      isTerminal: { dataType: 'boolean', required: true },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  CreateUserStatusDto: {
-    dataType: 'refObject',
-    properties: {
-      code: { dataType: 'string', required: true },
-      name: { dataType: 'string', required: true },
-      description: { dataType: 'string' },
-      canLogin: { dataType: 'boolean' },
-      isTerminal: { dataType: 'boolean' },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  UpdateUserStatusDto: {
-    dataType: 'refObject',
-    properties: {
-      code: { dataType: 'string' },
-      name: { dataType: 'string' },
-      description: { dataType: 'string' },
-      canLogin: { dataType: 'boolean' },
-      isTerminal: { dataType: 'boolean' },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  MenuCardDto: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      categoryKey: { dataType: 'string', required: true },
-      title: { dataType: 'string', required: true },
-      subtitle: { dataType: 'string', required: true },
-      route: { dataType: 'string', required: true },
-      icon: { dataType: 'string' },
-      requiredPermission: { dataType: 'string' },
-      featureFlag: { dataType: 'string' },
-      isEnabled: { dataType: 'boolean', required: true },
-      sortOrder: { dataType: 'double', required: true },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  MenuCategoryDto: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      key: { dataType: 'string', required: true },
-      title: { dataType: 'string', required: true },
-      icon: { dataType: 'string' },
-      sortOrder: { dataType: 'double', required: true },
-      cards: {
-        dataType: 'array',
-        array: { dataType: 'refObject', ref: 'MenuCardDto' },
-        required: true,
-      },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  MenuResponseDto: {
-    dataType: 'refObject',
-    properties: {
-      categories: {
-        dataType: 'array',
-        array: { dataType: 'refObject', ref: 'MenuCategoryDto' },
-        required: true,
-      },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  CompanyResponseDto: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      name: { dataType: 'string', required: true },
-      timezone: { dataType: 'string' },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  RoleResponse: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      name: { dataType: 'string', required: true },
-      description: { dataType: 'string' },
-      companyId: { dataType: 'string', required: true },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  UserResponseDto: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      email: { dataType: 'string', required: true },
-      firstName: { dataType: 'string', required: true },
-      lastName: { dataType: 'string', required: true },
-      companyId: { dataType: 'string', required: true },
-      company: { ref: 'CompanyResponseDto' },
-      roleId: { dataType: 'string', required: true },
-      role: { ref: 'RoleResponse' },
-      statusId: { dataType: 'string', required: true },
-      status: { ref: 'UserStatusResponseDto' },
-      createdAt: { dataType: 'datetime', required: true },
-      phoneNumber: { dataType: 'string' },
-      lastLogin: { dataType: 'datetime' },
-      deletedAt: {
-        dataType: 'union',
-        subSchemas: [{ dataType: 'datetime' }, { dataType: 'enum', enums: [null] }],
-      },
-      permissions: { dataType: 'array', array: { dataType: 'string' } },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  UpdateSelfDto: {
-    dataType: 'refObject',
-    properties: {
-      email: { dataType: 'string' },
-      firstName: { dataType: 'string' },
-      lastName: { dataType: 'string' },
-      phoneNumber: { dataType: 'string' },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  UsersPage: {
-    dataType: 'refAlias',
-    type: {
-      dataType: 'nestedObjectLiteral',
-      nestedProperties: {
-        limit: { dataType: 'double', required: true },
-        page: { dataType: 'double', required: true },
-        total: { dataType: 'double', required: true },
-        data: {
-          dataType: 'array',
-          array: { dataType: 'refObject', ref: 'UserResponseDto' },
-          required: true,
+    "UserStatusResponseDto": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "code": {"dataType":"string","required":true},
+            "name": {"dataType":"string","required":true},
+            "description": {"dataType":"string"},
+            "canLogin": {"dataType":"boolean","required":true},
+            "isTerminal": {"dataType":"boolean","required":true},
         },
-      },
-      validators: {},
+        "additionalProperties": false,
     },
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  CreateUserDto: {
-    dataType: 'refObject',
-    properties: {
-      email: { dataType: 'string', required: true },
-      firstName: { dataType: 'string', required: true },
-      lastName: { dataType: 'string', required: true },
-      password: { dataType: 'string', required: true },
-      roleId: { dataType: 'string', required: true },
-      companyId: { dataType: 'string', required: true },
-      phoneNumber: { dataType: 'string' },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CreateUserStatusDto": {
+        "dataType": "refObject",
+        "properties": {
+            "code": {"dataType":"string","required":true},
+            "name": {"dataType":"string","required":true},
+            "description": {"dataType":"string"},
+            "canLogin": {"dataType":"boolean"},
+            "isTerminal": {"dataType":"boolean"},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  UpdateUserDto: {
-    dataType: 'refObject',
-    properties: {
-      email: { dataType: 'string' },
-      firstName: { dataType: 'string' },
-      lastName: { dataType: 'string' },
-      password: { dataType: 'string' },
-      roleId: { dataType: 'string' },
-      statusId: { dataType: 'string' },
-      companyId: { dataType: 'string' },
-      phoneNumber: { dataType: 'string' },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "UpdateUserStatusDto": {
+        "dataType": "refObject",
+        "properties": {
+            "code": {"dataType":"string"},
+            "name": {"dataType":"string"},
+            "description": {"dataType":"string"},
+            "canLogin": {"dataType":"boolean"},
+            "isTerminal": {"dataType":"boolean"},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ActiveSessionResponseDto: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      userId: { dataType: 'string', required: true },
-      companyId: { dataType: 'string', required: true },
-      ip: { dataType: 'string' },
-      userAgent: { dataType: 'string' },
-      deviceId: { dataType: 'string' },
-      lastSeenAt: { dataType: 'datetime' },
-      createdAt: { dataType: 'datetime' },
-      expiresAt: { dataType: 'datetime' },
-      revokedAt: { dataType: 'datetime' },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "MenuCardDto": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "categoryKey": {"dataType":"string","required":true},
+            "title": {"dataType":"string","required":true},
+            "subtitle": {"dataType":"string","required":true},
+            "route": {"dataType":"string","required":true},
+            "icon": {"dataType":"string"},
+            "requiredPermission": {"dataType":"string"},
+            "featureFlag": {"dataType":"string"},
+            "isEnabled": {"dataType":"boolean","required":true},
+            "sortOrder": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  Company: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      version: { dataType: 'double', required: true },
-      createdAt: { dataType: 'datetime', required: true },
-      updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: { dataType: 'datetime' },
-      createdByUserId: { dataType: 'string' },
-      updatedByUserId: { dataType: 'string' },
-      name: { dataType: 'string', required: true },
-      timezone: { dataType: 'string' },
-      users: { dataType: 'array', array: { dataType: 'refObject', ref: 'User' }, required: true },
-      teams: { dataType: 'array', array: { dataType: 'refObject', ref: 'Team' }, required: true },
-      actionCodes: {
-        dataType: 'array',
-        array: { dataType: 'refObject', ref: 'ActionCode' },
-        required: true,
-      },
-      timesheetEntries: {
-        dataType: 'array',
-        array: { dataType: 'refObject', ref: 'TimesheetEntry' },
-        required: true,
-      },
-      teamMembers: {
-        dataType: 'array',
-        array: { dataType: 'refObject', ref: 'TeamMember' },
-        required: true,
-      },
-      timesheetHistory: {
-        dataType: 'array',
-        array: { dataType: 'refObject', ref: 'TimesheetHistory' },
-        required: true,
-      },
-      companySettings: { ref: 'CompanySettings', required: true },
-      menuCategories: {
-        dataType: 'array',
-        array: { dataType: 'refObject', ref: 'MenuCategory' },
-        required: true,
-      },
-      menuCards: {
-        dataType: 'array',
-        array: { dataType: 'refObject', ref: 'MenuCard' },
-        required: true,
-      },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "MenuCategoryDto": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "key": {"dataType":"string","required":true},
+            "title": {"dataType":"string","required":true},
+            "icon": {"dataType":"string"},
+            "sortOrder": {"dataType":"double","required":true},
+            "cards": {"dataType":"array","array":{"dataType":"refObject","ref":"MenuCardDto"},"required":true},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  Role: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      version: { dataType: 'double', required: true },
-      createdAt: { dataType: 'datetime', required: true },
-      updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: { dataType: 'datetime' },
-      createdByUserId: { dataType: 'string' },
-      updatedByUserId: { dataType: 'string' },
-      companyId: { dataType: 'string', required: true },
-      company: { ref: 'Company', required: true },
-      name: { dataType: 'string', required: true },
-      description: { dataType: 'string' },
-      rolePermissions: {
-        dataType: 'array',
-        array: { dataType: 'refObject', ref: 'RolePermission' },
-        required: true,
-      },
-      users: { dataType: 'array', array: { dataType: 'refObject', ref: 'User' }, required: true },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "MenuResponseDto": {
+        "dataType": "refObject",
+        "properties": {
+            "categories": {"dataType":"array","array":{"dataType":"refObject","ref":"MenuCategoryDto"},"required":true},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  RolePermission: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      version: { dataType: 'double', required: true },
-      createdAt: { dataType: 'datetime', required: true },
-      updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: { dataType: 'datetime' },
-      createdByUserId: { dataType: 'string' },
-      updatedByUserId: { dataType: 'string' },
-      companyId: { dataType: 'string', required: true },
-      company: { ref: 'Company', required: true },
-      roleId: { dataType: 'string', required: true },
-      role: { ref: 'Role', required: true },
-      permissionId: { dataType: 'string', required: true },
-      permission: { ref: 'Permission', required: true },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CompanyResponseDto": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "name": {"dataType":"string","required":true},
+            "timezone": {"dataType":"string"},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  Permission: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      version: { dataType: 'double', required: true },
-      createdAt: { dataType: 'datetime', required: true },
-      updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: { dataType: 'datetime' },
-      createdByUserId: { dataType: 'string' },
-      updatedByUserId: { dataType: 'string' },
-      companyId: { dataType: 'string', required: true },
-      company: { ref: 'Company', required: true },
-      name: { dataType: 'string', required: true },
-      description: { dataType: 'string' },
-      rolePermissions: {
-        dataType: 'array',
-        array: { dataType: 'refObject', ref: 'RolePermission' },
-        required: true,
-      },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "RoleResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "name": {"dataType":"string","required":true},
+            "description": {"dataType":"string"},
+            "companyId": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  User: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      version: { dataType: 'double', required: true },
-      createdAt: { dataType: 'datetime', required: true },
-      updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: { dataType: 'datetime' },
-      createdByUserId: { dataType: 'string' },
-      updatedByUserId: { dataType: 'string' },
-      companyId: { dataType: 'string', required: true },
-      company: { ref: 'Company', required: true },
-      email: { dataType: 'string', required: true },
-      firstName: { dataType: 'string', required: true },
-      lastName: { dataType: 'string', required: true },
-      passwordHash: { dataType: 'string', required: true },
-      mustChangePasswordAtNextLogin: { dataType: 'boolean', required: true },
-      roleId: { dataType: 'string', required: true },
-      role: { ref: 'Role', required: true },
-      phoneNumber: { dataType: 'string' },
-      lastLogin: { dataType: 'datetime' },
-      isAnonymized: { dataType: 'boolean', required: true },
-      activeSessions: {
-        dataType: 'array',
-        array: { dataType: 'refObject', ref: 'ActiveSession' },
-        required: true,
-      },
-      statusId: { dataType: 'string', required: true },
-      status: { ref: 'UserStatus', required: true },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "UserResponseDto": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "email": {"dataType":"string","required":true},
+            "firstName": {"dataType":"string","required":true},
+            "lastName": {"dataType":"string","required":true},
+            "companyId": {"dataType":"string","required":true},
+            "company": {"ref":"CompanyResponseDto"},
+            "roleId": {"dataType":"string","required":true},
+            "role": {"ref":"RoleResponse"},
+            "statusId": {"dataType":"string","required":true},
+            "status": {"ref":"UserStatusResponseDto"},
+            "createdAt": {"dataType":"datetime","required":true},
+            "phoneNumber": {"dataType":"string"},
+            "lastLogin": {"dataType":"datetime"},
+            "deletedAt": {"dataType":"union","subSchemas":[{"dataType":"datetime"},{"dataType":"enum","enums":[null]}]},
+            "permissions": {"dataType":"array","array":{"dataType":"string"}},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ActiveSession: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      version: { dataType: 'double', required: true },
-      createdAt: { dataType: 'datetime', required: true },
-      updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: { dataType: 'datetime' },
-      createdByUserId: { dataType: 'string' },
-      updatedByUserId: { dataType: 'string' },
-      companyId: { dataType: 'string', required: true },
-      company: { ref: 'Company', required: true },
-      userId: { dataType: 'string', required: true },
-      user: { ref: 'User', required: true },
-      tokenHash: { dataType: 'string', required: true },
-      previousTokenHash: { dataType: 'string' },
-      expiresAt: { dataType: 'datetime' },
-      revokedAt: { dataType: 'datetime' },
-      lastSeenAt: { dataType: 'datetime' },
-      ip: { dataType: 'string' },
-      userAgent: { dataType: 'string' },
-      deviceId: { dataType: 'string' },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "UsersPage": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"limit":{"dataType":"double","required":true},"page":{"dataType":"double","required":true},"total":{"dataType":"double","required":true},"data":{"dataType":"array","array":{"dataType":"refObject","ref":"UserResponseDto"},"required":true}},"validators":{}},
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  UserStatus: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      version: { dataType: 'double', required: true },
-      createdAt: { dataType: 'datetime', required: true },
-      updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: { dataType: 'datetime' },
-      createdByUserId: { dataType: 'string' },
-      updatedByUserId: { dataType: 'string' },
-      code: { dataType: 'string', required: true },
-      name: { dataType: 'string', required: true },
-      description: { dataType: 'string' },
-      canLogin: { dataType: 'boolean', required: true },
-      isTerminal: { dataType: 'boolean', required: true },
-      users: { dataType: 'array', array: { dataType: 'refObject', ref: 'User' }, required: true },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CreateUserDto": {
+        "dataType": "refObject",
+        "properties": {
+            "email": {"dataType":"string","required":true},
+            "firstName": {"dataType":"string","required":true},
+            "lastName": {"dataType":"string","required":true},
+            "password": {"dataType":"string","required":true},
+            "roleId": {"dataType":"string","required":true},
+            "phoneNumber": {"dataType":"string"},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  Team: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      version: { dataType: 'double', required: true },
-      createdAt: { dataType: 'datetime', required: true },
-      updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: { dataType: 'datetime' },
-      createdByUserId: { dataType: 'string' },
-      updatedByUserId: { dataType: 'string' },
-      companyId: { dataType: 'string', required: true },
-      company: { ref: 'Company', required: true },
-      name: { dataType: 'string', required: true },
-      members: {
-        dataType: 'array',
-        array: { dataType: 'refObject', ref: 'TeamMember' },
-        required: true,
-      },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "UpdateUserDto": {
+        "dataType": "refObject",
+        "properties": {
+            "email": {"dataType":"string"},
+            "firstName": {"dataType":"string"},
+            "lastName": {"dataType":"string"},
+            "password": {"dataType":"string"},
+            "roleId": {"dataType":"string"},
+            "statusId": {"dataType":"string"},
+            "companyId": {"dataType":"string"},
+            "phoneNumber": {"dataType":"string"},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  TeamMember: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      version: { dataType: 'double', required: true },
-      createdAt: { dataType: 'datetime', required: true },
-      updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: { dataType: 'datetime' },
-      createdByUserId: { dataType: 'string' },
-      updatedByUserId: { dataType: 'string' },
-      companyId: { dataType: 'string', required: true },
-      company: { ref: 'Company', required: true },
-      teamId: { dataType: 'string', required: true },
-      team: { ref: 'Team', required: true },
-      userId: { dataType: 'string', required: true },
-      user: { ref: 'User', required: true },
-      role: { dataType: 'string', required: true },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ActiveSessionResponseDto": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "userId": {"dataType":"string","required":true},
+            "companyId": {"dataType":"string","required":true},
+            "ip": {"dataType":"string"},
+            "userAgent": {"dataType":"string"},
+            "deviceId": {"dataType":"string"},
+            "lastSeenAt": {"dataType":"datetime"},
+            "createdAt": {"dataType":"datetime"},
+            "expiresAt": {"dataType":"datetime"},
+            "revokedAt": {"dataType":"datetime"},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ActionCodeType: {
-    dataType: 'refEnum',
-    enums: ['billable', 'non-billable'],
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ActionCode: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      version: { dataType: 'double', required: true },
-      createdAt: { dataType: 'datetime', required: true },
-      updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: { dataType: 'datetime' },
-      createdByUserId: { dataType: 'string' },
-      updatedByUserId: { dataType: 'string' },
-      companyId: { dataType: 'string', required: true },
-      company: { ref: 'Company', required: true },
-      code: { dataType: 'string', required: true },
-      name: { dataType: 'string', required: true },
-      color: { dataType: 'string', required: true },
-      type: { ref: 'ActionCodeType', required: true },
-      active: { dataType: 'boolean', required: true },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Company": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "version": {"dataType":"double","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "createdByUserId": {"dataType":"string"},
+            "updatedByUserId": {"dataType":"string"},
+            "name": {"dataType":"string","required":true},
+            "timezone": {"dataType":"string"},
+            "users": {"dataType":"array","array":{"dataType":"refObject","ref":"User"},"required":true},
+            "teams": {"dataType":"array","array":{"dataType":"refObject","ref":"Team"},"required":true},
+            "actionCodes": {"dataType":"array","array":{"dataType":"refObject","ref":"ActionCode"},"required":true},
+            "timesheetEntries": {"dataType":"array","array":{"dataType":"refObject","ref":"TimesheetEntry"},"required":true},
+            "teamMembers": {"dataType":"array","array":{"dataType":"refObject","ref":"TeamMember"},"required":true},
+            "timesheetHistory": {"dataType":"array","array":{"dataType":"refObject","ref":"TimesheetHistory"},"required":true},
+            "companySettings": {"ref":"CompanySettings","required":true},
+            "menuCategories": {"dataType":"array","array":{"dataType":"refObject","ref":"MenuCategory"},"required":true},
+            "menuCards": {"dataType":"array","array":{"dataType":"refObject","ref":"MenuCard"},"required":true},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  TimesheetStatus: {
-    dataType: 'refEnum',
-    enums: ['DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED'],
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  TimesheetEntry: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      version: { dataType: 'double', required: true },
-      createdAt: { dataType: 'datetime', required: true },
-      updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: { dataType: 'datetime' },
-      createdByUserId: { dataType: 'string' },
-      updatedByUserId: { dataType: 'string' },
-      companyId: { dataType: 'string', required: true },
-      company: { ref: 'Company', required: true },
-      userId: { dataType: 'string', required: true },
-      user: { ref: 'User', required: true },
-      timesheetId: { dataType: 'string' },
-      timesheet: { ref: 'Timesheet' },
-      actionCodeId: { dataType: 'string', required: true },
-      actionCode: { ref: 'ActionCode', required: true },
-      workMode: { ref: 'WorkMode', required: true },
-      country: { dataType: 'string', required: true },
-      startedAt: { dataType: 'datetime' },
-      endedAt: { dataType: 'datetime' },
-      durationMin: { dataType: 'double', required: true },
-      day: { dataType: 'string', required: true },
-      note: { dataType: 'string' },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Role": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "version": {"dataType":"double","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "createdByUserId": {"dataType":"string"},
+            "updatedByUserId": {"dataType":"string"},
+            "companyId": {"dataType":"string","required":true},
+            "company": {"ref":"Company","required":true},
+            "name": {"dataType":"string","required":true},
+            "description": {"dataType":"string"},
+            "rolePermissions": {"dataType":"array","array":{"dataType":"refObject","ref":"RolePermission"},"required":true},
+            "users": {"dataType":"array","array":{"dataType":"refObject","ref":"User"},"required":true},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  Timesheet: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      version: { dataType: 'double', required: true },
-      createdAt: { dataType: 'datetime', required: true },
-      updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: { dataType: 'datetime' },
-      createdByUserId: { dataType: 'string' },
-      updatedByUserId: { dataType: 'string' },
-      companyId: { dataType: 'string', required: true },
-      company: { ref: 'Company', required: true },
-      userId: { dataType: 'string', required: true },
-      user: { ref: 'User', required: true },
-      periodStart: { dataType: 'string', required: true },
-      periodEnd: { dataType: 'string', required: true },
-      status: { ref: 'TimesheetStatus', required: true },
-      submittedAt: { dataType: 'datetime' },
-      submittedByUserId: { dataType: 'string' },
-      approvedAt: { dataType: 'datetime' },
-      approverId: { dataType: 'string' },
-      totalMinutes: { dataType: 'double', required: true },
-      notes: { dataType: 'string' },
-      entries: {
-        dataType: 'array',
-        array: { dataType: 'refObject', ref: 'TimesheetEntry' },
-        required: true,
-      },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "RolePermission": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "version": {"dataType":"double","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "createdByUserId": {"dataType":"string"},
+            "updatedByUserId": {"dataType":"string"},
+            "companyId": {"dataType":"string","required":true},
+            "company": {"ref":"Company","required":true},
+            "roleId": {"dataType":"string","required":true},
+            "role": {"ref":"Role","required":true},
+            "permissionId": {"dataType":"string","required":true},
+            "permission": {"ref":"Permission","required":true},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  WorkMode: {
-    dataType: 'refEnum',
-    enums: ['office', 'remote', 'hybrid'],
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  TimesheetHistory: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      version: { dataType: 'double', required: true },
-      createdAt: { dataType: 'datetime', required: true },
-      updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: { dataType: 'datetime' },
-      createdByUserId: { dataType: 'string' },
-      updatedByUserId: { dataType: 'string' },
-      companyId: { dataType: 'string', required: true },
-      company: { ref: 'Company', required: true },
-      userId: { dataType: 'string', required: true },
-      targetType: {
-        dataType: 'union',
-        subSchemas: [
-          { dataType: 'enum', enums: ['Timesheet'] },
-          { dataType: 'enum', enums: ['TimesheetEntry'] },
-          { dataType: 'enum', enums: ['TimesheetApproval'] },
-          { dataType: 'enum', enums: ['ActionCode'] },
-        ],
-        required: true,
-      },
-      targetId: { dataType: 'string', required: true },
-      action: {
-        dataType: 'union',
-        subSchemas: [
-          { dataType: 'enum', enums: ['created'] },
-          { dataType: 'enum', enums: ['updated'] },
-          { dataType: 'enum', enums: ['submitted'] },
-          { dataType: 'enum', enums: ['approved'] },
-          { dataType: 'enum', enums: ['rejected'] },
-          { dataType: 'enum', enums: ['deleted'] },
-        ],
-        required: true,
-      },
-      actorUserId: { dataType: 'string' },
-      reason: { dataType: 'string' },
-      diff: { ref: 'IStringToStringDictionary' },
-      metadata: { ref: 'IStringToStringDictionary' },
-      occurredAt: { dataType: 'datetime', required: true },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Permission": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "version": {"dataType":"double","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "createdByUserId": {"dataType":"string"},
+            "updatedByUserId": {"dataType":"string"},
+            "companyId": {"dataType":"string","required":true},
+            "company": {"ref":"Company","required":true},
+            "name": {"dataType":"string","required":true},
+            "description": {"dataType":"string"},
+            "rolePermissions": {"dataType":"array","array":{"dataType":"refObject","ref":"RolePermission"},"required":true},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  'Record_string.number-Array_': {
-    dataType: 'refAlias',
-    type: {
-      dataType: 'nestedObjectLiteral',
-      nestedProperties: {},
-      additionalProperties: { dataType: 'array', array: { dataType: 'double' } },
-      validators: {},
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "User": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "version": {"dataType":"double","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "createdByUserId": {"dataType":"string"},
+            "updatedByUserId": {"dataType":"string"},
+            "companyId": {"dataType":"string","required":true},
+            "company": {"ref":"Company","required":true},
+            "email": {"dataType":"string","required":true},
+            "firstName": {"dataType":"string","required":true},
+            "lastName": {"dataType":"string","required":true},
+            "passwordHash": {"dataType":"string","required":true},
+            "mustChangePasswordAtNextLogin": {"dataType":"boolean","required":true},
+            "roleId": {"dataType":"string","required":true},
+            "role": {"ref":"Role","required":true},
+            "phoneNumber": {"dataType":"string"},
+            "lastLogin": {"dataType":"datetime"},
+            "isAnonymized": {"dataType":"boolean","required":true},
+            "activeSessions": {"dataType":"array","array":{"dataType":"refObject","ref":"ActiveSession"},"required":true},
+            "statusId": {"dataType":"string","required":true},
+            "status": {"ref":"UserStatus","required":true},
+        },
+        "additionalProperties": false,
     },
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ApproverPolicy: {
-    dataType: 'refEnum',
-    enums: ['manager_of_user', 'role_manager', 'explicit'],
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  CompanySettings: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      version: { dataType: 'double', required: true },
-      createdAt: { dataType: 'datetime', required: true },
-      updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: { dataType: 'datetime' },
-      createdByUserId: { dataType: 'string' },
-      updatedByUserId: { dataType: 'string' },
-      companyId: { dataType: 'string', required: true },
-      company: { ref: 'Company', required: true },
-      timezone: { dataType: 'string', required: true },
-      workWeek: { ref: 'Record_string.number-Array_', required: true },
-      holidayCalendar: { dataType: 'string' },
-      timesheetApproverPolicy: { ref: 'ApproverPolicy', required: true },
-      allowedEmailDomains: { dataType: 'array', array: { dataType: 'string' } },
-      requireCompanyEmail: { dataType: 'boolean', required: true },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ActiveSession": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "version": {"dataType":"double","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "createdByUserId": {"dataType":"string"},
+            "updatedByUserId": {"dataType":"string"},
+            "companyId": {"dataType":"string","required":true},
+            "company": {"ref":"Company","required":true},
+            "userId": {"dataType":"string","required":true},
+            "user": {"ref":"User","required":true},
+            "tokenHash": {"dataType":"string","required":true},
+            "previousTokenHash": {"dataType":"string"},
+            "expiresAt": {"dataType":"datetime"},
+            "revokedAt": {"dataType":"datetime"},
+            "lastSeenAt": {"dataType":"datetime"},
+            "ip": {"dataType":"string"},
+            "userAgent": {"dataType":"string"},
+            "deviceId": {"dataType":"string"},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  MenuCategory: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      version: { dataType: 'double', required: true },
-      createdAt: { dataType: 'datetime', required: true },
-      updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: { dataType: 'datetime' },
-      createdByUserId: { dataType: 'string' },
-      updatedByUserId: { dataType: 'string' },
-      key: { dataType: 'string', required: true },
-      title: { dataType: 'string', required: true },
-      icon: { dataType: 'string' },
-      sortOrder: { dataType: 'double', required: true },
-      companyId: { dataType: 'string', required: true },
-      company: { ref: 'Company', required: true },
-      cards: {
-        dataType: 'array',
-        array: { dataType: 'refObject', ref: 'MenuCard' },
-        required: true,
-      },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "UserStatus": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "version": {"dataType":"double","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "createdByUserId": {"dataType":"string"},
+            "updatedByUserId": {"dataType":"string"},
+            "code": {"dataType":"string","required":true},
+            "name": {"dataType":"string","required":true},
+            "description": {"dataType":"string"},
+            "canLogin": {"dataType":"boolean","required":true},
+            "isTerminal": {"dataType":"boolean","required":true},
+            "users": {"dataType":"array","array":{"dataType":"refObject","ref":"User"},"required":true},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  MenuCard: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      version: { dataType: 'double', required: true },
-      createdAt: { dataType: 'datetime', required: true },
-      updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: { dataType: 'datetime' },
-      createdByUserId: { dataType: 'string' },
-      updatedByUserId: { dataType: 'string' },
-      categoryKey: { dataType: 'string', required: true },
-      title: { dataType: 'string', required: true },
-      subtitle: { dataType: 'string', required: true },
-      route: { dataType: 'string', required: true },
-      icon: { dataType: 'string' },
-      requiredPermission: { dataType: 'string' },
-      featureFlag: { dataType: 'string' },
-      isEnabled: { dataType: 'boolean', required: true },
-      sortOrder: { dataType: 'double', required: true },
-      companyId: { dataType: 'string', required: true },
-      company: { ref: 'Company', required: true },
-      category: { ref: 'MenuCategory', required: true },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Team": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "version": {"dataType":"double","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "createdByUserId": {"dataType":"string"},
+            "updatedByUserId": {"dataType":"string"},
+            "companyId": {"dataType":"string","required":true},
+            "company": {"ref":"Company","required":true},
+            "name": {"dataType":"string","required":true},
+            "members": {"dataType":"array","array":{"dataType":"refObject","ref":"TeamMember"},"required":true},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IStringToStringDictionary: {
-    dataType: 'refObject',
-    properties: {},
-    additionalProperties: { dataType: 'string' },
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  CreateTimesheetEntryDto: {
-    dataType: 'refObject',
-    properties: {
-      actionCodeId: { dataType: 'string', required: true },
-      day: { dataType: 'string', required: true },
-      durationMin: { dataType: 'double', required: true },
-      country: { dataType: 'string', required: true },
-      workMode: { ref: 'WorkMode' },
-      note: { dataType: 'string' },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "TeamMember": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "version": {"dataType":"double","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "createdByUserId": {"dataType":"string"},
+            "updatedByUserId": {"dataType":"string"},
+            "companyId": {"dataType":"string","required":true},
+            "company": {"ref":"Company","required":true},
+            "teamId": {"dataType":"string","required":true},
+            "team": {"ref":"Team","required":true},
+            "userId": {"dataType":"string","required":true},
+            "user": {"ref":"User","required":true},
+            "role": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  UpdateTimesheetEntryDto: {
-    dataType: 'refObject',
-    properties: {
-      actionCodeId: { dataType: 'string' },
-      day: { dataType: 'string' },
-      durationMin: { dataType: 'double' },
-      country: { dataType: 'string' },
-      workMode: { ref: 'WorkMode' },
-      note: { dataType: 'string' },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ActionCodeType": {
+        "dataType": "refEnum",
+        "enums": ["billable","non-billable"],
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  TimesheetEntryResponseDto: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      actionCodeId: { dataType: 'string', required: true },
-      day: { dataType: 'string', required: true },
-      durationMin: { dataType: 'double', required: true },
-      country: { dataType: 'string', required: true },
-      workMode: { ref: 'WorkMode', required: true },
-      note: { dataType: 'string' },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ActionCode": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "version": {"dataType":"double","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "createdByUserId": {"dataType":"string"},
+            "updatedByUserId": {"dataType":"string"},
+            "companyId": {"dataType":"string","required":true},
+            "company": {"ref":"Company","required":true},
+            "code": {"dataType":"string","required":true},
+            "name": {"dataType":"string","required":true},
+            "color": {"dataType":"string","required":true},
+            "type": {"ref":"ActionCodeType","required":true},
+            "active": {"dataType":"boolean","required":true},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  TimesheetResponseDto: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      userId: { dataType: 'string', required: true },
-      periodStart: { dataType: 'string', required: true },
-      periodEnd: { dataType: 'string', required: true },
-      status: { dataType: 'string', required: true },
-      totalMinutes: { dataType: 'double', required: true },
-      notes: { dataType: 'string' },
-      entries: {
-        dataType: 'array',
-        array: { dataType: 'refObject', ref: 'TimesheetEntryResponseDto' },
-      },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "TimesheetStatus": {
+        "dataType": "refEnum",
+        "enums": ["DRAFT","SUBMITTED","APPROVED","REJECTED"],
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  CreateTimesheetDto: {
-    dataType: 'refObject',
-    properties: {
-      periodStart: { dataType: 'string', required: true },
-      periodEnd: { dataType: 'string', required: true },
-      notes: { dataType: 'string' },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "TimesheetEntry": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "version": {"dataType":"double","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "createdByUserId": {"dataType":"string"},
+            "updatedByUserId": {"dataType":"string"},
+            "companyId": {"dataType":"string","required":true},
+            "company": {"ref":"Company","required":true},
+            "userId": {"dataType":"string","required":true},
+            "user": {"ref":"User","required":true},
+            "timesheetId": {"dataType":"string"},
+            "timesheet": {"ref":"Timesheet"},
+            "actionCodeId": {"dataType":"string","required":true},
+            "actionCode": {"ref":"ActionCode","required":true},
+            "workMode": {"ref":"WorkMode","required":true},
+            "country": {"dataType":"string","required":true},
+            "startedAt": {"dataType":"datetime"},
+            "endedAt": {"dataType":"datetime"},
+            "durationMin": {"dataType":"double","required":true},
+            "day": {"dataType":"string","required":true},
+            "note": {"dataType":"string"},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  UpdateTimesheetDto: {
-    dataType: 'refObject',
-    properties: {
-      periodStart: { dataType: 'string' },
-      periodEnd: { dataType: 'string' },
-      notes: { dataType: 'string' },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Timesheet": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "version": {"dataType":"double","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "createdByUserId": {"dataType":"string"},
+            "updatedByUserId": {"dataType":"string"},
+            "companyId": {"dataType":"string","required":true},
+            "company": {"ref":"Company","required":true},
+            "userId": {"dataType":"string","required":true},
+            "user": {"ref":"User","required":true},
+            "periodStart": {"dataType":"string","required":true},
+            "periodEnd": {"dataType":"string","required":true},
+            "status": {"ref":"TimesheetStatus","required":true},
+            "submittedAt": {"dataType":"datetime"},
+            "submittedByUserId": {"dataType":"string"},
+            "approvedAt": {"dataType":"datetime"},
+            "approverId": {"dataType":"string"},
+            "totalMinutes": {"dataType":"double","required":true},
+            "notes": {"dataType":"string"},
+            "entries": {"dataType":"array","array":{"dataType":"refObject","ref":"TimesheetEntry"},"required":true},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ApprovalStatus: {
-    dataType: 'refEnum',
-    enums: ['PENDING', 'APPROVED', 'REJECTED'],
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  TimesheetApproval: {
-    dataType: 'refObject',
-    properties: {
-      id: { dataType: 'string', required: true },
-      version: { dataType: 'double', required: true },
-      createdAt: { dataType: 'datetime', required: true },
-      updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: { dataType: 'datetime' },
-      createdByUserId: { dataType: 'string' },
-      updatedByUserId: { dataType: 'string' },
-      companyId: { dataType: 'string', required: true },
-      company: { ref: 'Company', required: true },
-      timesheetId: { dataType: 'string', required: true },
-      timesheet: { ref: 'Timesheet', required: true },
-      approverId: { dataType: 'string', required: true },
-      approver: { ref: 'User', required: true },
-      status: { ref: 'ApprovalStatus', required: true },
-      reason: { dataType: 'string' },
-      decidedAt: { dataType: 'datetime' },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "WorkMode": {
+        "dataType": "refEnum",
+        "enums": ["office","remote","hybrid"],
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  CreateTimesheetApprovalDto: {
-    dataType: 'refObject',
-    properties: {
-      timesheetId: { dataType: 'string', required: true },
-      approverId: { dataType: 'string', required: true },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "TimesheetHistory": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "version": {"dataType":"double","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "createdByUserId": {"dataType":"string"},
+            "updatedByUserId": {"dataType":"string"},
+            "companyId": {"dataType":"string","required":true},
+            "company": {"ref":"Company","required":true},
+            "userId": {"dataType":"string","required":true},
+            "targetType": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["Timesheet"]},{"dataType":"enum","enums":["TimesheetEntry"]},{"dataType":"enum","enums":["TimesheetApproval"]},{"dataType":"enum","enums":["ActionCode"]}],"required":true},
+            "targetId": {"dataType":"string","required":true},
+            "action": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["created"]},{"dataType":"enum","enums":["updated"]},{"dataType":"enum","enums":["submitted"]},{"dataType":"enum","enums":["approved"]},{"dataType":"enum","enums":["rejected"]},{"dataType":"enum","enums":["deleted"]}],"required":true},
+            "actorUserId": {"dataType":"string"},
+            "reason": {"dataType":"string"},
+            "diff": {"ref":"IStringToStringDictionary"},
+            "metadata": {"ref":"IStringToStringDictionary"},
+            "occurredAt": {"dataType":"datetime","required":true},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  UpdateTimesheetApprovalDto: {
-    dataType: 'refObject',
-    properties: {
-      status: { ref: 'ApprovalStatus', required: true },
-      reason: { dataType: 'string' },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Record_string.number-Array_": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{},"additionalProperties":{"dataType":"array","array":{"dataType":"double"}},"validators":{}},
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  CreateActionCodeDto: {
-    dataType: 'refObject',
-    properties: {
-      name: { dataType: 'string', required: true },
-      code: { dataType: 'string', required: true },
-      color: { dataType: 'string' },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ApproverPolicy": {
+        "dataType": "refEnum",
+        "enums": ["manager_of_user","role_manager","explicit"],
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  UpdateActionCodeDto: {
-    dataType: 'refObject',
-    properties: {
-      name: { dataType: 'string' },
-      code: { dataType: 'string' },
-      color: { dataType: 'string' },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CompanySettings": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "version": {"dataType":"double","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "createdByUserId": {"dataType":"string"},
+            "updatedByUserId": {"dataType":"string"},
+            "companyId": {"dataType":"string","required":true},
+            "company": {"ref":"Company","required":true},
+            "timezone": {"dataType":"string","required":true},
+            "workWeek": {"ref":"Record_string.number-Array_","required":true},
+            "holidayCalendar": {"dataType":"string"},
+            "timesheetApproverPolicy": {"ref":"ApproverPolicy","required":true},
+            "allowedEmailDomains": {"dataType":"array","array":{"dataType":"string"}},
+            "requireCompanyEmail": {"dataType":"boolean","required":true},
+        },
+        "additionalProperties": false,
     },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  HealthResponse: {
-    dataType: 'refObject',
-    properties: {
-      status: { dataType: 'string', required: true },
-      timestamp: { dataType: 'string', required: true },
-      uptime: { dataType: 'double', required: true },
-      openapi: {
-        dataType: 'nestedObjectLiteral',
-        nestedProperties: {
-          needsRegeneration: { dataType: 'boolean' },
-          lastGenerated: { dataType: 'string' },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "MenuCategory": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "version": {"dataType":"double","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "createdByUserId": {"dataType":"string"},
+            "updatedByUserId": {"dataType":"string"},
+            "key": {"dataType":"string","required":true},
+            "title": {"dataType":"string","required":true},
+            "icon": {"dataType":"string"},
+            "sortOrder": {"dataType":"double","required":true},
+            "companyId": {"dataType":"string","required":true},
+            "company": {"ref":"Company","required":true},
+            "cards": {"dataType":"array","array":{"dataType":"refObject","ref":"MenuCard"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "MenuCard": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "version": {"dataType":"double","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "createdByUserId": {"dataType":"string"},
+            "updatedByUserId": {"dataType":"string"},
+            "categoryKey": {"dataType":"string","required":true},
+            "title": {"dataType":"string","required":true},
+            "subtitle": {"dataType":"string","required":true},
+            "route": {"dataType":"string","required":true},
+            "icon": {"dataType":"string"},
+            "requiredPermission": {"dataType":"string"},
+            "featureFlag": {"dataType":"string"},
+            "isEnabled": {"dataType":"boolean","required":true},
+            "sortOrder": {"dataType":"double","required":true},
+            "companyId": {"dataType":"string","required":true},
+            "company": {"ref":"Company","required":true},
+            "category": {"ref":"MenuCategory","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IStringToStringDictionary": {
+        "dataType": "refObject",
+        "properties": {
+        },
+        "additionalProperties": {"dataType":"string"},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CreateTimesheetEntryDto": {
+        "dataType": "refObject",
+        "properties": {
+            "actionCodeId": {"dataType":"string","required":true},
+            "day": {"dataType":"string","required":true},
+            "durationMin": {"dataType":"double","required":true},
+            "country": {"dataType":"string","required":true},
+            "workMode": {"ref":"WorkMode"},
+            "note": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "UpdateTimesheetEntryDto": {
+        "dataType": "refObject",
+        "properties": {
+            "actionCodeId": {"dataType":"string"},
+            "day": {"dataType":"string"},
+            "durationMin": {"dataType":"double"},
+            "country": {"dataType":"string"},
+            "workMode": {"ref":"WorkMode"},
+            "note": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "TimesheetEntryResponseDto": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "actionCodeId": {"dataType":"string","required":true},
+            "day": {"dataType":"string","required":true},
+            "durationMin": {"dataType":"double","required":true},
+            "country": {"dataType":"string","required":true},
+            "workMode": {"ref":"WorkMode","required":true},
+            "note": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "TimesheetResponseDto": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "userId": {"dataType":"string","required":true},
+            "periodStart": {"dataType":"string","required":true},
+            "periodEnd": {"dataType":"string","required":true},
+            "status": {"dataType":"string","required":true},
+            "totalMinutes": {"dataType":"double","required":true},
+            "notes": {"dataType":"string"},
+            "entries": {"dataType":"array","array":{"dataType":"refObject","ref":"TimesheetEntryResponseDto"}},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CreateTimesheetDto": {
+        "dataType": "refObject",
+        "properties": {
+            "periodStart": {"dataType":"string","required":true},
+            "periodEnd": {"dataType":"string","required":true},
+            "notes": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "UpdateTimesheetDto": {
+        "dataType": "refObject",
+        "properties": {
+            "periodStart": {"dataType":"string"},
+            "periodEnd": {"dataType":"string"},
+            "notes": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ApprovalStatus": {
+        "dataType": "refEnum",
+        "enums": ["PENDING","APPROVED","REJECTED"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "TimesheetApproval": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "version": {"dataType":"double","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "createdByUserId": {"dataType":"string"},
+            "updatedByUserId": {"dataType":"string"},
+            "companyId": {"dataType":"string","required":true},
+            "company": {"ref":"Company","required":true},
+            "timesheetId": {"dataType":"string","required":true},
+            "timesheet": {"ref":"Timesheet","required":true},
+            "approverId": {"dataType":"string","required":true},
+            "approver": {"ref":"User","required":true},
+            "status": {"ref":"ApprovalStatus","required":true},
+            "reason": {"dataType":"string"},
+            "decidedAt": {"dataType":"datetime"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CreateTimesheetApprovalDto": {
+        "dataType": "refObject",
+        "properties": {
+            "timesheetId": {"dataType":"string","required":true},
+            "approverId": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "UpdateTimesheetApprovalDto": {
+        "dataType": "refObject",
+        "properties": {
+            "status": {"ref":"ApprovalStatus","required":true},
+            "reason": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CreateActionCodeDto": {
+        "dataType": "refObject",
+        "properties": {
+            "name": {"dataType":"string","required":true},
+            "code": {"dataType":"string","required":true},
+            "color": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "UpdateActionCodeDto": {
+        "dataType": "refObject",
+        "properties": {
+            "name": {"dataType":"string"},
+            "code": {"dataType":"string"},
+            "color": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "HealthResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "status": {"dataType":"string","required":true},
+            "timestamp": {"dataType":"string","required":true},
+            "uptime": {"dataType":"double","required":true},
+            "openapi": {"dataType":"nestedObjectLiteral","nestedProperties":{"needsRegeneration":{"dataType":"boolean"},"lastGenerated":{"dataType":"string"}}},
         },
       },
     },
@@ -1373,221 +1258,65 @@ export function RegisterRoutes(app: Router) {
           controller.setStatus(undefined);
         }
 
-        await templateService.apiHandler({
-          methodName: 'getMenuForMe',
-          controller,
-          response,
-          next,
-          validatedArgs,
-          successStatus: undefined,
+              await templateService.apiHandler({
+                methodName: 'getMenuForMe',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
         });
-      } catch (err) {
-        return next(err);
-      }
-    },
-  );
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  const argsUserController_getMe: Record<string, TsoaRoute.ParameterSchema> = {
-    request: { in: 'request', name: 'request', required: true, dataType: 'object' },
-  };
-  app.get(
-    '/users/me',
-    authenticateMiddleware([{ jwt: [] }]),
-    ...fetchMiddlewares<RequestHandler>(UserController),
-    ...fetchMiddlewares<RequestHandler>(UserController.prototype.getMe),
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsUserController_listUsers: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+                page: {"in":"query","name":"page","dataType":"double"},
+                limit: {"in":"query","name":"limit","dataType":"double"},
+        };
+        app.get('/users',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(UserController)),
+            ...(fetchMiddlewares<RequestHandler>(UserController.prototype.listUsers)),
 
-    async function UserController_getMe(request: ExRequest, response: ExResponse, next: any) {
-      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+            async function UserController_listUsers(request: ExRequest, response: ExResponse, next: any) {
 
-      let validatedArgs: any[] = [];
-      try {
-        validatedArgs = templateService.getValidatedArgs({
-          args: argsUserController_getMe,
-          request,
-          response,
-        });
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
-        const container: IocContainer =
-          typeof iocContainer === 'function'
-            ? (iocContainer as IocContainerFactory)(request)
-            : iocContainer;
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsUserController_listUsers, request, response });
+
+                const container: IocContainer = typeof iocContainer === 'function' ? (iocContainer as IocContainerFactory)(request) : iocContainer;
 
         const controller: any = await container.get<UserController>(UserController);
         if (typeof controller['setStatus'] === 'function') {
           controller.setStatus(undefined);
         }
 
-        await templateService.apiHandler({
-          methodName: 'getMe',
-          controller,
-          response,
-          next,
-          validatedArgs,
-          successStatus: undefined,
+              await templateService.apiHandler({
+                methodName: 'listUsers',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
         });
-      } catch (err) {
-        return next(err);
-      }
-    },
-  );
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  const argsUserController_updateMe: Record<string, TsoaRoute.ParameterSchema> = {
-    updateSelfDto: { in: 'body', name: 'updateSelfDto', required: true, ref: 'UpdateSelfDto' },
-    request: { in: 'request', name: 'request', required: true, dataType: 'object' },
-  };
-  app.put(
-    '/users/me',
-    authenticateMiddleware([{ jwt: [] }]),
-    ...fetchMiddlewares<RequestHandler>(UserController),
-    ...fetchMiddlewares<RequestHandler>(UserController.prototype.updateMe),
-
-    async function UserController_updateMe(request: ExRequest, response: ExResponse, next: any) {
-      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-      let validatedArgs: any[] = [];
-      try {
-        validatedArgs = templateService.getValidatedArgs({
-          args: argsUserController_updateMe,
-          request,
-          response,
-        });
-
-        const container: IocContainer =
-          typeof iocContainer === 'function'
-            ? (iocContainer as IocContainerFactory)(request)
-            : iocContainer;
-
-        const controller: any = await container.get<UserController>(UserController);
-        if (typeof controller['setStatus'] === 'function') {
-          controller.setStatus(undefined);
-        }
-
-        await templateService.apiHandler({
-          methodName: 'updateMe',
-          controller,
-          response,
-          next,
-          validatedArgs,
-          successStatus: undefined,
-        });
-      } catch (err) {
-        return next(err);
-      }
-    },
-  );
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  const argsUserController_getUsers: Record<string, TsoaRoute.ParameterSchema> = {
-    request: { in: 'request', name: 'request', required: true, dataType: 'object' },
-    page: { in: 'query', name: 'page', dataType: 'double' },
-    limit: { in: 'query', name: 'limit', dataType: 'double' },
-    q: { in: 'query', name: 'q', dataType: 'string' },
-    roleId: { in: 'query', name: 'roleId', dataType: 'string' },
-    statusId: { in: 'query', name: 'statusId', dataType: 'string' },
-  };
-  app.get(
-    '/users',
-    authenticateMiddleware([{ jwt: [] }]),
-    ...fetchMiddlewares<RequestHandler>(UserController),
-    ...fetchMiddlewares<RequestHandler>(UserController.prototype.getUsers),
-
-    async function UserController_getUsers(request: ExRequest, response: ExResponse, next: any) {
-      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-      let validatedArgs: any[] = [];
-      try {
-        validatedArgs = templateService.getValidatedArgs({
-          args: argsUserController_getUsers,
-          request,
-          response,
-        });
-
-        const container: IocContainer =
-          typeof iocContainer === 'function'
-            ? (iocContainer as IocContainerFactory)(request)
-            : iocContainer;
-
-        const controller: any = await container.get<UserController>(UserController);
-        if (typeof controller['setStatus'] === 'function') {
-          controller.setStatus(undefined);
-        }
-
-        await templateService.apiHandler({
-          methodName: 'getUsers',
-          controller,
-          response,
-          next,
-          validatedArgs,
-          successStatus: undefined,
-        });
-      } catch (err) {
-        return next(err);
-      }
-    },
-  );
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  const argsUserController_getUsersInCompany: Record<string, TsoaRoute.ParameterSchema> = {
-    companyId: { in: 'path', name: 'companyId', required: true, dataType: 'string' },
-    request: { in: 'request', name: 'request', required: true, dataType: 'object' },
-    page: { in: 'query', name: 'page', dataType: 'double' },
-    limit: { in: 'query', name: 'limit', dataType: 'double' },
-    q: { in: 'query', name: 'q', dataType: 'string' },
-    roleId: { in: 'query', name: 'roleId', dataType: 'string' },
-    statusId: { in: 'query', name: 'statusId', dataType: 'string' },
-  };
-  app.get(
-    '/users/company/:companyId',
-    authenticateMiddleware([{ jwt: [] }]),
-    ...fetchMiddlewares<RequestHandler>(UserController),
-    ...fetchMiddlewares<RequestHandler>(UserController.prototype.getUsersInCompany),
-
-    async function UserController_getUsersInCompany(
-      request: ExRequest,
-      response: ExResponse,
-      next: any,
-    ) {
-      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-      let validatedArgs: any[] = [];
-      try {
-        validatedArgs = templateService.getValidatedArgs({
-          args: argsUserController_getUsersInCompany,
-          request,
-          response,
-        });
-
-        const container: IocContainer =
-          typeof iocContainer === 'function'
-            ? (iocContainer as IocContainerFactory)(request)
-            : iocContainer;
-
-        const controller: any = await container.get<UserController>(UserController);
-        if (typeof controller['setStatus'] === 'function') {
-          controller.setStatus(undefined);
-        }
-
-        await templateService.apiHandler({
-          methodName: 'getUsersInCompany',
-          controller,
-          response,
-          next,
-          validatedArgs,
-          successStatus: undefined,
-        });
-      } catch (err) {
-        return next(err);
-      }
-    },
-  );
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  const argsUserController_getUserById: Record<string, TsoaRoute.ParameterSchema> = {
-    id: { in: 'path', name: 'id', required: true, dataType: 'string' },
-    request: { in: 'request', name: 'request', required: true, dataType: 'object' },
-  };
-  app.get(
-    '/users/:id',
-    authenticateMiddleware([{ jwt: [] }]),
-    ...fetchMiddlewares<RequestHandler>(UserController),
-    ...fetchMiddlewares<RequestHandler>(UserController.prototype.getUserById),
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsUserController_getUserById: Record<string, TsoaRoute.ParameterSchema> = {
+                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.get('/users/:id',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(UserController)),
+            ...(fetchMiddlewares<RequestHandler>(UserController.prototype.getUserById)),
 
     async function UserController_getUserById(request: ExRequest, response: ExResponse, next: any) {
       // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -3376,28 +3105,26 @@ export function RegisterRoutes(app: Router) {
           controller.setStatus(undefined);
         }
 
-        await templateService.apiHandler({
-          methodName: 'getRole',
-          controller,
-          response,
-          next,
-          validatedArgs,
-          successStatus: undefined,
+              await templateService.apiHandler({
+                methodName: 'getRole',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
         });
-      } catch (err) {
-        return next(err);
-      }
-    },
-  );
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  const argsRoleController_listRoles: Record<string, TsoaRoute.ParameterSchema> = {
-    request: { in: 'request', name: 'request', required: true, dataType: 'object' },
-  };
-  app.get(
-    '/roles',
-    authenticateMiddleware([{ jwt: [] }]),
-    ...fetchMiddlewares<RequestHandler>(RoleController),
-    ...fetchMiddlewares<RequestHandler>(RoleController.prototype.listRoles),
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsRoleController_listRoles: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.get('/roles',
+            authenticateMiddleware([{"jwt":["admin"]}]),
+            ...(fetchMiddlewares<RequestHandler>(RoleController)),
+            ...(fetchMiddlewares<RequestHandler>(RoleController.prototype.listRoles)),
 
     async function RoleController_listRoles(request: ExRequest, response: ExResponse, next: any) {
       // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

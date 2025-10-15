@@ -1,0 +1,24 @@
+name: Build & Deploy Docs
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'App.API/**'
+      - 'App.Web/**'
+      - 'App.Docusaurus/**'
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install and Build Docusaurus
+        run: cd App.Docusaurus && yarn install && yarn build
+      # - name: Sync Swagger
+      #   # This step is commented out because it requires the API service to be running.
+      #   # To enable this, you would need to start the API in a previous step.
+      #   run: curl http://localhost:4000/swagger.json -o ./App.Docusaurus/static/swagger.json
+      - name: Deploy Docs
+        run: echo "✅ Docs built successfully"

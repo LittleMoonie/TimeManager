@@ -113,7 +113,7 @@ export default [
   // ⚛️ React settings
   {
     settings: {
-      react: { version: 'detect' },
+      react: { version: '19.0' },
     },
   },
 ];

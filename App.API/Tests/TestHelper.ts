@@ -50,7 +50,6 @@ export const startTestServer = async (app: Application, port = 0): Promise<Serve
   // eslint-disable-next-line promise/avoid-new
   new Promise((resolve) => {
     const server = app.listen(port, () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const actualPort = (server.address() as any)?.port;
 
       console.warn(`🧪 Test server running on port ${actualPort}`);
