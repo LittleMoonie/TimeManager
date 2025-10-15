@@ -1,7 +1,7 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 
-import { BaseRepository } from '../../Repositories/BaseRepository';
 import { RolePermission } from '../../Entities/Roles/RolePermission';
+import { BaseRepository } from '../../Repositories/BaseRepository';
 
 /**
  * @description Repository for managing RolePermission entities. Extends BaseRepository to provide standard CRUD operations
@@ -60,3 +60,5 @@ export class RolePermissionRepository extends BaseRepository<RolePermission> {
     await this.repository.delete({ companyId, id });
   }
 }
+
+Container.set('RolePermissionRepository', new RolePermissionRepository());

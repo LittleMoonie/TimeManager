@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Route, Tags, SuccessResponse, Response, Query } from 'tsoa';
-import { OpenApiService } from '../../Services/OpenApiService';
 import { Service } from 'typedi';
+
+import { OpenApiService } from '../../Services/OpenApiService';
 
 interface HealthResponse {
   status: string;
@@ -58,9 +59,11 @@ export class SystemController extends Controller {
           } else {
             console.error('❌ Auto-generation failed:', result.message);
           }
+          return void 0; // Explicitly return void
         })
         .catch((error) => {
           console.error('❌ Auto-generation error:', error);
+          return void 0; // Explicitly return void
         });
     }
 

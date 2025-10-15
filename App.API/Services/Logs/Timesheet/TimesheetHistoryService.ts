@@ -1,9 +1,14 @@
-import { Inject, Service } from "typedi";
-import { TimesheetHistoryRepository } from "../../../Repositories/Timesheets/TimesheetHistoryRepository";
-import { CreateTimesheetHistoryDto } from "../../../Dtos/Logs/Timesheet/TimesheetHistoryDto";
+import { Inject, Service } from 'typedi';
 
+import { CreateTimesheetHistoryDto } from '../../../Dtos/Logs/Timesheet/TimesheetHistoryDto';
+import { TimesheetHistoryRepository } from '../../../Repositories/Timesheets/TimesheetHistoryRepository';
+
+@Service()
 export class TimesheetHistoryService {
-  constructor(@Inject("TimesheetHistoryRepository") private readonly timesheetHistoryRepository: TimesheetHistoryRepository) {}
+  constructor(
+    @Inject('TimesheetHistoryRepository')
+    private readonly timesheetHistoryRepository: TimesheetHistoryRepository,
+  ) {}
 
   public async recordEvent(
     companyId: string,
@@ -22,17 +27,9 @@ export class TimesheetHistoryService {
 
   public async getHistoryForTarget(
     companyId: string,
-    targetType:
-      | "Timesheet"
-      | "TimesheetEntry"
-      | "TimesheetApproval"
-      | "ActionCode",
+    targetType: 'Timesheet' | 'TimesheetEntry' | 'TimesheetApproval' | 'ActionCode',
     targetId: string,
   ) {
-    return this.timesheetHistoryRepository.findAllForTarget(
-      companyId,
-      targetType,
-      targetId,
-    );
+    return this.timesheetHistoryRepository.findAllForTarget(companyId, targetType, targetId);
   }
 }

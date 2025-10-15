@@ -1,7 +1,7 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 
-import { BaseRepository } from '../../Repositories/BaseRepository';
 import { Role } from '../../Entities/Roles/Role';
+import { BaseRepository } from '../../Repositories/BaseRepository';
 
 /**
  * @description Repository for managing Role entities. Extends BaseRepository to provide standard CRUD operations
@@ -58,3 +58,5 @@ export class RoleRepository extends BaseRepository<Role> {
     });
   }
 }
+
+Container.set('RoleRepository', new RoleRepository());

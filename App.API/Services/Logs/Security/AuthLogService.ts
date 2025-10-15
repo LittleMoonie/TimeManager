@@ -1,12 +1,11 @@
 import { Inject, Service } from 'typedi';
-import {
-  AuthLog,
-  AuthLogAction,
-} from '../../../Entities/Logs/Security/AuthLog';
+
+import { AuthLog, AuthLogAction } from '../../../Entities/Logs/Security/AuthLog';
 import { AuthLogRepository } from '../../../Repositories/Logs/Security/AuthLogRepository';
 
+@Service()
 export class AuthLogService {
-  constructor(@Inject("AuthLogRepository") private readonly authLogRepository: AuthLogRepository) {}
+  constructor(@Inject('AuthLogRepository') private readonly authLogRepository: AuthLogRepository) {}
 
   public async log(
     companyId: string,
@@ -26,7 +25,7 @@ export class AuthLogService {
     } as AuthLog);
   }
 
-  public async getLogs(companyId: string): Promise<AuthLog[]> {
+  public async getLogs(): Promise<AuthLog[]> {
     return this.authLogRepository.findAll();
   }
 }

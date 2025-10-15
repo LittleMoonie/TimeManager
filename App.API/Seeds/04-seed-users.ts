@@ -1,8 +1,9 @@
-import { DataSource } from 'typeorm';
 import argon2 from 'argon2';
-import User from '../Entities/Users/User';
+import { DataSource } from 'typeorm';
+
 import { Company } from '../Entities/Companies/Company';
 import { Role } from '../Entities/Roles/Role';
+import User from '../Entities/Users/User';
 import { UserStatus } from '../Entities/Users/UserStatus';
 
 type RolesMap = Map<string, Role>;
@@ -53,13 +54,16 @@ export async function seedUsers(
     return user;
   };
 
-  const ceo = await makeUser('ceo@demo.example.com', 'Ceo', 'Demo', 'Owner/CEO');
-  const mgr = await makeUser('manager@demo.example.com', 'Mila', 'Manager', 'Manager');
-  const empl = await makeUser('employee@demo.example.com', 'Eli', 'Employee', 'Employee');
+  const companyAdmin = await makeUser('admin@demo.example.com', 'Admin', 'User', 'company_admin');
+  const mgr = await makeUser('manager@demo.example.com', 'Mila', 'Manager', 'manager');
+  const empl = await makeUser('employee@demo.example.com', 'Eli', 'Employee', 'employee');
+  const hr = await makeUser('hr@demo.example.com', 'Harriet', 'HumanResources', 'hr');
+  const payroll = await makeUser('payroll@demo.example.com', 'Pat', 'Payroll', 'payroll');
+  const auditor = await makeUser('auditor@demo.example.com', 'Audrey', 'Auditor', 'auditor');
 
   // Print dev creds (optional)
   console.log('🔑 Default dev password for seeded users:', defaultPassword);
   console.log('   (They must change it on first login)');
 
-  return { ceo, mgr, empl };
+  return { companyAdmin, mgr, empl, hr, payroll, auditor };
 }

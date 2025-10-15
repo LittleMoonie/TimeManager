@@ -4,6 +4,8 @@
 /* eslint-disable */
 import type { ActionCode } from './ActionCode';
 import type { CompanySettings } from './CompanySettings';
+import type { MenuCard } from './MenuCard';
+import type { MenuCategory } from './MenuCategory';
 import type { Team } from './Team';
 import type { TeamMember } from './TeamMember';
 import type { TimesheetEntry } from './TimesheetEntry';
@@ -26,5 +28,7 @@ export type Company = {
     teamMembers: Array<TeamMember>;
     timesheetHistory: Array<TimesheetHistory>;
     companySettings: CompanySettings;
+    menuCategories: Array<MenuCategory>;
+    menuCards: Array<MenuCard>;
 };
 

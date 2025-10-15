@@ -1,3 +1,4 @@
+import { Request as ExpressRequest } from 'express';
 import {
   Body,
   Controller,
@@ -10,13 +11,12 @@ import {
   Put,
   Delete,
 } from 'tsoa';
-import { Request as ExpressRequest } from 'express';
 import { Service } from 'typedi';
 
-import { CompanySettingsService } from '../../Services/Companies/CompanySettingsService';
 import { UpdateCompanySettingsDto } from '../../Dtos/Companies/CompanyDto';
 import { CompanySettings } from '../../Entities/Companies/CompanySettings';
 import User from '../../Entities/Users/User';
+import { CompanySettingsService } from '../../Services/Companies/CompanySettingsService';
 
 /**
  * @summary Controller for managing company settings.

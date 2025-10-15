@@ -1,15 +1,17 @@
-import { Inject, Service } from 'typedi';
 import { validate } from 'class-validator';
-import { ActionCodeRepository } from '../../Repositories/Timesheets/ActionCodeRepository';
-import { TimesheetHistoryRepository } from '../../Repositories/Timesheets/TimesheetHistoryRepository';
+import { Inject, Service } from 'typedi';
+
+import { CreateActionCodeDto, UpdateActionCodeDto } from '../../Dtos/Timesheet/TimesheetDto';
 import { ActionCode } from '../../Entities/Timesheets/ActionCode';
 import { NotFoundError, UnprocessableEntityError } from '../../Errors/HttpErrors';
-import { CreateActionCodeDto, UpdateActionCodeDto } from '../../Dtos/Timesheet/TimesheetDto';
+import { ActionCodeRepository } from '../../Repositories/Timesheets/ActionCodeRepository';
+import { TimesheetHistoryRepository } from '../../Repositories/Timesheets/TimesheetHistoryRepository';
 
 /**
  * @description Service layer for managing ActionCode entities. This service provides business logic
  * for creating, retrieving, updating, and deleting action codes, and records these events in the timesheet history.
  */
+@Service()
 export class ActionCodeService {
   /**
    * @description Initializes the ActionCodeService with necessary repositories.

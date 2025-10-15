@@ -1,6 +1,7 @@
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
-import { AppDataSource } from '../Server/Database';
+
 import User from '../Entities/Users/User';
+import { AppDataSource } from '../Server/Database';
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -10,7 +11,10 @@ const jwtOptions = {
 export const jwtStrategy = new JwtStrategy(jwtOptions, async (payload: { id: string }, done) => {
   try {
     const userRepository = AppDataSource.getRepository(User);
-    const user = await userRepository.findOne({ where: { id: payload.id } });
+    const user = await userRepository.findOne({
+      where: { id: payload.id },
+      relations: ['role', 'role.rolePermissions', 'role.rolePermissions.permission'],
+    });
 
     if (user) {
       // Attach the necessary user information to the request object

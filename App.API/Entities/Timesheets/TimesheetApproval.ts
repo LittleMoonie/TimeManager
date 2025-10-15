@@ -1,8 +1,10 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+
 import { BaseEntity } from '../BaseEntity';
 import { Company } from '../Companies/Company';
-import { Timesheet } from './Timesheet';
 import User from '../Users/User';
+
+import { Timesheet } from './Timesheet';
 
 /**
  * @description Defines the possible statuses for a timesheet approval.

@@ -1,3 +1,4 @@
+import { Request as ExpressRequest } from 'express';
 import {
   Body,
   Controller,
@@ -12,13 +13,12 @@ import {
   Put,
   Delete,
 } from 'tsoa';
-import { Request as ExpressRequest } from 'express';
 import { Service } from 'typedi';
 
-import { RoleService } from '../../Services/RoleService/RoleService';
 import { CreateRoleDto, UpdateRoleDto } from '../../Dtos/Roles/RoleDto';
 import { Role } from '../../Entities/Roles/Role';
 import User from '../../Entities/Users/User';
+import { RoleService } from '../../Services/RoleService/RoleService';
 
 /**
  * @summary Controller for managing roles within a company.

@@ -1,6 +1,7 @@
-import { Service } from 'typedi';
-import { BaseRepository } from '../../Repositories/BaseRepository';
+import Container, { Service } from 'typedi';
+
 import { TimesheetApproval } from '../../Entities/Timesheets/TimesheetApproval';
+import { BaseRepository } from '../../Repositories/BaseRepository';
 
 /**
  * @description Repository for managing TimesheetApproval entities. Extends BaseRepository to provide standard CRUD operations
@@ -76,3 +77,5 @@ export class TimesheetApprovalRepository extends BaseRepository<TimesheetApprova
     });
   }
 }
+
+Container.set('TimesheetApprovalRepository', new TimesheetApprovalRepository());

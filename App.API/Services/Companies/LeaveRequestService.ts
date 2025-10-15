@@ -1,17 +1,18 @@
-import { Inject, Service } from 'typedi';
 import { validate } from 'class-validator';
+import { Inject, Service } from 'typedi';
 
-import { LeaveRequestRepository } from '../../Repositories/Companies/LeaveRequestRepository';
 import { CreateLeaveRequestDto, UpdateLeaveRequestDto } from '../../Dtos/Companies/CompanyDto';
 import { LeaveRequest } from '../../Entities/Companies/LeaveRequest';
-import { ForbiddenError, NotFoundError, UnprocessableEntityError } from '../../Errors/HttpErrors';
 import User from '../../Entities/Users/User';
+import { ForbiddenError, NotFoundError, UnprocessableEntityError } from '../../Errors/HttpErrors';
+import { LeaveRequestRepository } from '../../Repositories/Companies/LeaveRequestRepository';
 import { RolePermissionService } from '../../Services/RoleService/RolePermissionService';
 
 /**
  * @description Service layer for managing LeaveRequest entities. This service provides business logic
  * for leave request operations, including creation, updates, and deletion, with integrated permission checks.
  */
+@Service()
 export class LeaveRequestService {
   /**
    * @description Initializes the LeaveRequestService with necessary repositories and services.
@@ -21,7 +22,7 @@ export class LeaveRequestService {
   constructor(
     @Inject('LeaveRequestRepository')
     private readonly leaveRequestRepository: LeaveRequestRepository,
-    @Inject('RolePermissionService') private readonly rolePermissionService: RolePermissionService,
+    private readonly rolePermissionService: RolePermissionService,
   ) {}
 
   /**

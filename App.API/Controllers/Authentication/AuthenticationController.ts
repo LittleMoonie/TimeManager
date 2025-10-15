@@ -1,17 +1,22 @@
 // App.API/Controllers/Authentication/AuthenticationController.ts
 import { Request as ExpressRequest } from 'express';
-import { LoginDto, RegisterDto } from '../../Dtos/Authentication/AuthenticationDto'; // unified file
-import { AuthenticationService } from '../../Services/AuthenticationService/AuthenticationService';
-import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
-import { Service } from 'typedi';
-import { ForbiddenError, NotFoundError, UnprocessableEntityError } from '../../Errors/HttpErrors';
 import { Body, Controller, Post, Route, Tags, SuccessResponse, Get, Security, Request } from 'tsoa';
+import { Service } from 'typedi';
+
+import { LoginDto, RegisterDto } from '../../Dtos/Authentication/AuthenticationDto'; // unified file
+import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
+import { ForbiddenError, NotFoundError } from '../../Errors/HttpErrors';
+import { AuthenticationService } from '../../Services/AuthenticationService/AuthenticationService';
 
 @Route('auth')
 @Tags('Authentication')
 @Service()
 export class AuthenticationController extends Controller {
   constructor(private authenticationService: AuthenticationService) {
+    /**
+     * @description Initializes the AuthenticationController with the AuthenticationService.
+     * @param authenticationService The AuthenticationService injected by TypeDI.
+     */
     super();
   }
 
@@ -126,7 +131,11 @@ export class AuthenticationController extends Controller {
     if (!request.user) {
       throw new ForbiddenError('User not authenticated');
     }
-    const user = request.user as UserResponseDto;
+    const { id, companyId } = request.user as UserResponseDto;
+    const user = await this.authenticationService.getCurrentUser(id, companyId);
+
+    this.setHeader('Cache-Control', 'no-cache');
+
     return {
       id: user.id,
       email: user.email,
@@ -143,6 +152,14 @@ export class AuthenticationController extends Controller {
             id: user.company.id,
             name: user.company.name,
             timezone: user.company.timezone,
+          }
+        : undefined,
+      role: user.role
+        ? {
+            id: user.role.id,
+            name: user.role.name,
+            description: user.role.description,
+            companyId: user.role.companyId,
           }
         : undefined,
       status: user.status

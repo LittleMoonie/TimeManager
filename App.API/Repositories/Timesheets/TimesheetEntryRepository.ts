@@ -1,4 +1,5 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
+
 import { TimesheetEntry } from '../../Entities/Timesheets/TimesheetEntry';
 import { BaseRepository } from '../../Repositories/BaseRepository';
 
@@ -25,3 +26,5 @@ export class TimesheetEntryRepository extends BaseRepository<TimesheetEntry> {
     return this.repository.find({ where: { timesheetId } });
   }
 }
+
+Container.set('TimesheetEntryRepository', new TimesheetEntryRepository());

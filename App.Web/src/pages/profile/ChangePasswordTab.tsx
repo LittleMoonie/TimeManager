@@ -1,5 +1,6 @@
-import { useState } from 'react';
 import { Box, Card, CardContent, Typography, TextField, Button, Stack, Alert } from '@mui/material';
+import { useState } from 'react';
+
 import { useAuth } from '@/hooks/useAuth';
 
 export const ChangePasswordTab = () => {

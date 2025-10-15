@@ -1,54 +1,77 @@
-#!/bin/sh
-# Enforce Conventional Commit structure + What/Why/How/Impact sections
-# Called by Git with the commit message file path as $1
+#!/usr/bin/env bash
+# 🧱 Husky commit-msg hook — GoGoTime
+# Enforce Conventional Commit + What/Why/How/Impact structure
+
+set -Eeuo pipefail
 
 MSGFILE="$1"
 
-# Verify commitlint is installed
+# --- Pretty helpers ---
+red()  { printf "\033[31m%s\033[0m\n" "$*"; }
+grn()  { printf "\033[32m%s\033[0m\n" "$*"; }
+ylw()  { printf "\033[33m%s\033[0m\n" "$*"; }
+blu()  { printf "\033[34m%s\033[0m\n" "$*"; }
+
+echo ""
+blu "───────────────────────────────────────────────"
+blu "🪶  Validating Commit Message (GoGoTime)"
+blu "───────────────────────────────────────────────"
+echo ""
+
+# --- Check yarn presence ---
 if ! command -v yarn >/dev/null 2>&1; then
-  echo "❌ Yarn not found. Please install dependencies before committing."
+  red "❌ Yarn not found. Please install dependencies before committing."
+  echo ""
+  echo "   Run:  yarn install"
   exit 1
 fi
 
-# Run commitlint validation
-echo "🔍 Validating commit message format..."
-if ! yarn dlx commitlint --edit "$MSGFILE"; then
+# --- Run commitlint ---
+note="🔍 Validating commit message format..."
+echo "$note"
+echo ""
+
+if ! yarn dlx commitlint --quiet --edit "$MSGFILE"; then
   echo ""
-  echo "🛑 Commit message validation failed."
-  echo "Your commit message must follow the structure:"
+  red "🛑 Commit message validation failed!"
   echo ""
-  echo "  <type>: short summary"
+  ylw "Your commit message must follow the structure:"
   echo ""
-  echo "  What:"
-  echo "  - Describe what changed"
-  echo ""
-  echo "  Why:"
-  echo "  - Explain the motivation"
-  echo ""
-  echo "  How:"
-  echo "  - Summarize how it was done"
-  echo ""
-  echo "  Impact:"
-  echo "  - Mention side effects or important implications"
-  echo ""
-  echo "Example:"
-  echo ""
-  echo "  feat: add leave request approval panel"
-  echo ""
-  echo "  What:"
-  echo "  - Added approval UI and backend endpoint integration"
-  echo ""
-  echo "  Why:"
-  echo "  - Needed a way for managers to handle requests"
-  echo ""
-  echo "  How:"
-  echo "  - Created LeaveRequestPanel.tsx and linked to service"
-  echo ""
-  echo "  Impact:"
-  echo "  - Requires DB migration for new approval status"
+  cat <<'EXAMPLE'
+  <type>(scope): short summary
+
+  What:
+  - Describe what changed
+
+  Why:
+  - Explain the motivation
+
+  How:
+  - Summarize how it was done
+
+  Impact:
+  - Mention side effects or implications
+
+  Example:
+
+  feat(timesheet): add leave request approval panel
+
+  What:
+  - Added approval UI and backend endpoint integration
+
+  Why:
+  - Managers needed a way to handle requests
+
+  How:
+  - Created LeaveRequestPanel.tsx and linked to service
+
+  Impact:
+  - Requires DB migration for new approval status
+EXAMPLE
   echo ""
   exit 1
 fi
 
-echo "✅ Commit message passed linting."
+grn "✅ Commit message passed linting."
+echo ""
 exit 0

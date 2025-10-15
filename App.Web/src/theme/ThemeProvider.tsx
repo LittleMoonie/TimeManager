@@ -1,3 +1,5 @@
+import { CssBaseline, GlobalStyles, useMediaQuery } from '@mui/material';
+import { ThemeProvider as MuiThemeProvider, useTheme as useMuiTheme } from '@mui/material/styles';
 import {
   createContext,
   useCallback,
@@ -8,9 +10,7 @@ import {
   useRef,
   type ReactNode,
 } from 'react';
-import { CssBaseline, GlobalStyles, useMediaQuery } from '@mui/material';
-import { ThemeProvider as MuiThemeProvider, useTheme as useMuiTheme } from '@mui/material/styles';
-import type { PaletteMode, Theme } from '@mui/material';
+
 import {
   createAppTheme,
   defaultThemeId,
@@ -21,6 +21,8 @@ import {
   type ThemeId,
   type ThemePreset,
 } from './theme';
+
+import type { PaletteMode, Theme } from '@mui/material';
 
 const STORAGE_KEY = 'gogotime-theme';
 

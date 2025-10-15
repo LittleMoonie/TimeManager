@@ -1,8 +1,5 @@
-import { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
   Alert,
   Box,
@@ -17,7 +14,11 @@ import {
   Checkbox,
   FormControlLabel,
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Link as RouterLink } from 'react-router-dom';
+import { z } from 'zod';
+
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -43,6 +44,7 @@ const LoginPage = () => {
   });
 
   const onSubmit = async (data: LoginFormInputs) => {
+    console.log('Login form data:', data);
     try {
       await login({ email: data.email, password: data.password, rememberMe });
     } catch {

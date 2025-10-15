@@ -1,11 +1,6 @@
-import {
-  IsNotEmpty,
-  IsString,
-  IsOptional,
-  IsEnum,
-  IsNumber,
-} from "class-validator";
-import { WebhookLogType } from "../../../Entities/Logs/Webhooks/WebhookLog";
+import { IsNotEmpty, IsString, IsOptional, IsEnum, IsNumber } from 'class-validator';
+
+import { WebhookLogType } from '../../../Entities/Logs/Webhooks/WebhookLog';
 
 export interface IStringToStringDictionary {
   [key: string]: string;

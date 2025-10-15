@@ -1,8 +1,9 @@
+import { AccountBalanceWalletRounded } from '@mui/icons-material';
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
+
 import { KpiCard } from '@/components/KpiCard';
 import { AppThemeProvider } from '@/theme';
-import { AccountBalanceWalletRounded } from '@mui/icons-material';
 
 const withTheme = (node: React.ReactNode) => <AppThemeProvider>{node}</AppThemeProvider>;
 

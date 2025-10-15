@@ -1,3 +1,4 @@
+import { Request as ExpressRequest } from 'express';
 import {
   Body,
   Controller,
@@ -12,13 +13,12 @@ import {
   Put,
   Delete,
 } from 'tsoa';
-import { Request as ExpressRequest } from 'express';
 import { Service } from 'typedi';
 
-import { PermissionService } from '../../Services/RoleService/PermissionService';
 import { CreatePermissionDto, UpdatePermissionDto } from '../../Dtos/Roles/RoleDto';
 import { Permission } from '../../Entities/Roles/Permission';
 import User from '../../Entities/Users/User';
+import { PermissionService } from '../../Services/RoleService/PermissionService';
 
 /**
  * @summary Controller for managing permissions within a company.

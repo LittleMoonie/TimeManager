@@ -1,7 +1,9 @@
 import { Column, Entity, ManyToOne, Check, Index, JoinColumn } from 'typeorm';
+
 import { BaseEntity } from '../BaseEntity';
-import User from '../Users/User';
 import { Company } from '../Companies/Company';
+import User from '../Users/User';
+
 import { ActionCode } from './ActionCode';
 import { Timesheet } from './Timesheet';
 

@@ -43,8 +43,9 @@ services:
   api:
     container_name: gogotime-api
     build:
-      context: ..
-      dockerfile: ./App.API/Dockerfile
+      context: ../App.API
+      dockerfile: Dockerfile
+    user: '${UID:-1000}:${GID:-1000}'
     ports:
       - '${API_PORT}:4000'
     env_file:
@@ -86,8 +87,9 @@ services:
   web:
     container_name: gogotime-web
     build:
-      context: ..
-      dockerfile: ./App.Web/Dockerfile
+      context: ../App.Web
+      dockerfile: Dockerfile
+    user: '${UID:-1000}:${GID:-1000}'
     ports:
       - '${WEB_PORT}:3000'
     env_file:
@@ -101,6 +103,7 @@ services:
       VITE_DEV_SERVER_PORT: '3000'
       WDS_SOCKET_HOST: 'localhost'
       WDS_SOCKET_PORT: '${WEB_PORT}:5000'
+      API_SERVER: '${API_SERVER}'
     depends_on:
       db:
         condition: service_healthy

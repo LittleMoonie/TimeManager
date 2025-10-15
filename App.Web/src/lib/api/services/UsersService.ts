@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { CreateUserDto } from '../models/CreateUserDto';
+import type { MenuResponseDto } from '../models/MenuResponseDto';
 import type { UpdateUserDto } from '../models/UpdateUserDto';
 import type { UserResponseDto } from '../models/UserResponseDto';
 import type { UsersPage } from '../models/UsersPage';
@@ -10,6 +11,17 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class UsersService {
+    /**
+     * Retrieves the personalized menu for the authenticated user within their company.
+     * @returns MenuResponseDto The personalized menu structure, including categories and cards, filtered by user permissions.
+     * @throws ApiError
+     */
+    public static getMenuForMe(): CancelablePromise<MenuResponseDto> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/users/me/menu',
+        });
+    }
     /**
      * Retrieves a paginated list of users within the authenticated user's company.
      * @returns UsersPage A paginated list of user details.

@@ -1,8 +1,10 @@
 import { exec } from 'child_process';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { InternalServerError } from '../Errors/HttpErrors';
+
 import { Service } from 'typedi';
+
+import { InternalServerError } from '../Errors/HttpErrors';
 
 let isGenerating = false;
 let lastGeneratedAt: Date | null = null;

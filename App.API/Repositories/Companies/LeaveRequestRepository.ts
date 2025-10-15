@@ -1,12 +1,14 @@
 import Container, { Service } from 'typedi';
+
 import { LeaveRequest } from '../../Entities/Companies/LeaveRequest';
-import { BaseRepository } from '../../Repositories/BaseRepository';
 import { NotFoundError } from '../../Errors/HttpErrors';
+import { BaseRepository } from '../../Repositories/BaseRepository';
 
 /**
  * @description Repository for managing LeaveRequest entities. Extends BaseRepository to provide standard CRUD operations
  * and includes specific methods for querying leave requests within a company scope.
  */
+@Service('LeaveRequestRepository')
 export class LeaveRequestRepository extends BaseRepository<LeaveRequest> {
   /**
    * @description Initializes the LeaveRequestRepository.
@@ -42,4 +44,4 @@ export class LeaveRequestRepository extends BaseRepository<LeaveRequest> {
   }
 }
 
-Container.set('LeaveRequestRepository', LeaveRequestRepository);
+Container.set('LeaveRequestRepository', new LeaveRequestRepository());

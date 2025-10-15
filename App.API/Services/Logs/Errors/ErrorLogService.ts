@@ -1,12 +1,13 @@
-import { Inject, Service } from "typedi";
-import {
-  ErrorLog,
-  ErrorLogLevel,
-} from "../../../Entities/Logs/Errors/ErrorLog";
-import { ErrorLogRepository } from "../../../Repositories/Logs/Errors/ErrorLogRepository";
+import { Inject, Service } from 'typedi';
 
+import { ErrorLog, ErrorLogLevel } from '../../../Entities/Logs/Errors/ErrorLog';
+import { ErrorLogRepository } from '../../../Repositories/Logs/Errors/ErrorLogRepository';
+
+@Service()
 export class ErrorLogService {
-  constructor(@Inject("ErrorLogRepository") private readonly errorLogRepository: ErrorLogRepository) {}
+  constructor(
+    @Inject('ErrorLogRepository') private readonly errorLogRepository: ErrorLogRepository,
+  ) {}
 
   public async log(
     companyId: string,
@@ -26,7 +27,7 @@ export class ErrorLogService {
     } as ErrorLog);
   }
 
-  public async getLogs(companyId: string): Promise<ErrorLog[]> {
+  public async getLogs(): Promise<ErrorLog[]> {
     return this.errorLogRepository.findAll();
   }
 }

@@ -1,5 +1,6 @@
-import { IsNotEmpty, IsString, IsOptional, IsEnum } from "class-validator";
-import { LogLevel } from "../../../Entities/Logs/System/SystemLog";
+import { IsNotEmpty, IsString, IsOptional, IsEnum } from 'class-validator';
+
+import { LogLevel } from '../../../Entities/Logs/System/SystemLog';
 
 export interface IStringToStringDictionary {
   [key: string]: string;

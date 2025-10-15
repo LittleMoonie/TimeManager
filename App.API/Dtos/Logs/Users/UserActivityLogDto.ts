@@ -1,5 +1,6 @@
-import { IsNotEmpty, IsOptional, IsEnum, IsUUID } from "class-validator";
-import { UserActivityType } from "../../../Entities/Logs/Users/UserActivityLog";
+import { IsNotEmpty, IsOptional, IsEnum, IsUUID } from 'class-validator';
+
+import { UserActivityType } from '../../../Entities/Logs/Users/UserActivityLog';
 
 export class CreateUserActivityLogDto {
   @IsUUID()

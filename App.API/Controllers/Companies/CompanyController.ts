@@ -1,3 +1,4 @@
+import { Request as ExpressRequest } from 'express';
 import {
   Body,
   Controller,
@@ -11,12 +12,11 @@ import {
   Path,
   Put,
 } from 'tsoa';
-import { Request as ExpressRequest } from 'express';
 import { Service } from 'typedi';
 
-import { CompanyService } from '../../Services/Companies/CompanyService';
 import { CreateCompanyDto, UpdateCompanyDto } from '../../Dtos/Companies/CompanyDto';
 import { Company } from '../../Entities/Companies/Company';
+import { CompanyService } from '../../Services/Companies/CompanyService';
 
 /**
  * @summary Controller for managing company entities.

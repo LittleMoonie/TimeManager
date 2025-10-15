@@ -1,11 +1,6 @@
-import {
-  IsNotEmpty,
-  IsString,
-  IsOptional,
-  IsEnum,
-  IsUUID,
-} from "class-validator";
-import { AuthLogAction } from "../../../Entities/Logs/Security/AuthLog";
+import { IsNotEmpty, IsString, IsOptional, IsEnum, IsUUID } from 'class-validator';
+
+import { AuthLogAction } from '../../../Entities/Logs/Security/AuthLog';
 
 export interface IStringToStringDictionary {
   [key: string]: string;

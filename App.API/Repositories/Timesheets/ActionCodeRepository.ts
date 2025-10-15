@@ -1,7 +1,8 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 import { ILike } from 'typeorm';
-import { BaseRepository } from '../../Repositories/BaseRepository';
+
 import { ActionCode } from '../../Entities/Timesheets/ActionCode';
+import { BaseRepository } from '../../Repositories/BaseRepository';
 
 /**
  * @description Repository for managing ActionCode entities. Extends BaseRepository to provide standard CRUD operations
@@ -56,3 +57,5 @@ export class ActionCodeRepository extends BaseRepository<ActionCode> {
     });
   }
 }
+
+Container.set('ActionCodeRepository', new ActionCodeRepository());

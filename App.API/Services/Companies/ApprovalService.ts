@@ -1,17 +1,18 @@
-import { Inject, Service } from 'typedi';
 import { validate } from 'class-validator';
+import { Inject, Service } from 'typedi';
 
-import { LeaveRequestRepository } from '../../Repositories/Companies/LeaveRequestRepository';
-import { LeaveRequest, LeaveRequestStatus } from '../../Entities/Companies/LeaveRequest';
-import { ForbiddenError, UnprocessableEntityError } from '../../Errors/HttpErrors';
-import User from '../../Entities/Users/User';
-import { RolePermissionService } from '../../Services/RoleService/RolePermissionService';
 import { UpdateLeaveRequestDto } from '../../Dtos/Companies/CompanyDto';
+import { LeaveRequest, LeaveRequestStatus } from '../../Entities/Companies/LeaveRequest';
+import User from '../../Entities/Users/User';
+import { ForbiddenError, UnprocessableEntityError } from '../../Errors/HttpErrors';
+import { LeaveRequestRepository } from '../../Repositories/Companies/LeaveRequestRepository';
+import { RolePermissionService } from '../../Services/RoleService/RolePermissionService';
 
 /**
  * @description Service layer for handling approval-related business logic, specifically for leave requests.
  * It integrates with LeaveRequestRepository and RolePermissionService to manage approval workflows and permissions.
  */
+@Service()
 export class ApprovalService {
   /**
    * @description Initializes the ApprovalService with necessary repositories and services.
@@ -21,7 +22,7 @@ export class ApprovalService {
   constructor(
     @Inject('LeaveRequestRepository')
     private readonly leaveRequestRepository: LeaveRequestRepository,
-    @Inject('RolePermissionService') private readonly rolePermissionService: RolePermissionService,
+    private readonly rolePermissionService: RolePermissionService,
   ) {}
 
   /**

@@ -1,6 +1,7 @@
-import { Service } from 'typedi';
-import { BaseRepository } from '../BaseRepository';
+import Container, { Service } from 'typedi';
+
 import { UserStatus } from '../../Entities/Users/UserStatus';
+import { BaseRepository } from '../BaseRepository';
 
 /**
  * @description Repository for UserStatus entities, extending BaseRepository for common CRUD operations.
@@ -36,3 +37,5 @@ export class UserStatusRepository extends BaseRepository<UserStatus> {
     await this.repository.delete(id);
   }
 }
+
+Container.set('UserStatusRepository', new UserStatusRepository());

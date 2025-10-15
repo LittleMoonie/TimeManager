@@ -1,7 +1,9 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+
 import { BaseEntity } from '../BaseEntity';
-import User from './User';
 import { Company } from '../Companies/Company';
+
+import User from './User';
 
 /**
  * @description Represents an active user session, typically linked to a refresh token.

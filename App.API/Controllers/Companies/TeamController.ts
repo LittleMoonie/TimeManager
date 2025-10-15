@@ -1,3 +1,4 @@
+import { Request as ExpressRequest } from 'express';
 import {
   Body,
   Controller,
@@ -11,15 +12,14 @@ import {
   Security,
   Request,
 } from 'tsoa';
-import { Request as ExpressRequest } from 'express';
 import { Service } from 'typedi';
 
-import { TeamService } from '../../Services/Companies/TeamService';
 import { CreateTeamDto, UpdateTeamDto } from '../../Dtos/Companies/CompanyDto';
-import { Team } from '../../Entities/Companies/Team';
-import { UserService } from '../../Services/Users/UserService';
 import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
-import User from 'Entities/Users/User';
+import { Team } from '../../Entities/Companies/Team';
+import User from '../../Entities/Users/User';
+import { TeamService } from '../../Services/Companies/TeamService';
+import { UserService } from '../../Services/Users/UserService';
 
 /**
  * @summary Controller for managing teams.

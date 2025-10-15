@@ -1,7 +1,9 @@
 import Container, { Service } from 'typedi';
+
 import { TimesheetHistory } from '../../Entities/Timesheets/TimesheetHistory';
 import { BaseRepository } from '../BaseRepository';
 
+@Service()
 export class TimesheetHistoryRepository extends BaseRepository<TimesheetHistory> {
   constructor() {
     super(TimesheetHistory);
@@ -16,3 +18,5 @@ export class TimesheetHistoryRepository extends BaseRepository<TimesheetHistory>
     return this.find({ where: { companyId, targetType, targetId } });
   }
 }
+
+Container.set('TimesheetHistoryRepository', new TimesheetHistoryRepository());
