@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 
 import User from '../../Entities/Users/User';
 import { BaseRepository } from '../../Repositories/BaseRepository';
@@ -120,3 +120,5 @@ export class UserRepository extends BaseRepository<User> {
     return { data: rows, total };
   }
 }
+
+Container.set('UserRepository', new UserRepository());

@@ -1,7 +1,10 @@
 import { Request } from 'express';
 import jwt from 'jsonwebtoken';
 
+import User from '../Entities/Users/User';
 import { AuthenticationError, ForbiddenError, InternalServerError } from '../Errors/HttpErrors';
+
+import { AppDataSource } from './Database';
 
 // Define the shape of the JWT payload
 type JwtPayload = {
@@ -11,27 +14,11 @@ type JwtPayload = {
 };
 
 // Define the shape of the user object attached to the request
-export type AuthenticatedUser = {
-  id: string;
-  companyId: string;
-  role: string;
-};
-
-// Extend Express's Request type to include the user property
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace Express {
-    export interface Request {
-      user?: User;
-    }
-  }
-}
-
 export async function expressAuthentication(
   request: Request,
   name: string,
   scopes?: string[],
-): Promise<AuthenticatedUser> {
+): Promise<User> {
   if (name !== 'jwt') {
     throw new InternalServerError('Unsupported security scheme');
   }
@@ -52,15 +39,22 @@ export async function expressAuthentication(
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
 
-    if (scopes?.length && !scopes.includes(payload.role)) {
-      throw new ForbiddenError('Forbidden: Insufficient scope');
+    const userRepository = AppDataSource.getRepository(User);
+    const user = await userRepository.findOne({
+      where: { id: payload.id },
+      relations: ['role', 'role.rolePermissions', 'role.rolePermissions.permission'],
+    });
+
+    if (!user) {
+      throw new AuthenticationError('User not found');
     }
 
-    const user: AuthenticatedUser = {
-      id: payload.id,
-      companyId: payload.companyId,
-      role: payload.role,
-    };
+    if (scopes?.length) {
+      const roleName = user.role?.name ?? payload.role;
+      if (!roleName || !scopes.includes(roleName)) {
+        throw new ForbiddenError('Forbidden: Insufficient scope');
+      }
+    }
 
     request.user = user;
     return user;

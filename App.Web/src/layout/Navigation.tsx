@@ -210,7 +210,7 @@ const NavigationContent = ({
     items: category.cards.map((card: MenuCardDto) => ({
       id: card.id,
       label: card.title,
-      path: card.route.startsWith('/app') ? card.route.substring(4) : card.route,
+      path: `/app${card.route}`,
       icon: getIconComponent(card.icon),
       ariaLabel: card.title,
     })),
@@ -311,5 +311,4 @@ export const Navigation = ({ variant, open, onClose, collapsed = false }: Naviga
   );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const drawerWidth = DRAWER_WIDTH;

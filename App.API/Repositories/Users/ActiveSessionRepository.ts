@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 import { FindOneOptions } from 'typeorm';
 
 import ActiveSession from '../../Entities/Users/ActiveSessions';
@@ -61,3 +61,5 @@ export class ActiveSessionRepository extends BaseRepository<ActiveSession> {
     });
   }
 }
+
+Container.set('ActiveSessionRepository', new ActiveSessionRepository());

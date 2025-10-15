@@ -23,10 +23,7 @@ const dataSourceOptions: DataSourceOptions = {
   database: DB_NAME,
   synchronize: true,
   logging: true,
-  entities: [
-    './Entities/BaseEntity.ts',
-    './Entities/**/**/**/**/**/**/**/**/**/**/**/**/**/**/**/**/**/**/*.ts',
-  ],
+  entities: ['./Entities/**/*.ts'],
   migrations: [],
   subscribers: [],
   ssl: DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
@@ -68,9 +65,7 @@ export const connectDB = async (): Promise<void> => {
   try {
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
-      console.warn(
-        `✅ PostgreSQL connected: ${AppDataSource.options.database} (${AppDataSource.driver.database as string})`,
-      );
+      console.warn(`✅ PostgreSQL connected: ${AppDataSource.options.database}`);
 
       if (process.env.RUN_MIGRATIONS_ON_BOOT !== 'false') {
         await AppDataSource.runMigrations();

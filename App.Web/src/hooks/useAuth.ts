@@ -18,7 +18,9 @@ export const useAuth = () => {
   } = useQuery<UserResponseDto | undefined>({
     queryKey: ['auth', 'user'],
     queryFn: async () => {
-      return await AuthenticationService.getCurrentUser();
+      const currentUser = await AuthenticationService.getCurrentUser();
+      console.warn('Current User:', currentUser);
+      return currentUser;
     },
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes

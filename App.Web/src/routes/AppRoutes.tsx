@@ -1,25 +1,34 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+
 import { AppLayout } from '@/components/layout/AppLayout';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useAuth } from '@/hooks/useAuth';
+import ForgotPassword from '@/pages/authentication/forgot-password';
 import Login from '@/pages/authentication/login';
+import UnauthorizedPage from '@/pages/authentication/unauthorized';
 import HomePage from '@/pages/index';
 import ManagerDashboard from '@/pages/manager/ManagerDashboard';
 import CreateTimesheetPage from '@/pages/timesheet/CreateTimesheetPage';
 import TimesheetDetailsPage from '@/pages/timesheet/TimesheetDetailsPage';
 import TimesheetList from '@/pages/timesheet/TimesheetList';
 import TimesheetHub from '@/pages/TimesheetHub';
-import UnauthorizedPage from '@/pages/authentication/unauthorized';
-import ForgotPassword from '@/pages/authentication/forgot-password';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isUserLoading } = useAuth();
+  console.warn(
+    'ProtectedRoute (initial) - isAuthenticated:',
+    isAuthenticated,
+    'isUserLoading:',
+    isUserLoading,
+  );
 
   if (isUserLoading) {
     return <LoadingSpinner message="Checking authentication..." />;
   }
 
-  if (!isAuthenticated) {
+  // Only proceed with authentication check once loading is complete
+  if (!isUserLoading && !isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
@@ -34,6 +43,27 @@ const RoleProtectedRoute = ({
   allowedRoles: string[];
 }) => {
   const { user, isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
+  const [showUnauthorized, setShowUnauthorized] = useState(false);
+
+  useEffect(() => {
+    console.warn(
+      'RoleProtectedRoute useEffect - isAuthenticated:',
+      isAuthenticated,
+      'user:',
+      user?.role?.name,
+      'allowedRoles:',
+      allowedRoles,
+    );
+    if (!isLoading && isAuthenticated && (!user || !allowedRoles.includes(user.role?.name ?? ''))) {
+      console.warn('RoleProtectedRoute: Redirecting to /app due to unauthorized role.');
+      setShowUnauthorized(true);
+      const timer = setTimeout(() => {
+        navigate('/app', { replace: true });
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, isAuthenticated, user, allowedRoles, navigate]);
 
   if (isLoading) {
     return <LoadingSpinner message="Checking permissions..." />;
@@ -43,8 +73,12 @@ const RoleProtectedRoute = ({
     return <Navigate to="/login" replace />;
   }
 
+  if (showUnauthorized) {
+    return <UnauthorizedPage />;
+  }
+
   if (!user || !allowedRoles.includes(user.role?.name ?? '')) {
-    return <Navigate to="/app" replace />;
+    return null; // Or a loading spinner, as the redirect is handled by useEffect
   }
 
   return <>{children}</>;
@@ -52,6 +86,7 @@ const RoleProtectedRoute = ({
 
 export const AppRoutes = () => {
   const { isAuthenticated } = useAuth();
+  console.warn('AppRoutes - isAuthenticated:', isAuthenticated);
 
   return (
     <Routes>
@@ -79,13 +114,18 @@ export const AppRoutes = () => {
         <Route
           path="manager-dashboard"
           element={
-            <RoleProtectedRoute allowedRoles={['MANAGER']}>
+            <RoleProtectedRoute allowedRoles={['manager']}>
               <ManagerDashboard />
             </RoleProtectedRoute>
           }
         />
       </Route>
-      <Route path="*" element={isAuthenticated ? <Navigate to="/app" replace /> : <Navigate to="/login" replace />} />
+      <Route
+        path="*"
+        element={
+          isAuthenticated ? <Navigate to="/app" replace /> : <Navigate to="/login" replace />
+        }
+      />
     </Routes>
   );
 };

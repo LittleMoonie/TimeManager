@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 import { FindOneOptions } from 'typeorm';
 
 import { Timesheet } from '../../Entities/Timesheets/Timesheet';
@@ -67,3 +67,5 @@ export class TimesheetRepository extends BaseRepository<Timesheet> {
     return this.repository.findOne(options);
   }
 }
+
+Container.set('TimesheetRepository', new TimesheetRepository());

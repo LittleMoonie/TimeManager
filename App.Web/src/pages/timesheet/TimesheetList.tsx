@@ -11,7 +11,6 @@ import {
   Stack,
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 
 import { TimesheetsService } from '@/lib/api';
@@ -62,7 +61,6 @@ const TimesheetList = () => {
             <ListItem
               key={timesheet.id}
               divider
-              button
               component={RouterLink}
               to={`/timesheet/${timesheet.id}`}
             >

@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 
 import ActiveSession from '../../Entities/Users/ActiveSessions';
 import User from '../../Entities/Users/User';
@@ -50,3 +50,5 @@ export class AuthenticationRepository extends BaseRepository<User> {
     return activeSessionRepo.save(entity);
   }
 }
+
+Container.set('AuthenticationRepository', new AuthenticationRepository());

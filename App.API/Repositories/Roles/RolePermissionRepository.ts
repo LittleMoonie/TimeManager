@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 
 import { RolePermission } from '../../Entities/Roles/RolePermission';
 import { BaseRepository } from '../../Repositories/BaseRepository';
@@ -60,3 +60,5 @@ export class RolePermissionRepository extends BaseRepository<RolePermission> {
     await this.repository.delete({ companyId, id });
   }
 }
+
+Container.set('RolePermissionRepository', new RolePermissionRepository());
