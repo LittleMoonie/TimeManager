@@ -20,5 +20,6 @@ export type UserResponseDto = {
     phoneNumber?: string;
     lastLogin?: string;
     deletedAt?: string | null;
+    permissions?: Array<string>;
 };
 

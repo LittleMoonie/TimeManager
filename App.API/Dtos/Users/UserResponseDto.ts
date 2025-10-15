@@ -86,4 +86,10 @@ export class UserResponseDto {
    * @example "2023-10-27T12:00:00Z"
    */
   deletedAt?: Date | null;
+
+  /**
+   * @description Optional: The list of permissions associated with the user's role.
+   * @example ["timesheet.view.self", "timesheet.create.self"]
+   */
+  permissions?: string[];
 }

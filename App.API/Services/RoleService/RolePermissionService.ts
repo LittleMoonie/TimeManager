@@ -27,11 +27,18 @@ export class RolePermissionService {
    * @param permissionName The name of the permission to check for.
    * @returns {Promise<boolean>} A Promise that resolves to `true` if the user has the permission, `false` otherwise.
    */
-  public async checkPermission(user: User, permissionName: string): Promise<boolean> {
+  public async checkPermission(user: User, permissionName:string): Promise<boolean> {
     if (!user?.role?.rolePermissions?.length) return false;
     return user.role.rolePermissions.some((rp) => rp.permission?.name === permissionName);
   }
 
+  public async getPermissionsForRole(roleId: string, companyId: string): Promise<string[]> {
+    const rolePermissions = await this.rolePermissionRepository.findAllByRole(companyId, roleId);
+    if (!rolePermissions) {
+      return [];
+    }
+    return rolePermissions.map((rp) => rp.permission.name);
+  }
   /**
    * @description Retrieves a role-permission association by its unique identifier within a specific company.
    * @param companyId The unique identifier of the company.
