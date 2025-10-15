@@ -15,7 +15,7 @@ const seedDatabase = async () => {
 seedDatabase()
   .then(() => {
     console.warn('✅ Seeding complete');
-    return void 0;
+    process.exit(0);
   })
   .catch((err) => {
     console.error('❌ Error seeding database:', err);

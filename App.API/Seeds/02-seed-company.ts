@@ -7,8 +7,8 @@ export async function seedCompany(ds: DataSource) {
 
   // Feel free to change names/domains
   const payload = {
-    name: 'Demo Company',
-    domain: 'demo.example.com', // optional column if you have it
+    name: 'GoGoTime',
+    domain: 'gogotime.com', // optional column if you have it
   } as Partial<Company>;
 
   // If you enforce unique by name or some external key, adjust the where

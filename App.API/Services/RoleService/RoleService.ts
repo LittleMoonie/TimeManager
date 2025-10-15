@@ -48,7 +48,7 @@ export class RoleService {
    * @returns A Promise that resolves if the user has the permission.
    * @throws {ForbiddenError} If the current user does not have the required permission.
    */
-  private async ensurePermission(currentUser: User, permission: string) {
+  public async ensurePermission(currentUser: User, permission: string) {
     const role = currentUser.role;
     const allowed =
       !!role &&
@@ -97,6 +97,12 @@ export class RoleService {
    */
   async listRoles(companyId: string, currentUser: User): Promise<Role[]> {
     this.ensureSameCompanyOrAdmin(currentUser, companyId);
+
+    if (
+      !currentUser.role?.rolePermissions.some((rp) => rp.permission?.name === 'rbac.manage.company')
+    ) {
+      throw new ForbiddenError('You do not have permission to manage roles.');
+    }
     return this.roleRepository.findAllByCompanyId(companyId);
   }
 

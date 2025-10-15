@@ -76,9 +76,10 @@ export class RoleController extends Controller {
    * @throws {ForbiddenError} If the current user does not have access to the specified company.
    */
   @Get('/')
-  @Security('jwt', ['admin'])
+  @Security('jwt')
   public async listRoles(@Request() request: ExpressRequest): Promise<Role[]> {
     const me = request.user as User;
+    await this.roleService.ensurePermission(me, 'rbac.manage.company');
     return this.roleService.listRoles(me.companyId, me);
   }
 

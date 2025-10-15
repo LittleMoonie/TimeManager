@@ -56,6 +56,13 @@ export class CreateUserDto {
   roleId!: string;
 
   /**
+   * @description The unique identifier of the company to assign the new user to.
+   * @example "c1o2m3p4-a5n6-7890-1234-567890abcdef"
+   */
+  @IsUUID()
+  companyId!: string;
+
+  /**
    * @description Optional: The user's phone number in E.164 format.
    * @example "+15551234567"
    */
@@ -66,7 +73,7 @@ export class CreateUserDto {
 }
 
 /**
- * @description Data transfer object for updating an existing user.
+ * @description Data transfer object for updating an existing user. Typically used by administrators or managers.
  */
 export class UpdateUserDto {
   /**
@@ -141,7 +148,7 @@ export class UpdateUserDto {
 /**
  * @description Data transfer object for a user updating their own profile. This DTO excludes fields like role, status, or company ID, which typically require administrative privileges to change.
  */
-export class UpdateMeDto {
+export class UpdateSelfDto {
   /**
    * @description Optional: The updated email address for the current user.
    * @example "current.user@example.com"
@@ -217,7 +224,7 @@ export class ListUsersQueryDto extends PaginationQueryDto {
   statusId?: string;
 
   /**
-   * @description Optional: A company-wide search query string. This can search across fields like email, first name, and last name, overriding the base `q` semantics if present.
+   * @description Optional: A search query string to filter by email, first name, or last name.
    * @example "john.doe"
    */
   @IsString()
@@ -226,9 +233,9 @@ export class ListUsersQueryDto extends PaginationQueryDto {
 }
 
 /**
- * @description Data transfer object for an administrator to revoke a specific user session by its ID.
+ * @description Data transfer object for revoking a specific user session by its ID.
  */
-export class RevokeSessionDto {
+export class RevokeUserSessionDto {
   /**
    * @description The unique identifier of the session to be revoked.
    * @example "s1e2s3s4-i5o6n7i8-9012-3456-7890abcdef"

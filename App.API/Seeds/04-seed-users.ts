@@ -54,16 +54,22 @@ export async function seedUsers(
     return user;
   };
 
-  const companyAdmin = await makeUser('admin@demo.example.com', 'Admin', 'User', 'company_admin');
-  const mgr = await makeUser('manager@demo.example.com', 'Mila', 'Manager', 'manager');
-  const empl = await makeUser('employee@demo.example.com', 'Eli', 'Employee', 'employee');
-  const hr = await makeUser('hr@demo.example.com', 'Harriet', 'HumanResources', 'hr');
-  const payroll = await makeUser('payroll@demo.example.com', 'Pat', 'Payroll', 'payroll');
-  const auditor = await makeUser('auditor@demo.example.com', 'Audrey', 'Auditor', 'auditor');
+  const projectCodeAdmin = await makeUser(
+    'codeadmin@gogotime.com',
+    'Code',
+    'Admin',
+    'project_code_admin',
+  );
+  const companyAdmin = await makeUser('admin@gogotime.com', 'Admin', 'User', 'company_admin');
+  const mgr = await makeUser('manager@gogotime.com', 'Mila', 'Manager', 'manager');
+  const empl = await makeUser('employee@gogotime.com', 'Eli', 'Employee', 'employee');
+  const hr = await makeUser('hr@gogotime.com', 'Harriet', 'HumanResources', 'hr');
+  const payroll = await makeUser('payroll@gogotime.com', 'Pat', 'Payroll', 'payroll');
+  const auditor = await makeUser('auditor@gogotime.com', 'Audrey', 'Auditor', 'auditor');
 
   // Print dev creds (optional)
   console.warn('🔑 Default dev password for seeded users:', defaultPassword);
   console.warn('   (They must change it on first login)');
 
-  return { companyAdmin, mgr, empl, hr, payroll, auditor };
+  return { projectCodeAdmin, companyAdmin, mgr, empl, hr, payroll, auditor };
 }

@@ -37,10 +37,19 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
     'policy.manage',
 
     // People & Teams
-    'user.view.team',
-    'user.view.org',
+    'user.view.self',
+    'admin.user.view',
+    'manager.user.view',
+    'admin.user.list',
+    'manager.user.list',
+    'admin.user.create',
+    'manager.user.create',
+    'user.update.self',
+    'admin.user.update',
+    'manager.user.update',
+    'admin.user.delete',
+    'manager.user.delete',
     'team.manage',
-    'user.manage',
 
     // Reports
     'report.view.team',
@@ -74,6 +83,10 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
       name: 'company_admin',
       description: 'Full administrative control over company settings and RBAC',
     },
+    {
+      name: 'project_code_admin',
+      description: 'Full administrative control over the entire project codebase',
+    },
   ];
 
   await roleRepo.upsert(
@@ -103,17 +116,6 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
   };
 
   // employee: self timesheet (view/create/update/submit) + view codes/schedules/policies
-  await grant('employee', [
-    'timesheet.view.self',
-    'timesheet.create.self',
-    'timesheet.update.self',
-    'timesheet.submit.self',
-    'actioncode.view',
-    'schedule.view',
-    'policy.view',
-  ]);
-
-  // employee permissions
   const employeePermissions = [
     'timesheet.view.self',
     'timesheet.create.self',
@@ -122,6 +124,8 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
     'actioncode.view',
     'schedule.view',
     'policy.view',
+    'user.view.self',
+    'user.update.self',
   ];
   await grant('employee', employeePermissions);
 
@@ -133,7 +137,11 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
     'timesheet.reject.team',
     'timesheet.comment.team',
     'report.view.team',
-    'user.view.team',
+    'manager.user.view',
+    'manager.user.list',
+    'manager.user.create',
+    'manager.user.update',
+    'manager.user.delete',
   ];
   await grant('manager', managerPermissions);
 
@@ -146,9 +154,12 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
     'schedule.manage',
     'actioncode.manage',
     'report.view.org',
-    'user.view.org',
+    'admin.user.view',
+    'admin.user.list',
+    'admin.user.create',
+    'admin.user.update',
+    'admin.user.delete',
     'team.manage',
-    'user.manage',
   ];
   await grant('hr', hrPermissions);
 
@@ -167,7 +178,8 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
     'actioncode.view',
     'schedule.view',
     'policy.view',
-    'user.view.org',
+    'admin.user.view',
+    'admin.user.list',
     'report.view.org',
     'audit.view.company',
   ];
@@ -181,10 +193,12 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
     'rbac.manage.company',
     'settings.manage.company',
     'menu.manage.company',
-    'user.manage', // Explicitly added as per spec
     'team.manage', // Explicitly added as per spec
   ];
-  await grant('company_admin', companyAdminPermissions);
+  await grant('company_admin', [...new Set(companyAdminPermissions)]);
+
+  const projectCodeAdminPermissions = [...permissions];
+  await grant('project_code_admin', projectCodeAdminPermissions);
 
   console.warn('🔐 Seeded Roles & Permissions for company:', company.name);
 

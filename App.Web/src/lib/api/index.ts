@@ -62,6 +62,7 @@ export type { UpdateCompanySettingsDto } from './models/UpdateCompanySettingsDto
 export type { UpdateLeaveRequestDto } from './models/UpdateLeaveRequestDto';
 export type { UpdatePermissionDto } from './models/UpdatePermissionDto';
 export type { UpdateRoleDto } from './models/UpdateRoleDto';
+export type { UpdateSelfDto } from './models/UpdateSelfDto';
 export type { UpdateTeamDto } from './models/UpdateTeamDto';
 export type { UpdateTimesheetApprovalDto } from './models/UpdateTimesheetApprovalDto';
 export type { UpdateTimesheetDto } from './models/UpdateTimesheetDto';
