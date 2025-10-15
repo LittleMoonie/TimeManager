@@ -159,10 +159,10 @@ For persistent or complex issues, a complete reset of the Docker environment can
 
 ### Quick Diagnostics
 
-*   **Service Status**: Check the status of all Docker Compose services.
-*   **Logs**: Review container logs for errors or warnings.
-*   **API Health**: Test the API's health endpoint.
-*   **Database Connectivity**: Verify direct database connectivity.
+- **Service Status**: Check the status of all Docker Compose services.
+- **Logs**: Review container logs for errors or warnings.
+- **API Health**: Test the API's health endpoint.
+- **Database Connectivity**: Verify direct database connectivity.
 
 ## 📞 Still Need Help?
 

@@ -12,22 +12,22 @@ We employ **URL Path Versioning** as our primary strategy for identifying and ma
 
 Client applications specify the desired API version by including it in the request URL. For example:
 
-*   `https://api.gogotime.com/api/v1/users`
-*   `https://api.gogotime.com/api/v2/users`
+- `https://api.gogotime.com/api/v1/users`
+- `https://api.gogotime.com/api/v2/users`
 
 ### Advantages
 
-*   **Clarity**: The version is immediately apparent in the URL, making it easy for developers to understand which version they are interacting with.
-*   **Explicitness**: Each version is a distinct resource, simplifying routing and caching.
-*   **Flexibility**: Supports running multiple API versions concurrently, allowing clients to migrate at their own pace.
-*   **RESTful**: Aligns well with RESTful principles, treating different versions as different resources.
+- **Clarity**: The version is immediately apparent in the URL, making it easy for developers to understand which version they are interacting with.
+- **Explicitness**: Each version is a distinct resource, simplifying routing and caching.
+- **Flexibility**: Supports running multiple API versions concurrently, allowing clients to migrate at their own pace.
+- **RESTful**: Aligns well with RESTful principles, treating different versions as different resources.
 
 ### Version Format
 
 Our version format follows a `v{major}.{minor}` convention:
 
-*   **Major Versions (e.g., `v1`, `v2`)**: Indicate significant changes, including **breaking changes** that require client modifications.
-*   **Minor Versions (e.g., `v1.1`, `v1.2`)**: Represent backward-compatible additions, new features, or non-breaking improvements.
+- **Major Versions (e.g., `v1`, `v2`)**: Indicate significant changes, including **breaking changes** that require client modifications.
+- **Minor Versions (e.g., `v1.1`, `v1.2`)**: Represent backward-compatible additions, new features, or non-breaking improvements.
 
 ## 🔄 Version Lifecycle
 
@@ -53,21 +53,21 @@ Maintaining backward compatibility is a key consideration for API evolution. Our
 
 Breaking changes are modifications that require client applications to update their code to continue functioning correctly. Examples include:
 
-*   **Removing fields** from a response.
-*   **Changing the data type** of an existing field.
-*   **Renaming fields**.
-*   **Removing or renaming endpoints**.
-*   **Changing required parameters** for an endpoint.
-*   **Altering fundamental endpoint behavior**.
+- **Removing fields** from a response.
+- **Changing the data type** of an existing field.
+- **Renaming fields**.
+- **Removing or renaming endpoints**.
+- **Changing required parameters** for an endpoint.
+- **Altering fundamental endpoint behavior**.
 
 ### Non-Breaking Changes
 
 Changes that do not require client modifications are considered non-breaking. Examples include:
 
-*   **Adding new, optional fields** to a response.
-*   **Adding new endpoints**.
-*   **Adding new, optional request parameters**.
-*   **Changing the order of fields** in a response.
+- **Adding new, optional fields** to a response.
+- **Adding new endpoints**.
+- **Adding new, optional request parameters**.
+- **Changing the order of fields** in a response.
 
 ## 🌅 Deprecation Process
 
@@ -82,9 +82,9 @@ When an API version is scheduled for deprecation, we follow a transparent proces
 
 We provide resources and guidance to facilitate smooth client migrations between API versions.
 
-*   **Migration Guides**: Detailed documentation outlining breaking changes and steps required to migrate from an older version to a newer one.
-*   **Client SDK Updates**: Our auto-generated client SDKs are versioned to align with API versions, simplifying the update process for frontend applications.
-*   **Support**: Dedicated support channels are available during migration periods to assist developers.
+- **Migration Guides**: Detailed documentation outlining breaking changes and steps required to migrate from an older version to a newer one.
+- **Client SDK Updates**: Our auto-generated client SDKs are versioned to align with API versions, simplifying the update process for frontend applications.
+- **Support**: Dedicated support channels are available during migration periods to assist developers.
 
 ## 📊 Monitoring and Analytics
 
@@ -92,9 +92,9 @@ We monitor API version usage to understand adoption rates and track migration pr
 
 ## 🔗 Related Documentation
 
-*   **[API Architecture](./architecture.md)**: Understand the overall design of our API and backend.
-*   **[OpenAPI Automation](./openapi-automation.md)**: Learn how our documentation is automatically generated.
-*   **[API Endpoints](./endpoints.md)**: Explore the available API resources.
+- **[API Architecture](./architecture.md)**: Understand the overall design of our API and backend.
+- **[OpenAPI Automation](./openapi-automation.md)**: Learn how our documentation is automatically generated.
+- **[API Endpoints](./endpoints.md)**: Explore the available API resources.
 
 ---
 

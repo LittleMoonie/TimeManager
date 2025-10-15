@@ -28,3 +28,81 @@
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+
+/* Swagger UI theme tweaks so it matches whatever mode we're in */
+.swagger-ui {
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+}
+
+.swagger-ui .topbar {
+  background: transparent;
+  border-bottom: 1px solid var(--ifm-toc-border-color, rgba(0, 0, 0, 0.08));
+  box-shadow: none;
+}
+
+.swagger-ui .topbar .download-url-wrapper input,
+.swagger-ui .topbar .download-url-wrapper input:focus {
+  background: var(--ifm-background-surface-color, rgba(0, 0, 0, 0.02));
+  color: inherit;
+  border-color: var(--ifm-table-border-color, rgba(0, 0, 0, 0.15));
+}
+
+.swagger-ui .info .title,
+.swagger-ui .info .base-url {
+  color: inherit;
+}
+
+.swagger-ui .scheme-container,
+.swagger-ui .opblock,
+.swagger-ui .opblock-tag {
+  background: var(--ifm-background-surface-color, var(--ifm-card-background-color));
+  color: inherit;
+  border-color: var(--ifm-table-border-color, rgba(0, 0, 0, 0.15));
+}
+
+.swagger-ui .opblock .opblock-summary {
+  background: transparent;
+  color: inherit;
+}
+
+.swagger-ui .opblock .opblock-summary-method {
+  border-radius: var(--ifm-card-border-radius);
+}
+
+.swagger-ui .model-box,
+.swagger-ui .model-box .model,
+.swagger-ui table thead tr th,
+.swagger-ui table tbody tr td {
+  background: transparent;
+  color: inherit;
+  border-color: var(--ifm-table-border-color, rgba(0, 0, 0, 0.15));
+}
+
+.swagger-ui .btn,
+.swagger-ui .opblock-control__btn {
+  background: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
+  color: #fff;
+}
+
+.swagger-ui .btn:hover,
+.swagger-ui .opblock-control__btn:hover {
+  opacity: 0.85;
+}
+
+[data-theme='dark'] .swagger-ui .topbar {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='dark'] .swagger-ui .scheme-container,
+[data-theme='dark'] .swagger-ui .opblock,
+[data-theme='dark'] .swagger-ui .opblock-tag {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='dark'] .swagger-ui .topbar .download-url-wrapper input,
+[data-theme='dark'] .swagger-ui table tbody tr td,
+[data-theme='dark'] .swagger-ui table thead tr th {
+  border-color: rgba(255, 255, 255, 0.1);
+}

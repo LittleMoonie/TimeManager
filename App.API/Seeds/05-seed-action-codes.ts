@@ -43,6 +43,6 @@ export async function seedActionCodes(ds: DataSource, company: Company) {
     map.set(r.code, await repo.findOneByOrFail({ companyId: company.id, code: r.code }));
   }
 
-  console.log('✅ Seeded ActionCodes:', rows.map((r) => r.code).join(', '));
+  console.warn('✅ Seeded ActionCodes:', rows.map((r) => r.code).join(', '));
   return { actionCodes: map };
 }

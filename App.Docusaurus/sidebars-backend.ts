@@ -1,4 +1,4 @@
-import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
+import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
 
 const sidebars: SidebarsConfig = {
   backendSidebar: [
@@ -11,10 +11,10 @@ const sidebars: SidebarsConfig = {
       },
       items: [
         'architecture', // content/backend/architecture.md (new, comprehensive)
-        'endpoints',    // content/backend/endpoints.md
+        'endpoints', // content/backend/endpoints.md
         'authentication', // content/backend/authentication.md
         'openapi-automation', // content/backend/openapi-automation.md
-        'versioning',   // content/backend/versioning.md
+        'versioning', // content/backend/versioning.md
       ],
     },
     {

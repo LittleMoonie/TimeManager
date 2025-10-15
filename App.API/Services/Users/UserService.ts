@@ -258,7 +258,7 @@ export class UserService {
     const scoped = data.filter((u) => u.companyId === companyId);
 
     return {
-      data: scoped.map((u) => this.toResponse(u)),
+      data: await Promise.all(scoped.map((u) => this.toResponse(u))),
       total: scoped.length, // If you need precise total per company, implement a scoped findAndCount
       page,
       limit,

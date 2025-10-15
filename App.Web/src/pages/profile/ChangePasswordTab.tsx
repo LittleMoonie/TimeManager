@@ -61,7 +61,7 @@ export const ChangePasswordTab = () => {
 
     setIsSubmitting(true);
     // TODO: Implement password change API call
-    console.log('Changing password...', formData);
+    console.warn('Changing password...', formData);
 
     // Simulate success
     setTimeout(() => {
@@ -87,7 +87,7 @@ export const ChangePasswordTab = () => {
       description: 'User requesting assistance with password change',
     };
 
-    console.log('Creating IT ticket:', ticketData);
+    console.warn('Creating IT ticket:', ticketData);
 
     if (typeof window !== 'undefined') {
       const ticketUrl = new URL('/helpdesk/new-ticket', window.location.origin);

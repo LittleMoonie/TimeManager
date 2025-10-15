@@ -30,10 +30,10 @@ services:
     container_name: gogotime-adminer
     restart: unless-stopped
     ports:
-      - "8081:8080"
+      - '8081:8080'
     environment:
       ADMINER_DEFAULT_SERVER: db
-      ADMINER_DESIGN: flat 
+      ADMINER_DESIGN: flat
     depends_on:
       - db
     networks:
@@ -113,7 +113,7 @@ services:
       - ../App.Web:/app
     command: sh -c "(yarn install --immutable || yarn install) && yarn dev"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3000']
       interval: 60s
       timeout: 20s
       retries: 3
@@ -144,8 +144,8 @@ services:
     user: root
     restart: unless-stopped
     ports:
-      - "8080:8080"
-      - "50000:50000"
+      - '8080:8080'
+      - '50000:50000'
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
@@ -154,14 +154,13 @@ services:
     networks:
       - gogotime-network
 
-
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
-      - "9090:9090"
+      - '9090:9090'
     networks:
       - gogotime-network
     restart: unless-stopped
@@ -171,7 +170,7 @@ services:
     container_name: node-exporter
     restart: unless-stopped
     ports:
-      - "9100:9100"
+      - '9100:9100'
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -206,7 +205,7 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "3001:3000"
+      - '3001:3000'
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
@@ -218,7 +217,6 @@ services:
       - gogotime-network
     restart: unless-stopped
 
-
   docs:
     container_name: gogotime-docs
     build:
@@ -226,7 +224,7 @@ services:
       dockerfile: Dockerfile
     user: '${UID:-1000}:${GID:-1000}'
     ports:
-      - "3002:3000"
+      - '3002:3000'
     env_file:
       - .env
     environment:

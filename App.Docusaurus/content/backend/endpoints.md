@@ -24,40 +24,40 @@ Most endpoints require authentication. Please refer to the [Authentication & Aut
 
 Endpoints related to user registration, authentication, profile management, and session control.
 
-*   **Registration**: Create new user accounts.
-*   **Authentication**: Log in users and obtain JWT tokens.
-*   **Profile**: Retrieve and update user profile information.
-*   **Sessions**: Manage active user sessions.
+- **Registration**: Create new user accounts.
+- **Authentication**: Log in users and obtain JWT tokens.
+- **Profile**: Retrieve and update user profile information.
+- **Sessions**: Manage active user sessions.
 
 ### 🏢 Company Management
 
 Endpoints for managing companies, their settings, and associated resources.
 
-*   **Company Profiles**: Create, retrieve, update, and delete company information.
-*   **Company Settings**: Configure company-specific settings.
-*   **Teams**: Manage teams within a company.
+- **Company Profiles**: Create, retrieve, update, and delete company information.
+- **Company Settings**: Configure company-specific settings.
+- **Teams**: Manage teams within a company.
 
 ### ⏰ Timesheet Management
 
 Endpoints for creating, managing, and approving timesheet entries.
 
-*   **Timesheet Entries**: Create, retrieve, update, and delete individual timesheet entries.
-*   **Timesheet Approvals**: Manage the approval workflow for timesheets.
-*   **Action Codes**: Define and manage action codes for timesheet entries.
+- **Timesheet Entries**: Create, retrieve, update, and delete individual timesheet entries.
+- **Timesheet Approvals**: Manage the approval workflow for timesheets.
+- **Action Codes**: Define and manage action codes for timesheet entries.
 
 ### ⚙️ System & Health
 
 Endpoints for monitoring the API's health and system status.
 
-*   **Health Check**: Verify the operational status of the API.
-*   **OpenAPI Generation**: Trigger manual OpenAPI specification generation (development only).
+- **Health Check**: Verify the operational status of the API.
+- **OpenAPI Generation**: Trigger manual OpenAPI specification generation (development only).
 
 ### 🔑 Role & Permission Management
 
 Endpoints for defining and assigning roles and permissions within the system.
 
-*   **Roles**: Create, retrieve, update, and delete user roles.
-*   **Permissions**: Manage granular permissions associated with roles.
+- **Roles**: Create, retrieve, update, and delete user roles.
+- **Permissions**: Manage granular permissions associated with roles.
 
 ## 📖 Detailed Endpoint Specifications
 

@@ -10,6 +10,14 @@
 
 GoGoTime is a modern, full-stack application built with **TypeScript-first** approach, featuring automatic API documentation generation, type-safe frontend-backend communication, and a comprehensive Docker-based development environment.
 
+### 🧭 Documentation
+
+This project includes a comprehensive documentation hub built with Docusaurus.
+
+To view the documentation, run the project using Docker and visit `http://localhost:3002`.
+
+The source files for the documentation are located in the `/App.Docusaurus` directory.
+
 ### ✨ Key Features
 
 - **🔄 Auto-Generated API Documentation** - OpenAPI specs generated directly from TypeScript code
@@ -62,23 +70,7 @@ GoGoTime is a modern, full-stack application built with **TypeScript-first** app
 │   ├── .env.example             # 📝 Environment variables template
 │   └── README.md                # 📖 Docker setup guide
 │
-├── 📁 App.Docs/                # 📚 Organized Documentation
-│   ├── api/                     # 🔌 API documentation
-│   │   ├── openapi-automation.md # ✨ Auto-generation system
-│   │   ├── specification.md     # 📋 Complete API reference
-│   │   └── versioning.md        # 🔄 API versioning strategy
-│   ├── backend/                 # ⚙️ Backend documentation
-│   │   ├── Database/            # 🗄️ Database-specific documentation
-│   │   │   └── timesheet-history.md # 🕰️ Timesheet History Module
-│   │   ├── architecture.md      # 🏗️ System architecture and design patterns
-│   │   ├── auth-security.md     # 🔐 Authentication, authorization, and security
-│   │   ├── cache-queues-realtime.md # 🚀 Caching, queues, and real-time features
-│   │   └── database.md          # 🗄️ Database design, migrations, and operations
-│   ├── development/             # 🛠️ Development processes
-│   ├── frontend/                # 🎨 Frontend documentation
-│   ├── guides/                  # 📖 Step-by-step guides
-│   ├── infrastructure/          # 🚀 Infrastructure & deployment
-│   └── TECHNICAL_OVERVIEW.md    # 🏗️ High-level technical overview
+├── 📁 App.Docusaurus/          # 📚 Documentation Hub
 │
 └── 📄 .env.example             # 🔐 Environment configuration template
 ```
@@ -248,33 +240,6 @@ docker push your-registry/gogotime-web
 ```
 
 **📖 Detailed Deployment Guide**: [`App.Docs/guides/deployment.md`](App.Docs/guides/deployment.md)
-
-## 📚 Documentation
-
-### 🎯 Quick Navigation
-
-| Section                  | Description                                 | Link                                                                                               |
-| ------------------------ | ------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| **🚀 Getting Started**   | Setup and first steps                       | [`App.Docs/guides/getting-started.md`](App.Docs/guides/getting-started.md)                         |
-| **✨ OpenAPI System**    | Auto-generation details                     | [`App.Docs/api/openapi-automation.md`](App.Docs/api/openapi-automation.md)                         |
-| **🔧 Troubleshooting**   | Common issues & fixes                       | [`App.Docs/guides/troubleshooting.md`](App.Docs/guides/troubleshooting.md)                         |
-| **🏗️ Architecture**      | System design & patterns                    | [`App.Docs/backend/architecture.md`](App.Docs/backend/architecture.md)                             |
-| **🗄️ Database**          | Database design, migrations, and operations | [`App.Docs/backend/database.md`](App.Docs/backend/database.md)                                     |
-| **🕰️ Timesheet History** | Auditable log of timesheet events           | [`App.Docs/backend/Database/timesheet-history.md`](App.Docs/backend/Database/timesheet-history.md) |
-| **🚀 Deployment**        | Production deployment                       | [`App.Docs/guides/deployment.md`](App.Docs/guides/deployment.md)                                   |
-
-### 📂 Full Documentation Index
-
-```bash
-App.Docs/
-├── 📖 README.md                 # Documentation overview
-├── api/                         # API documentation
-├── backend/                     # Backend architecture
-├── frontend/                    # Frontend development
-├── infrastructure/              # Docker & deployment
-├── development/                 # Dev processes & quality
-└── guides/                      # Step-by-step guides
-```
 
 ## 🤝 Contributing
 

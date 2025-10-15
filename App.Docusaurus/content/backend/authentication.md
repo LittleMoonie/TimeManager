@@ -14,8 +14,8 @@ JWTs are an open, industry-standard RFC 7519 method for representing claims secu
 
 1.  **Login**: A user sends their credentials (e.g., email and password) to the API's login endpoint.
 2.  **Token Issuance**: Upon successful authentication, the API generates two tokens:
-    *   **Access Token**: A short-lived JWT used to authenticate subsequent API requests.
-    *   **Refresh Token**: A longer-lived token used to obtain new access tokens without requiring the user to re-authenticate.
+    - **Access Token**: A short-lived JWT used to authenticate subsequent API requests.
+    - **Refresh Token**: A longer-lived token used to obtain new access tokens without requiring the user to re-authenticate.
 3.  **API Requests**: For every subsequent API request to a protected endpoint, the client must include the access token in the `Authorization` header as a Bearer token.
 
     ```http
@@ -29,10 +29,10 @@ JWTs are an open, industry-standard RFC 7519 method for representing claims secu
 
 Our JWT implementation is supported by:
 
-*   **Secure Password Hashing**: Using `argon2` for robust password storage.
-*   **Refresh Token Management**: Long-lived refresh tokens are stored securely in the database (via `ActiveSessionService`) and can be used to obtain new access tokens.
-*   **Token Storage**: Access tokens are typically used as Bearer tokens, while refresh tokens can be managed via HttpOnly cookies for web clients.
-*   **Authentication Flow**: A clear flow ensures secure login, token issuance, and refresh mechanisms.
+- **Secure Password Hashing**: Using `argon2` for robust password storage.
+- **Refresh Token Management**: Long-lived refresh tokens are stored securely in the database (via `ActiveSessionService`) and can be used to obtain new access tokens.
+- **Token Storage**: Access tokens are typically used as Bearer tokens, while refresh tokens can be managed via HttpOnly cookies for web clients.
+- **Authentication Flow**: A clear flow ensures secure login, token issuance, and refresh mechanisms.
 
 ## 🛡️ Authorization
 
@@ -44,9 +44,9 @@ RBAC is a method of restricting system access to authorized users. Permissions a
 
 **Key Concepts:**
 
-*   **Roles**: Collections of permissions (e.g., `Admin`, `Employee`, `Manager`).
-*   **Permissions**: Specific actions that can be performed (e.g., `read:user`, `create:timesheet`, `update:company`).
-*   **Users**: Assigned one or more roles.
+- **Roles**: Collections of permissions (e.g., `Admin`, `Employee`, `Manager`).
+- **Permissions**: Specific actions that can be performed (e.g., `read:user`, `create:timesheet`, `update:company`).
+- **Users**: Assigned one or more roles.
 
 **How it Works:**
 
@@ -63,14 +63,14 @@ Our RBAC system supports granular permissions, allowing for fine-tuned control o
 
 Beyond authentication and authorization, our API and backend incorporate several security best practices:
 
-*   **Input Validation & Sanitization**: Rigorous validation of all incoming request data using `class-validator` and sanitization techniques to prevent common vulnerabilities like injection attacks and XSS.
-*   **Security Headers**: Implementation of HTTP security headers (e.g., via Helmet) to mitigate common web vulnerabilities.
-*   **CORS Configuration**: Carefully configured Cross-Origin Resource Sharing (CORS) policies to control access from different domains.
-*   **Rate Limiting**: Protection against brute-force attacks and API abuse using `express-rate-limit` with Redis.
-*   **Secrets Management**: Secure handling of sensitive configuration data through environment variables, with mechanisms for validation and rotation.
-*   **Security Monitoring**: Logging of security events and intrusion detection capabilities to identify and respond to suspicious activities.
-*   **Security Testing**: Integration of security tests into the development pipeline to continuously assess and improve the API's resilience.
-*   **HTTPS Everywhere**: All API communication is enforced over HTTPS to ensure data encryption in transit.
+- **Input Validation & Sanitization**: Rigorous validation of all incoming request data using `class-validator` and sanitization techniques to prevent common vulnerabilities like injection attacks and XSS.
+- **Security Headers**: Implementation of HTTP security headers (e.g., via Helmet) to mitigate common web vulnerabilities.
+- **CORS Configuration**: Carefully configured Cross-Origin Resource Sharing (CORS) policies to control access from different domains.
+- **Rate Limiting**: Protection against brute-force attacks and API abuse using `express-rate-limit` with Redis.
+- **Secrets Management**: Secure handling of sensitive configuration data through environment variables, with mechanisms for validation and rotation.
+- **Security Monitoring**: Logging of security events and intrusion detection capabilities to identify and respond to suspicious activities.
+- **Security Testing**: Integration of security tests into the development pipeline to continuously assess and improve the API's resilience.
+- **HTTPS Everywhere**: All API communication is enforced over HTTPS to ensure data encryption in transit.
 
 ---
 

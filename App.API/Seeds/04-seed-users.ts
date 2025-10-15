@@ -38,7 +38,7 @@ export async function seedUsers(
         statusId: status.id,
       });
       await userRepo.save(user);
-      console.log(`👤 Created ${roleName}: ${email}`);
+      console.warn(`👤 Created ${roleName}: ${email}`);
     } else {
       Object.assign(user, {
         firstName,
@@ -49,7 +49,7 @@ export async function seedUsers(
         mustChangePasswordAtNextLogin: true,
       });
       await userRepo.save(user);
-      console.log(`👤 Refreshed ${roleName}: ${email}`);
+      console.warn(`👤 Refreshed ${roleName}: ${email}`);
     }
     return user;
   };
@@ -62,8 +62,8 @@ export async function seedUsers(
   const auditor = await makeUser('auditor@demo.example.com', 'Audrey', 'Auditor', 'auditor');
 
   // Print dev creds (optional)
-  console.log('🔑 Default dev password for seeded users:', defaultPassword);
-  console.log('   (They must change it on first login)');
+  console.warn('🔑 Default dev password for seeded users:', defaultPassword);
+  console.warn('   (They must change it on first login)');
 
   return { companyAdmin, mgr, empl, hr, payroll, auditor };
 }

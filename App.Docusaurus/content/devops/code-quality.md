@@ -10,16 +10,16 @@ Maintaining high code quality is fundamental to the long-term success and mainta
 
 Our project utilizes **Yarn Workspaces** to manage multiple applications (e.g., `App.API`, `App.Web`) within a single monorepository. This approach facilitates:
 
-*   **Shared Dependencies**: Centralized management of common libraries.
-*   **Simplified Development**: Easier navigation and cross-project collaboration.
-*   **Consistent Tooling**: Uniform application of linters, formatters, and build scripts across all sub-projects.
+- **Shared Dependencies**: Centralized management of common libraries.
+- **Simplified Development**: Easier navigation and cross-project collaboration.
+- **Consistent Tooling**: Uniform application of linters, formatters, and build scripts across all sub-projects.
 
 ### Package Management
 
 We rely on **Yarn** for efficient and reliable dependency management. Key practices include:
 
-*   **Lock Files**: `yarn.lock` ensures reproducible builds by pinning exact dependency versions.
-*   **Workspace Dependencies**: Leveraging Yarn's capabilities for managing inter-workspace dependencies.
+- **Lock Files**: `yarn.lock` ensures reproducible builds by pinning exact dependency versions.
+- **Workspace Dependencies**: Leveraging Yarn's capabilities for managing inter-workspace dependencies.
 
 ## 🧹 Code Formatting & Linting
 
@@ -49,9 +49,9 @@ Branches follow a structured naming convention (e.g., `feat/`, `fix/`, `docs/`) 
 
 All commit messages must conform to the **Conventional Commits** specification. This standard provides a lightweight convention on top of commit messages, enabling:
 
-*   **Automated Changelog Generation**: Easily generate release notes.
-*   **Semantic Versioning**: Automatically determine version bumps based on commit types.
-*   **Improved Readability**: Clearer understanding of changes from the commit history.
+- **Automated Changelog Generation**: Easily generate release notes.
+- **Semantic Versioning**: Automatically determine version bumps based on commit types.
+- **Improved Readability**: Clearer understanding of changes from the commit history.
 
 Our commit messages also enforce a detailed body structure (What, Why, How, Impact) to provide comprehensive context for each change.
 
@@ -59,11 +59,11 @@ Our commit messages also enforce a detailed body structure (What, Why, How, Impa
 
 **Husky** is used to set up Git hooks that automate checks before commits and pushes. These hooks ensure:
 
-*   **Branch Policy Enforcement**: Prevent direct commits to protected branches.
-*   **Secret Scanning**: Detect and prevent accidental commits of sensitive information.
-*   **Linting & Formatting**: Automatically format and lint staged files using `lint-staged`.
-*   **Type Checking**: Verify TypeScript code for type errors.
-*   **Commit Message Validation**: Enforce Conventional Commits using `commitlint`.
+- **Branch Policy Enforcement**: Prevent direct commits to protected branches.
+- **Secret Scanning**: Detect and prevent accidental commits of sensitive information.
+- **Linting & Formatting**: Automatically format and lint staged files using `lint-staged`.
+- **Type Checking**: Verify TypeScript code for type errors.
+- **Commit Message Validation**: Enforce Conventional Commits using `commitlint`.
 
 ## 🤝 Code Review Guidelines
 
@@ -73,10 +73,10 @@ Code reviews are a critical part of our quality assurance process, promoting kno
 
 Reviewers assess code based on:
 
-*   **Functionality**: Does the code work as intended, handling edge cases and errors?
-*   **Code Quality**: Is it readable, well-documented, and free of duplication?
-*   **Testing**: Is new functionality covered by tests, and are existing tests maintained?
-*   **Security**: Are security best practices followed, and are vulnerabilities addressed?
+- **Functionality**: Does the code work as intended, handling edge cases and errors?
+- **Code Quality**: Is it readable, well-documented, and free of duplication?
+- **Testing**: Is new functionality covered by tests, and are existing tests maintained?
+- **Security**: Are security best practices followed, and are vulnerabilities addressed?
 
 ### Review Process
 
@@ -132,14 +132,14 @@ Security is integrated into every stage of development.
 
 ### Dependency Management
 
-*   **Regular Updates**: Dependencies are regularly updated to incorporate security patches.
-*   **Security Scanning**: Automated tools scan for known vulnerabilities in third-party libraries.
-*   **License Compliance**: All dependencies must comply with our licensing policies.
+- **Regular Updates**: Dependencies are regularly updated to incorporate security patches.
+- **Security Scanning**: Automated tools scan for known vulnerabilities in third-party libraries.
+- **License Compliance**: All dependencies must comply with our licensing policies.
 
 ### Code Security
 
-*   **Input Validation**: Rigorous validation of all inputs prevents common vulnerabilities.
-*   **Sanitization**: User-generated content is sanitized to prevent Cross-Site Scripting (XSS) attacks.
+- **Input Validation**: Rigorous validation of all inputs prevents common vulnerabilities.
+- **Sanitization**: User-generated content is sanitized to prevent Cross-Site Scripting (XSS) attacks.
 
 ## 🤖 Automation & CI/CD
 

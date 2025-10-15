@@ -24,7 +24,7 @@ export const AboutMeSection = () => {
 
   const handleSave = () => {
     // TODO: Implement save functionality with API call
-    console.log('Saving about me:', aboutMe);
+    console.warn('Saving about me:', aboutMe);
     setIsEditing(false);
   };
 

@@ -8,9 +8,9 @@ This document provides a comprehensive guide to deploying the GoGoTime applicati
 
 We maintain distinct environments to support the software development lifecycle:
 
-*   **Development**: Your local machine, used for active coding and testing. Services run via Docker Compose.
-*   **Staging**: A pre-production environment that mirrors production as closely as possible. Used for testing, quality assurance, and stakeholder reviews.
-*   **Production**: The live environment where the GoGoTime application is accessible to end-users.
+- **Development**: Your local machine, used for active coding and testing. Services run via Docker Compose.
+- **Staging**: A pre-production environment that mirrors production as closely as possible. Used for testing, quality assurance, and stakeholder reviews.
+- **Production**: The live environment where the GoGoTime application is accessible to end-users.
 
 ## 🐳 Docker Deployment
 
@@ -34,8 +34,8 @@ Critical environment variables (e.g., database credentials, JWT secrets, API end
 
 ### Security Considerations
 
-*   **Strong Secrets**: All sensitive keys and passwords are generated securely and stored as environment variables.
-*   **Production Optimizations**: Development-specific features (e.g., detailed logging, source maps) are disabled in production for security and performance.
+- **Strong Secrets**: All sensitive keys and passwords are generated securely and stored as environment variables.
+- **Production Optimizations**: Development-specific features (e.g., detailed logging, source maps) are disabled in production for security and performance.
 
 ## 🌐 Cloud Deployment Options
 
@@ -59,8 +59,8 @@ Our primary database is PostgreSQL. Deployment involves setting up a robust and 
 
 ### PostgreSQL Cloud Options
 
-*   **Managed PostgreSQL**: Utilizing cloud provider services like AWS RDS or Google Cloud SQL for fully managed, highly available, and scalable database instances.
-*   **Self-hosted PostgreSQL**: For environments requiring more control, PostgreSQL can be installed and managed directly on a server.
+- **Managed PostgreSQL**: Utilizing cloud provider services like AWS RDS or Google Cloud SQL for fully managed, highly available, and scalable database instances.
+- **Self-hosted PostgreSQL**: For environments requiring more control, PostgreSQL can be installed and managed directly on a server.
 
 ### Database Migration
 
@@ -98,10 +98,10 @@ Our CI/CD pipelines automate the deployment process, from building and pushing D
 
 Production deployments incorporate various performance optimizations:
 
-*   **Node.js Optimizations**: Running Node.js applications in production mode and configuring memory limits.
-*   **Database Connection Pooling**: Efficiently managing database connections to reduce overhead.
-*   **Compression & Caching**: Enabling Gzip compression for HTTP responses and configuring browser caching for static assets to improve load times.
-*   **Load Balancing**: Distributing incoming traffic across multiple application instances to enhance scalability and reliability.
+- **Node.js Optimizations**: Running Node.js applications in production mode and configuring memory limits.
+- **Database Connection Pooling**: Efficiently managing database connections to reduce overhead.
+- **Compression & Caching**: Enabling Gzip compression for HTTP responses and configuring browser caching for static assets to improve load times.
+- **Load Balancing**: Distributing incoming traffic across multiple application instances to enhance scalability and reliability.
 
 ## ✅ Deployment Checklist
 
@@ -109,44 +109,44 @@ A comprehensive checklist guides each deployment, ensuring all critical steps ar
 
 ### Pre-deployment
 
-*   Environment variables configured.
-*   Database setup and migrations ready.
-*   SSL certificates obtained.
-*   DNS records configured.
-*   Backup strategy in place.
-*   Monitoring tools configured.
+- Environment variables configured.
+- Database setup and migrations ready.
+- SSL certificates obtained.
+- DNS records configured.
+- Backup strategy in place.
+- Monitoring tools configured.
 
 ### Deployment
 
-*   Build and test images.
-*   Push images to registry.
-*   Deploy to staging first for validation.
-*   Run database migrations.
-*   Deploy to production.
-*   Verify health checks pass.
+- Build and test images.
+- Push images to registry.
+- Deploy to staging first for validation.
+- Run database migrations.
+- Deploy to production.
+- Verify health checks pass.
 
 ### Post-deployment
 
-*   Verify all services are running.
-*   Test critical user flows.
-*   Check logs for errors.
-*   Verify monitoring is working.
-*   Document any issues.
-*   Update team on deployment status.
+- Verify all services are running.
+- Test critical user flows.
+- Check logs for errors.
+- Verify monitoring is working.
+- Document any issues.
+- Update team on deployment status.
 
 ## 🆘 Rollback Procedure
 
 In case of deployment issues, a clear rollback procedure is defined to quickly revert to a previous stable version, minimizing downtime.
 
-*   **Quick Rollback**: Reverting Docker Compose deployments to a previous image version.
-*   **Blue-Green Deployment**: Leveraging blue-green deployment strategies for near-zero-downtime rollbacks by switching traffic back to the old environment.
+- **Quick Rollback**: Reverting Docker Compose deployments to a previous image version.
+- **Blue-Green Deployment**: Leveraging blue-green deployment strategies for near-zero-downtime rollbacks by switching traffic back to the old environment.
 
 ## 📞 Support & Monitoring
 
 Post-deployment, continuous monitoring and support mechanisms are in place:
 
-*   **Log Management**: Centralized logging for easy access to production logs.
-*   **Alerts & Notifications**: Automated alerts for critical issues like service downtime, high error rates, and resource exhaustion.
+- **Log Management**: Centralized logging for easy access to production logs.
+- **Alerts & Notifications**: Automated alerts for critical issues like service downtime, high error rates, and resource exhaustion.
 
 ---
 

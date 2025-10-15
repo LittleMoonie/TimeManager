@@ -186,7 +186,7 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
   ];
   await grant('company_admin', companyAdminPermissions);
 
-  console.log('🔐 Seeded Roles & Permissions for company:', company.name);
+  console.warn('🔐 Seeded Roles & Permissions for company:', company.name);
 
   // 4) Seed Menu Categories and Cards
   const menuCategoryRepo = ds.getRepository(MenuCategory);
@@ -207,7 +207,7 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
     if (!category) {
       category = menuCategoryRepo.create({ ...catDef, companyId: company.id });
       await menuCategoryRepo.save(category);
-      console.log(`➕ Created Menu Category: ${category.title} for company ${company.name}`);
+      console.warn(`➕ Created Menu Category: ${category.title} for company ${company.name}`);
     }
   }
 
@@ -416,7 +416,7 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
     if (!card) {
       card = menuCardRepo.create({ ...cardDef, companyId: company.id });
       await menuCardRepo.save(card);
-      console.log(`➕ Created Menu Card: ${card.title} for company ${company.name}`);
+      console.warn(`➕ Created Menu Card: ${card.title} for company ${company.name}`);
     }
   }
 

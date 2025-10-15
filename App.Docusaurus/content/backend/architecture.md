@@ -4,11 +4,11 @@ Our API and backend are designed as a cohesive system, following modern architec
 
 ## 🎯 Architectural Goals
 
-*   **Modularity**: Clear separation of concerns to facilitate independent development and deployment.
-*   **Scalability**: Ability to handle increasing load by scaling individual components.
-*   **Maintainability**: Clean code, consistent patterns, and comprehensive documentation.
-*   **Security**: Robust authentication, authorization, and data protection mechanisms.
-*   **Observability**: Integrated monitoring, logging, and alerting for operational insights.
+- **Modularity**: Clear separation of concerns to facilitate independent development and deployment.
+- **Scalability**: Ability to handle increasing load by scaling individual components.
+- **Maintainability**: Clean code, consistent patterns, and comprehensive documentation.
+- **Security**: Robust authentication, authorization, and data protection mechanisms.
+- **Observability**: Integrated monitoring, logging, and alerting for operational insights.
 
 ## 🌐 High-Level Overview
 
@@ -42,49 +42,49 @@ graph TD
 
 ### 1. API Layer (Express.js)
 
-*   **Role**: The entry point for all external requests. It handles routing, request parsing, validation, and response formatting.
-*   **Technology**: Built with Express.js, a fast, unopinionated, minimalist web framework for Node.js.
-*   **Key Features**:
-    *   **tsoa**: Used for defining API routes and generating OpenAPI specifications directly from TypeScript code, ensuring type safety and documentation accuracy.
-    *   **Middleware**: Custom middleware for authentication, authorization, logging, and error handling.
-    *   **Controllers**: Handle incoming requests, delegate to business logic services, and prepare responses.
+- **Role**: The entry point for all external requests. It handles routing, request parsing, validation, and response formatting.
+- **Technology**: Built with Express.js, a fast, unopinionated, minimalist web framework for Node.js.
+- **Key Features**:
+  - **tsoa**: Used for defining API routes and generating OpenAPI specifications directly from TypeScript code, ensuring type safety and documentation accuracy.
+  - **Middleware**: Custom middleware for authentication, authorization, logging, and error handling.
+  - **Controllers**: Handle incoming requests, delegate to business logic services, and prepare responses.
 
 ### 2. Business Logic Services
 
-*   **Role**: Encapsulates the core business rules and operations of the GoGoTime application. Services orchestrate interactions between different parts of the system.
-*   **Design Principles**: Focus on single responsibility, domain-driven design, and testability.
-*   **Examples**: `UserService`, `CompanyService`, `TimesheetService`, `AuthenticationService`.
+- **Role**: Encapsulates the core business rules and operations of the GoGoTime application. Services orchestrate interactions between different parts of the system.
+- **Design Principles**: Focus on single responsibility, domain-driven design, and testability.
+- **Examples**: `UserService`, `CompanyService`, `TimesheetService`, `AuthenticationService`.
 
 ### 3. Data Access Layer (TypeORM)
 
-*   **Role**: Provides an abstraction layer for interacting with the PostgreSQL database. It maps TypeScript entities to database tables and handles CRUD operations.
-*   **Technology**: TypeORM, an Object-Relational Mapper (ORM) that supports TypeScript and various databases.
-*   **Key Features**:
-    *   **Entities**: Define the structure of our data models.
-    *   **Repositories**: Provide methods for querying and persisting data.
-    *   **Migrations**: Manage database schema changes in a version-controlled manner.
+- **Role**: Provides an abstraction layer for interacting with the PostgreSQL database. It maps TypeScript entities to database tables and handles CRUD operations.
+- **Technology**: TypeORM, an Object-Relational Mapper (ORM) that supports TypeScript and various databases.
+- **Key Features**:
+  - **Entities**: Define the structure of our data models.
+  - **Repositories**: Provide methods for querying and persisting data.
+  - **Migrations**: Manage database schema changes in a version-controlled manner.
 
 ### 4. PostgreSQL Database
 
-*   **Role**: The primary persistent storage for all application data.
-*   **Technology**: PostgreSQL, a powerful, open-source object-relational database system known for its reliability, feature robustness, and performance.
+- **Role**: The primary persistent storage for all application data.
+- **Technology**: PostgreSQL, a powerful, open-source object-relational database system known for its reliability, feature robustness, and performance.
 
 ### 5. Authentication & Authorization Services
 
-*   **Role**: Dedicated services responsible for user identity verification (authentication) and access control (authorization).
-*   **Authentication**: Utilizes JSON Web Tokens (JWT) for stateless authentication, allowing scalability.
-*   **Authorization**: Implements Role-Based Access Control (RBAC) to manage permissions based on user roles.
+- **Role**: Dedicated services responsible for user identity verification (authentication) and access control (authorization).
+- **Authentication**: Utilizes JSON Web Tokens (JWT) for stateless authentication, allowing scalability.
+- **Authorization**: Implements Role-Based Access Control (RBAC) to manage permissions based on user roles.
 
 ### 6. Message Queue / Task Scheduler (Future Enhancement)
 
-*   **Role**: For handling asynchronous tasks, background jobs, and inter-service communication.
-*   **Benefits**: Improves responsiveness of the API, enables long-running processes, and facilitates decoupling of services.
+- **Role**: For handling asynchronous tasks, background jobs, and inter-service communication.
+- **Benefits**: Improves responsiveness of the API, enables long-running processes, and facilitates decoupling of services.
 
 ### 7. Monitoring & Logging
 
-*   **Role**: Provides visibility into the health, performance, and behavior of the API and backend.
-*   **Monitoring**: Prometheus for collecting metrics and Grafana for visualization.
-*   **Logging**: Structured logging with Pino, integrated with an ELK (Elasticsearch, Logstash, Kibana) stack for centralized log management.
+- **Role**: Provides visibility into the health, performance, and behavior of the API and backend.
+- **Monitoring**: Prometheus for collecting metrics and Grafana for visualization.
+- **Logging**: Structured logging with Pino, integrated with an ELK (Elasticsearch, Logstash, Kibana) stack for centralized log management.
 
 ## 🔗 Integration with Frontend
 
@@ -94,12 +94,12 @@ The API is consumed by our React frontend application. This integration is highl
 
 Security is paramount in our API and backend design. Key security measures include:
 
-*   **JWT Authentication**: Secure, stateless authentication.
-*   **RBAC**: Fine-grained access control.
-*   **Input Validation**: Robust validation of all incoming request data.
-*   **HTTPS**: All communication is encrypted.
-*   **Rate Limiting**: Protection against abuse and DDoS attacks.
-*   **Secrets Management**: Secure handling of sensitive configuration data.
+- **JWT Authentication**: Secure, stateless authentication.
+- **RBAC**: Fine-grained access control.
+- **Input Validation**: Robust validation of all incoming request data.
+- **HTTPS**: All communication is encrypted.
+- **Rate Limiting**: Protection against abuse and DDoS attacks.
+- **Secrets Management**: Secure handling of sensitive configuration data.
 
 ---
 

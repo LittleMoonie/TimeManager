@@ -10,10 +10,10 @@ GoGoTime is designed to revolutionize time management, offering a robust and int
 
 GoGoTime is built with a TypeScript-first approach, leveraging:
 
-*   **Frontend**: React 19, Vite, Material-UI (MUI)
-*   **Backend**: Node.js, Express.js, TypeORM, PostgreSQL
-*   **API Documentation**: tsoa for OpenAPI auto-generation
-*   **Infrastructure**: Docker, Docker Compose, Kubernetes (for production)
+- **Frontend**: React 19, Vite, Material-UI (MUI)
+- **Backend**: Node.js, Express.js, TypeORM, PostgreSQL
+- **API Documentation**: tsoa for OpenAPI auto-generation
+- **Infrastructure**: Docker, Docker Compose, Kubernetes (for production)
 
 ## 📋 Documentation Structure
 
@@ -21,12 +21,12 @@ Our documentation is organized into logical sections to help you quickly find th
 
 ### Key Sections:
 
-*   **[Getting Started](./getting-started.md)**: Your first stop for setting up the development environment and understanding the project's core features.
-*   **[API & Backend](/docs/backend/)**: Dive into the architecture, authentication, data management, and core concepts of our server-side system.
-*   **[Frontend](/docs/frontend/)**: Explore the frontend architecture, component library, and development guidelines for our React application.
-*   **[DevOps](/docs/devops/documentation)**: Learn about our CI/CD pipelines, Docker infrastructure, code quality standards, and observability practices.
-*   **[Deployment Guide](./deployment.md)**: Understand how to deploy GoGoTime to various environments.
-*   **[Troubleshooting Guide](./troubleshooting.md)**: Find solutions to common issues and problems.
+- **[Getting Started](./getting-started.md)**: Your first stop for setting up the development environment and understanding the project's core features.
+- **[API & Backend](/docs/backend/)**: Dive into the architecture, authentication, data management, and core concepts of our server-side system.
+- **[Frontend](/docs/frontend/)**: Explore the frontend architecture, component library, and development guidelines for our React application.
+- **[DevOps](/docs/devops/documentation)**: Learn about our CI/CD pipelines, Docker infrastructure, code quality standards, and observability practices.
+- **[Deployment Guide](./deployment.md)**: Understand how to deploy GoGoTime to various environments.
+- **[Troubleshooting Guide](./troubleshooting.md)**: Find solutions to common issues and problems.
 
 ## 🚀 Quick Start
 

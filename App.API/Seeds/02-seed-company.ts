@@ -16,9 +16,9 @@ export async function seedCompany(ds: DataSource) {
   if (!company) {
     company = repo.create(payload);
     await repo.save(company);
-    console.log('🏢 Created Company:', company.name, company.id);
+    console.warn('🏢 Created Company:', company.name, company.id);
   } else {
-    console.log('🏢 Company exists:', company.name, company.id);
+    console.warn('🏢 Company exists:', company.name, company.id);
   }
 
   return { company };

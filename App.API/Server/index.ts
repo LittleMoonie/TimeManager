@@ -83,7 +83,7 @@ apiApp.use(cors(corsOptions));
 server.use('/api', apiApp);
 
 RegisterRoutes(apiApp); // Register tsoa-generated routes with apiApp
-console.log('✅ Routes registered');
+console.warn('✅ Routes registered');
 
 server.use(errorHandler(logger));
 

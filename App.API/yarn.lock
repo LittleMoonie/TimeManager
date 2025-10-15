@@ -1501,7 +1501,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/compression@npm:^1.7.5":
+"@types/compression@npm:^1.8.1":
   version: 1.8.1
   resolution: "@types/compression@npm:1.8.1"
   dependencies:
@@ -1555,7 +1555,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/cors@npm:^2.8.17":
+"@types/cors@npm:^2.8.19":
   version: 2.8.19
   resolution: "@types/cors@npm:2.8.19"
   dependencies:
@@ -1599,7 +1599,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/express@npm:^4.17.21":
+"@types/express@npm:^4.17.23":
   version: 4.17.23
   resolution: "@types/express@npm:4.17.23"
   dependencies:
@@ -1676,7 +1676,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jsonwebtoken@npm:*, @types/jsonwebtoken@npm:^9.0.6":
+"@types/jsonwebtoken@npm:*, @types/jsonwebtoken@npm:^9.0.10":
   version: 9.0.10
   resolution: "@types/jsonwebtoken@npm:9.0.10"
   dependencies:
@@ -1780,7 +1780,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^22.5.4":
+"@types/node@npm:^22.18.10":
   version: 22.18.10
   resolution: "@types/node@npm:22.18.10"
   dependencies:
@@ -1789,7 +1789,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/passport-jwt@npm:^3.0.8":
+"@types/passport-jwt@npm:^3.0.13":
   version: 3.0.13
   resolution: "@types/passport-jwt@npm:3.0.13"
   dependencies:
@@ -1917,7 +1917,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/swagger-jsdoc@npm:^6":
+"@types/swagger-jsdoc@npm:^6.0.4":
   version: 6.0.4
   resolution: "@types/swagger-jsdoc@npm:6.0.4"
   checksum: 10c0/fbe17d91a12e1e60a255b02e6def6877c81b356c75ffcd0e5167fbaf1476e2d6600cd7eea79e6b3e0ff7929dec33ade345147509ed3b98026f63c782b74514f6
@@ -2668,7 +2668,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"class-validator@npm:^0.14.0":
+"class-validator@npm:^0.14.2":
   version: 0.14.2
   resolution: "class-validator@npm:0.14.2"
   dependencies:
@@ -2810,7 +2810,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"compression@npm:^1.7.4":
+"compression@npm:^1.8.1":
   version: 1.8.1
   resolution: "compression@npm:1.8.1"
   dependencies:
@@ -3983,26 +3983,26 @@ __metadata:
   resolution: "gogotime-api@workspace:."
   dependencies:
     "@tsoa/runtime": "npm:^6.6.0"
-    "@types/compression": "npm:^1.7.5"
+    "@types/compression": "npm:^1.8.1"
     "@types/cookie-parser": "npm:^1.4.9"
-    "@types/cors": "npm:^2.8.17"
-    "@types/express": "npm:^4.17.21"
+    "@types/cors": "npm:^2.8.19"
+    "@types/express": "npm:^4.17.23"
     "@types/jest": "npm:^30.0.0"
-    "@types/jsonwebtoken": "npm:^9.0.6"
+    "@types/jsonwebtoken": "npm:^9.0.10"
     "@types/mocha": "npm:^10.0.10"
-    "@types/node": "npm:^22.5.4"
+    "@types/node": "npm:^22.18.10"
     "@types/passport": "npm:^1.0.17"
-    "@types/passport-jwt": "npm:^3.0.8"
+    "@types/passport-jwt": "npm:^3.0.13"
     "@types/pg": "npm:^8.15.5"
     "@types/supertest": "npm:^6.0.3"
-    "@types/swagger-jsdoc": "npm:^6"
+    "@types/swagger-jsdoc": "npm:^6.0.4"
     "@types/swagger-ui-express": "npm:^4.1.8"
     "@types/uuid": "npm:^11.0.0"
     argon2: "npm:^0.44.0"
     bcryptjs: "npm:^3.0.2"
     class-transformer: "npm:^0.5.1"
-    class-validator: "npm:^0.14.0"
-    compression: "npm:^1.7.4"
+    class-validator: "npm:^0.14.2"
+    compression: "npm:^1.8.1"
     concurrently: "npm:^8.2.2"
     cookie-parser: "npm:^1.4.7"
     cors: "npm:^2.8.5"
@@ -4018,14 +4018,14 @@ __metadata:
     pm2: "npm:^5.4.3"
     prettier: "npm:^3.6.2"
     reflect-metadata: "npm:^0.2.2"
-    supertest: "npm:^7.1.1"
+    supertest: "npm:^7.1.4"
     swagger-jsdoc: "npm:^6.2.8"
     swagger-ui-express: "npm:^5.0.1"
     ts-jest: "npm:^29.4.5"
     ts-node: "npm:^10.9.2"
     ts-node-dev: "npm:^2.0.0"
     tsconfig-paths: "npm:^4.2.0"
-    tsoa: "npm:^6.0.0"
+    tsoa: "npm:^6.6.0"
     typedi: "npm:^0.10.0"
     typeorm: "npm:^0.3.27"
     typeorm-typedi-extensions: "npm:^0.4.1"
@@ -7086,7 +7086,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"supertest@npm:^7.1.1":
+"supertest@npm:^7.1.4":
   version: 7.1.4
   resolution: "supertest@npm:7.1.4"
   dependencies:
@@ -7415,7 +7415,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsoa@npm:^6.0.0":
+"tsoa@npm:^6.6.0":
   version: 6.6.0
   resolution: "tsoa@npm:6.6.0"
   dependencies:
