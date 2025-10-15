@@ -1,0 +1,8 @@
+git:latest
+github:latest
+workflow-aggregator:latest
+docker-workflow:latest
+blueocean:latest
+sonar:latest
+credentials:latest
+nodejs:latest

@@ -4028,8 +4028,7 @@ __metadata:
     tsoa: "npm:^6.0.0"
     typedi: "npm:^0.10.0"
     typeorm: "npm:^0.3.27"
-    typeorm-typedi-extensions: "npm:^0.4.1"
-    typescript: "npm:^5.9.3"
+    typescript: "npm:^5.6.3"
     uuid: "npm:^13.0.0"
     winston: "npm:^3.18.3"
   languageName: unknown
@@ -7500,16 +7499,6 @@ __metadata:
   version: 0.10.0
   resolution: "typedi@npm:0.10.0"
   checksum: 10c0/99f8227f3670321ff5a0dfaf28a03155757d9e2d5ed184cba8fcf26f03188e7eb46e44d69fab118f89aecafaa4f8cb2860272b597d0a175e2b9a0d136cdcddde
-  languageName: node
-  linkType: hard
-
-"typeorm-typedi-extensions@npm:^0.4.1":
-  version: 0.4.1
-  resolution: "typeorm-typedi-extensions@npm:0.4.1"
-  peerDependencies:
-    typedi: ">=0.10.0"
-    typeorm: ">=0.2.30"
-  checksum: 10c0/239c1fdad4b3d13320b0b94ad9e97cd2fdf38d2322ab1eb12723df82b02974e5c6753f03dae1b844ed5a1644079218f629f8d618b6e6ed936962dcc40d5c5970
   languageName: node
   linkType: hard
 
