@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { CreateUserDto } from '../models/CreateUserDto';
 import type { MenuResponseDto } from '../models/MenuResponseDto';
+import type { UpdateSelfDto } from '../models/UpdateSelfDto';
 import type { UpdateUserDto } from '../models/UpdateUserDto';
 import type { UserResponseDto } from '../models/UserResponseDto';
 import type { UsersPage } from '../models/UsersPage';
@@ -12,7 +13,7 @@ import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class UsersService {
     /**
-     * Retrieves the personalized menu for the authenticated user within their company.
+     * Retrieves the personalized menu for the authenticated user.
      * @returns MenuResponseDto The personalized menu structure, including categories and cards, filtered by user permissions.
      * @throws ApiError
      */
@@ -23,13 +24,47 @@ export class UsersService {
         });
     }
     /**
-     * Retrieves a paginated list of users within the authenticated user's company.
+     * Retrieves the profile of the currently authenticated user.
+     * @returns UserResponseDto The user's profile information.
+     * @throws ApiError
+     */
+    public static getMe(): CancelablePromise<UserResponseDto> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/users/me',
+        });
+    }
+    /**
+     * Updates the profile of the currently authenticated user.
+     * @returns UserResponseDto The updated user profile.
+     * @throws ApiError
+     */
+    public static updateMe({
+        requestBody,
+    }: {
+        /**
+         * The data for updating the user's profile.
+         */
+        requestBody: UpdateSelfDto,
+    }): CancelablePromise<UserResponseDto> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/users/me',
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
+    /**
+     * Retrieves a paginated list of all users. [ADMIN]
      * @returns UsersPage A paginated list of user details.
      * @throws ApiError
      */
-    public static listUsers({
+    public static getUsers({
         page,
         limit,
+        q,
+        roleId,
+        statusId,
     }: {
         /**
          * Optional: The page number for pagination.
@@ -39,6 +74,18 @@ export class UsersService {
          * Optional: The number of items per page for pagination.
          */
         limit?: number,
+        /**
+         * Optional: A search query string.
+         */
+        q?: string,
+        /**
+         * Optional: Filter by role ID.
+         */
+        roleId?: string,
+        /**
+         * Optional: Filter by status ID.
+         */
+        statusId?: string,
     }): CancelablePromise<UsersPage> {
         return __request(OpenAPI, {
             method: 'GET',
@@ -46,11 +93,14 @@ export class UsersService {
             query: {
                 'page': page,
                 'limit': limit,
+                'q': q,
+                'roleId': roleId,
+                'statusId': statusId,
             },
         });
     }
     /**
-     * Creates a new user within the authenticated user's company.
+     * Creates a new user.
      * @returns UserResponseDto The newly created user's details.
      * @throws ApiError
      */
@@ -70,7 +120,60 @@ export class UsersService {
         });
     }
     /**
-     * Retrieves a single user's details by ID within the authenticated user's company.
+     * Retrieves a paginated list of users within a company. [MANAGER]
+     * @returns UsersPage A paginated list of user details.
+     * @throws ApiError
+     */
+    public static getUsersInCompany({
+        companyId,
+        page,
+        limit,
+        q,
+        roleId,
+        statusId,
+    }: {
+        /**
+         * The ID of the company.
+         */
+        companyId: string,
+        /**
+         * Optional: The page number for pagination.
+         */
+        page?: number,
+        /**
+         * Optional: The number of items per page for pagination.
+         */
+        limit?: number,
+        /**
+         * Optional: A search query string.
+         */
+        q?: string,
+        /**
+         * Optional: Filter by role ID.
+         */
+        roleId?: string,
+        /**
+         * Optional: Filter by status ID.
+         */
+        statusId?: string,
+    }): CancelablePromise<UsersPage> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/users/company/{companyId}',
+            path: {
+                'companyId': companyId,
+            },
+            query: {
+                'page': page,
+                'limit': limit,
+                'q': q,
+                'roleId': roleId,
+                'statusId': statusId,
+            },
+        });
+    }
+    /**
+     * Retrieves a single user's details by ID. [ADMIN]
      * @returns UserResponseDto The user's details.
      * @throws ApiError
      */
@@ -91,7 +194,7 @@ export class UsersService {
         });
     }
     /**
-     * Updates an existing user's details within the authenticated user's company.
+     * Updates an existing user's details.
      * @returns UserResponseDto The updated user's details.
      * @throws ApiError
      */
@@ -119,7 +222,7 @@ export class UsersService {
         });
     }
     /**
-     * Soft-deletes a user within the authenticated user's company.
+     * Deletes a user by anonymizing their data.
      * @returns void
      * @throws ApiError
      */
@@ -127,7 +230,7 @@ export class UsersService {
         id,
     }: {
         /**
-         * The ID of the user to soft-delete.
+         * The ID of the user to delete.
          */
         id: string,
     }): CancelablePromise<void> {

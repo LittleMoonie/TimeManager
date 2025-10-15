@@ -48,7 +48,7 @@ export class RoleService {
    * @returns A Promise that resolves if the user has the permission.
    * @throws {ForbiddenError} If the current user does not have the required permission.
    */
-  private async ensurePermission(currentUser: User, permission: string) {
+  public async ensurePermission(currentUser: User, permission: string) {
     const role = currentUser.role;
     const allowed =
       !!role &&

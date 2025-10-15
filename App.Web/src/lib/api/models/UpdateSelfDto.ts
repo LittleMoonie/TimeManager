@@ -2,13 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type CreateUserDto = {
-    email: string;
-    firstName: string;
-    lastName: string;
-    password: string;
-    roleId: string;
-    companyId: string;
+export type UpdateSelfDto = {
+    email?: string;
+    firstName?: string;
+    lastName?: string;
     phoneNumber?: string;
 };
 
