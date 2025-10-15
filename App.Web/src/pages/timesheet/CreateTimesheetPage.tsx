@@ -36,6 +36,7 @@ const createTimesheetSchema = z
 type CreateTimesheetFormInputs = z.infer<typeof createTimesheetSchema>;
 
 const CreateTimesheetPage = () => {
+  console.warn('CreateTimesheetPage component rendered');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 

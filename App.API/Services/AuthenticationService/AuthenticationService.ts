@@ -102,7 +102,7 @@ export class AuthenticationService {
       throw new AuthenticationError('JWT secret is not configured');
     }
 
-    const expiresIn = loginDto.rememberMe ? '7d' : '1d';
+    const expiresIn = loginDto.rememberMe ? '30d' : '7d';
 
     // Access token (JWT)
     const token = sign(

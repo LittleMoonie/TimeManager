@@ -469,7 +469,10 @@ export class UserService {
     if (targetUserId !== currentUser.id) {
       await this.ensurePermission(currentUser, 'view_user_sessions');
     }
-    const sessions = await this.activeSessionRepository.findAllForUser(companyId, targetUserId);
+    const sessions = await this.activeSessionRepository.getAllActiveSessionsForUser(
+      companyId,
+      targetUserId,
+    );
     return sessions.map((s) => ({
       id: s.id,
       userId: s.userId,

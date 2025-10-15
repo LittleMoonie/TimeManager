@@ -23,8 +23,9 @@ export const useAuth = () => {
       return currentUser;
     },
     retry: false,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 60 * 1000, // 1 minute
     enabled: true, // Always enabled, as token is now in HttpOnly cookie
+    refetchOnWindowFocus: true,
   });
 
   const loginMutation = useMutation({
