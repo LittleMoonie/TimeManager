@@ -83,6 +83,10 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
       name: 'company_admin',
       description: 'Full administrative control over company settings and RBAC',
     },
+    {
+      name: 'project_code_admin',
+      description: 'Full administrative control over the entire project codebase',
+    },
   ];
 
   await roleRepo.upsert(
@@ -192,6 +196,9 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
     'team.manage', // Explicitly added as per spec
   ];
   await grant('company_admin', [...new Set(companyAdminPermissions)]);
+
+  const projectCodeAdminPermissions = [...permissions];
+  await grant('project_code_admin', projectCodeAdminPermissions);
 
   console.warn('🔐 Seeded Roles & Permissions for company:', company.name);
 

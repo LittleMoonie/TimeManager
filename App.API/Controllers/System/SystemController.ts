@@ -49,13 +49,13 @@ export class SystemController extends Controller {
 
     // Auto-generate if requested and needed
     if (autoGen === true && needsRegeneration) {
-      console.log('🔄 Auto-generating OpenAPI spec (triggered by health check)');
+      console.warn('🔄 Auto-generating OpenAPI spec (triggered by health check)');
 
       // Run generation asynchronously (don't block health check response)
       OpenApiService.generateOpenApiSpec(true)
         .then((result) => {
           if (result.success) {
-            console.log('✅ Auto-generation completed successfully');
+            console.warn('✅ Auto-generation completed successfully');
           } else {
             console.error('❌ Auto-generation failed:', result.message);
           }

@@ -97,6 +97,12 @@ export class RoleService {
    */
   async listRoles(companyId: string, currentUser: User): Promise<Role[]> {
     this.ensureSameCompanyOrAdmin(currentUser, companyId);
+
+    if (
+      !currentUser.role?.rolePermissions.some((rp) => rp.permission?.name === 'rbac.manage.company')
+    ) {
+      throw new ForbiddenError('You do not have permission to manage roles.');
+    }
     return this.roleRepository.findAllByCompanyId(companyId);
   }
 
