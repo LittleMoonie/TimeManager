@@ -18,7 +18,12 @@ import { Company } from '../../Entities/Companies/Company';
 import { Role } from '../../Entities/Roles/Role';
 import User from '../../Entities/Users/User';
 import { UserStatus } from '../../Entities/Users/UserStatus';
-import { UnprocessableEntityError, NotFoundError, ForbiddenError } from '../../Errors/HttpErrors';
+import {
+  UnprocessableEntityError,
+  NotFoundError,
+  ForbiddenError,
+  InternalServerError,
+} from '../../Errors/HttpErrors';
 import { ActiveSessionRepository } from '../../Repositories/Users/ActiveSessionRepository';
 import { UserRepository } from '../../Repositories/Users/UserRepository';
 import { getInitializedDataSource } from '../../Server/Database';
@@ -57,7 +62,8 @@ export class UserService {
    */
   private async ensurePermission(user: User, permission: string): Promise<void> {
     const allowed = await this.rolePermissionService.checkPermission(user, permission);
-    if (!allowed) throw new ForbiddenError(`Missing permission: ${permission}`);
+    if (!allowed)
+      throw new ForbiddenError(`You do not have the required permission: '${permission}'.`);
   }
 
   /**
@@ -154,7 +160,7 @@ export class UserService {
   async getCurrentUser(currentUser: User): Promise<UserResponseDto> {
     await this.ensurePermission(currentUser, 'user.view.self');
     const user = await this.userRepository.findById(currentUser.id);
-    if (!user) throw new NotFoundError('User not found');
+    if (!user) throw new NotFoundError(`User with ID '${currentUser.id}' not found.`);
     return this.toResponse(user, { withPermissions: true });
   }
 
@@ -168,7 +174,7 @@ export class UserService {
   async getUserById(userId: string, currentUser: User): Promise<UserResponseDto> {
     await this.ensurePermission(currentUser, 'admin.user.view');
     const user = await this.userRepository.findById(userId);
-    if (!user) throw new NotFoundError('User not found');
+    if (!user) throw new NotFoundError(`User with ID '${userId}' not found.`);
     return this.toResponse(user, { withPermissions: true });
   }
 
@@ -187,10 +193,11 @@ export class UserService {
   ): Promise<UserResponseDto> {
     await this.ensurePermission(currentUser, 'manager.user.view');
     if (currentUser.companyId !== companyId) {
-      throw new ForbiddenError('You can only view users in your own company.');
+      throw new ForbiddenError('Access denied. You can only view users in your own company.');
     }
     const user = await this.userRepository.findByIdInCompany(userId, companyId);
-    if (!user) throw new NotFoundError('User not found in this company');
+    if (!user)
+      throw new NotFoundError(`User with ID '${userId}' not found in company '${companyId}'.`);
     return this.toResponse(user, { withPermissions: true });
   }
 
@@ -224,7 +231,7 @@ export class UserService {
   async getUsersInCompany(companyId: string, query: ListUsersQueryDto, currentUser: User) {
     await this.ensurePermission(currentUser, 'manager.user.list');
     if (currentUser.companyId !== companyId) {
-      throw new ForbiddenError('You can only list users in your own company.');
+      throw new ForbiddenError('Access denied. You can only list users in your own company.');
     }
     const { page = 1, limit = 25, q, roleId, statusId } = query;
     const { data, total } = await this.userRepository.findPaginatedByCompany(
@@ -263,32 +270,34 @@ export class UserService {
     );
 
     if (!canAdminCreate && !canManagerCreate) {
-      throw new ForbiddenError('Missing permission to create user.');
+      throw new ForbiddenError('You do not have permission to create users.');
     }
 
     let companyId = dto.companyId;
     if (canManagerCreate && !canAdminCreate) {
       if (dto.companyId !== currentUser.companyId) {
-        throw new ForbiddenError('You can only create users in your own company.');
+        throw new ForbiddenError('Access denied. You can only create users in your own company.');
       }
       companyId = currentUser.companyId;
     }
 
     const existing = await this.userRepository.findByEmail(dto.email);
     if (existing) {
-      throw new UnprocessableEntityError('A user with this email already exists.');
+      throw new UnprocessableEntityError(`A user with email '${dto.email}' already exists.`);
     }
 
     const passwordHash = await argon2.hash(dto.password);
 
     const role = await this.roleRepository.findOne({ where: { id: dto.roleId, companyId } });
     if (!role) {
-      throw new UnprocessableEntityError('Invalid role.');
+      throw new UnprocessableEntityError(
+        `Role with ID '${dto.roleId}' not found in company '${companyId}'.`,
+      );
     }
 
     const activeStatus = await this.userStatusRepository.findOne({ where: { code: 'ACTIVE' } });
     if (!activeStatus) {
-      throw new NotFoundError('Active user status not found.');
+      throw new InternalServerError("Default 'ACTIVE' user status not found in the system.");
     }
 
     const user = await this.userRepository.create({
@@ -303,7 +312,7 @@ export class UserService {
     } as User);
 
     const created = await this.userRepository.findByIdInCompany(user.id, companyId);
-    if (!created) throw new NotFoundError('User not found after creation.');
+    if (!created) throw new InternalServerError('Failed to retrieve user after creation.');
 
     return this.toResponse(created);
   }
@@ -322,12 +331,12 @@ export class UserService {
     await this.ensurePermission(currentUser, 'user.update.self');
 
     const userToUpdate = await this.userRepository.findById(currentUser.id);
-    if (!userToUpdate) throw new NotFoundError('User not found');
+    if (!userToUpdate) throw new NotFoundError(`User with ID '${currentUser.id}' not found.`);
 
     await this.userRepository.update(currentUser.id, dto);
 
     const reloaded = await this.userRepository.findById(currentUser.id);
-    if (!reloaded) throw new NotFoundError('User not found after update');
+    if (!reloaded) throw new InternalServerError('Failed to retrieve user after update.');
 
     return this.toResponse(reloaded);
   }
@@ -348,7 +357,7 @@ export class UserService {
     await this.ensureValidation(dto);
 
     const userToUpdate = await this.userRepository.findById(userId, true);
-    if (!userToUpdate) throw new NotFoundError('User not found');
+    if (!userToUpdate) throw new NotFoundError(`User with ID '${userId}' not found.`);
 
     const canAdminUpdate = await this.rolePermissionService.checkPermission(
       currentUser,
@@ -360,22 +369,24 @@ export class UserService {
     );
 
     if (!canAdminUpdate && !canManagerUpdate) {
-      throw new ForbiddenError('Missing permission to update user.');
+      throw new ForbiddenError('You do not have permission to update users.');
     }
 
     if (canManagerUpdate && !canAdminUpdate) {
       if (userToUpdate.companyId !== currentUser.companyId) {
-        throw new ForbiddenError('You can only update users in your own company.');
+        throw new ForbiddenError('Access denied. You can only update users in your own company.');
       }
       // Managers cannot change role, status, or company
       if (dto.roleId || dto.statusId || dto.companyId) {
-        throw new ForbiddenError('You do not have permission to change role, status, or company.');
+        throw new ForbiddenError(
+          'Access denied. You do not have permission to change role, status, or company for other users.',
+        );
       }
     }
     await this.userRepository.update(userId, dto);
 
     const reloaded = await this.userRepository.findById(userId, true);
-    if (!reloaded) throw new NotFoundError('User not found after update');
+    if (!reloaded) throw new InternalServerError('Failed to retrieve user after update.');
 
     return this.toResponse(reloaded);
   }
@@ -390,10 +401,10 @@ export class UserService {
     await this.ensureValidation(dto);
 
     const user = await this.userRepository.findById(currentUser.id);
-    if (!user) throw new NotFoundError('User not found');
+    if (!user) throw new NotFoundError(`User with ID '${currentUser.id}' not found.`);
 
     const ok = await argon2.verify(user.passwordHash, dto.currentPassword);
-    if (!ok) throw new ForbiddenError('Current password is incorrect');
+    if (!ok) throw new ForbiddenError('The current password you entered is incorrect.');
 
     user.passwordHash = await argon2.hash(dto.newPassword);
     user.mustChangePasswordAtNextLogin = false;
@@ -412,7 +423,7 @@ export class UserService {
    */
   async deleteUser(userId: string, currentUser: User): Promise<void> {
     const userToDelete = await this.userRepository.findById(userId);
-    if (!userToDelete) throw new NotFoundError('User not found');
+    if (!userToDelete) throw new NotFoundError(`User with ID '${userId}' not found.`);
 
     const canAdminDelete = await this.rolePermissionService.checkPermission(
       currentUser,
@@ -424,12 +435,12 @@ export class UserService {
     );
 
     if (!canAdminDelete && !canManagerDelete) {
-      throw new ForbiddenError('Missing permission to delete user.');
+      throw new ForbiddenError('You do not have permission to delete users.');
     }
 
     if (canManagerDelete && !canAdminDelete) {
       if (userToDelete.companyId !== currentUser.companyId) {
-        throw new ForbiddenError('You can only delete users in your own company.');
+        throw new ForbiddenError('Access denied. You can only delete users in your own company.');
       }
     }
 
@@ -490,7 +501,7 @@ export class UserService {
 
     const session = await this.activeSessionRepository.findById(dto.sessionId);
     if (!session || session.companyId !== companyId) {
-      throw new NotFoundError('Session not found');
+      throw new NotFoundError(`Session with ID '${dto.sessionId}' not found.`);
     }
     await this.activeSessionRepository.update(session.id, {
       revokedAt: new Date(),
