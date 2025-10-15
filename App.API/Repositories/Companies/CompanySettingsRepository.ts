@@ -33,4 +33,4 @@ export class CompanySettingsRepository extends BaseRepository<CompanySettings> {
   }
 }
 
-Container.set('CompanySettingsRepository', CompanySettingsRepository);
+Container.set('CompanySettingsRepository', new CompanySettingsRepository());

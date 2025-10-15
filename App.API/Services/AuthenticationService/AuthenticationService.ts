@@ -2,7 +2,6 @@ import * as crypto from 'crypto';
 
 import * as argon2 from 'argon2';
 import { add } from 'date-fns';
-import { UserStatus } from 'Entities/Users/UserStatus';
 import { sign } from 'jsonwebtoken';
 import { Inject, Service } from 'typedi';
 
@@ -13,6 +12,7 @@ import {
 } from '../../Dtos/Authentication/AuthenticationDto';
 import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
 import User from '../../Entities/Users/User';
+import { UserStatus } from '../../Entities/Users/UserStatus';
 import { AuthenticationError, NotFoundError } from '../../Errors/HttpErrors';
 import { AuthenticationRepository } from '../../Repositories/Authentication/AuthenticationRepository';
 import { UserRepository } from '../../Repositories/Users/UserRepository';
@@ -35,7 +35,7 @@ export class AuthenticationService {
   constructor(
     @Inject('AuthenticationRepository') private readonly authRepo: AuthenticationRepository,
     @Inject('UserStatusService') private readonly userStatusService: UserStatusService,
-    @Inject('ActiveSessionService') private readonly activeSessionService: ActiveSessionService,
+    private readonly activeSessionService: ActiveSessionService,
     @Inject('UserRepository') private readonly userRepository: UserRepository,
   ) {}
 
@@ -102,7 +102,7 @@ export class AuthenticationService {
       throw new AuthenticationError('JWT secret is not configured');
     }
 
-    const expiresIn = loginDto.rememberMe ? '7d' : '1d';
+    const expiresIn = loginDto.rememberMe ? '30d' : '7d';
 
     // Access token (JWT)
     const token = sign(

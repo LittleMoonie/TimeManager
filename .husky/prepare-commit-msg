@@ -1,24 +1,43 @@
 #!/usr/bin/env bash
-# Auto-insert Conventional Commit template if message is empty (not merge/squash)
+# 🧱 Husky prepare-commit-msg — GoGoTime
+# Auto-insert Conventional Commit template if no meaningful content exists
 
 set -euo pipefail
 
 MSGFILE="$1"
 SOURCE="${2:-}"
 
+# Skip merges and squash commits
 case "$SOURCE" in
   merge|squash) exit 0 ;;
 esac
 
-# If message already has content, do nothing
-[ -s "$MSGFILE" ] && exit 0
+# If commit already has non-comment content, skip template
+if grep -q '^[^#[:space:]]' "$MSGFILE"; then
+  exit 0
+fi
 
-cat > "$MSGFILE" <<'TEMPLATE'
-feat(scope): short summary
+# Detect project scope based on staged files
+scope="core"
+if git diff --cached --name-only | grep -q '^App\.Web/'; then
+  scope="web"
+elif git diff --cached --name-only | grep -q '^App\.API/'; then
+  scope="api"
+fi
 
-- why
-- what
-- how
+# Write the commit message template
+cat > "$MSGFILE" <<TEMPLATE
+feat(${scope}): short summary
 
-BREAKING CHANGE: details (if any)
+What:
+- Describe what changed
+
+Why:
+- Explain the motivation
+
+How:
+- Summarize how it was done
+
+Impact:
+- Mention side effects or implications
 TEMPLATE

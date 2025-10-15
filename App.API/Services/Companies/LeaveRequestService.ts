@@ -22,7 +22,7 @@ export class LeaveRequestService {
   constructor(
     @Inject('LeaveRequestRepository')
     private readonly leaveRequestRepository: LeaveRequestRepository,
-    @Inject('RolePermissionService') private readonly rolePermissionService: RolePermissionService,
+    private readonly rolePermissionService: RolePermissionService,
   ) {}
 
   /**

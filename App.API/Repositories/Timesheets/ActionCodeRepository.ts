@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 import { ILike } from 'typeorm';
 
 import { ActionCode } from '../../Entities/Timesheets/ActionCode';
@@ -57,3 +57,5 @@ export class ActionCodeRepository extends BaseRepository<ActionCode> {
     });
   }
 }
+
+Container.set('ActionCodeRepository', new ActionCodeRepository());

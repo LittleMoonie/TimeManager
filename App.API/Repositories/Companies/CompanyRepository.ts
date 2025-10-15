@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 
 import { Company } from '../../Entities/Companies/Company';
 import { NotFoundError } from '../../Errors/HttpErrors';
@@ -30,3 +30,5 @@ export class CompanyRepository extends BaseRepository<Company> {
     return company;
   }
 }
+
+Container.set('CompanyRepository', new CompanyRepository());

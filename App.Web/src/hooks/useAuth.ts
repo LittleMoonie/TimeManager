@@ -13,16 +13,19 @@ export const useAuth = () => {
 
   const {
     data: user,
-    isLoading,
+    isLoading: isUserLoading,
     error,
   } = useQuery<UserResponseDto | undefined>({
     queryKey: ['auth', 'user'],
     queryFn: async () => {
-      return await AuthenticationService.getCurrentUser();
+      const currentUser = await AuthenticationService.getCurrentUser();
+      console.warn('Current User:', currentUser);
+      return currentUser;
     },
     retry: false,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 60 * 1000, // 1 minute
     enabled: true, // Always enabled, as token is now in HttpOnly cookie
+    refetchOnWindowFocus: true,
   });
 
   const loginMutation = useMutation({
@@ -58,11 +61,12 @@ export const useAuth = () => {
     return logoutMutation.mutateAsync();
   };
 
-  const isAuthenticated = Boolean(user); // Authenticated if user data is present
+  const isAuthenticated = Boolean(user && !error); // Authenticated if user data is present and no error
 
   return {
     user,
-    isLoading: isLoading || loginMutation.isPending || logoutMutation.isPending,
+    isUserLoading,
+    isLoading: isUserLoading || loginMutation.isPending || logoutMutation.isPending,
     error,
     isAuthenticated,
     login,

@@ -15,9 +15,11 @@ import {
 } from 'tsoa';
 import { Service } from 'typedi';
 
+import { MenuResponseDto } from '../../Dtos/Menu/MenuDto';
 import { CreateUserDto, UpdateUserDto } from '../../Dtos/Users/UserDto';
 import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
 import User from '../../Entities/Users/User';
+import { MenuService } from '../../Services/Menu/MenuService';
 import { UserService } from '../../Services/Users/UserService';
 
 type UsersPage = {
@@ -37,8 +39,22 @@ type UsersPage = {
 @Security('jwt')
 @Service()
 export class UserController extends Controller {
-  constructor(private readonly userService: UserService) {
+  constructor(
+    private readonly userService: UserService,
+    private readonly menuService: MenuService,
+  ) {
     super();
+  }
+
+  /**
+   * @summary Retrieves the personalized menu for the authenticated user within their company.
+   * @param request The Express request object, containing user information.
+   * @returns The personalized menu structure, including categories and cards, filtered by user permissions.
+   */
+  @Get('/me/menu')
+  public async getMenuForMe(@Request() request: ExpressRequest): Promise<MenuResponseDto> {
+    const me = request.user as User;
+    return this.menuService.getMenuForUser(me.companyId, me);
   }
 
   /**

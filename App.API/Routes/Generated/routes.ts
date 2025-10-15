@@ -8,6 +8,8 @@ import { UserStatusController } from './../../Controllers/Users/UserStatusContro
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { UserController } from './../../Controllers/Users/UserController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { AnonymizationController } from './../../Controllers/Users/AnonymizationController';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ActiveSessionsController } from './../../Controllers/Users/ActiveSessionsController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { TimesheetHistoryController } from './../../Controllers/Timesheet/TimesheetHistoryController';
@@ -86,6 +88,52 @@ const models: TsoaRoute.Models = {
       description: { dataType: 'string' },
       canLogin: { dataType: 'boolean' },
       isTerminal: { dataType: 'boolean' },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  MenuCardDto: {
+    dataType: 'refObject',
+    properties: {
+      id: { dataType: 'string', required: true },
+      categoryKey: { dataType: 'string', required: true },
+      title: { dataType: 'string', required: true },
+      subtitle: { dataType: 'string', required: true },
+      route: { dataType: 'string', required: true },
+      icon: { dataType: 'string' },
+      requiredPermission: { dataType: 'string' },
+      featureFlag: { dataType: 'string' },
+      isEnabled: { dataType: 'boolean', required: true },
+      sortOrder: { dataType: 'double', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  MenuCategoryDto: {
+    dataType: 'refObject',
+    properties: {
+      id: { dataType: 'string', required: true },
+      key: { dataType: 'string', required: true },
+      title: { dataType: 'string', required: true },
+      icon: { dataType: 'string' },
+      sortOrder: { dataType: 'double', required: true },
+      cards: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'MenuCardDto' },
+        required: true,
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  MenuResponseDto: {
+    dataType: 'refObject',
+    properties: {
+      categories: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'MenuCategoryDto' },
+        required: true,
+      },
     },
     additionalProperties: false,
   },
@@ -233,6 +281,16 @@ const models: TsoaRoute.Models = {
         required: true,
       },
       companySettings: { ref: 'CompanySettings', required: true },
+      menuCategories: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'MenuCategory' },
+        required: true,
+      },
+      menuCards: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'MenuCard' },
+        required: true,
+      },
     },
     additionalProperties: false,
   },
@@ -601,6 +659,57 @@ const models: TsoaRoute.Models = {
       timesheetApproverPolicy: { ref: 'ApproverPolicy', required: true },
       allowedEmailDomains: { dataType: 'array', array: { dataType: 'string' } },
       requireCompanyEmail: { dataType: 'boolean', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  MenuCategory: {
+    dataType: 'refObject',
+    properties: {
+      id: { dataType: 'string', required: true },
+      version: { dataType: 'double', required: true },
+      createdAt: { dataType: 'datetime', required: true },
+      updatedAt: { dataType: 'datetime', required: true },
+      deletedAt: { dataType: 'datetime' },
+      createdByUserId: { dataType: 'string' },
+      updatedByUserId: { dataType: 'string' },
+      key: { dataType: 'string', required: true },
+      title: { dataType: 'string', required: true },
+      icon: { dataType: 'string' },
+      sortOrder: { dataType: 'double', required: true },
+      companyId: { dataType: 'string', required: true },
+      company: { ref: 'Company', required: true },
+      cards: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'MenuCard' },
+        required: true,
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  MenuCard: {
+    dataType: 'refObject',
+    properties: {
+      id: { dataType: 'string', required: true },
+      version: { dataType: 'double', required: true },
+      createdAt: { dataType: 'datetime', required: true },
+      updatedAt: { dataType: 'datetime', required: true },
+      deletedAt: { dataType: 'datetime' },
+      createdByUserId: { dataType: 'string' },
+      updatedByUserId: { dataType: 'string' },
+      categoryKey: { dataType: 'string', required: true },
+      title: { dataType: 'string', required: true },
+      subtitle: { dataType: 'string', required: true },
+      route: { dataType: 'string', required: true },
+      icon: { dataType: 'string' },
+      requiredPermission: { dataType: 'string' },
+      featureFlag: { dataType: 'string' },
+      isEnabled: { dataType: 'boolean', required: true },
+      sortOrder: { dataType: 'double', required: true },
+      companyId: { dataType: 'string', required: true },
+      company: { ref: 'Company', required: true },
+      category: { ref: 'MenuCategory', required: true },
     },
     additionalProperties: false,
   },
@@ -1217,6 +1326,54 @@ export function RegisterRoutes(app: Router) {
     },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsUserController_getMenuForMe: Record<string, TsoaRoute.ParameterSchema> = {
+    request: { in: 'request', name: 'request', required: true, dataType: 'object' },
+  };
+  app.get(
+    '/users/me/menu',
+    authenticateMiddleware([{ jwt: [] }]),
+    ...fetchMiddlewares<RequestHandler>(UserController),
+    ...fetchMiddlewares<RequestHandler>(UserController.prototype.getMenuForMe),
+
+    async function UserController_getMenuForMe(
+      request: ExRequest,
+      response: ExResponse,
+      next: any,
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsUserController_getMenuForMe,
+          request,
+          response,
+        });
+
+        const container: IocContainer =
+          typeof iocContainer === 'function'
+            ? (iocContainer as IocContainerFactory)(request)
+            : iocContainer;
+
+        const controller: any = await container.get<UserController>(UserController);
+        if (typeof controller['setStatus'] === 'function') {
+          controller.setStatus(undefined);
+        }
+
+        await templateService.apiHandler({
+          methodName: 'getMenuForMe',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: undefined,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    },
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   const argsUserController_listUsers: Record<string, TsoaRoute.ParameterSchema> = {
     request: { in: 'request', name: 'request', required: true, dataType: 'object' },
     page: { in: 'query', name: 'page', dataType: 'double' },
@@ -1444,6 +1601,56 @@ export function RegisterRoutes(app: Router) {
     },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsAnonymizationController_anonymizeUser: Record<string, TsoaRoute.ParameterSchema> = {
+    userId: { in: 'path', name: 'userId', required: true, dataType: 'string' },
+    request: { in: 'request', name: 'request', required: true, dataType: 'object' },
+  };
+  app.delete(
+    '/anonymization/:userId',
+    authenticateMiddleware([{ jwt: ['admin'] }]),
+    ...fetchMiddlewares<RequestHandler>(AnonymizationController),
+    ...fetchMiddlewares<RequestHandler>(AnonymizationController.prototype.anonymizeUser),
+
+    async function AnonymizationController_anonymizeUser(
+      request: ExRequest,
+      response: ExResponse,
+      next: any,
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsAnonymizationController_anonymizeUser,
+          request,
+          response,
+        });
+
+        const container: IocContainer =
+          typeof iocContainer === 'function'
+            ? (iocContainer as IocContainerFactory)(request)
+            : iocContainer;
+
+        const controller: any =
+          await container.get<AnonymizationController>(AnonymizationController);
+        if (typeof controller['setStatus'] === 'function') {
+          controller.setStatus(undefined);
+        }
+
+        await templateService.apiHandler({
+          methodName: 'anonymizeUser',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 204,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    },
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   const argsActiveSessionsController_getAllUserSessions: Record<string, TsoaRoute.ParameterSchema> =
     {
       request: { in: 'request', name: 'request', required: true, dataType: 'object' },
@@ -1486,7 +1693,7 @@ export function RegisterRoutes(app: Router) {
           response,
           next,
           validatedArgs,
-          successStatus: undefined,
+          successStatus: 200,
         });
       } catch (err) {
         return next(err);
@@ -1539,7 +1746,7 @@ export function RegisterRoutes(app: Router) {
           response,
           next,
           validatedArgs,
-          successStatus: undefined,
+          successStatus: 204,
         });
       } catch (err) {
         return next(err);

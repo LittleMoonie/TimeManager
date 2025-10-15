@@ -91,6 +91,86 @@
         "type": "object",
         "additionalProperties": false
       },
+      "MenuCardDto": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "categoryKey": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "subtitle": {
+            "type": "string"
+          },
+          "route": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "requiredPermission": {
+            "type": "string"
+          },
+          "featureFlag": {
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "sortOrder": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": ["id", "categoryKey", "title", "subtitle", "route", "isEnabled", "sortOrder"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "MenuCategoryDto": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "number",
+            "format": "double"
+          },
+          "cards": {
+            "items": {
+              "$ref": "#/components/schemas/MenuCardDto"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["id", "key", "title", "sortOrder", "cards"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "MenuResponseDto": {
+        "properties": {
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/MenuCategoryDto"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["categories"],
+        "type": "object",
+        "additionalProperties": false
+      },
       "CompanyResponseDto": {
         "properties": {
           "id": {
@@ -430,6 +510,18 @@
           },
           "companySettings": {
             "$ref": "#/components/schemas/CompanySettings"
+          },
+          "menuCategories": {
+            "items": {
+              "$ref": "#/components/schemas/MenuCategory"
+            },
+            "type": "array"
+          },
+          "menuCards": {
+            "items": {
+              "$ref": "#/components/schemas/MenuCard"
+            },
+            "type": "array"
           }
         },
         "required": [
@@ -444,7 +536,9 @@
           "timesheetEntries",
           "teamMembers",
           "timesheetHistory",
-          "companySettings"
+          "companySettings",
+          "menuCategories",
+          "menuCards"
         ],
         "type": "object",
         "additionalProperties": false
@@ -1615,6 +1709,171 @@
         "type": "object",
         "additionalProperties": false
       },
+      "MenuCategory": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+          },
+          "version": {
+            "type": "number",
+            "format": "double",
+            "example": 1
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2023-10-27T10:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2023-10-27T11:30:00Z"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2023-10-27T12:00:00Z"
+          },
+          "createdByUserId": {
+            "type": "string",
+            "example": "u1s2e3r4-i5d6-7890-1234-567890abcdef"
+          },
+          "updatedByUserId": {
+            "type": "string",
+            "example": "u1s2e3r4-i5d6-7890-1234-567890abcdef"
+          },
+          "key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "number",
+            "format": "double"
+          },
+          "companyId": {
+            "type": "string"
+          },
+          "company": {
+            "$ref": "#/components/schemas/Company"
+          },
+          "cards": {
+            "items": {
+              "$ref": "#/components/schemas/MenuCard"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "createdAt",
+          "updatedAt",
+          "key",
+          "title",
+          "sortOrder",
+          "companyId",
+          "company",
+          "cards"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "MenuCard": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+          },
+          "version": {
+            "type": "number",
+            "format": "double",
+            "example": 1
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2023-10-27T10:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2023-10-27T11:30:00Z"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2023-10-27T12:00:00Z"
+          },
+          "createdByUserId": {
+            "type": "string",
+            "example": "u1s2e3r4-i5d6-7890-1234-567890abcdef"
+          },
+          "updatedByUserId": {
+            "type": "string",
+            "example": "u1s2e3r4-i5d6-7890-1234-567890abcdef"
+          },
+          "categoryKey": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "subtitle": {
+            "type": "string"
+          },
+          "route": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "requiredPermission": {
+            "type": "string"
+          },
+          "featureFlag": {
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "sortOrder": {
+            "type": "number",
+            "format": "double"
+          },
+          "companyId": {
+            "type": "string"
+          },
+          "company": {
+            "$ref": "#/components/schemas/Company"
+          },
+          "category": {
+            "$ref": "#/components/schemas/MenuCategory"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "createdAt",
+          "updatedAt",
+          "categoryKey",
+          "title",
+          "subtitle",
+          "route",
+          "isEnabled",
+          "sortOrder",
+          "companyId",
+          "company",
+          "category"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
       "IStringToStringDictionary": {
         "properties": {},
         "type": "object",
@@ -2578,6 +2837,31 @@
         ]
       }
     },
+    "/users/me/menu": {
+      "get": {
+        "operationId": "GetMenuForMe",
+        "responses": {
+          "200": {
+            "description": "The personalized menu structure, including categories and cards, filtered by user permissions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MenuResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieves the personalized menu for the authenticated user within their company.",
+        "tags": ["Users"],
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "parameters": []
+      }
+    },
     "/users": {
       "get": {
         "operationId": "ListUsers",
@@ -2765,12 +3049,40 @@
         ]
       }
     },
+    "/anonymization/{userId}": {
+      "delete": {
+        "operationId": "AnonymizeUser",
+        "responses": {
+          "204": {
+            "description": "User anonymized"
+          }
+        },
+        "summary": "Anonymizes a user's data and removes sensitive information. This is a permanent and irreversible action.",
+        "tags": ["Anonymization"],
+        "security": [
+          {
+            "jwt": ["admin"]
+          }
+        ],
+        "parameters": [
+          {
+            "description": "The ID of the user to anonymize.",
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
     "/active-sessions": {
       "get": {
         "operationId": "GetAllUserSessions",
         "responses": {
           "200": {
-            "description": "An array of active session details.",
+            "description": "Active sessions retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -2798,7 +3110,7 @@
         "operationId": "RevokeActiveSession",
         "responses": {
           "204": {
-            "description": "No content"
+            "description": "Active session revoked successfully"
           }
         },
         "summary": "Revokes a specific active session by its token hash within the authenticated user's company.",

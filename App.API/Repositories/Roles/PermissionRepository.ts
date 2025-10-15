@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 import { FindOneOptions } from 'typeorm';
 
 import { Permission } from '../../Entities/Roles/Permission';
@@ -40,3 +40,5 @@ export class PermissionRepository extends BaseRepository<Permission> {
     return this.repository.find({ where: { companyId } });
   }
 }
+
+Container.set('PermissionRepository', new PermissionRepository());

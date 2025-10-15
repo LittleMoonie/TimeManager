@@ -1,7 +1,7 @@
 /* generated using openapi-typescript-codegen -- do not edit */
 /* istanbul ignore file */
 /* tslint:disable */
-
+/* eslint-disable */
 export { ApiError } from './core/ApiError';
 export { CancelablePromise, CancelError } from './core/CancelablePromise';
 export { OpenAPI } from './core/OpenAPI';
@@ -35,6 +35,11 @@ export type { LeaveRequest } from './models/LeaveRequest';
 export { LeaveRequestStatus } from './models/LeaveRequestStatus';
 export { LeaveType } from './models/LeaveType';
 export type { LoginDto } from './models/LoginDto';
+export type { MenuCard } from './models/MenuCard';
+export type { MenuCardDto } from './models/MenuCardDto';
+export type { MenuCategory } from './models/MenuCategory';
+export type { MenuCategoryDto } from './models/MenuCategoryDto';
+export type { MenuResponseDto } from './models/MenuResponseDto';
 export type { Permission } from './models/Permission';
 export type { Record_string_number_Array_ } from './models/Record_string_number_Array_';
 export type { RegisterDto } from './models/RegisterDto';
@@ -72,6 +77,7 @@ export { WorkMode } from './models/WorkMode';
 
 export { ActionCodesService } from './services/ActionCodesService';
 export { ActiveSessionsService } from './services/ActiveSessionsService';
+export { AnonymizationService } from './services/AnonymizationService';
 export { AuthenticationService } from './services/AuthenticationService';
 export { CompaniesService } from './services/CompaniesService';
 export { CompanySettingsService } from './services/CompanySettingsService';

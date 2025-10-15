@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { Container } from 'typedi';
 import { Server } from 'http';
 
 import cors from 'cors';
 import express, { Application } from 'express';
+import { Container } from 'typedi';
 
 import { errorHandler } from '../Middlewares/ErrorHandler';
 import logger from '../Utils/Logger';

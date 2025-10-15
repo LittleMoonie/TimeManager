@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 
 import { Role } from '../../Entities/Roles/Role';
 import { BaseRepository } from '../../Repositories/BaseRepository';
@@ -58,3 +58,5 @@ export class RoleRepository extends BaseRepository<Role> {
     });
   }
 }
+
+Container.set('RoleRepository', new RoleRepository());

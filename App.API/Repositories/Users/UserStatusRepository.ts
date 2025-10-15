@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 
 import { UserStatus } from '../../Entities/Users/UserStatus';
 import { BaseRepository } from '../BaseRepository';
@@ -37,3 +37,5 @@ export class UserStatusRepository extends BaseRepository<UserStatus> {
     await this.repository.delete(id);
   }
 }
+
+Container.set('UserStatusRepository', new UserStatusRepository());

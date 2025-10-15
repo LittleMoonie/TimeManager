@@ -4,6 +4,10 @@ import {
   PeopleAltRounded,
   TaskAltRounded,
   PersonRounded,
+  GroupsRounded,
+  AccountBalanceRounded,
+  SettingsRounded,
+  BarChartRounded,
 } from '@mui/icons-material';
 import {
   Box,
@@ -15,9 +19,13 @@ import {
   ListItemText,
   Typography,
   alpha,
+  CircularProgress,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useLocation, useNavigate } from 'react-router-dom';
+
+import { useMenu } from '@/hooks/useMenu';
+import { MenuCardDto } from '@/lib/api/models/MenuCardDto';
 
 const DRAWER_WIDTH = 260;
 
@@ -43,50 +51,6 @@ type NavGroup = {
   title?: string;
   items: NavItem[];
 };
-
-const PRIMARY_ITEMS: NavItem[] = [
-  {
-    id: 'dashboard',
-    label: 'Dashboard',
-    path: '/',
-    icon: <DashboardRounded fontSize="small" />,
-    ariaLabel: 'Dashboard',
-  },
-];
-
-const PAGE_GROUPS: NavGroup[] = [
-  {
-    id: 'application',
-    title: 'Application',
-    items: [
-      { id: 'tasks', label: 'Tasks', path: '/tasks', icon: <TaskAltRounded fontSize="small" /> },
-      {
-        id: 'timesheet',
-        label: 'Timesheet',
-        path: '/timesheet',
-        icon: <AssessmentRounded fontSize="small" />,
-      },
-      {
-        id: 'people',
-        label: 'People',
-        path: '/people',
-        icon: <PeopleAltRounded fontSize="small" />,
-      },
-      {
-        id: 'reports',
-        label: 'Reports',
-        path: '/reports',
-        icon: <AssessmentRounded fontSize="small" />,
-      },
-      {
-        id: 'profile',
-        label: 'Profile',
-        path: '/profile',
-        icon: <PersonRounded fontSize="small" />,
-      },
-    ],
-  },
-];
 
 const NavListItem = ({
   item,
@@ -160,6 +124,31 @@ const NavSectionTitle = ({ title }: { title: string }) => (
   </Typography>
 );
 
+const getIconComponent = (iconName?: string): React.ReactNode => {
+  switch (iconName) {
+    case 'DashboardRounded':
+      return <DashboardRounded fontSize="small" />;
+    case 'AssessmentRounded':
+      return <AssessmentRounded fontSize="small" />;
+    case 'PeopleAltRounded':
+      return <PeopleAltRounded fontSize="small" />;
+    case 'TaskAltRounded':
+      return <TaskAltRounded fontSize="small" />;
+    case 'PersonRounded':
+      return <PersonRounded fontSize="small" />;
+    case 'GroupsRounded':
+      return <GroupsRounded fontSize="small" />;
+    case 'AccountBalanceRounded':
+      return <AccountBalanceRounded fontSize="small" />;
+    case 'SettingsRounded':
+      return <SettingsRounded fontSize="small" />;
+    case 'BarChartRounded':
+      return <BarChartRounded fontSize="small" />;
+    default:
+      return <DashboardRounded fontSize="small" />;
+  }
+};
+
 const NavigationContent = ({
   onNavigate,
   collapsed = false,
@@ -168,10 +157,64 @@ const NavigationContent = ({
   collapsed?: boolean;
 }) => {
   const location = useLocation();
+  const { menu, isLoading, isError } = useMenu();
 
   const handleNavigate = (path?: string) => {
     onNavigate(path);
   };
+
+  if (isLoading) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (isError || !menu) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
+          color: 'error.main',
+        }}
+      >
+        <Typography variant="body2">Error loading menu.</Typography>
+      </Box>
+    );
+  }
+
+  const primaryItems: NavItem[] = [
+    {
+      id: 'dashboard',
+      label: 'Dashboard',
+      path: '/',
+      icon: getIconComponent('DashboardRounded'),
+      ariaLabel: 'Dashboard',
+    },
+  ];
+
+  const pageGroups: NavGroup[] = menu.categories.map((category) => ({
+    id: category.key,
+    title: category.title,
+    items: category.cards.map((card: MenuCardDto) => ({
+      id: card.id,
+      label: card.title,
+      path: `/app${card.route}`,
+      icon: getIconComponent(card.icon),
+      ariaLabel: card.title,
+    })),
+  }));
 
   return (
     <Box
@@ -186,7 +229,7 @@ const NavigationContent = ({
     >
       <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: 0.5 }}>
         <List disablePadding>
-          {PRIMARY_ITEMS.map((item) => (
+          {primaryItems.map((item) => (
             <NavListItem
               key={item.id}
               item={item}
@@ -197,7 +240,7 @@ const NavigationContent = ({
           ))}
         </List>
 
-        {PAGE_GROUPS.map((group) => (
+        {pageGroups.map((group) => (
           <Box key={group.id}>
             {!collapsed && group.title && <NavSectionTitle title={group.title} />}
             <List disablePadding>
@@ -268,5 +311,4 @@ export const Navigation = ({ variant, open, onClose, collapsed = false }: Naviga
   );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const drawerWidth = DRAWER_WIDTH;

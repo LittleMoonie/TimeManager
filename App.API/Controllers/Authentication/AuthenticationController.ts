@@ -13,6 +13,10 @@ import { AuthenticationService } from '../../Services/AuthenticationService/Auth
 @Service()
 export class AuthenticationController extends Controller {
   constructor(private authenticationService: AuthenticationService) {
+    /**
+     * @description Initializes the AuthenticationController with the AuthenticationService.
+     * @param authenticationService The AuthenticationService injected by TypeDI.
+     */
     super();
   }
 

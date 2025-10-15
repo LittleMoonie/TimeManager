@@ -1,6 +1,8 @@
 import { Column, Entity, Index, OneToMany, OneToOne } from 'typeorm';
 
 import { BaseEntity } from '../BaseEntity';
+import { MenuCard } from '../Menu/MenuCard';
+import { MenuCategory } from '../Menu/MenuCategory';
 import { ActionCode } from '../Timesheets/ActionCode';
 import { TimesheetEntry } from '../Timesheets/TimesheetEntry';
 import { TimesheetHistory } from '../Timesheets/TimesheetHistory';
@@ -62,4 +64,16 @@ export class Company extends BaseEntity {
    */
   @OneToOne(() => CompanySettings, (settings) => settings.company)
   companySettings!: CompanySettings;
+
+  /**
+   * @description List of menu categories for this company.
+   */
+  @OneToMany(() => MenuCategory, (category) => category.company)
+  menuCategories!: MenuCategory[];
+
+  /**
+   * @description List of menu cards for this company.
+   */
+  @OneToMany(() => MenuCard, (card) => card.company)
+  menuCards!: MenuCard[];
 }

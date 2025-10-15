@@ -46,4 +46,4 @@ export class TeamMemberRepository extends BaseRepository<TeamMember> {
   }
 }
 
-Container.set('TeamMemberRepository', TeamMemberRepository);
+Container.set('TeamMemberRepository', new TeamMemberRepository());

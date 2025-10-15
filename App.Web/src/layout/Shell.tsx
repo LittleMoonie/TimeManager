@@ -9,6 +9,7 @@ import { LayoutAppBar } from '@/layout/AppBar';
 import { Navigation } from '@/layout/Navigation';
 
 export const Shell = () => {
+  console.warn('Shell component rendered');
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
   const [mobileOpen, setMobileOpen] = useState(false);

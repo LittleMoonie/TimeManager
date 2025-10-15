@@ -9,159 +9,159 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class RolesService {
-  /**
-   * Creates a new role.
-   * @returns Role Role created successfully
-   * @throws ApiError
-   */
-  public static createRole({
-    requestBody,
-  }: {
     /**
-     * The data for creating the role.
+     * Creates a new role.
+     * @returns Role Role created successfully
+     * @throws ApiError
      */
-    requestBody: CreateRoleDto;
-  }): CancelablePromise<Role> {
-    return __request(OpenAPI, {
-      method: 'POST',
-      url: '/roles',
-      body: requestBody,
-      mediaType: 'application/json',
-    });
-  }
-  /**
-   * Retrieves all roles in the authenticated user's company.
-   * @returns Role An array of roles.
-   * @throws ApiError
-   */
-  public static listRoles(): CancelablePromise<Array<Role>> {
-    return __request(OpenAPI, {
-      method: 'GET',
-      url: '/roles',
-    });
-  }
-  /**
-   * Retrieves a role by its ID.
-   * @returns Role The role details.
-   * @throws ApiError
-   */
-  public static getRole({
-    id,
-  }: {
+    public static createRole({
+        requestBody,
+    }: {
+        /**
+         * The data for creating the role.
+         */
+        requestBody: CreateRoleDto,
+    }): CancelablePromise<Role> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/roles',
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
     /**
-     * The ID of the role to retrieve.
+     * Retrieves all roles in the authenticated user's company.
+     * @returns Role An array of roles.
+     * @throws ApiError
      */
-    id: string;
-  }): CancelablePromise<Role> {
-    return __request(OpenAPI, {
-      method: 'GET',
-      url: '/roles/{id}',
-      path: {
-        id: id,
-      },
-    });
-  }
-  /**
-   * Updates an existing role.
-   * @returns Role The updated role details.
-   * @throws ApiError
-   */
-  public static updateRole({
-    id,
-    requestBody,
-  }: {
+    public static listRoles(): CancelablePromise<Array<Role>> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/roles',
+        });
+    }
     /**
-     * The ID of the role to update.
+     * Retrieves a role by its ID.
+     * @returns Role The role details.
+     * @throws ApiError
      */
-    id: string;
+    public static getRole({
+        id,
+    }: {
+        /**
+         * The ID of the role to retrieve.
+         */
+        id: string,
+    }): CancelablePromise<Role> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/roles/{id}',
+            path: {
+                'id': id,
+            },
+        });
+    }
     /**
-     * The data for updating the role.
+     * Updates an existing role.
+     * @returns Role The updated role details.
+     * @throws ApiError
      */
-    requestBody: UpdateRoleDto;
-  }): CancelablePromise<Role> {
-    return __request(OpenAPI, {
-      method: 'PUT',
-      url: '/roles/{id}',
-      path: {
-        id: id,
-      },
-      body: requestBody,
-      mediaType: 'application/json',
-    });
-  }
-  /**
-   * Soft deletes a role.
-   * @returns any Role deleted successfully
-   * @throws ApiError
-   */
-  public static deleteRole({
-    id,
-  }: {
+    public static updateRole({
+        id,
+        requestBody,
+    }: {
+        /**
+         * The ID of the role to update.
+         */
+        id: string,
+        /**
+         * The data for updating the role.
+         */
+        requestBody: UpdateRoleDto,
+    }): CancelablePromise<Role> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/roles/{id}',
+            path: {
+                'id': id,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
     /**
-     * The ID of the role to soft delete.
+     * Soft deletes a role.
+     * @returns any Role deleted successfully
+     * @throws ApiError
      */
-    id: string;
-  }): CancelablePromise<any> {
-    return __request(OpenAPI, {
-      method: 'DELETE',
-      url: '/roles/{id}',
-      path: {
-        id: id,
-      },
-    });
-  }
-  /**
-   * Assigns a permission to a role.
-   * @returns any Permission added to role successfully
-   * @throws ApiError
-   */
-  public static addPermissionToRole({
-    roleId,
-    permissionId,
-  }: {
+    public static deleteRole({
+        id,
+    }: {
+        /**
+         * The ID of the role to soft delete.
+         */
+        id: string,
+    }): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/roles/{id}',
+            path: {
+                'id': id,
+            },
+        });
+    }
     /**
-     * The ID of the role to assign the permission to.
+     * Assigns a permission to a role.
+     * @returns any Permission added to role successfully
+     * @throws ApiError
      */
-    roleId: string;
+    public static addPermissionToRole({
+        roleId,
+        permissionId,
+    }: {
+        /**
+         * The ID of the role to assign the permission to.
+         */
+        roleId: string,
+        /**
+         * The ID of the permission to assign.
+         */
+        permissionId: string,
+    }): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/roles/{roleId}/permissions/{permissionId}',
+            path: {
+                'roleId': roleId,
+                'permissionId': permissionId,
+            },
+        });
+    }
     /**
-     * The ID of the permission to assign.
+     * Removes a permission from a role.
+     * @returns any Permission removed from role successfully
+     * @throws ApiError
      */
-    permissionId: string;
-  }): CancelablePromise<any> {
-    return __request(OpenAPI, {
-      method: 'POST',
-      url: '/roles/{roleId}/permissions/{permissionId}',
-      path: {
-        roleId: roleId,
-        permissionId: permissionId,
-      },
-    });
-  }
-  /**
-   * Removes a permission from a role.
-   * @returns any Permission removed from role successfully
-   * @throws ApiError
-   */
-  public static removePermissionFromRole({
-    roleId,
-    permissionId,
-  }: {
-    /**
-     * The ID of the role to remove the permission from.
-     */
-    roleId: string;
-    /**
-     * The ID of the permission to remove.
-     */
-    permissionId: string;
-  }): CancelablePromise<any> {
-    return __request(OpenAPI, {
-      method: 'DELETE',
-      url: '/roles/{roleId}/permissions/{permissionId}',
-      path: {
-        roleId: roleId,
-        permissionId: permissionId,
-      },
-    });
-  }
+    public static removePermissionFromRole({
+        roleId,
+        permissionId,
+    }: {
+        /**
+         * The ID of the role to remove the permission from.
+         */
+        roleId: string,
+        /**
+         * The ID of the permission to remove.
+         */
+        permissionId: string,
+    }): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/roles/{roleId}/permissions/{permissionId}',
+            path: {
+                'roleId': roleId,
+                'permissionId': permissionId,
+            },
+        });
+    }
 }

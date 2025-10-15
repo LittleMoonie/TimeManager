@@ -44,4 +44,4 @@ export class LeaveRequestRepository extends BaseRepository<LeaveRequest> {
   }
 }
 
-Container.set('LeaveRequestRepository', LeaveRequestRepository);
+Container.set('LeaveRequestRepository', new LeaveRequestRepository());
