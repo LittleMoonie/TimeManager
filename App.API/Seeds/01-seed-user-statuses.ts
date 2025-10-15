@@ -42,6 +42,6 @@ export async function seedUserStatuses(ds: DataSource) {
     map.set(r.code, await repo.findOneByOrFail({ code: r.code }));
   }
 
-  console.log('✅ Seeded UserStatus:', rows.map((r) => r.code).join(', '));
+  console.warn('✅ Seeded UserStatus:', rows.map((r) => r.code).join(', '));
   return { statuses: map };
 }

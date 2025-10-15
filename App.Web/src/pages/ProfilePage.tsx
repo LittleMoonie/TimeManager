@@ -10,7 +10,9 @@ const ProfilePage = () => {
         <div>
           <p>ID: {user.id}</p>
           <p>Email: {user.email}</p>
-          <p>Name: {user.firstName} {user.lastName}</p>
+          <p>
+            Name: {user.firstName} {user.lastName}
+          </p>
           <p>Role: {user.role?.name}</p>
           <h2>Permissions</h2>
           <ul>

@@ -289,7 +289,7 @@ docker compose restart api
 2. **Fix common issues**:
 
    ```bash
-   # Auto-fix ESLint issues 
+   # Auto-fix ESLint issues
    yarn lint --fix
 
    # Check TypeScript issues

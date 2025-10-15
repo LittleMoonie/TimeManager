@@ -6,18 +6,24 @@ import { Repository } from 'typeorm';
 import {
   CreateUserDto,
   UpdateUserDto,
-  UpdateMeDto,
+  UpdateSelfDto,
   ChangePasswordDto,
   ListUsersQueryDto,
-  RevokeSessionDto,
   ActiveSessionResponseDto,
+  RevokeUserSessionDto,
 } from '../../Dtos/Users/UserDto';
 import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
 import { UserStatusResponseDto } from '../../Dtos/Users/UserStatusDto';
+import { Company } from '../../Entities/Companies/Company';
 import { Role } from '../../Entities/Roles/Role';
 import User from '../../Entities/Users/User';
 import { UserStatus } from '../../Entities/Users/UserStatus';
-import { UnprocessableEntityError, NotFoundError, ForbiddenError } from '../../Errors/HttpErrors';
+import {
+  UnprocessableEntityError,
+  NotFoundError,
+  ForbiddenError,
+  InternalServerError,
+} from '../../Errors/HttpErrors';
 import { ActiveSessionRepository } from '../../Repositories/Users/ActiveSessionRepository';
 import { UserRepository } from '../../Repositories/Users/UserRepository';
 import { getInitializedDataSource } from '../../Server/Database';
@@ -31,15 +37,6 @@ import { RoleService } from '../../Services/RoleService/RoleService';
  */
 @Service()
 export class UserService {
-  /**
-   * @description Initializes the UserService with necessary repositories and services.
-   * @param userRepository The repository for User entities.
-   * @param userStatusRepository The TypeORM repository for UserStatus entities.
-   * @param roleRepository The TypeORM repository for Role entities.
-   * @param roleService The service for managing roles.
-   * @param rolePermissionService The service for checking user permissions.
-   * @param activeSessionRepository The repository for ActiveSession entities.
-   */
   constructor(
     @Inject('UserRepository') private readonly userRepository: UserRepository,
     private readonly roleService: RoleService,
@@ -55,28 +52,27 @@ export class UserService {
     return getInitializedDataSource().getRepository(Role);
   }
 
-  // -------------------------------------------------------------------
-  // Helpers
-  // -------------------------------------------------------------------
+  // #region HELPERS
   /**
    * @description Ensures that the current user has a specific permission.
-   * @param user The user whose permissions are to be checked.
-   * @param permission The name of the permission to check for.
-   * @returns A Promise that resolves if the user has the permission.
+   * @param {User} user The user whose permissions are to be checked.
+   * @param {string} permission The name of the permission to check for.
+   * @returns {Promise<void>} A Promise that resolves if the user has the permission.
    * @throws {ForbiddenError} If the user does not have the required permission.
    */
-  private async ensurePermission(user: User, permission: string) {
+  private async ensurePermission(user: User, permission: string): Promise<void> {
     const allowed = await this.rolePermissionService.checkPermission(user, permission);
-    if (!allowed) throw new ForbiddenError(`Missing permission: ${permission}`);
+    if (!allowed)
+      throw new ForbiddenError(`You do not have the required permission: '${permission}'.`);
   }
 
   /**
    * @description Ensures that a given DTO (Data Transfer Object) is valid by performing class-validator validation.
-   * @param dto The DTO object to validate.
-   * @returns A Promise that resolves if validation passes.
+   * @param {unknown} dto The DTO object to validate.
+   * @returns {Promise<void>} A Promise that resolves if validation passes.
    * @throws {UnprocessableEntityError} If validation fails, containing details of the validation errors.
    */
-  private async ensureValidation(dto: unknown) {
+  private async ensureValidation(dto: unknown): Promise<void> {
     const errors = await validate(dto as object);
     if (errors.length > 0) {
       throw new UnprocessableEntityError(
@@ -85,11 +81,42 @@ export class UserService {
     }
   }
 
+  private toCompanyResponse(company: Company | undefined) {
+    if (!company) return undefined;
+    return {
+      id: company.id,
+      name: company.name,
+      timezone: company.timezone ?? undefined,
+    };
+  }
+
+  private toRoleResponse(role: Role | undefined) {
+    if (!role) return undefined;
+    return {
+      id: role.id,
+      name: role.name,
+      description: role.description ?? undefined,
+      companyId: role.companyId,
+    };
+  }
+
+  private toStatusResponse(status: UserStatus | undefined): UserStatusResponseDto | undefined {
+    if (!status) return undefined;
+    return {
+      id: status.id,
+      code: status.code,
+      name: status.name,
+      description: status.description ?? undefined,
+      canLogin: status.canLogin,
+      isTerminal: status.isTerminal,
+    };
+  }
+
   /**
    * @description Converts a User entity to a UserResponseDto.
-   * @param user The User entity to convert.
-   * @param options Optional: { withPermissions: boolean } to include user permissions.
-   * @returns The converted UserResponseDto.
+   * @param {User} user The User entity to convert.
+   * @param {{ withPermissions?: boolean }} [options] Optional: { withPermissions: boolean } to include user permissions.
+   * @returns {Promise<UserResponseDto>} The converted UserResponseDto.
    */
   private async toResponse(
     user: User,
@@ -101,33 +128,11 @@ export class UserService {
       firstName: user.firstName,
       lastName: user.lastName,
       companyId: user.companyId,
-      company: user.company
-        ? {
-            id: user.company.id,
-            name: user.company.name,
-            timezone: user.company.timezone ?? undefined,
-          }
-        : undefined,
+      company: this.toCompanyResponse(user.company),
       roleId: user.roleId,
-      role: user.role
-        ? {
-            id: user.role.id,
-            name: user.role.name,
-            description: user.role.description ?? undefined,
-            companyId: user.role.companyId,
-          }
-        : undefined,
+      role: this.toRoleResponse(user.role),
       statusId: user.statusId,
-      status: user.status
-        ? ({
-            id: user.status.id,
-            code: user.status.code,
-            name: user.status.name,
-            description: user.status.description ?? undefined,
-            canLogin: user.status.canLogin,
-            isTerminal: user.status.isTerminal,
-          } as UserStatusResponseDto)
-        : undefined,
+      status: this.toStatusResponse(user.status),
       createdAt: user.createdAt,
       phoneNumber: user.phoneNumber ?? undefined,
       lastLogin: user.lastLogin ?? undefined,
@@ -143,49 +148,156 @@ export class UserService {
 
     return response;
   }
+  // #endregion
 
-  // -------------------------------------------------------------------
-  // CRUD
-  // -------------------------------------------------------------------
+  // #region GET
   /**
-   * @description Creates a new user within a specified company. Requires 'create_user' permission.
-   * @param companyId The unique identifier of the company where the user will be created.
-   * @param currentUser The user performing the action.
-   * @param dto The CreateUserDto containing the new user's details.
-   * @returns A Promise that resolves to the newly created UserResponseDto.
-   * @throws {ForbiddenError} If the current user does not have 'create_user' permission.
-   * @throws {UnprocessableEntityError} If validation fails, the email already exists in the company, or an invalid roleId is provided.
-   * @throws {NotFoundError} If the user is not found after creation (should not happen under normal circumstances).
+   * @description Retrieves the profile of the currently authenticated user.
+   * @permission `user.view.self`
+   * @param {User} currentUser The currently authenticated user.
+   * @returns {Promise<UserResponseDto>} The user's profile information.
    */
-  async createUser(
+  async getCurrentUser(currentUser: User): Promise<UserResponseDto> {
+    await this.ensurePermission(currentUser, 'user.view.self');
+    const user = await this.userRepository.findById(currentUser.id);
+    if (!user) throw new NotFoundError(`User with ID '${currentUser.id}' not found.`);
+    return this.toResponse(user, { withPermissions: true });
+  }
+
+  /**
+   * @description Retrieves a single user by their ID. This is an admin-only action.
+   * @permission `admin.user.view`
+   * @param {string} userId The ID of the user to retrieve.
+   * @param {User} currentUser The user performing the action.
+   * @returns {Promise<UserResponseDto>} The requested user's information.
+   */
+  async getUserById(userId: string, currentUser: User): Promise<UserResponseDto> {
+    await this.ensurePermission(currentUser, 'admin.user.view');
+    const user = await this.userRepository.findById(userId);
+    if (!user) throw new NotFoundError(`User with ID '${userId}' not found.`);
+    return this.toResponse(user, { withPermissions: true });
+  }
+
+  /**
+   * @description Retrieves a single user by their ID within a specific company. This is a manager-level action.
+   * @permission `manager.user.view`
+   * @param {string} userId The ID of the user to retrieve.
+   * @param {string} companyId The ID of the company the user belongs to.
+   * @param {User} currentUser The user performing the action.
+   * @returns {Promise<UserResponseDto>} The requested user's information.
+   */
+  async getUserByIdInCompany(
+    userId: string,
     companyId: string,
     currentUser: User,
-    dto: CreateUserDto,
   ): Promise<UserResponseDto> {
-    await this.ensurePermission(currentUser, 'create_user');
+    await this.ensurePermission(currentUser, 'manager.user.view');
+    if (currentUser.companyId !== companyId) {
+      throw new ForbiddenError('Access denied. You can only view users in your own company.');
+    }
+    const user = await this.userRepository.findByIdInCompany(userId, companyId);
+    if (!user)
+      throw new NotFoundError(`User with ID '${userId}' not found in company '${companyId}'.`);
+    return this.toResponse(user, { withPermissions: true });
+  }
+
+  /**
+   * @description Retrieves a paginated list of all users in the system. This is an admin-only action.
+   * @permission `admin.user.list`
+   * @param {ListUsersQueryDto} query Query parameters for pagination.
+   * @param {User} currentUser The user performing the action.
+   * @returns {Promise<{ data: UserResponseDto[]; total: number; page: number; limit: number }>} A paginated list of users.
+   */
+  async getUsers(query: ListUsersQueryDto, currentUser: User) {
+    await this.ensurePermission(currentUser, 'admin.user.list');
+    const { page = 1, limit = 25 } = query;
+    const { data, total } = await this.userRepository.findPaginated(page, limit);
+    return {
+      data: await Promise.all(data.map((u) => this.toResponse(u))),
+      total,
+      page,
+      limit,
+    };
+  }
+
+  /**
+   * @description Retrieves a paginated list of users within a specific company. This is a manager-level action.
+   * @permission `manager.user.list`
+   * @param {string} companyId The ID of the company to retrieve users from.
+   * @param {ListUsersQueryDto} query Query parameters for pagination and filtering.
+   * @param {User} currentUser The user performing the action.
+   * @returns {Promise<{ data: UserResponseDto[]; total: number; page: number; limit: number }>} A paginated list of users.
+   */
+  async getUsersInCompany(companyId: string, query: ListUsersQueryDto, currentUser: User) {
+    await this.ensurePermission(currentUser, 'manager.user.list');
+    if (currentUser.companyId !== companyId) {
+      throw new ForbiddenError('Access denied. You can only list users in your own company.');
+    }
+    const { page = 1, limit = 25, q, roleId, statusId } = query;
+    const { data, total } = await this.userRepository.findPaginatedByCompany(
+      companyId,
+      page,
+      limit,
+      { q, roleId, statusId },
+    );
+    return {
+      data: await Promise.all(data.map((u) => this.toResponse(u))),
+      total,
+      page,
+      limit,
+    };
+  }
+  // #endregion
+
+  // #region CREATE
+  /**
+   * @description Creates a new user.
+   * @permission `admin.user.create` or `manager.user.create`
+   * @param {CreateUserDto} dto The data to create the user with.
+   * @param {User} currentUser The user performing the action.
+   * @returns {Promise<UserResponseDto>} The newly created user.
+   */
+  async createUser(dto: CreateUserDto, currentUser: User): Promise<UserResponseDto> {
     await this.ensureValidation(dto);
 
-    // Unique email per company
-    const existing = await this.userRepository.findByEmailInCompany(dto.email, companyId);
+    const canAdminCreate = await this.rolePermissionService.checkPermission(
+      currentUser,
+      'admin.user.create',
+    );
+    const canManagerCreate = await this.rolePermissionService.checkPermission(
+      currentUser,
+      'manager.user.create',
+    );
+
+    if (!canAdminCreate && !canManagerCreate) {
+      throw new ForbiddenError('You do not have permission to create users.');
+    }
+
+    let companyId = dto.companyId;
+    if (canManagerCreate && !canAdminCreate) {
+      if (dto.companyId !== currentUser.companyId) {
+        throw new ForbiddenError('Access denied. You can only create users in your own company.');
+      }
+      companyId = currentUser.companyId;
+    }
+
+    const existing = await this.userRepository.findByEmail(dto.email);
     if (existing) {
-      throw new UnprocessableEntityError('A user with this email already exists in the company.');
+      throw new UnprocessableEntityError(`A user with email '${dto.email}' already exists.`);
     }
 
     const passwordHash = await argon2.hash(dto.password);
 
-    // Validate role in company
-    const role = await this.roleRepository.findOne({
-      where: { id: dto.roleId, companyId },
-    });
+    const role = await this.roleRepository.findOne({ where: { id: dto.roleId, companyId } });
     if (!role) {
-      throw new UnprocessableEntityError('Invalid roleId for this company.');
+      throw new UnprocessableEntityError(
+        `Role with ID '${dto.roleId}' not found in company '${companyId}'.`,
+      );
     }
 
-    const activeStatus = await this.userStatusRepository.findOne({
-      where: { code: 'ACTIVE' },
-    });
+    const activeStatus = await this.userStatusRepository.findOne({ where: { code: 'ACTIVE' } });
     if (!activeStatus) {
-      throw new NotFoundError('Active user status not found.');
+      throw new InternalServerError("Default 'ACTIVE' user status not found in the system.");
     }
 
     const user = await this.userRepository.create({
@@ -200,278 +312,150 @@ export class UserService {
     } as User);
 
     const created = await this.userRepository.findByIdInCompany(user.id, companyId);
-    if (!created) throw new NotFoundError('User not found after creation.');
+    if (!created) throw new InternalServerError('Failed to retrieve user after creation.');
 
     return this.toResponse(created);
   }
+  // #endregion
 
+  // #region UPDATE
   /**
-   * @description Retrieves a single user's details within a specific company scope.
-   * Requires 'view_user' permission if the target user is not the current user.
-   * @param companyId The unique identifier of the company.
-   * @param userId The unique identifier of the user to retrieve.
-   * @param currentUser The user performing the action.
-   * @returns A Promise that resolves to the UserResponseDto of the requested user.
-   * @throws {ForbiddenError} If the current user does not have 'view_user' permission and is not the target user.
-   * @throws {NotFoundError} If the user is not found within the specified company.
+   * @description Updates the currently authenticated user's profile.
+   * @permission `user.update.self`
+   * @param {UpdateSelfDto} dto The data to update the user's profile with.
+   * @param {User} currentUser The currently authenticated user.
+   * @returns {Promise<UserResponseDto>} The updated user profile.
    */
-  async getUserById(
-    companyId: string,
-    userId: string,
-    currentUser: User,
-  ): Promise<UserResponseDto> {
-    // View permission or self
-    if (currentUser.id !== userId) {
-      await this.ensurePermission(currentUser, 'view_user');
-    }
-    const user = await this.userRepository.findByIdInCompany(userId, companyId);
-    if (!user) throw new NotFoundError('User not found');
-    return this.toResponse(user, { withPermissions: true });
+  async updateProfile(dto: UpdateSelfDto, currentUser: User): Promise<UserResponseDto> {
+    await this.ensureValidation(dto);
+    await this.ensurePermission(currentUser, 'user.update.self');
+
+    const userToUpdate = await this.userRepository.findById(currentUser.id);
+    if (!userToUpdate) throw new NotFoundError(`User with ID '${currentUser.id}' not found.`);
+
+    await this.userRepository.update(currentUser.id, dto);
+
+    const reloaded = await this.userRepository.findById(currentUser.id);
+    if (!reloaded) throw new InternalServerError('Failed to retrieve user after update.');
+
+    return this.toResponse(reloaded);
   }
 
   /**
-   * @description Lists users within a specific company scope, with optional pagination and filtering.
-   * Requires 'list_users' permission.
-   * @param companyId The unique identifier of the company.
-   * @param currentUser The user performing the action.
-   * @param query The ListUsersQueryDto containing pagination and filter parameters.
-   * @returns A Promise that resolves to an object containing paginated user data (UserResponseDto[]), total count, page, and limit.
-   * @throws {ForbiddenError} If the current user does not have 'list_users' permission.
-   */
-  async listUsers(
-    companyId: string,
-    currentUser: User,
-    query: ListUsersQueryDto,
-  ): Promise<{
-    data: UserResponseDto[];
-    total: number;
-    page: number;
-    limit: number;
-  }> {
-    await this.ensurePermission(currentUser, 'list_users');
-
-    const page = query.page ?? 1;
-    const limit = query.limit ?? 25;
-
-    // Basic pagination using repository helper; filtering can be extended
-    const { data } = await this.userRepository.findPaginated(page, limit);
-    const scoped = data.filter((u) => u.companyId === companyId);
-
-    return {
-      data: scoped.map((u) => this.toResponse(u)),
-      total: scoped.length, // If you need precise total per company, implement a scoped findAndCount
-      page,
-      limit,
-    };
-    // NOTE: For large datasets, add a dedicated scoped paginate in the repository.
-  }
-
-  /**
-   * @description Updates an existing user's details within a specific company. Requires 'update_user' permission,
-   * unless the user is updating their own limited fields.
-   * @param companyId The unique identifier of the company.
-   * @param userId The unique identifier of the user to update.
-   * @param currentUser The user performing the action.
-   * @param dto The UpdateUserDto containing the updated user details.
-   * @returns A Promise that resolves to the updated UserResponseDto.
-   * @throws {ForbiddenError} If the current user lacks permission or attempts to change restricted fields for themselves.
-   * @throws {UnprocessableEntityError} If validation fails, or an invalid roleId/statusId is provided.
-   * @throws {NotFoundError} If the user is not found.
+   * @description Updates a user's information. This is an admin/manager action.
+   * @permission `admin.user.update` or `manager.user.update`
+   * @param {string} userId The ID of the user to update.
+   * @param {UpdateUserDto} dto The data to update the user with.
+   * @param {User} currentUser The user performing the action.
+   * @returns {Promise<UserResponseDto>} The updated user.
    */
   async updateUser(
-    companyId: string,
     userId: string,
-    currentUser: User,
     dto: UpdateUserDto,
+    currentUser: User,
   ): Promise<UserResponseDto> {
-    // Self can update limited fields; others require permission
-    const updatingSelf = currentUser.id === userId;
-    if (!updatingSelf) {
-      await this.ensurePermission(currentUser, 'update_user');
-    }
-
     await this.ensureValidation(dto);
 
-    const user = await this.userRepository.findByIdInCompany(userId, companyId, true);
-    if (!user) throw new NotFoundError('User not found');
+    const userToUpdate = await this.userRepository.findById(userId, true);
+    if (!userToUpdate) throw new NotFoundError(`User with ID '${userId}' not found.`);
 
-    // If role/status/company updates are attempted by self, forbid
-    if (updatingSelf && (dto.roleId || dto.statusId || dto.companyId)) {
-      throw new ForbiddenError('You cannot change your own role, status or company.');
+    const canAdminUpdate = await this.rolePermissionService.checkPermission(
+      currentUser,
+      'admin.user.update',
+    );
+    const canManagerUpdate = await this.rolePermissionService.checkPermission(
+      currentUser,
+      'manager.user.update',
+    );
+
+    if (!canAdminUpdate && !canManagerUpdate) {
+      throw new ForbiddenError('You do not have permission to update users.');
     }
 
-    // Company change (admin action)
-    if (dto.companyId && dto.companyId !== user.companyId) {
-      await this.ensurePermission(currentUser, 'move_user_company');
-      user.companyId = dto.companyId;
+    if (canManagerUpdate && !canAdminUpdate) {
+      if (userToUpdate.companyId !== currentUser.companyId) {
+        throw new ForbiddenError('Access denied. You can only update users in your own company.');
+      }
+      // Managers cannot change role, status, or company
+      if (dto.roleId || dto.statusId || dto.companyId) {
+        throw new ForbiddenError(
+          'Access denied. You do not have permission to change role, status, or company for other users.',
+        );
+      }
     }
+    await this.userRepository.update(userId, dto);
 
-    if (dto.email !== undefined) user.email = dto.email;
-    if (dto.firstName !== undefined) user.firstName = dto.firstName;
-    if (dto.lastName !== undefined) user.lastName = dto.lastName;
-
-    if (dto.password) {
-      user.passwordHash = await argon2.hash(dto.password);
-      user.mustChangePasswordAtNextLogin = false;
-    }
-
-    if (dto.roleId) {
-      const role = await this.roleRepository.findOne({
-        where: { id: dto.roleId, companyId: user.companyId },
-      });
-      if (!role) throw new UnprocessableEntityError('Invalid roleId for this company.');
-      user.roleId = dto.roleId;
-    }
-
-    if (dto.statusId) {
-      const status = await this.userStatusRepository.findOne({
-        where: { id: dto.statusId },
-      });
-      if (!status) throw new UnprocessableEntityError('Invalid statusId.');
-      user.statusId = dto.statusId;
-    }
-
-    if (dto.phoneNumber !== undefined) user.phoneNumber = dto.phoneNumber;
-
-    await this.userRepository.save(user);
-
-    const reloaded = await this.userRepository.findByIdInCompany(user.id, user.companyId, true);
-    if (!reloaded) throw new NotFoundError('User not found after update');
+    const reloaded = await this.userRepository.findById(userId, true);
+    if (!reloaded) throw new InternalServerError('Failed to retrieve user after update.');
 
     return this.toResponse(reloaded);
   }
 
   /**
-   * @description Allows a user to update their own profile information (limited fields).
-   * @param currentUser The user performing the action.
-   * @param dto The UpdateMeDto containing the updated profile details.
-   * @returns A Promise that resolves to the updated UserResponseDto.
-   * @throws {UnprocessableEntityError} If validation fails.
-   * @throws {NotFoundError} If the current user is not found.
-   */
-  async updateMe(currentUser: User, dto: UpdateMeDto): Promise<UserResponseDto> {
-    await this.ensureValidation(dto);
-    const user = await this.userRepository.findById(currentUser.id);
-    if (!user) throw new NotFoundError('User not found');
-
-    if (dto.email !== undefined) user.email = dto.email;
-    if (dto.firstName !== undefined) user.firstName = dto.firstName;
-    if (dto.lastName !== undefined) user.lastName = dto.lastName;
-    if (dto.phoneNumber !== undefined) user.phoneNumber = dto.phoneNumber;
-
-    await this.userRepository.save(user);
-
-    const reloaded = await this.userRepository.findByIdInCompany(user.id, user.companyId);
-    if (!reloaded) throw new NotFoundError('User not found after update');
-
-    return this.toResponse(reloaded);
-  }
-
-  /**
-   * @description Allows a user to change their own password.
-   * @param currentUser The user performing the action.
-   * @param dto The ChangePasswordDto containing the current and new passwords.
-   * @returns A Promise that resolves when the password change is complete.
-   * @throws {UnprocessableEntityError} If validation fails.
-   * @throws {NotFoundError} If the current user is not found.
-   * @throws {ForbiddenError} If the current password provided is incorrect.
+   * @description Changes the currently authenticated user's password.
+   * @param {User} currentUser The currently authenticated user.
+   * @param {ChangePasswordDto} dto The current and new password data.
+   * @returns {Promise<void>}
    */
   async changePassword(currentUser: User, dto: ChangePasswordDto): Promise<void> {
     await this.ensureValidation(dto);
 
     const user = await this.userRepository.findById(currentUser.id);
-    if (!user) throw new NotFoundError('User not found');
+    if (!user) throw new NotFoundError(`User with ID '${currentUser.id}' not found.`);
 
     const ok = await argon2.verify(user.passwordHash, dto.currentPassword);
-    if (!ok) throw new ForbiddenError('Current password is incorrect');
+    if (!ok) throw new ForbiddenError('The current password you entered is incorrect.');
 
     user.passwordHash = await argon2.hash(dto.newPassword);
     user.mustChangePasswordAtNextLogin = false;
 
     await this.userRepository.save(user);
   }
+  // #endregion
 
+  // #region DELETE
   /**
-   * @description Permanently deletes a user from the database. Requires 'delete_user' permission.
-   * @param companyId The unique identifier of the company.
-   * @param userId The unique identifier of the user to hard delete.
-   * @param currentUser The user performing the action.
-   * @returns A Promise that resolves when the deletion is complete.
-   * @throws {ForbiddenError} If the current user does not have 'delete_user' permission.
-   * @throws {NotFoundError} If the user is not found.
+   * @description Anonymizes a user, effectively deleting them. This is a permanent action.
+   * @permission `admin.user.delete` or `manager.user.delete`
+   * @param {string} userId The ID of the user to delete.
+   * @param {User} currentUser The user performing the action.
+   * @returns {Promise<void>}
    */
-  async hardDeleteUser(companyId: string, userId: string, currentUser: User): Promise<void> {
-    await this.ensurePermission(currentUser, 'delete_user');
-    const target = await this.userRepository.findByIdInCompany(userId, companyId, true);
-    if (!target) throw new NotFoundError('User not found');
-    await this.userRepository.hardDelete(userId);
-  }
+  async deleteUser(userId: string, currentUser: User): Promise<void> {
+    const userToDelete = await this.userRepository.findById(userId);
+    if (!userToDelete) throw new NotFoundError(`User with ID '${userId}' not found.`);
 
-  /**
-   * @description Soft deletes a user, marking them as deleted but retaining their record. Requires 'delete_user' permission.
-   * @param companyId The unique identifier of the company.
-   * @param userId The unique identifier of the user to soft delete.
-   * @param currentUser The user performing the action.
-   * @returns A Promise that resolves when the soft deletion is complete.
-   * @throws {ForbiddenError} If the current user does not have 'delete_user' permission.
-   * @throws {NotFoundError} If the user is not found.
-   */
-  async softDeleteUser(companyId: string, userId: string, currentUser: User): Promise<void> {
-    await this.ensurePermission(currentUser, 'delete_user');
-    const target = await this.userRepository.findByIdInCompany(userId, companyId);
-    if (!target) throw new NotFoundError('User not found');
-    await this.userRepository.softDelete(userId);
-  }
+    const canAdminDelete = await this.rolePermissionService.checkPermission(
+      currentUser,
+      'admin.user.delete',
+    );
+    const canManagerDelete = await this.rolePermissionService.checkPermission(
+      currentUser,
+      'manager.user.delete',
+    );
 
-  /**
-   * @description Restores a soft-deleted user. Requires 'restore_user' permission.
-   * @param companyId The unique identifier of the company.
-   * @param userId The unique identifier of the user to restore.
-   * @param currentUser The user performing the action.
-   * @returns A Promise that resolves when the restoration is complete.
-   * @throws {ForbiddenError} If the current user does not have 'restore_user' permission.
-   * @throws {NotFoundError} If the user is not found.
-   */
-  async restoreUser(companyId: string, userId: string, currentUser: User): Promise<void> {
-    await this.ensurePermission(currentUser, 'restore_user');
-    const target = await this.userRepository.findByIdInCompany(userId, companyId, true);
-    if (!target) throw new NotFoundError('User not found');
-    await this.userRepository.restore(userId);
-  }
-
-  /**
-   * @description Revokes a specific active session by its ID. Requires 'revoke_session' permission.
-   * @param companyId The unique identifier of the company.
-   * @param currentUser The user performing the action.
-   * @param dto The RevokeSessionDto containing the session ID to revoke.
-   * @returns A Promise that resolves when the session revocation is complete.
-   * @throws {ForbiddenError} If the current user does not have 'revoke_session' permission.
-   * @throws {NotFoundError} If the session is not found or does not belong to the specified company.
-   */
-  async revokeSessionById(
-    companyId: string,
-    currentUser: User,
-    dto: RevokeSessionDto,
-  ): Promise<void> {
-    await this.ensurePermission(currentUser, 'revoke_session');
-
-    const session = await this.activeSessionRepository.findById(dto.sessionId);
-    if (!session || session.companyId !== companyId) {
-      throw new NotFoundError('Session not found');
+    if (!canAdminDelete && !canManagerDelete) {
+      throw new ForbiddenError('You do not have permission to delete users.');
     }
-    await this.activeSessionRepository.update(session.id, {
-      revokedAt: new Date(),
-    });
-  }
 
+    if (canManagerDelete && !canAdminDelete) {
+      if (userToDelete.companyId !== currentUser.companyId) {
+        throw new ForbiddenError('Access denied. You can only delete users in your own company.');
+      }
+    }
+
+    await this.userRepository.anonymize(userId);
+  }
+  // #endregion
+
+  // #region SESSIONS
   /**
-   * @description Lists all active sessions for a user within a specific company. Requires 'view_user_sessions' permission
-   * if the target user is not the current user.
-   * @param companyId The unique identifier of the company.
-   * @param currentUser The user performing the action.
-   * @param userId Optional: The unique identifier of the target user. If not provided, defaults to the `currentUser.id`.
-   * @returns A Promise that resolves to an array of ActiveSessionResponseDto objects.
-   * @throws {ForbiddenError} If the current user does not have 'view_user_sessions' permission and is not the target user.
+   * @description Lists the active sessions for a given user.
+   * @permission `view_user_sessions` if viewing another user's sessions.
+   * @param {string} companyId The ID of the company.
+   * @param {User} currentUser The user performing the action.
+   * @param {string} [userId] The ID of the user whose sessions to list. Defaults to the current user.
+   * @returns {Promise<ActiveSessionResponseDto[]>} A list of active sessions.
    */
   async listUserSessions(
     companyId: string,
@@ -499,4 +483,29 @@ export class UserService {
       revokedAt: s.revokedAt ?? undefined,
     }));
   }
+
+  /**
+   * @description Revokes a specific user session by its ID.
+   * @permission `revoke_session`
+   * @param {string} companyId The ID of the company the session belongs to.
+   * @param {User} currentUser The user performing the action.
+   * @param {RevokeUserSessionDto} dto The session ID to revoke.
+   * @returns {Promise<void>}
+   */
+  async revokeUserSessionById(
+    companyId: string,
+    currentUser: User,
+    dto: RevokeUserSessionDto,
+  ): Promise<void> {
+    await this.ensurePermission(currentUser, 'revoke_session');
+
+    const session = await this.activeSessionRepository.findById(dto.sessionId);
+    if (!session || session.companyId !== companyId) {
+      throw new NotFoundError(`Session with ID '${dto.sessionId}' not found.`);
+    }
+    await this.activeSessionRepository.update(session.id, {
+      revokedAt: new Date(),
+    });
+  }
+  // #endregion
 }

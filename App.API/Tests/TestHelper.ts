@@ -46,22 +46,23 @@ export const createTestApp = (mockSetup?: () => void): Application => {
   return app;
 };
 
-export const startTestServer = async (app: Application, port = 0): Promise<Server> => {
-  return new Promise((resolve) => {
+export const startTestServer = async (app: Application, port = 0): Promise<Server> =>
+  // eslint-disable-next-line promise/avoid-new
+  new Promise((resolve) => {
     const server = app.listen(port, () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const actualPort = (server.address() as any)?.port;
-      console.log(`🧪 Test server running on port ${actualPort}`);
+
+      console.warn(`🧪 Test server running on port ${actualPort}`);
       resolve(server);
     });
   });
-};
 
-export const closeTestServer = (server: Server): Promise<void> => {
-  return new Promise((resolve, reject) => {
+export const closeTestServer = (server: Server): Promise<void> =>
+  // eslint-disable-next-line promise/avoid-new
+  new Promise((resolve, reject) => {
     server.close((err) => {
       if (err) reject(err);
       else resolve();
     });
   });
-};

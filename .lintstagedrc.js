@@ -18,5 +18,6 @@ module.exports = {
   '**/*.{json,md,yml,yaml}': ['prettier --write'],
 
   // 🚫 Explicitly skip root-level infra/config files
-  '!{.prettierrc.json,package.json,yarn.lock,eslint.config.js,.lintstagedrc.js,commitlint.config.cjs}': [],
+  '!{.prettierrc.json,package.json,yarn.lock,eslint.config.js,.lintstagedrc.js,commitlint.config.cjs}':
+    [],
 };

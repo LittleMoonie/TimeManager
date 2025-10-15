@@ -27,7 +27,7 @@ export class RolePermissionService {
    * @param permissionName The name of the permission to check for.
    * @returns {Promise<boolean>} A Promise that resolves to `true` if the user has the permission, `false` otherwise.
    */
-  public async checkPermission(user: User, permissionName:string): Promise<boolean> {
+  public async checkPermission(user: User, permissionName: string): Promise<boolean> {
     if (!user?.role?.rolePermissions?.length) return false;
     return user.role.rolePermissions.some((rp) => rp.permission?.name === permissionName);
   }

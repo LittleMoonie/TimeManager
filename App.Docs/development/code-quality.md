@@ -181,17 +181,17 @@ Our Prettier configuration is defined at the root in `.prettierrc.json`. This en
 
 To maintain a clean and organized Git history, please adhere to the following branch naming conventions:
 
-*   **Prefixes**: Start your branch name with a type that indicates its purpose.
-    *   `feat/`: For new features (e.g., `feat/user-profile-page`)
-    *   `fix/`: For bug fixes (e.g., `fix/login-button-not-working`)
-    *   `docs/`: For documentation updates (e.g., `docs/update-api-endpoints`)
-    *   `refactor/`: For code refactoring (e.g., `refactor/extract-auth-service`)
-    *   `chore/`: For maintenance tasks or minor changes (e.g., `chore/update-dependencies`)
-    *   `hotfix/`: For urgent bug fixes in production (e.g., `hotfix/critical-security-patch`)
-    *   `release/`: For release preparation (e.g., `release/v1.0.0`)
-*   **Descriptive**: Be clear and concise about the branch's purpose.
-*   **Kebab-case**: Use hyphens (`-`) to separate words (e.g., `feat/add-user-settings`).
-*   **Issue Numbers (Optional but Recommended)**: If applicable, include the issue number (e.g., `feat/issue-123-implement-dark-mode`).
+- **Prefixes**: Start your branch name with a type that indicates its purpose.
+  - `feat/`: For new features (e.g., `feat/user-profile-page`)
+  - `fix/`: For bug fixes (e.g., `fix/login-button-not-working`)
+  - `docs/`: For documentation updates (e.g., `docs/update-api-endpoints`)
+  - `refactor/`: For code refactoring (e.g., `refactor/extract-auth-service`)
+  - `chore/`: For maintenance tasks or minor changes (e.g., `chore/update-dependencies`)
+  - `hotfix/`: For urgent bug fixes in production (e.g., `hotfix/critical-security-patch`)
+  - `release/`: For release preparation (e.g., `release/v1.0.0`)
+- **Descriptive**: Be clear and concise about the branch's purpose.
+- **Kebab-case**: Use hyphens (`-`) to separate words (e.g., `feat/add-user-settings`).
+- **Issue Numbers (Optional but Recommended)**: If applicable, include the issue number (e.g., `feat/issue-123-implement-dark-mode`).
 
 ### Commit Messages (Conventional Commits)
 
@@ -209,6 +209,7 @@ All commits must follow the [Conventional Commits](https://www.conventionalcommi
 
 **1. Type (Mandatory)**:
 This describes the kind of change. Common types include:
+
 - `feat`: A new feature
 - `fix`: A bug fix
 - `docs`: Documentation only changes
@@ -230,10 +231,10 @@ A short, imperative, present tense summary of the change (max 50-72 characters).
 **4. Body (Mandatory - Enforced by Commitlint)**:
 A longer explanation of the commit message, structured into "What", "Why", "How", and "Impact" sections. This is enforced by `commitlint`.
 
-*   **What**: Describe *what* specifically changed in this commit.
-*   **Why**: Explain the *motivation* for the change, linking to issues if applicable.
-*   **How**: Summarize *how* the change was implemented (high-level technical details).
-*   **Impact**: Mention any side effects, breaking changes, or important implications.
+- **What**: Describe _what_ specifically changed in this commit.
+- **Why**: Explain the _motivation_ for the change, linking to issues if applicable.
+- **How**: Summarize _how_ the change was implemented (high-level technical details).
+- **Impact**: Mention any side effects, breaking changes, or important implications.
 
 **5. Footer (Optional)**:
 Used for referencing issues (e.g., `Closes #123`, `Fixes #456`) or indicating breaking changes (e.g., `BREAKING CHANGE: <description>`).

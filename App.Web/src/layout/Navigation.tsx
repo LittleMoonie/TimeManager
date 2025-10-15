@@ -94,11 +94,7 @@ const NavListItem = ({
         >
           {item.icon}
         </ListItemIcon>
-        {!collapsed && (
-          <ListItemText
-            primary={item.label}
-          />
-        )}
+        {!collapsed && <ListItemText primary={item.label} />}
       </ListItemButton>
     </ListItem>
   );

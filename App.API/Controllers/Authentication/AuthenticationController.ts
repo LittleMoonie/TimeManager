@@ -7,12 +7,16 @@ import { LoginDto, RegisterDto } from '../../Dtos/Authentication/AuthenticationD
 import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
 import { ForbiddenError, NotFoundError } from '../../Errors/HttpErrors';
 import { AuthenticationService } from '../../Services/AuthenticationService/AuthenticationService';
+import { RolePermissionService } from '../../Services/RoleService/RolePermissionService';
 
 @Route('auth')
 @Tags('Authentication')
 @Service()
 export class AuthenticationController extends Controller {
-  constructor(private authenticationService: AuthenticationService) {
+  constructor(
+    private authenticationService: AuthenticationService,
+    private rolePermissionService: RolePermissionService,
+  ) {
     /**
      * @description Initializes the AuthenticationController with the AuthenticationService.
      * @param authenticationService The AuthenticationService injected by TypeDI.
@@ -136,6 +140,11 @@ export class AuthenticationController extends Controller {
 
     this.setHeader('Cache-Control', 'no-cache');
 
+    const permissions = await this.rolePermissionService.getPermissionsForRole(
+      user.roleId,
+      user.companyId,
+    );
+
     return {
       id: user.id,
       email: user.email,
@@ -147,6 +156,7 @@ export class AuthenticationController extends Controller {
       createdAt: user.createdAt,
       phoneNumber: user.phoneNumber,
       lastLogin: user.lastLogin,
+      permissions,
       company: user.company
         ? {
             id: user.company.id,
