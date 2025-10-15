@@ -218,6 +218,43 @@ services:
       - gogotime-network
     restart: unless-stopped
 
+
+  docs:
+    container_name: gogotime-docs
+    build:
+      context: ../App.Docusaurus
+      dockerfile: Dockerfile
+    user: '${UID:-1000}:${GID:-1000}'
+    ports:
+      - "3002:3000"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: 'true'
+      WATCHPACK_POLLING: 'true'
+      FAST_REFRESH: 'true'
+      DOCS_AUTO_UPDATE: 'true'
+    depends_on:
+      - api
+    volumes:
+      - ../App.API:/app/App.API
+      - ../App.Web:/app/App.Web
+      - ../App.Docusaurus:/app
+    networks:
+      - gogotime-network
+    command: sh -c "(yarn install --immutable || yarn install) && yarn start:watch"
+    develop:
+      watch:
+        - action: sync
+          path: ../App.Docusaurus
+          target: /app
+          ignore:
+            - node_modules/
+            - build/
+        - action: rebuild
+          path: ../App.Docusaurus/yarn.lock
+
 # 📦 Named Volumes for Persistent Data and Cache Isolation
 volumes:
   pgdata:
