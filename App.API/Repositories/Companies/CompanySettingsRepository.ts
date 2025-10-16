@@ -27,17 +27,26 @@ export class CompanySettingsRepository extends BaseRepository<CompanySettings> {
   async getCompanySettings(companyId: string): Promise<CompanySettings> {
     let settings = await this.findById(companyId);
     if (!settings) {
-      settings = await this.create({
-        companyId,
-        defaultCountryCode: 'US', // Default to US
-        defaultLocation: 'Office',
-        maxWeeklyMinutes: 2400,
-        timezone: 'UTC',
-        workWeek: {},
-        timesheetApproverPolicy: ApproverPolicy.MANAGER_OF_USER,
-        requireCompanyEmail: false,
-        officeCountryCodes: ['US'], // Default office country code
-      });
+      try {
+        settings = await this.create({
+          companyId,
+          defaultCountryCode: 'US', // Default to US
+          defaultLocation: 'Office',
+          maxWeeklyMinutes: 2400,
+          timezone: 'UTC',
+          workWeek: {},
+          timesheetApproverPolicy: ApproverPolicy.MANAGER_OF_USER,
+          requireCompanyEmail: false,
+          officeCountryCodes: ['US'], // Default office country code
+        });
+      } catch (error) {
+        // If creation fails due to a unique constraint violation (e.g., another request created it),
+        // try to find it again.
+        settings = await this.findById(companyId);
+        if (!settings) {
+          throw error; // Re-throw if still not found (unexpected)
+        }
+      }
     }
     return settings;
   }
