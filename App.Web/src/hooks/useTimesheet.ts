@@ -182,17 +182,28 @@ export const useWeeklyTimesheet = ({
     },
   });
 
+  const normalizeEntries = (entries: EntriesMap): EntriesMap => {
+    const sortedKeys = Object.keys(entries).sort();
+    const normalized: EntriesMap = {};
+    for (const key of sortedKeys) {
+      normalized[key] = entries[key];
+    }
+    return normalized;
+  };
+
   const scheduleSave = useCallback(
     (nextRows: WeeklyRowState[]) => {
       const excludeKeys = ['clientId', 'id', 'timeCodeName', 'timeCodeCode', 'rejection', 'locked', 'status'];
       const currentRowsFiltered = rows.map((row) => {
         const newRow = { ...row };
         excludeKeys.forEach((key) => delete newRow[key as keyof WeeklyRowState]);
+        newRow.entries = normalizeEntries(newRow.entries);
         return newRow;
       });
       const nextRowsFiltered = nextRows.map((row) => {
         const newRow = { ...row };
         excludeKeys.forEach((key) => delete newRow[key as keyof WeeklyRowState]);
+        newRow.entries = normalizeEntries(newRow.entries);
         return newRow;
       });
 
