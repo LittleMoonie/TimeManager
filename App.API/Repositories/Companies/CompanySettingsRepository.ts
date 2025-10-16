@@ -25,9 +25,19 @@ export class CompanySettingsRepository extends BaseRepository<CompanySettings> {
    * @throws {NotFoundError} If the company settings are not found for the specified company ID.
    */
   async getCompanySettings(companyId: string): Promise<CompanySettings> {
-    const settings = await this.findById(companyId);
+    let settings = await this.findById(companyId);
     if (!settings) {
-      throw new NotFoundError('Company settings not found');
+      settings = await this.create({
+        companyId,
+        defaultCountryCode: 'US', // Default to US
+        defaultLocation: 'Office',
+        maxWeeklyMinutes: 2400,
+        timezone: 'UTC',
+        workWeek: {},
+        timesheetApproverPolicy: ApproverPolicy.MANAGER_OF_USER,
+        requireCompanyEmail: false,
+        officeCountryCodes: ['US'], // Default office country code
+      });
     }
     return settings;
   }
