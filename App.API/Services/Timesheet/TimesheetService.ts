@@ -690,6 +690,7 @@ export class TimesheetService {
       const countryCode = resolvedCountryCode?.toUpperCase();
       console.log('payloadRow.countryCode:', payloadRow.countryCode);
       console.log('countryCode:', countryCode);
+      console.log('payloadRow.activityLabel:', payloadRow.activityLabel);
       const employeeCountryCode = payloadRow.employeeCountryCode
         ? payloadRow.employeeCountryCode.toUpperCase()
         : undefined;
