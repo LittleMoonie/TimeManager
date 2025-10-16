@@ -185,6 +185,9 @@ export const useWeeklyTimesheet = ({
 
   const scheduleSave = useCallback(
     (nextRows: WeeklyRowState[]) => {
+      if (JSON.stringify(nextRows) === JSON.stringify(rows)) {
+        return;
+      }
       setRows(nextRows);
       setDirty(true);
 
@@ -197,9 +200,9 @@ export const useWeeklyTimesheet = ({
           rows: nextRows.map(mapRowToDto),
         };
         saveMutation.mutate(payload);
-      }, 800);
+      }, 2000);
     },
-    [saveMutation, weekStart],
+    [rows, saveMutation, weekStart],
   );
 
   const updateRow = useCallback(

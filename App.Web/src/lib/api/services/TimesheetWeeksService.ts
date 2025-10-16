@@ -15,14 +15,19 @@ export class TimesheetWeeksService {
      */
     public static getWeekTimesheet({
         weekStart,
+        userId,
     }: {
         weekStart: string,
+        userId?: string,
     }): CancelablePromise<TimesheetWeekResponseDto> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/timesheet/weeks/{weekStart}/timesheet',
             path: {
                 'weekStart': weekStart,
+            },
+            query: {
+                'userId': userId,
             },
         });
     }
@@ -33,15 +38,20 @@ export class TimesheetWeeksService {
     public static upsertWeekTimesheet({
         weekStart,
         requestBody,
+        userId,
     }: {
         weekStart: string,
         requestBody: TimesheetWeekUpsertDto,
+        userId?: string,
     }): CancelablePromise<TimesheetWeekResponseDto> {
         return __request(OpenAPI, {
             method: 'PUT',
             url: '/timesheet/weeks/{weekStart}/timesheet',
             path: {
                 'weekStart': weekStart,
+            },
+            query: {
+                'userId': userId,
             },
             body: requestBody,
             mediaType: 'application/json',
@@ -53,9 +63,11 @@ export class TimesheetWeeksService {
      */
     public static submitWeekTimesheet({
         weekStart,
+        userId,
         requestBody,
     }: {
         weekStart: string,
+        userId?: string,
         requestBody?: TimesheetWeekSubmitDto,
     }): CancelablePromise<TimesheetWeekResponseDto> {
         return __request(OpenAPI, {
@@ -63,6 +75,9 @@ export class TimesheetWeeksService {
             url: '/timesheet/weeks/{weekStart}/submit',
             path: {
                 'weekStart': weekStart,
+            },
+            query: {
+                'userId': userId,
             },
             body: requestBody,
             mediaType: 'application/json',
