@@ -669,9 +669,7 @@ export class TimesheetService {
       officeCountryCodes = [];
       defaultCountryCode = undefined;
     }
-    if (officeCountryCodes.length === 0 && defaultCountryCode) {
-      officeCountryCodes = [defaultCountryCode];
-    } else if (defaultCountryCode && !officeCountryCodes.includes(defaultCountryCode)) {
+    if (defaultCountryCode && !officeCountryCodes.includes(defaultCountryCode)) {
       officeCountryCodes.push(defaultCountryCode);
     }
     const officeCountrySet = new Set(officeCountryCodes);
