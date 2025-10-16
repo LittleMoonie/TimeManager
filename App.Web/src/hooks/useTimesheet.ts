@@ -185,7 +185,7 @@ export const useWeeklyTimesheet = ({
 
   const scheduleSave = useCallback(
     (nextRows: WeeklyRowState[]) => {
-      const excludeKeys = ['clientId', 'id', 'timeCodeName', 'timeCodeCode', 'rejection'];
+      const excludeKeys = ['clientId', 'id', 'timeCodeName', 'timeCodeCode', 'rejection', 'locked', 'status'];
       const currentRowsFiltered = rows.map((row) => {
         const newRow = { ...row };
         excludeKeys.forEach((key) => delete newRow[key as keyof WeeklyRowState]);
