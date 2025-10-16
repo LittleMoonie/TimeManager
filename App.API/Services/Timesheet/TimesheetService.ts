@@ -644,6 +644,7 @@ export class TimesheetService {
       });
       rowInstance.countryCode = row.countryCode; // Explicitly set countryCode
       rowInstance.activityLabel = row.activityLabel; // Explicitly set activityLabel
+      rowInstance.timeCodeId = row.timeCodeId; // Explicitly set timeCodeId
       const entryList = Array.isArray(rowInstance.entries) ? rowInstance.entries : [];
       rowInstance.entries = entryList.map((entry) =>
         plainToInstance(TimesheetWeekRowEntryDto, entry, { enableImplicitConversion: true }),
