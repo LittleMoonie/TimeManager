@@ -268,11 +268,6 @@ export const useWeeklyTimesheet = ({
     [scheduleSave],
   );
 
-  const submitWeek = useCallback(() => {
-    forceSave();
-    submitMutation.mutate();
-  }, [forceSave, submitMutation]);
-
   const forceSave = useCallback(() => {
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
@@ -283,6 +278,11 @@ export const useWeeklyTimesheet = ({
     };
     saveMutation.mutate(payload);
   }, [rows, saveMutation]);
+
+  const submitWeek = useCallback(() => {
+    forceSave();
+    submitMutation.mutate();
+  }, [forceSave, submitMutation]);
 
   useEffect(() => {
     return () => {
