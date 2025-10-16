@@ -185,10 +185,19 @@ export const useWeeklyTimesheet = ({
 
   const scheduleSave = useCallback(
     (nextRows: WeeklyRowState[]) => {
-      const currentRowsWithoutClientId = rows.map(({ clientId, ...rest }) => rest);
-      const nextRowsWithoutClientId = nextRows.map(({ clientId, ...rest }) => rest);
+      const excludeKeys = ['clientId', 'id', 'timeCodeName', 'timeCodeCode', 'rejection'];
+      const currentRowsFiltered = rows.map((row) => {
+        const newRow = { ...row };
+        excludeKeys.forEach((key) => delete newRow[key as keyof WeeklyRowState]);
+        return newRow;
+      });
+      const nextRowsFiltered = nextRows.map((row) => {
+        const newRow = { ...row };
+        excludeKeys.forEach((key) => delete newRow[key as keyof WeeklyRowState]);
+        return newRow;
+      });
 
-      if (JSON.stringify(nextRowsWithoutClientId) === JSON.stringify(currentRowsWithoutClientId)) {
+      if (JSON.stringify(nextRowsFiltered) === JSON.stringify(currentRowsFiltered)) {
         return;
       }
       setRows(nextRows);
