@@ -19,7 +19,7 @@ export type WeeklyRowLocation = TimesheetWeekRowDto['location'];
 
 type WeeklyEntry = {
   minutes: number;
-  note?: string | null;
+  note: string | null;
 };
 
 type EntriesMap = Record<string, WeeklyEntry>;
@@ -262,7 +262,7 @@ export const useWeeklyTimesheet = ({
               patch.minutes !== undefined
                 ? Math.max(0, Math.round(patch.minutes))
                 : previous.minutes,
-            note: patch.note !== undefined ? patch.note : previous.note ?? null,
+            note: patch.note ?? previous.note ?? null,
           };
           if (next.minutes <= 0 && !next.note) {
             delete nextEntries[day];
