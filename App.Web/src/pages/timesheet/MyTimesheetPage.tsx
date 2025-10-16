@@ -87,7 +87,7 @@ const MyTimesheetPage = () => {
   const { data: timeCodes = [], isLoading: timeCodesLoading } = useTimeCodesLookup(timeCodeQuery);
   const { data: countries = [] } = useCountriesLookup();
 
-  const defaultCountry = settings?.defaultCountryCode ?? 'US';
+  const defaultCountry = settings?.defaultCountryCode || 'US';
   const defaultLocation =
     (settings?.defaultLocation as TimesheetRowLocation | undefined) ?? TimesheetRowLocation.OFFICE;
 

@@ -285,7 +285,7 @@ export const EditableTimeCell = ({
         </Box>
       </ButtonBase>
       <IconButton size="small" onClick={handleNoteIconClick} disabled={disabled}>
-        <Comment fontSize="small" sx={{ color: note ? 'primary.main' : 'action.disabled' }} />
+        <Comment fontSize="small" sx={{ color: draftNote ? 'primary.main' : 'action.disabled' }} />
       </IconButton>
       <Modal
         open={modalOpen}
