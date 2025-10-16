@@ -643,6 +643,7 @@ export class TimesheetService {
         enableImplicitConversion: true,
       });
       rowInstance.countryCode = row.countryCode; // Explicitly set countryCode
+      rowInstance.activityLabel = row.activityLabel; // Explicitly set activityLabel
       const entryList = Array.isArray(rowInstance.entries) ? rowInstance.entries : [];
       rowInstance.entries = entryList.map((entry) =>
         plainToInstance(TimesheetWeekRowEntryDto, entry, { enableImplicitConversion: true }),
