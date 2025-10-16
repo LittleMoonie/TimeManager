@@ -642,6 +642,7 @@ export class TimesheetService {
       const rowInstance = plainToInstance(TimesheetWeekRowDto, row, {
         enableImplicitConversion: true,
       });
+      rowInstance.countryCode = row.countryCode; // Explicitly set countryCode
       const entryList = Array.isArray(rowInstance.entries) ? rowInstance.entries : [];
       rowInstance.entries = entryList.map((entry) =>
         plainToInstance(TimesheetWeekRowEntryDto, entry, { enableImplicitConversion: true }),
@@ -689,6 +690,8 @@ export class TimesheetService {
           ? payloadRow.countryCode
           : defaultCountryCode;
       const countryCode = resolvedCountryCode?.toUpperCase();
+      console.log('payloadRow.countryCode:', payloadRow.countryCode);
+      console.log('countryCode:', countryCode);
       const employeeCountryCode = payloadRow.employeeCountryCode
         ? payloadRow.employeeCountryCode.toUpperCase()
         : undefined;
