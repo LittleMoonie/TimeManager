@@ -39,12 +39,16 @@ export class CompanySettingsRepository extends BaseRepository<CompanySettings> {
           requireCompanyEmail: false,
           officeCountryCodes: ['US'], // Default office country code
         });
-      } catch (error) {
-        // If creation fails due to a unique constraint violation (e.g., another request created it),
-        // try to find it again.
-        settings = await this.findById(companyId);
-        if (!settings) {
-          throw error; // Re-throw if still not found (unexpected)
+      } catch (error: any) {
+        // Check if the error is a unique constraint violation
+        if (error.code === '23505') { // PostgreSQL unique_violation error code
+          // Another process created the settings concurrently, try to find them again
+          settings = await this.findById(companyId);
+          if (!settings) {
+            throw error; // Re-throw if still not found (unexpected)
+          }
+        } else {
+          throw error; // Re-throw other errors
         }
       }
     }
