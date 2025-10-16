@@ -1,129 +1,312 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo } from 'react';
 
-import { ActionCode, TimesheetEntriesService } from '@/lib/api';
-import { ActionCodesService, TimesheetsService, TimesheetHistory } from '@/lib/api';
-import { TimesheetEntry, CreateTimesheetEntryDto } from '@/lib/api';
+import {
+  TimesheetRowLocation,
+  TimesheetStatus,
+  TimesheetWeekResponseDto,
+  TimesheetWeekRowDto,
+  TimesheetWeekRowRejectionDto,
+  TimesheetWeekSettingsDto,
+  TimesheetWeekUpsertDto,
+  TimesheetWeekRejectionDto,
+  TimesheetWeeksService,
+} from '@/lib/api';
 
-export const useActionCodes = () => {
-  return useQuery<ActionCode[]>({
-    queryKey: ['timesheet', 'action-codes'],
-    queryFn: async () => {
-      const result = await ActionCodesService.getActionCode({ id: '1' });
-      return Array.isArray(result) ? result : [result];
-    },
-    staleTime: Infinity,
-  });
+export type WeeklyRowStatus = TimesheetWeekRowDto['status'];
+export type WeeklyRowBillable = TimesheetWeekRowDto['billable'];
+export type WeeklyRowLocation = TimesheetWeekRowDto['location'];
+
+type WeeklyEntry = {
+  minutes: number;
+  note?: string | null;
 };
 
-export const useTimesheet = (weekStartISO: string, page: number, limit: number) => {
-  const queryClient = useQueryClient();
+type EntriesMap = Record<string, WeeklyEntry>;
 
-  const timesheetQuery = useQuery<{
-    lastPage: number;
-    page: number;
-    total: number;
-    data: TimesheetEntry[];
-  }>({
-    queryKey: ['timesheet', weekStartISO, page, limit],
-    queryFn: async () => {
-      const result = await TimesheetsService.getTimesheet({ id: '1' });
-      return {
-        lastPage: result.lastPage,
-        page: result.page,
-        total: result.total,
-        data: result.data,
-      };
-    },
-    staleTime: 0,
-    select: (data) => ({
-      lastPage: data.lastPage,
-      page: data.page,
-      total: data.total,
-      data: data.data,
-    }),
-  });
+export interface WeeklyRowState {
+  clientId: string;
+  id?: string;
+  activityLabel: string;
+  timeCodeId: string;
+  timeCodeName?: string;
+  timeCodeCode?: string;
+  billable: WeeklyRowBillable;
+  location: WeeklyRowLocation;
+  countryCode: string;
+  employeeCountryCode?: string | null;
+  status: WeeklyRowStatus;
+  locked: boolean;
+  entries: EntriesMap;
+  rejection?: TimesheetWeekRowRejectionDto;
+}
 
-  const createTimeEntry = useMutation({
-    mutationFn: async (entry: CreateTimesheetEntryDto) =>
-      TimesheetEntriesService.createTimesheetEntry({ requestBody: entry }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO, page, limit] });
-    },
-  });
+interface UseWeeklyTimesheetOptions {
+  weekStart: string;
+}
 
-  const updateTimeEntry = useMutation({
-    mutationFn: async ({ id, entry }: { id: string; entry: Partial<CreateTimesheetEntryDto> }) =>
-      TimesheetEntriesService.updateTimesheetEntry({ id, requestBody: entry }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO, page, limit] });
-    },
-  });
+type RowPatch = Partial<Omit<WeeklyRowState, 'entries'>> & { entries?: EntriesMap };
 
-  const deleteTimeEntry = useMutation({
-    mutationFn: async (id: string) => TimesheetEntriesService.deleteTimesheetEntry({ id }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO, page, limit] });
-    },
-  });
-
-  const approveTimeEntry = useMutation({
-    mutationFn: async (id: string) =>
-      TimesheetEntriesService.approveTimesheetEntry({
-        id: id,
-        requestBody: { reason: 'Approved' },
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO, page, limit] });
-    },
-  });
-
-  const rejectTimeEntry = useMutation({
-    mutationFn: async ({ id, reason }: { id: string; reason?: string }) =>
-      TimesheetEntriesService.rejectTimesheetEntry({ id, requestBody: { reason } }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['timesheet', weekStartISO, page, limit] });
-    },
-  });
-
-  const helpers = useMemo(() => {
-    const data = timesheetQuery.data?.data;
-    if (!data) {
-      return {
-        computeDayTotal: () => 0,
-        weeklyTotal: 0,
-      };
-    }
-
-    return {
-      computeDayTotal: (iso: string) => {
-        return data.reduce((total, entry) => {
-          if (entry.day === iso) {
-            return total + entry.durationMin;
-          }
-          return total;
-        }, 0);
+const mapDtoToRow = (row: TimesheetWeekRowDto): WeeklyRowState => ({
+  clientId:
+    row.id ??
+    (typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : `${row.timeCodeId}-${Math.random().toString(16).slice(2)}`),
+  id: row.id,
+  activityLabel: row.activityLabel,
+  timeCodeId: row.timeCodeId,
+  timeCodeName: undefined,
+  timeCodeCode: undefined,
+  billable: row.billable,
+  location: row.location,
+  countryCode: row.countryCode,
+  employeeCountryCode: row.employeeCountryCode ?? null,
+  status: row.status,
+  locked: row.locked,
+  entries: Object.fromEntries(
+    (row.entries ?? []).map((entry) => [
+      entry.day,
+      {
+        minutes: entry.minutes,
+        note: entry.note ?? null,
       },
-      weeklyTotal: data.reduce((total, entry) => total + entry.durationMin, 0),
+    ]),
+  ),
+});
+
+const mapRowToDto = (row: WeeklyRowState): TimesheetWeekRowDto => {
+  const dto: TimesheetWeekRowDto = {
+    id: row.id,
+    activityLabel: row.activityLabel,
+    timeCodeId: row.timeCodeId,
+    billable: row.billable,
+    location: row.location,
+    countryCode: row.countryCode,
+    employeeCountryCode:
+      row.location === TimesheetRowLocation.OFFICE
+        ? null
+        : row.employeeCountryCode ?? row.countryCode ?? null,
+    status: row.status,
+    locked: row.locked,
+    entries: Object.entries(row.entries)
+      .map(([day, entry]) => ({
+        day,
+        minutes: entry.minutes,
+        note: entry.note ?? null,
+      }))
+      .filter((entry) => entry.minutes > 0),
+  };
+
+  return dto;
+};
+
+const mapResponseToState = (data: TimesheetWeekResponseDto): WeeklyRowState[] =>
+  (data.rows ?? []).map(mapDtoToRow);
+
+const mapSettings = (data?: TimesheetWeekResponseDto): TimesheetWeekSettingsDto | undefined =>
+  data?.settings;
+
+export interface WeeklyTimesheetStore {
+  rows: WeeklyRowState[];
+  settings?: TimesheetWeekSettingsDto;
+  isLoading: boolean;
+  isSaving: boolean;
+  isSubmitting: boolean;
+  error?: unknown;
+  dirty: boolean;
+  lastSavedAt?: Date;
+  timesheetStatus?: TimesheetStatus;
+  rejection?: TimesheetWeekRejectionDto;
+  refresh: () => void;
+  updateRow: (rowId: string, patch: RowPatch) => void;
+  updateEntry: (rowId: string, day: string, patch: Partial<WeeklyEntry>) => void;
+  replaceRows: (rows: WeeklyRowState[]) => void;
+  submitWeek: () => void;
+  forceSave: () => void;
+}
+
+export const useWeeklyTimesheet = ({
+  weekStart,
+}: UseWeeklyTimesheetOptions): WeeklyTimesheetStore => {
+  const queryClient = useQueryClient();
+  const [rows, setRows] = useState<WeeklyRowState[]>([]);
+  const [settings, setSettings] = useState<TimesheetWeekSettingsDto | undefined>();
+  const [dirty, setDirty] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | undefined>();
+  const [timesheetStatus, setTimesheetStatus] = useState<TimesheetStatus | undefined>();
+  const [rejectionInfo, setRejectionInfo] = useState<TimesheetWeekRejectionDto | undefined>();
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const weekQuery = useQuery<TimesheetWeekResponseDto, Error, TimesheetWeekResponseDto, [string, string, string]>({
+    queryKey: ['timesheet', 'week', weekStart],
+    queryFn: () => TimesheetWeeksService.getWeekTimesheet({ weekStart }),
+    initialData: queryClient.getQueryData<TimesheetWeekResponseDto>(['timesheet', 'week', weekStart]),
+  });
+  useEffect(() => {
+    if (weekQuery.data) {
+      const serverState = mapResponseToState(weekQuery.data);
+      setRows(serverState);
+      setSettings(mapSettings(weekQuery.data));
+      setDirty(false);
+      setTimesheetStatus(weekQuery.data.status);
+      setRejectionInfo(weekQuery.data.rejection);
+      queryClient.setQueryData(['timesheet', 'week', weekStart], weekQuery.data);
+    }
+  }, [weekQuery.data, weekStart, queryClient]);
+
+  const saveMutation = useMutation({
+    mutationFn: (payload: TimesheetWeekUpsertDto) =>
+      TimesheetWeeksService.upsertWeekTimesheet({ weekStart, requestBody: payload }),
+    onSuccess: (data: TimesheetWeekResponseDto) => {
+      const serverState = mapResponseToState(data);
+      setRows(serverState);
+      setSettings(mapSettings(data));
+      setDirty(false);
+      setLastSavedAt(new Date());
+      setTimesheetStatus(data.status);
+      setRejectionInfo(data.rejection);
+      queryClient.setQueryData(['timesheet', 'week', weekStart], data);
+    },
+  });
+
+  const submitMutation = useMutation({
+    mutationFn: () => TimesheetWeeksService.submitWeekTimesheet({ weekStart }),
+    onSuccess: (data: TimesheetWeekResponseDto) => {
+      const serverState = mapResponseToState(data);
+      setRows(serverState);
+      setSettings(mapSettings(data));
+      setDirty(false);
+      setTimesheetStatus(data.status);
+      setRejectionInfo(data.rejection);
+      queryClient.setQueryData(['timesheet', 'week', weekStart], data);
+    },
+  });
+
+  const scheduleSave = useCallback(
+    (nextRows: WeeklyRowState[]) => {
+      setRows(nextRows);
+      setDirty(true);
+
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+
+      debounceTimer.current = setTimeout(() => {
+        const payload: TimesheetWeekUpsertDto = {
+          rows: nextRows.map(mapRowToDto),
+        };
+        saveMutation.mutate(payload);
+      }, 800);
+    },
+    [saveMutation, weekStart],
+  );
+
+  const updateRow = useCallback(
+    (rowId: string, patch: RowPatch) => {
+      scheduleSave(
+        rows.map((row) => {
+          const key = row.id ?? row.clientId;
+          if (key !== rowId) return row;
+
+          const nextEntries =
+            patch.entries !== undefined
+              ? Object.fromEntries(
+                  Object.entries(patch.entries).map(([day, entry]) => [
+                    day,
+                    { ...entry },
+                  ]),
+                )
+              : row.entries;
+
+          return {
+            ...row,
+            ...patch,
+            entries: nextEntries,
+          };
+        }),
+      );
+    },
+    [rows, scheduleSave],
+  );
+
+  const updateEntry = useCallback(
+    (rowId: string, day: string, patch: Partial<WeeklyEntry>) => {
+      scheduleSave(
+        rows.map((row) => {
+          const key = row.id ?? row.clientId;
+          if (key !== rowId) return row;
+          const nextEntries: EntriesMap = { ...row.entries };
+          const previous = nextEntries[day] ?? { minutes: 0, note: null };
+          const next: WeeklyEntry = {
+            minutes:
+              patch.minutes !== undefined
+                ? Math.max(0, Math.round(patch.minutes))
+                : previous.minutes,
+            note: patch.note !== undefined ? patch.note : previous.note ?? null,
+          };
+          if (next.minutes <= 0 && !next.note) {
+            delete nextEntries[day];
+          } else {
+            nextEntries[day] = next;
+          }
+          return {
+            ...row,
+            entries: nextEntries,
+            locked: row.locked,
+          };
+        }),
+      );
+    },
+    [rows, scheduleSave],
+  );
+
+  const replaceRows = useCallback(
+    (nextRows: WeeklyRowState[]) => {
+      scheduleSave(nextRows);
+    },
+    [scheduleSave],
+  );
+
+  const submitWeek = useCallback(() => {
+    submitMutation.mutate();
+  }, [submitMutation]);
+
+  const forceSave = useCallback(() => {
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+      debounceTimer.current = null;
+    }
+    const payload: TimesheetWeekUpsertDto = {
+      rows: rows.map(mapRowToDto),
     };
-  }, [timesheetQuery.data]);
+    saveMutation.mutate(payload);
+  }, [rows, saveMutation]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, []);
 
   return {
-    timesheetQuery,
-    createTimeEntry,
-    updateTimeEntry,
-    deleteTimeEntry,
-    approveTimeEntry,
-    rejectTimeEntry,
-    helpers,
+    rows,
+    settings,
+    isLoading: weekQuery.isLoading,
+    isSaving: saveMutation.isPending,
+    isSubmitting: submitMutation.isPending,
+    error: weekQuery.error ?? saveMutation.error ?? submitMutation.error,
+    dirty,
+    lastSavedAt,
+    timesheetStatus,
+    rejection: rejectionInfo,
+    refresh: () => weekQuery.refetch(),
+    updateRow,
+    updateEntry,
+    replaceRows,
+    submitWeek,
+    forceSave,
   };
 };
-
-export const useTimesheetHistory = () =>
-  useQuery<TimesheetHistory[]>({
-    queryKey: ['timesheet', 'history'],
-
-    queryFn: () => TimesheetService.getTimesheetHistory(),
-
-    staleTime: 10 * 1000,
-  });

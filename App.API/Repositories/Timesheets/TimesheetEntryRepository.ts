@@ -23,7 +23,10 @@ export class TimesheetEntryRepository extends BaseRepository<TimesheetEntry> {
    * @returns A Promise that resolves to an array of TimesheetEntry entities.
    */
   async findAllForTimesheet(timesheetId: string): Promise<TimesheetEntry[]> {
-    return this.repository.find({ where: { timesheetId } });
+    return this.repository.find({
+      where: { timesheetId },
+      relations: ['actionCode'],
+    });
   }
 }
 

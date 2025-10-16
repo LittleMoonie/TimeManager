@@ -5,6 +5,8 @@
 import type { ActionCode } from './ActionCode';
 import type { Company } from './Company';
 import type { Timesheet } from './Timesheet';
+import type { TimesheetEntryStatus } from './TimesheetEntryStatus';
+import type { TimesheetRow } from './TimesheetRow';
 import type { User } from './User';
 import type { WorkMode } from './WorkMode';
 export type TimesheetEntry = {
@@ -21,6 +23,8 @@ export type TimesheetEntry = {
     user: User;
     timesheetId?: string;
     timesheet?: Timesheet;
+    timesheetRowId?: string;
+    timesheetRow?: TimesheetRow;
     actionCodeId: string;
     actionCode: ActionCode;
     workMode: WorkMode;
@@ -30,5 +34,7 @@ export type TimesheetEntry = {
     durationMin: number;
     day: string;
     note?: string;
+    status: TimesheetEntryStatus;
+    statusUpdatedAt?: string;
 };
 

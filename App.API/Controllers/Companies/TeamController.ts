@@ -15,11 +15,9 @@ import {
 import { Service } from 'typedi';
 
 import { CreateTeamDto, UpdateTeamDto } from '../../Dtos/Companies/CompanyDto';
-import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
 import { Team } from '../../Entities/Companies/Team';
 import User from '../../Entities/Users/User';
 import { TeamService } from '../../Services/Companies/TeamService';
-import { UserService } from '../../Services/Users/UserService';
 
 /**
  * @summary Controller for managing teams.
@@ -31,10 +29,7 @@ import { UserService } from '../../Services/Users/UserService';
 @Security('jwt')
 @Service()
 export class TeamController extends Controller {
-  constructor(
-    private teamService: TeamService,
-    private userService: UserService,
-  ) {
+  constructor(private teamService: TeamService) {
     super();
   }
 
@@ -52,9 +47,8 @@ export class TeamController extends Controller {
     @Body() createTeamDto: CreateTeamDto,
     @Request() request: ExpressRequest,
   ): Promise<Team> {
-    const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(userId, userId, request.user as User);
-    return this.teamService.createTeam(actingUser.companyId, actingUser as User, createTeamDto);
+    const actingUser = request.user as User;
+    return this.teamService.createTeam(actingUser.companyId, actingUser, createTeamDto);
   }
 
   /**
@@ -66,8 +60,7 @@ export class TeamController extends Controller {
    */
   @Get('/{id}')
   public async getTeam(@Path() id: string, @Request() request: ExpressRequest): Promise<Team> {
-    const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(userId, userId, request.user as User);
+    const actingUser = request.user as User;
     return this.teamService.getTeamById(actingUser.companyId, id);
   }
 
@@ -78,8 +71,7 @@ export class TeamController extends Controller {
    */
   @Get('/')
   public async getAllTeams(@Request() request: ExpressRequest): Promise<Team[]> {
-    const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(userId, userId, request.user as User);
+    const actingUser = request.user as User;
     return this.teamService.listTeams(actingUser.companyId);
   }
 
@@ -100,9 +92,8 @@ export class TeamController extends Controller {
     @Body() updateTeamDto: UpdateTeamDto,
     @Request() request: ExpressRequest,
   ): Promise<Team> {
-    const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(userId, userId, request.user as User);
-    return this.teamService.updateTeam(actingUser.companyId, actingUser as User, id, updateTeamDto);
+    const actingUser = request.user as User;
+    return this.teamService.updateTeam(actingUser.companyId, actingUser, id, updateTeamDto);
   }
 
   /**
@@ -116,8 +107,7 @@ export class TeamController extends Controller {
   @Delete('/{id}')
   @Security('jwt', ['admin', 'manager'])
   public async deleteTeam(@Path() id: string, @Request() request: ExpressRequest): Promise<void> {
-    const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(userId, userId, request.user as User);
-    await this.teamService.deleteTeam(actingUser.companyId, actingUser as User, id);
+    const actingUser = request.user as User;
+    await this.teamService.deleteTeam(actingUser.companyId, actingUser, id);
   }
 }

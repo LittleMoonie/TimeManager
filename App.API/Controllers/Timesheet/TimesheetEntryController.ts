@@ -16,10 +16,11 @@ import { Service } from 'typedi';
 
 import {
   CreateTimesheetEntryDto,
+  TimesheetEntryResponseDto,
   UpdateTimesheetEntryDto,
 } from '../../Dtos/Timesheet/TimesheetDto';
-import { TimesheetEntry } from '../../Entities/Timesheets/TimesheetEntry';
 import User from '../../Entities/Users/User';
+import { TimesheetEntry } from '../../Entities/Timesheets/TimesheetEntry';
 import { TimesheetEntryService } from '../../Services/Timesheet/TimesheetEntryService';
 
 /**
@@ -47,9 +48,10 @@ export class TimesheetEntryController extends Controller {
   public async createTimesheetEntry(
     @Body() dto: CreateTimesheetEntryDto,
     @Request() request: ExpressRequest,
-  ): Promise<TimesheetEntry> {
+  ): Promise<TimesheetEntryResponseDto> {
     const me = request.user as User;
-    return this.timesheetEntryService.createTimesheetEntry(me.companyId, me.id, dto);
+    const created = await this.timesheetEntryService.createTimesheetEntry(me.companyId, me.id, dto);
+    return this.mapToResponseDto(created);
   }
 
   /**
@@ -59,8 +61,9 @@ export class TimesheetEntryController extends Controller {
    * @throws {NotFoundError} If the timesheet entry is not found.
    */
   @Get('/{id}')
-  public async getTimesheetEntry(@Path() id: string): Promise<TimesheetEntry> {
-    return this.timesheetEntryService.getTimesheetEntryById(id);
+  public async getTimesheetEntry(@Path() id: string): Promise<TimesheetEntryResponseDto> {
+    const entry = await this.timesheetEntryService.getTimesheetEntryById(id);
+    return this.mapToResponseDto(entry);
   }
 
   /**
@@ -75,8 +78,9 @@ export class TimesheetEntryController extends Controller {
   public async updateTimesheetEntry(
     @Path() id: string,
     @Body() dto: UpdateTimesheetEntryDto,
-  ): Promise<TimesheetEntry> {
-    return this.timesheetEntryService.updateTimesheetEntry(id, dto);
+  ): Promise<TimesheetEntryResponseDto> {
+    const updated = await this.timesheetEntryService.updateTimesheetEntry(id, dto);
+    return this.mapToResponseDto(updated);
   }
 
   /**
@@ -88,5 +92,59 @@ export class TimesheetEntryController extends Controller {
   @Delete('/{id}')
   public async deleteTimesheetEntry(@Path() id: string): Promise<void> {
     await this.timesheetEntryService.deleteTimesheetEntry(id);
+  }
+
+  /**
+   * @summary Submits a timesheet entry for approval.
+   * @param id The ID of the timesheet entry to submit.
+   */
+  @Put('/{id}/submit')
+  public async submitTimesheetEntry(@Path() id: string): Promise<TimesheetEntryResponseDto> {
+    const entry = await this.timesheetEntryService.submitTimesheetEntry(id);
+    return this.mapToResponseDto(entry);
+  }
+
+  /**
+   * @summary Approves a pending timesheet entry.
+   * @param id The ID of the timesheet entry to approve.
+   */
+  @Put('/{id}/approve')
+  public async approveTimesheetEntry(@Path() id: string): Promise<TimesheetEntryResponseDto> {
+    const entry = await this.timesheetEntryService.approveTimesheetEntry(id);
+    return this.mapToResponseDto(entry);
+  }
+
+  /**
+   * @summary Rejects a pending timesheet entry.
+   * @param id The ID of the timesheet entry to reject.
+   */
+  @Put('/{id}/reject')
+  public async rejectTimesheetEntry(@Path() id: string): Promise<TimesheetEntryResponseDto> {
+    const entry = await this.timesheetEntryService.rejectTimesheetEntry(id);
+    return this.mapToResponseDto(entry);
+  }
+
+  /**
+   * @summary Marks an approved timesheet entry as invoiced.
+   * @param id The ID of the timesheet entry to mark as invoiced.
+   */
+  @Put('/{id}/invoice')
+  public async invoiceTimesheetEntry(@Path() id: string): Promise<TimesheetEntryResponseDto> {
+    const entry = await this.timesheetEntryService.invoiceTimesheetEntry(id);
+    return this.mapToResponseDto(entry);
+  }
+
+  private mapToResponseDto(entry: TimesheetEntry): TimesheetEntryResponseDto {
+    return {
+      id: entry.id,
+      actionCodeId: entry.actionCodeId,
+      day: entry.day,
+      durationMin: entry.durationMin,
+      country: entry.country,
+      workMode: entry.workMode,
+      note: entry.note,
+      status: entry.status,
+      statusUpdatedAt: entry.statusUpdatedAt,
+    };
   }
 }

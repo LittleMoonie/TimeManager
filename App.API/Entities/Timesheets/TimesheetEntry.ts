@@ -6,6 +6,15 @@ import User from '../Users/User';
 
 import { ActionCode } from './ActionCode';
 import { Timesheet } from './Timesheet';
+import { TimesheetRow } from './TimesheetRow';
+
+export enum TimesheetEntryStatus {
+  SAVED = 'saved',
+  PENDING_APPROVAL = 'pending_approval',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+  INVOICED = 'invoiced',
+}
 
 /**
  * @description Defines the possible work modes for a timesheet entry.
@@ -23,6 +32,7 @@ export enum WorkMode {
 @Check(`"durationMin" BETWEEN 0 AND 1440`)
 @Index(['companyId', 'userId', 'day'])
 @Index(['companyId', 'timesheetId'])
+@Index(['timesheetRowId', 'day'], { unique: true })
 export class TimesheetEntry extends BaseEntity {
   /**
    * @description The unique identifier of the company to which this timesheet entry belongs.
@@ -59,6 +69,13 @@ export class TimesheetEntry extends BaseEntity {
   @ManyToOne(() => Timesheet, (t) => t.entries, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'timesheetId' })
   timesheet?: Timesheet;
+
+  @Column('uuid', { nullable: true })
+  timesheetRowId?: string;
+
+  @ManyToOne(() => TimesheetRow, (row) => row.entries, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'timesheetRowId' })
+  timesheetRow?: TimesheetRow;
 
   /**
    * @description The unique identifier of the action code associated with this entry.
@@ -112,4 +129,21 @@ export class TimesheetEntry extends BaseEntity {
    * @example "Worked on feature X"
    */
   @Column({ type: 'text', nullable: true }) note?: string;
+
+  /**
+   * @description Lifecycle status of the timesheet entry.
+   * @example "saved"
+   */
+  @Column({
+    type: 'varchar',
+    length: 32,
+    default: TimesheetEntryStatus.SAVED,
+  })
+  status!: TimesheetEntryStatus;
+
+  /**
+   * @description Optional timestamp capturing when the status last changed.
+   */
+  @Column({ type: 'timestamp with time zone', nullable: true })
+  statusUpdatedAt?: Date;
 }

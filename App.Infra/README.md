@@ -48,6 +48,29 @@ cd App.Infra
 | **API** | 4000 | Node.js Express API         | ✅ HTTP check |
 | **DB**  | 5432 | PostgreSQL 16 database      | ✅ pg_isready |
 
+### Optional Profiles
+
+Heavy services are opt-in via Compose profiles so the default dev cycle stays fast:
+
+- `monitoring`: Prometheus, node-exporter, cAdvisor, Grafana
+- `ci`: Jenkins with Docker + Node tooling
+- `docs`: Docusaurus live preview
+
+Examples:
+
+```bash
+# Dev stack + monitoring suite
+docker compose --profile monitoring up --build
+
+# Bring Jenkins online only when needed
+docker compose --profile ci up --build
+
+# Run docs with live reload alongside the app
+docker compose --profile docs up --build --watch
+```
+
+The API, web, and docs containers now hydrate their own `node_modules` volumes. On first start they run a cached `yarn install --immutable || yarn install`, so host-side installs are optional.
+
 ## 🛠️ Commands
 
 ### Development

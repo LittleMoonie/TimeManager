@@ -11,6 +11,18 @@ export enum ActionCodeType {
   NON_BILLABLE = 'non-billable',
 }
 
+export enum ActionCodeBillableDefault {
+  BILLABLE = 'billable',
+  NON_BILLABLE = 'non-billable',
+  AUTO = 'auto',
+}
+
+export enum ActionCodeLocationPolicy {
+  ANY = 'any',
+  OFFICE_ONLY = 'office_only',
+  HOMEWORKING_ONLY = 'homeworking_only',
+}
+
 /**
  * @description Represents an action code used for categorizing timesheet entries within a company.
  */
@@ -60,4 +72,30 @@ export class ActionCode extends BaseEntity {
    * @example true
    */
   @Column({ type: 'boolean', default: true }) active!: boolean;
+
+  /**
+   * @description Default billable behaviour for rows using this time code.
+   */
+  @Column({
+    type: 'varchar',
+    length: 24,
+    default: ActionCodeBillableDefault.AUTO,
+  })
+  billableDefault!: ActionCodeBillableDefault;
+
+  /**
+   * @description Whether users can change the billable flag for this time code.
+   */
+  @Column({ type: 'boolean', default: false })
+  billableEditable!: boolean;
+
+  /**
+   * @description Location policy enforced by this time code.
+   */
+  @Column({
+    type: 'varchar',
+    length: 32,
+    default: ActionCodeLocationPolicy.ANY,
+  })
+  locationPolicy!: ActionCodeLocationPolicy;
 }

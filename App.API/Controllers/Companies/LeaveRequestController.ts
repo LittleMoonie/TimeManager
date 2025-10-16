@@ -15,11 +15,9 @@ import {
 import { Service } from 'typedi';
 
 import { CreateLeaveRequestDto, UpdateLeaveRequestDto } from '../../Dtos/Companies/CompanyDto';
-import { UserResponseDto } from '../../Dtos/Users/UserResponseDto';
 import { LeaveRequest } from '../../Entities/Companies/LeaveRequest';
 import User from '../../Entities/Users/User';
 import { LeaveRequestService } from '../../Services/Companies/LeaveRequestService';
-import { UserService } from '../../Services/Users/UserService';
 
 /**
  * @summary Controller for managing leave requests.
@@ -31,10 +29,7 @@ import { UserService } from '../../Services/Users/UserService';
 @Security('jwt')
 @Service()
 export class LeaveRequestController extends Controller {
-  constructor(
-    private leaveRequestService: LeaveRequestService,
-    private userService: UserService,
-  ) {
+  constructor(private leaveRequestService: LeaveRequestService) {
     super();
   }
 
@@ -51,11 +46,10 @@ export class LeaveRequestController extends Controller {
     @Body() createLeaveRequestDto: CreateLeaveRequestDto,
     @Request() request: ExpressRequest,
   ): Promise<LeaveRequest> {
-    const { id: userId, companyId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(companyId, userId, request.user as User);
+    const actingUser = request.user as User;
     return this.leaveRequestService.createLeaveRequest(
-      actingUser as User,
-      companyId,
+      actingUser,
+      actingUser.companyId,
       createLeaveRequestDto,
     );
   }
@@ -72,8 +66,8 @@ export class LeaveRequestController extends Controller {
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<LeaveRequest> {
-    const { id: companyId } = request.user as UserResponseDto;
-    return this.leaveRequestService.getLeaveRequestById(companyId, id);
+    const actingUser = request.user as User;
+    return this.leaveRequestService.getLeaveRequestById(actingUser.companyId, id);
   }
 
   /**
@@ -83,8 +77,7 @@ export class LeaveRequestController extends Controller {
    */
   @Get('/')
   public async getAllLeaveRequests(@Request() request: ExpressRequest): Promise<LeaveRequest[]> {
-    const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(userId, userId, request.user as User);
+    const actingUser = request.user as User;
     return this.leaveRequestService.getAllLeaveRequests(actingUser.companyId);
   }
 
@@ -104,10 +97,9 @@ export class LeaveRequestController extends Controller {
     @Body() updateLeaveRequestDto: UpdateLeaveRequestDto,
     @Request() request: ExpressRequest,
   ): Promise<LeaveRequest> {
-    const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(userId, userId, request.user as User);
+    const actingUser = request.user as User;
     return this.leaveRequestService.updateLeaveRequest(
-      actingUser as User,
+      actingUser,
       actingUser.companyId,
       id,
       updateLeaveRequestDto,
@@ -127,8 +119,7 @@ export class LeaveRequestController extends Controller {
     @Path() id: string,
     @Request() request: ExpressRequest,
   ): Promise<void> {
-    const { id: userId } = request.user as UserResponseDto;
-    const actingUser = await this.userService.getUserById(userId, userId, request.user as User);
-    await this.leaveRequestService.deleteLeaveRequest(actingUser as User, actingUser.companyId, id);
+    const actingUser = request.user as User;
+    await this.leaveRequestService.deleteLeaveRequest(actingUser, actingUser.companyId, id);
   }
 }

@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import 'reflect-metadata';
 import { AppDataSource, connectDB, runSeeds } from './Database';
 

@@ -44,7 +44,6 @@ const LoginPage = () => {
   });
 
   const onSubmit = async (data: LoginFormInputs) => {
-    console.warn('Login form data:', data);
     try {
       await login({ email: data.email, password: data.password, rememberMe });
     } catch {

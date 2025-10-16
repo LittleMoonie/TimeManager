@@ -2,6 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { ActionCodeBillableDefault } from './ActionCodeBillableDefault';
+import type { ActionCodeLocationPolicy } from './ActionCodeLocationPolicy';
 import type { ActionCodeType } from './ActionCodeType';
 import type { Company } from './Company';
 export type ActionCode = {
@@ -19,5 +21,8 @@ export type ActionCode = {
     color: string;
     type: ActionCodeType;
     active: boolean;
+    billableDefault: ActionCodeBillableDefault;
+    billableEditable: boolean;
+    locationPolicy: ActionCodeLocationPolicy;
 };
 

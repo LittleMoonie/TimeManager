@@ -11,12 +11,12 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 
-import { useAuth } from '@/hooks/useAuth';
+
 
 export const AboutMeSection = () => {
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [aboutMe, setAboutMe] = useState(user?.aboutMe || '');
+  // const [aboutMe, setAboutMe] = useState(user?.aboutMe || '');
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -24,12 +24,12 @@ export const AboutMeSection = () => {
 
   const handleSave = () => {
     // TODO: Implement save functionality with API call
-    console.warn('Saving about me:', aboutMe);
+    // console.warn('Saving about me:', aboutMe);
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setAboutMe(user?.aboutMe || '');
+    // setAboutMe(user?.aboutMe || '');
     setIsEditing(false);
   };
 
@@ -51,8 +51,8 @@ export const AboutMeSection = () => {
               multiline
               rows={4}
               fullWidth
-              value={aboutMe}
-              onChange={(e) => setAboutMe(e.target.value)}
+              // value={aboutMe}
+              // onChange={(e) => setAboutMe(e.target.value)}
               placeholder="Tell us about yourself..."
               variant="outlined"
               sx={{ mb: 2 }}
@@ -68,7 +68,7 @@ export const AboutMeSection = () => {
           </Box>
         ) : (
           <Typography variant="body2" color="text.secondary">
-            {user?.aboutMe || 'User has no about me.'}
+            {/* {user?.aboutMe || 'User has no about me.'} */}
           </Typography>
         )}
       </CardContent>

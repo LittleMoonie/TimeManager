@@ -50,6 +50,8 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
     'admin.user.delete',
     'manager.user.delete',
     'team.manage',
+    'view_user_sessions',
+    'revoke_session',
 
     // Reports
     'report.view.team',
@@ -60,6 +62,13 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
     'settings.manage.company',
     'menu.manage.company',
     'audit.view.company',
+    'create_role',
+    'update_role',
+    'delete_role',
+    'assign_role_permission',
+    'remove_role_permission',
+    'create_role_permission',
+    'delete_role_permission',
   ];
 
   await permRepo.upsert(
@@ -194,6 +203,15 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
     'settings.manage.company',
     'menu.manage.company',
     'team.manage', // Explicitly added as per spec
+    'view_user_sessions',
+    'revoke_session',
+    'create_role',
+    'update_role',
+    'delete_role',
+    'assign_role_permission',
+    'remove_role_permission',
+    'create_role_permission',
+    'delete_role_permission',
   ];
   await grant('company_admin', [...new Set(companyAdminPermissions)]);
 
@@ -207,7 +225,7 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
   const menuCardRepo = ds.getRepository(MenuCard);
 
   const defaultCategories = [
-    { key: 'my-time', title: 'My Time', icon: 'PersonRounded', sortOrder: 10 },
+    { key: 'timesheet', title: 'Timesheet', icon: 'PersonRounded', sortOrder: 10 },
     { key: 'team', title: 'Team', icon: 'GroupsRounded', sortOrder: 20 },
     { key: 'hr-payroll', title: 'HR / Payroll', icon: 'AccountBalanceRounded', sortOrder: 30 },
     { key: 'analytics', title: 'Reports & KPIs', icon: 'BarChartRounded', sortOrder: 40 },
@@ -225,9 +243,9 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
     }
   }
 
-  const myTimeCategory = await menuCategoryRepo.findOneByOrFail({
+  const timesheetCategory = await menuCategoryRepo.findOneByOrFail({
     companyId: company.id,
-    key: 'my-time',
+    key: 'timesheet',
   });
   const teamCategory = await menuCategoryRepo.findOneByOrFail({
     companyId: company.id,
@@ -247,55 +265,42 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
   });
 
   const defaultCards = [
-    // My Time
+    // Timesheet
     {
-      categoryKey: 'my-time',
+      categoryKey: 'timesheet',
       title: 'My Timesheet',
       subtitle: 'View and manage your timesheet',
-      route: '/timesheet',
+      route: '/timesheet/my-timesheet',
       icon: 'AssessmentRounded',
       requiredPermission: 'timesheet.view.self',
       isEnabled: true,
       sortOrder: 10,
-      category: myTimeCategory,
+      category: timesheetCategory,
     },
     {
-      categoryKey: 'my-time',
+      categoryKey: 'timesheet',
       title: 'Daily Log',
       subtitle: 'Log your daily activities',
-      route: '/timesheet/daily',
+      route: '/timesheet/daily-log',
       icon: 'TaskAltRounded',
       requiredPermission: 'timesheet.create.self',
       isEnabled: true,
       sortOrder: 20,
-      category: myTimeCategory,
+      category: timesheetCategory,
     },
     {
-      categoryKey: 'my-time',
+      categoryKey: 'timesheet',
       title: 'Requests',
       subtitle: 'Manage your leave requests',
-      route: '/requests',
+      route: '/timesheet/requests',
       icon: 'PersonRounded',
       requiredPermission: 'timesheet.view.self',
       isEnabled: true,
       sortOrder: 30,
-      category: myTimeCategory,
+      category: timesheetCategory,
     },
     {
-      categoryKey: 'my-time',
-      title: 'Submission',
-      subtitle: 'Submit your timesheet',
-      route: '/timesheet/submit',
-      icon: 'TaskAltRounded',
-      requiredPermission: 'timesheet.submit.self',
-      isEnabled: true,
-      sortOrder: 40,
-      category: myTimeCategory,
-    },
-
-    // Team
-    {
-      categoryKey: 'team',
+      categoryKey: 'timesheet',
       title: 'Team Timesheets',
       subtitle: "View team members' timesheets",
       route: '/team/timesheets',
@@ -306,7 +311,7 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
       category: teamCategory,
     },
     {
-      categoryKey: 'team',
+      categoryKey: 'timesheet',
       title: 'Approvals',
       subtitle: 'Approve or reject team timesheets',
       route: '/team/approvals',
@@ -316,18 +321,6 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
       sortOrder: 20,
       category: teamCategory,
     },
-    {
-      categoryKey: 'team',
-      title: 'Team KPIs',
-      subtitle: 'Key performance indicators for your team',
-      route: '/team/kpis',
-      icon: 'BarChartRounded',
-      requiredPermission: 'report.view.team',
-      isEnabled: true,
-      sortOrder: 30,
-      category: teamCategory,
-    },
-
     // HR / Payroll
     {
       categoryKey: 'hr-payroll',
@@ -366,33 +359,42 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
       categoryKey: 'hr-payroll',
       title: 'Payroll Exports',
       subtitle: 'Export payroll data',
-      route: '/payroll/exports',
+      route: '/hr/payroll-exports',
       icon: 'BarChartRounded',
       requiredPermission: 'timesheet.export.org',
       isEnabled: true,
       sortOrder: 40,
       category: hrPayrollCategory,
     },
-
     // Analytics
     {
       categoryKey: 'analytics',
       title: 'Reports & KPIs',
       subtitle: 'Company-wide reports and KPIs',
-      route: '/reports',
+      route: '/reports/kpis',
       icon: 'BarChartRounded',
       requiredPermission: 'report.view.org',
       isEnabled: true,
       sortOrder: 10,
       category: analyticsCategory,
     },
-
+    {
+      categoryKey: 'analytics',
+      title: 'Team KPIs',
+      subtitle: 'Key performance indicators for your team',
+      route: '/team/kpis',
+      icon: 'BarChartRounded',
+      requiredPermission: 'report.view.team',
+      isEnabled: true,
+      sortOrder: 30,
+      category: teamCategory,
+    },
     // Company Admin
     {
       categoryKey: 'company-admin',
       title: 'RBAC & Company Settings',
       subtitle: 'Manage roles, permissions, and company settings',
-      route: '/company/security',
+      route: '/admin/rbac-settings',
       icon: 'SettingsRounded',
       requiredPermission: 'rbac.manage.company',
       isEnabled: true,
@@ -403,7 +405,7 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
       categoryKey: 'company-admin',
       title: 'Menu Builder',
       subtitle: 'Configure the timesheet hub menu',
-      route: '/company/menu',
+      route: '/admin/menu-builder',
       icon: 'SettingsRounded',
       requiredPermission: 'menu.manage.company',
       isEnabled: true,
@@ -414,7 +416,7 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
       categoryKey: 'company-admin',
       title: 'Audit Log',
       subtitle: 'View company audit trails',
-      route: '/company/audit',
+      route: '/admin/audit-log',
       icon: 'AccountBalanceRounded',
       requiredPermission: 'audit.view.company',
       isEnabled: true,

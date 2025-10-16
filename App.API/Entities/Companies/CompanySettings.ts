@@ -74,4 +74,25 @@ export class CompanySettings extends BaseEntity {
    * @example false
    */
   @Column({ type: 'boolean', default: false }) requireCompanyEmail!: boolean;
+
+  /**
+   * @description Default country code applied to new timesheet rows when not specified.
+   */
+  @Column({ type: 'varchar', length: 2, nullable: true }) defaultCountryCode?: string;
+
+  /**
+   * @description Default location for new timesheet rows.
+   */
+  @Column({ type: 'varchar', length: 32, default: 'Office' }) defaultLocation!: string;
+
+  /**
+   * @description Country codes representing company office locations.
+   */
+  @Column({ type: 'text', array: true, nullable: true })
+  officeCountryCodes?: string[];
+
+  /**
+   * @description Maximum weekly minutes before overtime warning.
+   */
+  @Column({ type: 'int', default: 2400 }) maxWeeklyMinutes!: number;
 }

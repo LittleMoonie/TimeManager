@@ -14,7 +14,7 @@ import {
 } from 'class-validator';
 
 import { ApprovalStatus } from '../../Entities/Timesheets/TimesheetApproval';
-import { WorkMode } from '../../Entities/Timesheets/TimesheetEntry';
+import { WorkMode, TimesheetEntryStatus } from '../../Entities/Timesheets/TimesheetEntry';
 
 /* --------------------------------- ActionCode --------------------------------- */
 
@@ -197,6 +197,14 @@ export class CreateTimesheetEntryDto {
   @IsString()
   @IsOptional()
   note?: string;
+
+  /**
+   * @description Optional: Initial lifecycle status for this entry.
+   * @example "saved"
+   */
+  @IsOptional()
+  @IsEnum(TimesheetEntryStatus)
+  status?: TimesheetEntryStatus;
 }
 
 /**
@@ -252,6 +260,14 @@ export class UpdateTimesheetEntryDto {
   @IsString()
   @IsOptional()
   note?: string;
+
+  /**
+   * @description Optional: Updated lifecycle status for the entry.
+   * @example "pending_approval"
+   */
+  @IsOptional()
+  @IsEnum(TimesheetEntryStatus)
+  status?: TimesheetEntryStatus;
 }
 
 /**
@@ -293,6 +309,18 @@ export class TimesheetEntryResponseDto {
    * @example "Worked on feature Y"
    */
   note?: string;
+
+  /**
+   * @description Lifecycle status of the timesheet entry.
+   * @example "pending_approval"
+   */
+  status!: TimesheetEntryStatus;
+
+  /**
+   * @description Timestamp when the status last changed.
+   * @example "2024-01-01T15:45:00Z"
+   */
+  statusUpdatedAt?: Date;
 }
 
 /**

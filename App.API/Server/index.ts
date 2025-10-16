@@ -85,6 +85,7 @@ server.use('/api', apiApp);
 RegisterRoutes(apiApp); // Register tsoa-generated routes with apiApp
 console.warn('✅ Routes registered');
 
+apiApp.use(errorHandler(logger));
 server.use(errorHandler(logger));
 
 export default server;

@@ -193,6 +193,8 @@ export class TimesheetController extends Controller {
         country: entry.country,
         workMode: entry.workMode,
         note: entry.note,
+        status: entry.status,
+        statusUpdatedAt: entry.statusUpdatedAt,
       })),
     };
   }

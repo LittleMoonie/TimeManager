@@ -165,6 +165,12 @@ docker compose logs web -f    # Frontend logs
 docker compose down
 ```
 
+### 🌱 Database Seeding
+
+- Seeders now run **only when** `RUN_SEEDERS_ON_BOOT=true` is set in the environment (default: `false`).
+- Use this flag for the initial project boot or when you intentionally want to reseed an empty database.
+- To reseed programmatically, call `runSeeds({ force: true })` after connecting to the data source.
+
 ### 📖 Documentation Commands
 
 ```bash

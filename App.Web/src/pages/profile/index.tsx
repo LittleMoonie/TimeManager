@@ -5,9 +5,9 @@ import { AppBreadcrumbs } from '@/components/ui/Breadcrumbs';
 import { PageHeader } from '@/components/ui/PageHeader';
 
 import { AboutMeSection } from './AboutMeSection';
-import { AdvancedSettingsTab } from './AdvancedSettingsTab';
-import { ChangePasswordTab } from './ChangePasswordTab';
-import { ProfileSummaryCard } from './ProfileTab';
+import { AdvancedSettingsTab } from '../../components/profile/AdvancedSettingsTab';
+import { ChangePasswordTab } from '../../components/profile/ChangePasswordTab';
+import { ProfileSummaryCard } from '../../components/profile/ProfileTab';
 
 type TabValue = 'profile' | 'advanced' | 'password';
 

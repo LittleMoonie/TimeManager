@@ -41,7 +41,7 @@ Endpoints for managing companies, their settings, and associated resources.
 
 Endpoints for creating, managing, and approving timesheet entries.
 
-- **Timesheet Entries**: Create, retrieve, update, and delete individual timesheet entries.
+- **Timesheet Entries**: Create, retrieve, update, and delete individual timesheet entries, including lifecycle transitions (`saved → pending → approved → invoiced`) and rejection flows.
 - **Timesheet Approvals**: Manage the approval workflow for timesheets.
 - **Action Codes**: Define and manage action codes for timesheet entries.
 

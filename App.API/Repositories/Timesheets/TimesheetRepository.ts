@@ -35,7 +35,7 @@ export class TimesheetRepository extends BaseRepository<Timesheet> {
   ): Promise<Timesheet | null> {
     const options: FindOneOptions<Timesheet> = {
       where: { companyId, userId, periodStart, periodEnd },
-      relations: ['entries', 'entries.actionCode'],
+      relations: ['entries', 'entries.actionCode', 'rows', 'rows.timeCode', 'rows.entries'],
     };
     return this.repository.findOne(options);
   }
@@ -50,7 +50,7 @@ export class TimesheetRepository extends BaseRepository<Timesheet> {
   async findAllForUser(companyId: string, userId: string): Promise<Timesheet[]> {
     return this.repository.find({
       where: { companyId, userId },
-      relations: ['entries', 'entries.actionCode'],
+      relations: ['entries', 'entries.actionCode', 'rows', 'rows.timeCode', 'rows.entries'],
     });
   }
 
@@ -62,7 +62,7 @@ export class TimesheetRepository extends BaseRepository<Timesheet> {
   async findByIdWithEntries(id: string): Promise<Timesheet | null> {
     const options: FindOneOptions<Timesheet> = {
       where: { id },
-      relations: ['entries', 'entries.actionCode'],
+      relations: ['entries', 'entries.actionCode', 'rows', 'rows.timeCode', 'rows.entries'],
     };
     return this.repository.findOne(options);
   }

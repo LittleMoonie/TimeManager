@@ -37,11 +37,15 @@ jest.mock('./Server/Database', () => ({
   },
 }));
 
-beforeAll(async () => {
-  const app = createTestApp();
-  global.testServer = await startTestServer(app, 4001);
-});
+const shouldStartServer = process.env.SKIP_TEST_SERVER !== 'true';
 
-afterAll(async () => {
-  await closeTestServer(global.testServer);
-});
+if (shouldStartServer) {
+  beforeAll(async () => {
+    const app = createTestApp();
+    global.testServer = await startTestServer(app, 4001);
+  });
+
+  afterAll(async () => {
+    await closeTestServer(global.testServer);
+  });
+}

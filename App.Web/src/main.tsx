@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 
 import { OpenAPI } from '@/lib/api';
 
-import App from './App';
+import App from './pages/App';
 
 const root = createRoot(document.getElementById('root')!);
 

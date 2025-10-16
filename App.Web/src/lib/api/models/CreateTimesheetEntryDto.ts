@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { TimesheetEntryStatus } from './TimesheetEntryStatus';
 import type { WorkMode } from './WorkMode';
 export type CreateTimesheetEntryDto = {
     actionCodeId: string;
@@ -10,5 +11,6 @@ export type CreateTimesheetEntryDto = {
     country: string;
     workMode?: WorkMode;
     note?: string;
+    status?: TimesheetEntryStatus;
 };
 

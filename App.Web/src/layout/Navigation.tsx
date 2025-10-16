@@ -22,10 +22,13 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import { useAuth } from '@/hooks/useAuth';
 import { useMenu } from '@/hooks/useMenu';
 import { MenuCardDto } from '@/lib/api/models/MenuCardDto';
+import { MenuCategoryDto } from '@/lib/api/models/MenuCategoryDto';
 
 const DRAWER_WIDTH = 260;
 
@@ -40,16 +43,10 @@ type NavigationProps = {
 
 type NavItem = {
   id: string;
-  label: string;
+  label: string | undefined;
   icon: React.ReactNode;
   path?: string;
-  ariaLabel?: string;
-};
-
-type NavGroup = {
-  id: string;
-  title?: string;
-  items: NavItem[];
+  ariaLabel?: string | undefined;
 };
 
 const NavListItem = ({
@@ -99,23 +96,6 @@ const NavListItem = ({
     </ListItem>
   );
 };
-
-const NavSectionTitle = ({ title }: { title: string }) => (
-  <Typography
-    variant="caption"
-    sx={{
-      color: (theme) => alpha(theme.palette.text.secondary, 0.8),
-      textTransform: 'uppercase',
-      letterSpacing: '0.08em',
-      px: 3,
-      py: 2,
-      fontWeight: 600,
-    }}
-  >
-    {title}
-  </Typography>
-);
-
 const getIconComponent = (iconName?: string): React.ReactNode => {
   switch (iconName) {
     case 'DashboardRounded':
@@ -141,6 +121,16 @@ const getIconComponent = (iconName?: string): React.ReactNode => {
   }
 };
 
+// This map is necessary to link backend category keys to frontend hub routes.
+// The backend provides the category structure, but the frontend router defines the paths.
+const categoryPathMap: { [key: string]: string } = {
+  timesheet: '/app/timesheet',
+  team: '/app/team',
+  hr: '/app/hr',
+  analytics: '/app/reports',
+  companyAdmin: '/app/admin',
+};
+
 const NavigationContent = ({
   onNavigate,
   collapsed = false,
@@ -150,10 +140,37 @@ const NavigationContent = ({
 }) => {
   const location = useLocation();
   const { menu, isLoading, isError } = useMenu();
+  const { user } = useAuth();
+  const userPermissions = useMemo(() => new Set(user?.permissions ?? []), [user]);
 
   const handleNavigate = (path?: string) => {
     onNavigate(path);
   };
+
+  const accessibleCategories = useMemo(() => {
+    if (!menu) {
+      return [];
+    }
+
+    return menu.categories
+      .map((category: MenuCategoryDto) => {
+        const hasVisibleCard = category.cards.some((card: MenuCardDto) => {
+          if (!card.isEnabled) return false;
+          if (card.requiredPermission && !userPermissions.has(card.requiredPermission)) {
+            return false;
+          }
+          return true;
+        });
+
+        if (!hasVisibleCard) {
+          return null;
+        }
+
+        return category;
+      })
+      .filter((category): category is MenuCategoryDto => category !== null)
+      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+  }, [menu, userPermissions]);
 
   if (isLoading) {
     return (
@@ -190,22 +207,18 @@ const NavigationContent = ({
     {
       id: 'dashboard',
       label: 'Dashboard',
-      path: '/',
+      path: '/app',
       icon: getIconComponent('DashboardRounded'),
       ariaLabel: 'Dashboard',
     },
   ];
 
-  const pageGroups: NavGroup[] = menu.categories.map((category) => ({
+  const categoryItems: NavItem[] = accessibleCategories.map((category) => ({
     id: category.key,
-    title: category.title,
-    items: category.cards.map((card: MenuCardDto) => ({
-      id: card.id,
-      label: card.title,
-      path: `/app${card.route}`,
-      icon: getIconComponent(card.icon),
-      ariaLabel: card.title,
-    })),
+    label: category.title,
+    path: categoryPathMap[category.key],
+    icon: getIconComponent(category.icon),
+    ariaLabel: category.title,
   }));
 
   return (
@@ -232,22 +245,17 @@ const NavigationContent = ({
           ))}
         </List>
 
-        {pageGroups.map((group) => (
-          <Box key={group.id}>
-            {!collapsed && group.title && <NavSectionTitle title={group.title} />}
-            <List disablePadding>
-              {group.items.map((item) => (
-                <NavListItem
-                  key={item.id}
-                  item={item}
-                  active={location.pathname.startsWith(item.path ?? '')}
-                  onClick={handleNavigate}
-                  collapsed={collapsed}
-                />
-              ))}
-            </List>
-          </Box>
-        ))}
+        <List disablePadding>
+          {categoryItems.map((item) => (
+            <NavListItem
+              key={item.id}
+              item={item}
+              active={location.pathname === item.path}
+              onClick={handleNavigate}
+              collapsed={collapsed}
+            />
+          ))}
+        </List>
       </Box>
     </Box>
   );

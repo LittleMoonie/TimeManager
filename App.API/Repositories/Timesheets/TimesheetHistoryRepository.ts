@@ -17,6 +17,22 @@ export class TimesheetHistoryRepository extends BaseRepository<TimesheetHistory>
     // @ts-expect-error - targetType is a string literal, but the entity expects a string
     return this.find({ where: { companyId, targetType, targetId } });
   }
+
+  public async findLatestForTimesheet(
+    companyId: string,
+    timesheetId: string,
+    action: 'rejected' | 'approved' | 'submitted' | 'updated' | 'created' | 'deleted',
+  ): Promise<TimesheetHistory | null> {
+    return this.repository.findOne({
+      where: {
+        companyId,
+        targetType: 'Timesheet',
+        targetId: timesheetId,
+        action,
+      },
+      order: { occurredAt: 'DESC' },
+    });
+  }
 }
 
 Container.set('TimesheetHistoryRepository', new TimesheetHistoryRepository());

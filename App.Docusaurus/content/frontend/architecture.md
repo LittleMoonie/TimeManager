@@ -18,7 +18,7 @@ The `src/` tree is intentionally lightweight:
 
 - `components/` – shared UI pieces (`ui/` for primitives such as `LoadingSpinner`, `layout/` for shell exports, and feature widgets like `timesheet/`).
 - `layout/` – top-level layout plumbing (`Shell`, `Navigation`, `AppBar`).
-- `pages/` – route-level views (e.g., `authentication/login`, `manager/ManagerDashboard`).
+- `pages/` – route-level views (e.g., `authentication/login`, `manager/ManagerDashboard`, the weekly planner in `timesheet/WeeklyTimesheetPage`).
 - `hooks/` – custom hooks, including `useAuth` which wraps the authentication API.
 - `lib/` – generated API client (`lib/api`) and helper modules.
 - `theme/` + `themes.ts` – Material UI theme configuration.

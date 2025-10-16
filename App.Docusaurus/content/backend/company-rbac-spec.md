@@ -47,6 +47,8 @@ Permission keys follow the format `resource.action.scope` and are **evaluated pe
 - `user.view.org`: View all user profiles within the organization/company.
 - `team.manage`: Manage teams (create, edit, delete).
 - `user.manage`: Manage user profiles (create, edit, delete) within the organization/company.
+- `view_user_sessions`: View active sessions for other users.
+- `revoke_session`: Revoke sessions for users within the organization/company.
 
 ### Reports
 
@@ -59,6 +61,13 @@ Permission keys follow the format `resource.action.scope` and are **evaluated pe
 - `settings.manage.company`: Manage company-specific settings.
 - `menu.manage.company`: Manage the company's navigation menu and hub cards.
 - `audit.view.company`: View audit logs for the company.
+- `create_role`: Create roles within the company scope.
+- `update_role`: Update existing roles within the company.
+- `delete_role`: Delete roles within the company.
+- `assign_role_permission`: Assign permissions to roles.
+- `remove_role_permission`: Remove permissions from roles.
+- `create_role_permission`: Create new role-permission associations.
+- `delete_role_permission`: Delete role-permission associations.
 
 ## 3. Baseline Role-Permission Mapping (Per Company)
 
@@ -112,6 +121,15 @@ This section defines the default permissions assigned to each company-scoped rol
   - `audit.view.company`
   - `user.manage`
   - `team.manage`
+  - `view_user_sessions`
+  - `revoke_session`
+  - `create_role`
+  - `update_role`
+  - `delete_role`
+  - `assign_role_permission`
+  - `remove_role_permission`
+  - `create_role_permission`
+  - `delete_role_permission`
 
 ## 4. Seeder Update Plan (Document Only)
 

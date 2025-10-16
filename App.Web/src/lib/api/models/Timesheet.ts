@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { Company } from './Company';
 import type { TimesheetEntry } from './TimesheetEntry';
+import type { TimesheetRow } from './TimesheetRow';
 import type { TimesheetStatus } from './TimesheetStatus';
 import type { User } from './User';
 export type Timesheet = {
@@ -28,5 +29,6 @@ export type Timesheet = {
     totalMinutes: number;
     notes?: string;
     entries: Array<TimesheetEntry>;
+    rows: Array<TimesheetRow>;
 };
 

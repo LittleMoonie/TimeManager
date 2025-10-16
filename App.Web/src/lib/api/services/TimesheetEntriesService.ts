@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { CreateTimesheetEntryDto } from '../models/CreateTimesheetEntryDto';
-import type { TimesheetEntry } from '../models/TimesheetEntry';
+import type { TimesheetEntryResponseDto } from '../models/TimesheetEntryResponseDto';
 import type { UpdateTimesheetEntryDto } from '../models/UpdateTimesheetEntryDto';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -11,7 +11,7 @@ import { request as __request } from '../core/request';
 export class TimesheetEntriesService {
     /**
      * Creates a new timesheet entry for the authenticated user.
-     * @returns TimesheetEntry The newly created timesheet entry.
+     * @returns TimesheetEntryResponseDto The newly created timesheet entry.
      * @throws ApiError
      */
     public static createTimesheetEntry({
@@ -21,7 +21,7 @@ export class TimesheetEntriesService {
          * The data for creating the timesheet entry.
          */
         requestBody: CreateTimesheetEntryDto,
-    }): CancelablePromise<TimesheetEntry> {
+    }): CancelablePromise<TimesheetEntryResponseDto> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/timesheet-entries',
@@ -31,7 +31,7 @@ export class TimesheetEntriesService {
     }
     /**
      * Retrieves a single timesheet entry by its ID.
-     * @returns TimesheetEntry The timesheet entry details.
+     * @returns TimesheetEntryResponseDto The timesheet entry details.
      * @throws ApiError
      */
     public static getTimesheetEntry({
@@ -41,7 +41,7 @@ export class TimesheetEntriesService {
          * The ID of the timesheet entry to retrieve.
          */
         id: string,
-    }): CancelablePromise<TimesheetEntry> {
+    }): CancelablePromise<TimesheetEntryResponseDto> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/timesheet-entries/{id}',
@@ -52,7 +52,7 @@ export class TimesheetEntriesService {
     }
     /**
      * Updates an existing timesheet entry.
-     * @returns TimesheetEntry The updated timesheet entry details.
+     * @returns TimesheetEntryResponseDto The updated timesheet entry details.
      * @throws ApiError
      */
     public static updateTimesheetEntry({
@@ -67,7 +67,7 @@ export class TimesheetEntriesService {
          * The data for updating the timesheet entry.
          */
         requestBody: UpdateTimesheetEntryDto,
-    }): CancelablePromise<TimesheetEntry> {
+    }): CancelablePromise<TimesheetEntryResponseDto> {
         return __request(OpenAPI, {
             method: 'PUT',
             url: '/timesheet-entries/{id}',
@@ -94,6 +94,90 @@ export class TimesheetEntriesService {
         return __request(OpenAPI, {
             method: 'DELETE',
             url: '/timesheet-entries/{id}',
+            path: {
+                'id': id,
+            },
+        });
+    }
+    /**
+     * Submits a timesheet entry for approval.
+     * @returns TimesheetEntryResponseDto Ok
+     * @throws ApiError
+     */
+    public static submitTimesheetEntry({
+        id,
+    }: {
+        /**
+         * The ID of the timesheet entry to submit.
+         */
+        id: string,
+    }): CancelablePromise<TimesheetEntryResponseDto> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/timesheet-entries/{id}/submit',
+            path: {
+                'id': id,
+            },
+        });
+    }
+    /**
+     * Approves a pending timesheet entry.
+     * @returns TimesheetEntryResponseDto Ok
+     * @throws ApiError
+     */
+    public static approveTimesheetEntry({
+        id,
+    }: {
+        /**
+         * The ID of the timesheet entry to approve.
+         */
+        id: string,
+    }): CancelablePromise<TimesheetEntryResponseDto> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/timesheet-entries/{id}/approve',
+            path: {
+                'id': id,
+            },
+        });
+    }
+    /**
+     * Rejects a pending timesheet entry.
+     * @returns TimesheetEntryResponseDto Ok
+     * @throws ApiError
+     */
+    public static rejectTimesheetEntry({
+        id,
+    }: {
+        /**
+         * The ID of the timesheet entry to reject.
+         */
+        id: string,
+    }): CancelablePromise<TimesheetEntryResponseDto> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/timesheet-entries/{id}/reject',
+            path: {
+                'id': id,
+            },
+        });
+    }
+    /**
+     * Marks an approved timesheet entry as invoiced.
+     * @returns TimesheetEntryResponseDto Ok
+     * @throws ApiError
+     */
+    public static invoiceTimesheetEntry({
+        id,
+    }: {
+        /**
+         * The ID of the timesheet entry to mark as invoiced.
+         */
+        id: string,
+    }): CancelablePromise<TimesheetEntryResponseDto> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/timesheet-entries/{id}/invoice',
             path: {
                 'id': id,
             },

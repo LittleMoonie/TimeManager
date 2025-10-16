@@ -1,34 +1,75 @@
 import { DataSource } from 'typeorm';
 
 import { Company } from '../Entities/Companies/Company';
-import { ActionCode, ActionCodeType } from '../Entities/Timesheets/ActionCode';
+import {
+  ActionCode,
+  ActionCodeBillableDefault,
+  ActionCodeLocationPolicy,
+  ActionCodeType,
+} from '../Entities/Timesheets/ActionCode';
 
 export async function seedActionCodes(ds: DataSource, company: Company) {
   const repo = ds.getRepository(ActionCode);
 
   const rows = [
     {
-      code: 'REGULAR',
-      name: 'Regular Work',
+      code: 'DEV',
+      name: 'Product Development',
       type: ActionCodeType.BILLABLE,
+      color: '#4F46E5',
+      billableDefault: ActionCodeBillableDefault.BILLABLE,
+      billableEditable: true,
+      locationPolicy: ActionCodeLocationPolicy.ANY,
       active: true,
     },
     {
-      code: 'VACATION',
-      name: 'Vacation',
-      type: ActionCodeType.NON_BILLABLE,
+      code: 'MEETING',
+      name: 'Client Meetings',
+      type: ActionCodeType.BILLABLE,
+      color: '#0EA5E9',
+      billableDefault: ActionCodeBillableDefault.AUTO,
+      billableEditable: true,
+      locationPolicy: ActionCodeLocationPolicy.ANY,
       active: true,
     },
     {
-      code: 'SICK',
-      name: 'Sick Leave',
+      code: 'EMAIL',
+      name: 'Inbox & Admin',
       type: ActionCodeType.NON_BILLABLE,
+      color: '#475569',
+      billableDefault: ActionCodeBillableDefault.NON_BILLABLE,
+      billableEditable: false,
+      locationPolicy: ActionCodeLocationPolicy.ANY,
       active: true,
     },
     {
       code: 'HOLIDAY',
       name: 'Holiday',
       type: ActionCodeType.NON_BILLABLE,
+      color: '#F97316',
+      billableDefault: ActionCodeBillableDefault.NON_BILLABLE,
+      billableEditable: false,
+      locationPolicy: ActionCodeLocationPolicy.ANY,
+      active: true,
+    },
+    {
+      code: 'SICK',
+      name: 'Sick Leave',
+      type: ActionCodeType.NON_BILLABLE,
+      color: '#F43F5E',
+      billableDefault: ActionCodeBillableDefault.NON_BILLABLE,
+      billableEditable: false,
+      locationPolicy: ActionCodeLocationPolicy.ANY,
+      active: true,
+    },
+    {
+      code: 'TRAINING',
+      name: 'Training & Learning',
+      type: ActionCodeType.NON_BILLABLE,
+      color: '#22C55E',
+      billableDefault: ActionCodeBillableDefault.AUTO,
+      billableEditable: true,
+      locationPolicy: ActionCodeLocationPolicy.ANY,
       active: true,
     },
   ];

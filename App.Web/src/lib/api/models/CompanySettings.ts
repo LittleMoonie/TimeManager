@@ -21,5 +21,9 @@ export type CompanySettings = {
     timesheetApproverPolicy: ApproverPolicy;
     allowedEmailDomains?: Array<string>;
     requireCompanyEmail: boolean;
+    defaultCountryCode?: string;
+    defaultLocation: string;
+    officeCountryCodes?: Array<string>;
+    maxWeeklyMinutes: number;
 };
 

@@ -5,7 +5,7 @@ import {
   CreateTimesheetEntryDto,
   UpdateTimesheetEntryDto,
 } from '../../Dtos/Timesheet/TimesheetDto';
-import { TimesheetEntry } from '../../Entities/Timesheets/TimesheetEntry';
+import { TimesheetEntry, TimesheetEntryStatus } from '../../Entities/Timesheets/TimesheetEntry';
 import { NotFoundError } from '../../Errors/HttpErrors';
 import { UnprocessableEntityError } from '../../Errors/HttpErrors';
 import { TimesheetEntryRepository } from '../../Repositories/Timesheets/TimesheetEntryRepository';
@@ -24,6 +24,57 @@ export class TimesheetEntryService {
     @Inject('TimesheetEntryRepository')
     private readonly timesheetEntryRepository: TimesheetEntryRepository,
   ) {}
+  private readonly initialStatuses = new Set<TimesheetEntryStatus>([
+    TimesheetEntryStatus.SAVED,
+    TimesheetEntryStatus.PENDING_APPROVAL,
+  ]);
+
+  private isLockedStatus(status: TimesheetEntryStatus) {
+    return status === TimesheetEntryStatus.APPROVED || status === TimesheetEntryStatus.INVOICED;
+  }
+
+  private ensureTransitionIsAllowed(
+    current: TimesheetEntryStatus,
+    next: TimesheetEntryStatus,
+  ): void {
+    if (current === next) {
+      return;
+    }
+
+    const allowedTransitions: Record<TimesheetEntryStatus, TimesheetEntryStatus[]> = {
+      [TimesheetEntryStatus.SAVED]: [TimesheetEntryStatus.PENDING_APPROVAL],
+      [TimesheetEntryStatus.PENDING_APPROVAL]: [
+        TimesheetEntryStatus.SAVED,
+        TimesheetEntryStatus.APPROVED,
+        TimesheetEntryStatus.REJECTED,
+      ],
+      [TimesheetEntryStatus.REJECTED]: [
+        TimesheetEntryStatus.SAVED,
+        TimesheetEntryStatus.PENDING_APPROVAL,
+      ],
+      [TimesheetEntryStatus.APPROVED]: [TimesheetEntryStatus.INVOICED],
+      [TimesheetEntryStatus.INVOICED]: [],
+    };
+
+    const nextStates = allowedTransitions[current] ?? [];
+    if (!nextStates.includes(next)) {
+      throw new UnprocessableEntityError(
+        `Invalid status transition from ${current} to ${next}.`,
+      );
+    }
+  }
+
+  private async applyStatus(
+    entry: TimesheetEntry,
+    nextStatus: TimesheetEntryStatus,
+  ): Promise<TimesheetEntry> {
+    this.ensureTransitionIsAllowed(entry.status, nextStatus);
+    const updated = await this.timesheetEntryRepository.update(entry.id, {
+      status: nextStatus,
+      statusUpdatedAt: new Date(),
+    });
+    return updated!;
+  }
 
   /**
    * @description Ensures that a given DTO (Data Transfer Object) is valid by performing class-validator validation.
@@ -53,7 +104,23 @@ export class TimesheetEntryService {
     dto: CreateTimesheetEntryDto,
   ): Promise<TimesheetEntry> {
     await this.ensureValidation(dto);
-    return this.timesheetEntryRepository.create({ companyId, userId, ...dto });
+    const { status: requestedStatus, ...rest } = dto;
+    const status =
+      requestedStatus !== undefined ? requestedStatus : TimesheetEntryStatus.SAVED;
+
+    if (requestedStatus && !this.initialStatuses.has(requestedStatus)) {
+      throw new UnprocessableEntityError(
+        `New entries can only be created in ${Array.from(this.initialStatuses).join(', ')} states.`,
+      );
+    }
+
+    return this.timesheetEntryRepository.create({
+      companyId,
+      userId,
+      ...rest,
+      status,
+      statusUpdatedAt: new Date(),
+    });
   }
 
   /**
@@ -89,8 +156,38 @@ export class TimesheetEntryService {
     dto: UpdateTimesheetEntryDto,
   ): Promise<TimesheetEntry> {
     await this.ensureValidation(dto);
-    await this.getTimesheetEntryById(id);
-    const updated = await this.timesheetEntryRepository.update(id, dto);
+    const entry = await this.getTimesheetEntryById(id);
+
+    const { status: requestedStatus, ...rest } = dto;
+
+    if (this.isLockedStatus(entry.status) && Object.keys(rest).length > 0) {
+      throw new UnprocessableEntityError(
+        `Entries in status ${entry.status} cannot be edited.`,
+      );
+    }
+
+    if (
+      entry.status === TimesheetEntryStatus.INVOICED &&
+      requestedStatus &&
+      requestedStatus !== entry.status
+    ) {
+      throw new UnprocessableEntityError('Invoiced time entries cannot change status.');
+    }
+
+    if (requestedStatus) {
+      this.ensureTransitionIsAllowed(entry.status, requestedStatus);
+    }
+
+    const payload: Partial<TimesheetEntry> = {
+      ...rest,
+    };
+
+    if (requestedStatus && requestedStatus !== entry.status) {
+      payload.status = requestedStatus;
+      payload.statusUpdatedAt = new Date();
+    }
+
+    const updated = await this.timesheetEntryRepository.update(id, payload);
     return updated!;
   }
 
@@ -103,5 +200,54 @@ export class TimesheetEntryService {
   public async deleteTimesheetEntry(id: string): Promise<void> {
     await this.getTimesheetEntryById(id);
     await this.timesheetEntryRepository.delete(id);
+  }
+
+  /**
+   * @description Moves an entry to Pending Approval.
+   */
+  public async submitTimesheetEntry(id: string): Promise<TimesheetEntry> {
+    const entry = await this.getTimesheetEntryById(id);
+    if (
+      entry.status !== TimesheetEntryStatus.SAVED &&
+      entry.status !== TimesheetEntryStatus.REJECTED
+    ) {
+      throw new UnprocessableEntityError(
+        `Only saved or rejected entries can be submitted for approval (current status: ${entry.status}).`,
+      );
+    }
+    return this.applyStatus(entry, TimesheetEntryStatus.PENDING_APPROVAL);
+  }
+
+  /**
+   * @description Marks an entry as approved.
+   */
+  public async approveTimesheetEntry(id: string): Promise<TimesheetEntry> {
+    const entry = await this.getTimesheetEntryById(id);
+    if (entry.status !== TimesheetEntryStatus.PENDING_APPROVAL) {
+      throw new UnprocessableEntityError('Only entries pending approval can be approved.');
+    }
+    return this.applyStatus(entry, TimesheetEntryStatus.APPROVED);
+  }
+
+  /**
+   * @description Rejects an entry, returning it to the submitter.
+   */
+  public async rejectTimesheetEntry(id: string): Promise<TimesheetEntry> {
+    const entry = await this.getTimesheetEntryById(id);
+    if (entry.status !== TimesheetEntryStatus.PENDING_APPROVAL) {
+      throw new UnprocessableEntityError('Only entries pending approval can be rejected.');
+    }
+    return this.applyStatus(entry, TimesheetEntryStatus.REJECTED);
+  }
+
+  /**
+   * @description Marks an entry as invoiced.
+   */
+  public async invoiceTimesheetEntry(id: string): Promise<TimesheetEntry> {
+    const entry = await this.getTimesheetEntryById(id);
+    if (entry.status !== TimesheetEntryStatus.APPROVED) {
+      throw new UnprocessableEntityError('Only approved entries can be invoiced.');
+    }
+    return this.applyStatus(entry, TimesheetEntryStatus.INVOICED);
   }
 }

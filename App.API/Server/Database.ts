@@ -1,11 +1,13 @@
 import 'reflect-metadata';
 import { DataSource, DataSourceOptions } from 'typeorm';
 
+import { Company } from '../Entities/Companies/Company';
 import { seedUserStatuses } from '../Seeds/01-seed-user-statuses';
 import { seedCompany } from '../Seeds/02-seed-company';
 import { seedRolesAndPermissions } from '../Seeds/03-seed-roles-permissions';
 import { seedUsers } from '../Seeds/04-seed-users';
 import { seedActionCodes } from '../Seeds/05-seed-action-codes';
+import { seedCompanySettings } from '../Seeds/06-seed-company-settings';
 
 const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME, DB_SSL } = process.env;
 
@@ -17,14 +19,14 @@ const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
   applicationName: 'GoGoTime',
   host: DB_HOST,
-  port: parseInt(DB_PORT || '5432', 10),
+  port: Number.parseInt(DB_PORT || '5432', 10),
   username: DB_USER,
   password: DB_PASS,
   database: DB_NAME,
-  synchronize: true,
+  synchronize: false,
   logging: true,
   entities: ['./Entities/**/*.ts'],
-  migrations: [],
+  migrations: ['./Migrations/**/*.ts'],
   subscribers: [],
   ssl: DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
 };
@@ -42,9 +44,19 @@ export const runSeeds = async (opts?: { force?: boolean }): Promise<void> => {
     throw new Error('Data source has not been initialised yet');
   }
 
+  if (!force) {
+    const existingCompanies = await AppDataSource.getRepository(Company).count();
+    if (existingCompanies > 0) {
+      console.warn('🌱 Seeders skipped: existing data detected (use force option to override).');
+      seedsRun = true;
+      return;
+    }
+  }
+
   console.warn('🌱 Running seeders…');
   const { statuses } = await seedUserStatuses(AppDataSource);
   const { company } = await seedCompany(AppDataSource);
+  await seedCompanySettings(AppDataSource, company);
   const { roles } = await seedRolesAndPermissions(AppDataSource, company);
   await seedUsers(AppDataSource, company, roles, statuses);
   await seedActionCodes(AppDataSource, company);
@@ -72,7 +84,7 @@ export const connectDB = async (): Promise<void> => {
         console.warn('✅ Database migrations executed');
       }
 
-      if (process.env.RUN_SEEDERS_ON_BOOT !== 'false') {
+      if (process.env.RUN_SEEDERS_ON_BOOT?.toLowerCase() === 'true') {
         await runSeeds();
       }
     }

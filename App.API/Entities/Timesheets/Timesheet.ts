@@ -5,6 +5,7 @@ import { Company } from '../Companies/Company';
 import User from '../Users/User';
 
 import { TimesheetEntry } from './TimesheetEntry';
+import { TimesheetRow } from './TimesheetRow';
 
 /**
  * @description Defines the possible statuses for a timesheet.
@@ -106,4 +107,10 @@ export class Timesheet extends BaseEntity {
    */
   @OneToMany(() => TimesheetEntry, (e) => e.timesheet)
   entries!: TimesheetEntry[];
+
+  /**
+   * @description Structured rows grouped by project or non-project activity.
+   */
+  @OneToMany(() => TimesheetRow, (row) => row.timesheet)
+  rows!: TimesheetRow[];
 }

@@ -8,13 +8,13 @@ import { Container } from 'typedi';
 import { errorHandler } from '../Middlewares/ErrorHandler';
 import logger from '../Utils/Logger';
 
-let RegisterRoutes: (app: express.Application) => void;
+let RegisterRoutes: (app: express.Application) => void = () => {};
 
 try {
-  // Try importing TSOA routes
+  // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require
+  ({ RegisterRoutes } = require('../Routes/Generated/routes'));
 } catch (err) {
   console.warn('⚠️ Skipping TSOA route registration in test mode:', (err as Error).message);
-  RegisterRoutes = () => {};
 }
 
 export const createTestApp = (mockSetup?: () => void): Application => {
