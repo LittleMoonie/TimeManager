@@ -1,7 +1,10 @@
-import { Box, ButtonBase, Stack, TextField } from '@mui/material';
+import { Comment } from '@mui/icons-material';
+import { Box, Button, ButtonBase, IconButton, Modal, Popover, Stack, TextField } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
 import {
   KeyboardEvent,
+  MouseEvent,
+  ChangeEvent,
   useCallback,
   useEffect,
   useMemo,
@@ -22,8 +25,9 @@ interface EditableTimeCellProps {
   dayIso: string;
   dayLabel: string;
   minutes: number;
+  note?: string | null;
   disabled: boolean;
-  onCommit: (payload: { minutes: number }) => void;
+  onCommit: (payload: { minutes: number; note?: string | null }) => void;
 }
 
 export const EditableTimeCell = ({
@@ -37,6 +41,7 @@ export const EditableTimeCell = ({
   dayIso,
   dayLabel,
   minutes,
+  note,
   disabled,
   onCommit,
 }: EditableTimeCellProps) => {
@@ -44,6 +49,9 @@ export const EditableTimeCell = ({
   const [editing, setEditing] = useState(false);
   const [draftMinutes, setDraftMinutes] = useState(() => formatMinutes(minutes));
   const [error, setError] = useState<string | null>(null);
+  const [noteAnchor, setNoteAnchor] = useState<HTMLElement | null>(null);
+  const [draftNote, setDraftNote] = useState(note ?? '');
+  const [modalOpen, setModalOpen] = useState(false);
 
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const minutesInputRef = useRef<HTMLInputElement | null>(null);
@@ -61,26 +69,11 @@ export const EditableTimeCell = ({
 
   useEffect(() => {
     if (!editing) {
-      setDraftMinutes(formatMinutes(minutes));
-      setError(null);
-    }
-  }, [editing, minutes]);
-
-  useEffect(() => {
-    if (editing && minutesInputRef.current) {
       requestAnimationFrame(() => {
-        if (!minutesInputRef.current) return;
-        minutesInputRef.current.focus();
-        const length = minutesInputRef.current.value.length;
-        try {
-          minutesInputRef.current.setSelectionRange(length, length);
-        } catch {
-          // Some input types do not support selection range.
-        }
+        setDraftMinutes(formatMinutes(minutes));
       });
     }
-  }, [editing]);
-
+  }, [editing, minutes]);
   useEffect(() => {
     if (wasEditingRef.current && !editing && !disabled) {
       requestAnimationFrame(() => {
@@ -131,10 +124,10 @@ export const EditableTimeCell = ({
     }
     setError(null);
     if (parsed !== minutes) {
-      onCommit({ minutes: parsed });
+      onCommit({ minutes: parsed, note });
     }
     setEditing(false);
-  }, [draftMinutes, minutes, onCommit]);
+  }, [draftMinutes, minutes, onCommit, note]);
 
   const handleButtonKeyDown = useCallback(
     (event: KeyboardEvent<HTMLButtonElement>) => {
@@ -190,6 +183,17 @@ export const EditableTimeCell = ({
     commitEditing();
   }, [commitEditing]);
 
+  const handleNoteIconClick = () => {
+    setModalOpen(true);
+  };
+
+  const handleNoteClose = () => {
+    setModalOpen(false);
+    if (draftNote !== note) {
+      onCommit({ minutes, note: draftNote });
+    }
+  };
+
   if (editing) {
     return (
       <Box sx={{ width: '100%', display: 'flex' }}>
@@ -198,7 +202,7 @@ export const EditableTimeCell = ({
           size="medium"
           fullWidth
           value={draftMinutes}
-          onChange={(event) => setDraftMinutes(event.target.value)}
+          onChange={(event: ChangeEvent<HTMLInputElement>) => setDraftMinutes(event.target.value)}
           onBlur={handleMinutesBlur}
           onKeyDown={handleMinutesKeyDown}
           inputRef={minutesInputRef}
@@ -221,7 +225,6 @@ export const EditableTimeCell = ({
             flex: 1,
             '& .MuiOutlinedInput-root': {
               borderRadius: borderRadius,
-              height: 56,
               fontWeight: 600,
             },
           }}
@@ -231,50 +234,44 @@ export const EditableTimeCell = ({
   }
 
   return (
-    <ButtonBase
-      ref={buttonRef}
-      id={cellId}
-      data-grid-id={gridId}
-      data-row-index={rowIndex}
-      data-col-index={dayIndex}
-      data-day-iso={dayIso}
-      data-disabled={disabled ? 'true' : 'false'}
-      sx={{
-        width: 72,
-        height: 56,
-        ml: 'auto',
-        borderRadius: borderRadius,
-        border: '1px solid transparent',
-        transition: theme.transitions.create(['border-color', 'box-shadow'], {
-          duration: theme.transitions.duration.shortest,
-        }),
-        fontVariantNumeric: 'tabular-nums',
-        color: showPlaceholder ? theme.palette.text.disabled : theme.palette.text.primary,
-        backgroundColor: 'transparent',
-        display: 'flex',
-        '&:focus-visible, &:focus': {
-          outline: 'none',
-          borderColor: theme.palette.primary.main,
-          boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.24)}`,
-        },
-        '&:hover': {
-          borderColor: theme.palette.action.hover,
-          backgroundColor: alpha(theme.palette.primary.main, 0.06),
-        },
-      }}
-      tabIndex={disabled ? -1 : 0}
-      onClick={startEditing}
-      onKeyDown={handleButtonKeyDown}
-      aria-label={ariaLabel}
-      aria-disabled={disabled ? 'true' : undefined}
-      disableRipple
-      disableTouchRipple
-    >
-      <Stack
-        direction="row"
-        spacing={0}
-        alignItems="center"
-        sx={{ width: '100%', justifyContent: 'center' }}
+    <Stack direction="row" spacing={0.5} alignItems="center">
+      <ButtonBase
+        ref={buttonRef}
+        id={cellId}
+        data-grid-id={gridId}
+        data-row-index={rowIndex}
+        data-col-index={dayIndex}
+        data-day-iso={dayIso}
+        data-disabled={disabled ? 'true' : 'false'}
+        sx={{
+          width: 72,
+          height: 56,
+          borderRadius: borderRadius,
+          border: '1px solid transparent',
+          transition: theme.transitions.create(['border-color', 'box-shadow'], {
+            duration: theme.transitions.duration.shortest,
+          }),
+          fontVariantNumeric: 'tabular-nums',
+          color: showPlaceholder ? theme.palette.text.disabled : theme.palette.text.primary,
+          backgroundColor: 'transparent',
+          display: 'flex',
+          '&:focus-visible, &:focus': {
+            outline: 'none',
+            borderColor: theme.palette.primary.main,
+            boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.24)}`,
+          },
+          '&:hover': {
+            borderColor: theme.palette.action.hover,
+            backgroundColor: alpha(theme.palette.primary.main, 0.06),
+          },
+        }}
+        tabIndex={disabled ? -1 : 0}
+        onClick={startEditing}
+        onKeyDown={handleButtonKeyDown}
+        aria-label={ariaLabel}
+        aria-disabled={disabled ? 'true' : undefined}
+        disableRipple
+        disableTouchRipple
       >
         <Box
           component="span"
@@ -287,7 +284,49 @@ export const EditableTimeCell = ({
         >
           {showPlaceholder ? '0:00' : displayValue}
         </Box>
-      </Stack>
-    </ButtonBase>
+      </ButtonBase>
+      <IconButton size="small" onClick={handleNoteIconClick} disabled={disabled}>
+        <Comment fontSize="small" sx={{ color: note ? 'primary.main' : 'action.disabled' }} />
+      </IconButton>
+      <Modal
+        open={modalOpen}
+        onClose={handleNoteClose}
+        aria-labelledby="note-modal-title"
+        aria-describedby="note-modal-description"
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400, // Square size
+            height: 400, // Square size
+            bgcolor: 'background.paper',
+            border: '2px solid #000',
+            boxShadow: 24,
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <TextField
+            label="Note"
+            multiline
+            fullWidth
+            value={draftNote}
+            onChange={(e) => setDraftNote(e.target.value)}
+            inputProps={{ maxLength: 300 }}
+            helperText={`${draftNote.length}/300`}
+            minRows={5} // Increased minRows for better visibility
+            maxRows={10}
+            sx={{ flexGrow: 1 }} // Allow TextField to grow
+          />
+          <Button onClick={handleNoteClose} sx={{ mt: 2 }}>
+            Save
+          </Button>
+        </Box>
+      </Modal>
+    </Stack>
   );
 };

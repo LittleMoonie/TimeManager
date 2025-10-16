@@ -19,6 +19,8 @@ import {
   Typography,
 } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { addDays, format, formatISO, isAfter, startOfWeek } from 'date-fns';
 import { useMemo, useState } from 'react';
 
@@ -28,7 +30,14 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { useAuth } from '@/hooks/useAuth';
 import { useWeeklyTimesheet, WeeklyRowState } from '@/hooks/useTimesheet';
 import { useCountriesLookup, useTimeCodesLookup } from '@/hooks/useTimesheetLookups';
-import { ActionCode, TimesheetRowLocation, TimesheetRowStatus, TimesheetStatus } from '@/lib/api';
+import { useUsersLookup } from '@/hooks/useUsersLookup';
+import {
+  ActionCode,
+  TimesheetRowLocation,
+  TimesheetRowStatus,
+  TimesheetStatus,
+  UserResponseDto,
+} from '@/lib/api';
 import type { WeekDate } from '@/types/timesheet';
 import { formatMinutes } from '@/utils/timeFormatting';
 import { buildTimesheetRow } from '@/utils/timesheetRow';
@@ -40,6 +49,10 @@ const MyTimesheetPage = () => {
   const [selectedDate, setSelectedDate] = useState(() => startOfWeek(today, { weekStartsOn: 1 }));
   const [selectedTimeCode, setSelectedTimeCode] = useState<ActionCode | null>(null);
   const [timeCodeQuery, setTimeCodeQuery] = useState('');
+  const [selectedUser, setSelectedUser] = useState<UserResponseDto | null>(null);
+  const [userQuery, setUserQuery] = useState('');
+
+  const canCreateForUser = user?.permissions.includes('timesheet.create.forUser');
 
   const weekStartIso = formatISO(selectedDate, { representation: 'date' });
   const weekDates: WeekDate[] = useMemo(
@@ -68,8 +81,9 @@ const MyTimesheetPage = () => {
     replaceRows,
     submitWeek,
     forceSave,
-  } = useWeeklyTimesheet({ weekStart: weekStartIso });
+  } = useWeeklyTimesheet({ weekStart: weekStartIso, userId: selectedUser?.id });
 
+  const { data: users, isLoading: usersLoading } = useUsersLookup(userQuery);
   const { data: timeCodes = [], isLoading: timeCodesLoading } = useTimeCodesLookup(timeCodeQuery);
   const { data: countries = [] } = useCountriesLookup();
 
@@ -198,23 +212,33 @@ const MyTimesheetPage = () => {
                     spacing={1.5}
                     alignItems={{ xs: 'stretch', sm: 'center' }}
                   >
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <Button
-                        variant="outlined"
-                        startIcon={<ChevronLeft />}
-                        onClick={() => handleShiftWeek(-1)}
-                      >
-                        Previous week
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        endIcon={<ChevronRight />}
-                        onClick={() => handleShiftWeek(1)}
-                        disabled={isAfter(addDays(selectedDate, 7), today)}
-                      >
-                        Next week
-                      </Button>
-                    </Stack>
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                      <Stack direction="row" spacing={1} alignItems="center">
+                        <Button
+                          variant="outlined"
+                          startIcon={<ChevronLeft />}
+                          onClick={() => handleShiftWeek(-1)}
+                        >
+                          Previous
+                        </Button>
+                        <DatePicker
+                          value={selectedDate}
+                          onChange={(newDate) =>
+                            newDate && setSelectedDate(startOfWeek(newDate, { weekStartsOn: 1 }))
+                          }
+                          maxDate={today}
+                          sx={{ width: '180px' }}
+                        />
+                        <Button
+                          variant="outlined"
+                          endIcon={<ChevronRight />}
+                          onClick={() => handleShiftWeek(1)}
+                          disabled={isAfter(addDays(selectedDate, 7), today)}
+                        >
+                          Next
+                        </Button>
+                      </Stack>
+                    </LocalizationProvider>
                     <Stack direction="row" spacing={1} alignItems="center">
                       <Button variant="outlined" onClick={forceSave} disabled={!dirty && !isSaving}>
                         Save
@@ -240,7 +264,7 @@ const MyTimesheetPage = () => {
               >
                 <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
                   <Chip
-                    label={`${user?.firstName ?? ''} ${user?.lastName ?? ''}`}
+                    label={`${selectedUser ? selectedUser.firstName + ' ' + selectedUser.lastName : user?.firstName + ' ' + user?.lastName}`}
                     sx={{
                       backgroundColor: alpha(theme.palette.primary.main, 0.12),
                       color: theme.palette.primary.main,
@@ -268,6 +292,34 @@ const MyTimesheetPage = () => {
                 justifyContent="flex-end"
                 sx={{ mt: 3 }}
               >
+                {canCreateForUser && (
+                  <Autocomplete
+                    sx={{ width: { xs: '100%', md: 280 } }}
+                    size="small"
+                    options={users?.data ?? []}
+                    loading={usersLoading}
+                    value={selectedUser}
+                    onChange={(_, value) => setSelectedUser(value)}
+                    inputValue={userQuery}
+                    onInputChange={(_, value) => setUserQuery(value)}
+                    getOptionLabel={(option) => `${option.firstName} ${option.lastName}`}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select User"
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <>
+                              {usersLoading ? <CircularProgress size={16} /> : null}
+                              {params.InputProps.endAdornment}
+                            </>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                )}
                 <Autocomplete
                   sx={{ width: { xs: '100%', md: 280 } }}
                   size="small"

@@ -1,5 +1,17 @@
 import { Request as ExpressRequest } from 'express';
-import { Body, Controller, Get, Path, Post, Put, Request, Route, Security, Tags } from 'tsoa';
+import {
+  Body,
+  Controller,
+  Get,
+  Path,
+  Post,
+  Put,
+  Query,
+  Request,
+  Route,
+  Security,
+  Tags,
+} from 'tsoa';
 import { Service } from 'typedi';
 
 import {
@@ -23,9 +35,21 @@ export class TimesheetWeekController extends Controller {
   public async getWeekTimesheet(
     @Path() weekStart: string,
     @Request() request: ExpressRequest,
+    @Query() userId?: string,
   ): Promise<TimesheetWeekResponseDto> {
     const me = request.user as User;
-    return this.timesheetService.getWeekTimesheet(me.companyId, me.id, weekStart);
+    let targetUserId = me.id;
+
+    if (userId && userId !== me.id) {
+      if (
+        !me.role.rolePermissions.some((rp) => rp.permission.name === 'timesheet.create.forUser')
+      ) {
+        throw new Error("You do not have permission to view other users' timesheets.");
+      }
+      targetUserId = userId;
+    }
+
+    return this.timesheetService.getWeekTimesheet(me.companyId, targetUserId, weekStart);
   }
 
   @Put('/{weekStart}/timesheet')
@@ -33,9 +57,21 @@ export class TimesheetWeekController extends Controller {
     @Path() weekStart: string,
     @Body() body: TimesheetWeekUpsertDto,
     @Request() request: ExpressRequest,
+    @Query() userId?: string,
   ): Promise<TimesheetWeekResponseDto> {
     const me = request.user as User;
-    return this.timesheetService.upsertWeekTimesheet(me.companyId, me.id, weekStart, body);
+    let targetUserId = me.id;
+
+    if (userId && userId !== me.id) {
+      if (
+        !me.role.rolePermissions.some((rp) => rp.permission.name === 'timesheet.create.forUser')
+      ) {
+        throw new Error("You do not have permission to create or update other users' timesheets.");
+      }
+      targetUserId = userId;
+    }
+
+    return this.timesheetService.upsertWeekTimesheet(me.companyId, targetUserId, weekStart, body);
   }
 
   @Post('/{weekStart}/submit')
@@ -43,8 +79,20 @@ export class TimesheetWeekController extends Controller {
     @Path() weekStart: string,
     @Request() request: ExpressRequest,
     @Body() body: TimesheetWeekSubmitDto = new TimesheetWeekSubmitDto(),
+    @Query() userId?: string,
   ): Promise<TimesheetWeekResponseDto> {
     const me = request.user as User;
-    return this.timesheetService.submitWeekTimesheet(me.companyId, me.id, weekStart, body);
+    let targetUserId = me.id;
+
+    if (userId && userId !== me.id) {
+      if (
+        !me.role.rolePermissions.some((rp) => rp.permission.name === 'timesheet.create.forUser')
+      ) {
+        throw new Error("You do not have permission to submit other users' timesheets.");
+      }
+      targetUserId = userId;
+    }
+
+    return this.timesheetService.submitWeekTimesheet(me.companyId, targetUserId, weekStart, body);
   }
 }
