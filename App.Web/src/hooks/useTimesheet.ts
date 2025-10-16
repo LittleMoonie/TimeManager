@@ -269,8 +269,9 @@ export const useWeeklyTimesheet = ({
   );
 
   const submitWeek = useCallback(() => {
+    forceSave();
     submitMutation.mutate();
-  }, [submitMutation]);
+  }, [forceSave, submitMutation]);
 
   const forceSave = useCallback(() => {
     if (debounceTimer.current) {
