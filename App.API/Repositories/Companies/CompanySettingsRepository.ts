@@ -25,34 +25,31 @@ export class CompanySettingsRepository extends BaseRepository<CompanySettings> {
    * @throws {NotFoundError} If the company settings are not found for the specified company ID.
    */
   async getCompanySettings(companyId: string): Promise<CompanySettings> {
-    let settings = await this.findById(companyId);
-    if (!settings) {
-      try {
-        settings = await this.create({
-          companyId,
-          defaultCountryCode: 'US', // Default to US
-          defaultLocation: 'Office',
-          maxWeeklyMinutes: 2400,
-          timezone: 'UTC',
-          workWeek: {},
-          timesheetApproverPolicy: ApproverPolicy.MANAGER_OF_USER,
-          requireCompanyEmail: false,
-          officeCountryCodes: ['US'], // Default office country code
-        });
-      } catch (error: any) {
-        // Check if the error is a unique constraint violation
-        if (error.code === '23505') { // PostgreSQL unique_violation error code
-          // Another process created the settings concurrently, try to find them again
-          settings = await this.findById(companyId);
-          if (!settings) {
-            throw error; // Re-throw if still not found (unexpected)
-          }
-        } else {
-          throw error; // Re-throw other errors
+    try {
+      // Attempt to create settings first. If they already exist, this will throw a unique constraint error.
+      const settings = await this.create({
+        companyId,
+        defaultCountryCode: 'US', // Default to US
+        defaultLocation: 'Office',
+        maxWeeklyMinutes: 2400,
+        timezone: 'UTC',
+        workWeek: {},
+        timesheetApproverPolicy: ApproverPolicy.MANAGER_OF_USER,
+        requireCompanyEmail: false,
+        officeCountryCodes: ['US'], // Default office country code
+      });
+      return settings;
+    } catch (error: any) {
+      // If creation fails due to a unique constraint violation (e.g., another request created it),
+      // try to find it again.
+      if (error.code === '23505') { // PostgreSQL unique_violation error code
+        const existingSettings = await this.findById(companyId);
+        if (existingSettings) {
+          return existingSettings;
         }
       }
+      throw error; // Re-throw other errors or if still not found
     }
-    return settings;
   }
 }
 
