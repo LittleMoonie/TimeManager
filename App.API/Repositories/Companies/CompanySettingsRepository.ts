@@ -1,6 +1,6 @@
 import Container, { Service } from 'typedi';
 
-import { CompanySettings } from '../../Entities/Companies/CompanySettings';
+import { ApproverPolicy, CompanySettings } from '../../Entities/Companies/CompanySettings';
 import { NotFoundError } from '../../Errors/HttpErrors';
 import { BaseRepository } from '../../Repositories/BaseRepository';
 
