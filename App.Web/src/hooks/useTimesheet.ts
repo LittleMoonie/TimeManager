@@ -136,7 +136,6 @@ export const useWeeklyTimesheet = ({
   const [lastSavedAt, setLastSavedAt] = useState<Date | undefined>();
   const [timesheetStatus, setTimesheetStatus] = useState<TimesheetStatus | undefined>();
   const [rejectionInfo, setRejectionInfo] = useState<TimesheetWeekRejectionDto | undefined>();
-  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const weekQuery = useQuery<TimesheetWeekResponseDto, Error, TimesheetWeekResponseDto, [string, string, string]>({
     queryKey: ['timesheet', 'week', weekStart],
@@ -203,16 +202,10 @@ export const useWeeklyTimesheet = ({
       setRows(nextRows);
       setDirty(true);
 
-      if (debounceTimer.current) {
-        clearTimeout(debounceTimer.current);
-      }
-
-      debounceTimer.current = setTimeout(() => {
-        const payload: TimesheetWeekUpsertDto = {
-          rows: nextRows.map(mapRowToDto),
-        };
-        saveMutation.mutate(payload);
-      }, 2000);
+      const payload: TimesheetWeekUpsertDto = {
+        rows: nextRows.map(mapRowToDto),
+      };
+      saveMutation.mutate(payload);
     },
     [rows, saveMutation, weekStart],
   );
@@ -298,14 +291,6 @@ export const useWeeklyTimesheet = ({
     forceSave();
     submitMutation.mutate();
   }, [forceSave, submitMutation]);
-
-  useEffect(() => {
-    return () => {
-      if (debounceTimer.current) {
-        clearTimeout(debounceTimer.current);
-      }
-    };
-  }, []);
 
   return {
     rows,
