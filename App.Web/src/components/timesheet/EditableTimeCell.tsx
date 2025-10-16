@@ -3,7 +3,6 @@ import { Box, Button, ButtonBase, IconButton, Modal, Popover, Stack, TextField }
 import { alpha, useTheme } from '@mui/material/styles';
 import {
   KeyboardEvent,
-  MouseEvent,
   ChangeEvent,
   useCallback,
   useEffect,
@@ -320,7 +319,18 @@ export const EditableTimeCell = ({
             helperText={`${draftNote.length}/300`}
             minRows={5} // Increased minRows for better visibility
             maxRows={10}
-            sx={{ flexGrow: 1 }} // Allow TextField to grow
+            sx={{
+              flexGrow: 1,
+              // Override default MUI styles that might be fixing the height
+              '& .MuiInputBase-root': {
+                height: 'auto',
+                overflow: 'auto',
+              },
+              '& .MuiOutlinedInput-root': {
+                height: 'auto',
+                overflow: 'auto',
+              },
+            }} // Allow TextField to grow
           />
           <Button onClick={handleNoteClose} sx={{ mt: 2 }}>
             Save
