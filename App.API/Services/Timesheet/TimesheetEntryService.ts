@@ -58,9 +58,7 @@ export class TimesheetEntryService {
 
     const nextStates = allowedTransitions[current] ?? [];
     if (!nextStates.includes(next)) {
-      throw new UnprocessableEntityError(
-        `Invalid status transition from ${current} to ${next}.`,
-      );
+      throw new UnprocessableEntityError(`Invalid status transition from ${current} to ${next}.`);
     }
   }
 
@@ -105,8 +103,7 @@ export class TimesheetEntryService {
   ): Promise<TimesheetEntry> {
     await this.ensureValidation(dto);
     const { status: requestedStatus, ...rest } = dto;
-    const status =
-      requestedStatus !== undefined ? requestedStatus : TimesheetEntryStatus.SAVED;
+    const status = requestedStatus !== undefined ? requestedStatus : TimesheetEntryStatus.SAVED;
 
     if (requestedStatus && !this.initialStatuses.has(requestedStatus)) {
       throw new UnprocessableEntityError(
@@ -161,9 +158,7 @@ export class TimesheetEntryService {
     const { status: requestedStatus, ...rest } = dto;
 
     if (this.isLockedStatus(entry.status) && Object.keys(rest).length > 0) {
-      throw new UnprocessableEntityError(
-        `Entries in status ${entry.status} cannot be edited.`,
-      );
+      throw new UnprocessableEntityError(`Entries in status ${entry.status} cannot be edited.`);
     }
 
     if (

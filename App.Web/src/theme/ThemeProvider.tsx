@@ -32,11 +32,11 @@ type StoredSettings = {
 };
 
 const readStoredSettings = (): StoredSettings => {
-  if (typeof window === 'undefined') {
+  if (typeof globalThis.window === 'undefined') {
     return {};
   }
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = globalThis.window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return {};
     return JSON.parse(raw) as StoredSettings;
   } catch {
@@ -45,8 +45,8 @@ const readStoredSettings = (): StoredSettings => {
 };
 
 const writeStoredSettings = (settings: StoredSettings) => {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+  if (typeof globalThis.window === 'undefined') return;
+  globalThis.window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
 };
 
 export type ThemeControllerContextValue = {
@@ -68,9 +68,7 @@ const ThemeControllerContext = createContext<ThemeControllerContextValue | undef
 export const AppThemeProvider = ({ children }: { children: ReactNode }) => {
   const prefersDark = useMediaQuery('(prefers-color-scheme: dark)', { noSsr: true });
   const storedRef = useRef<StoredSettings | null>(null);
-  if (storedRef.current === null) {
-    storedRef.current = readStoredSettings();
-  }
+  storedRef.current ??= readStoredSettings();
   const stored = storedRef.current;
 
   const [themeId, setThemeId] = useState<ThemeId>(() => stored?.themeId ?? defaultThemeId);

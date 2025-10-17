@@ -10,6 +10,7 @@ import {
   Alert,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { startTransition } from 'react';
 
 import { ActiveSession, RecognizedDevice } from '@/types';
 
@@ -44,7 +45,9 @@ export const AdvancedSettingsTab = ({
 
   useEffect(() => {
     if (feedbackMessage) {
-      setSnackbarOpen(true);
+      startTransition(() => {
+        setSnackbarOpen(true);
+      });
     }
   }, [feedbackMessage]);
 

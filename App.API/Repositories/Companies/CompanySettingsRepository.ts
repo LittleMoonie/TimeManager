@@ -1,7 +1,6 @@
 import Container, { Service } from 'typedi';
 
 import { ApproverPolicy, CompanySettings } from '../../Entities/Companies/CompanySettings';
-import { NotFoundError } from '../../Errors/HttpErrors';
 import { BaseRepository } from '../../Repositories/BaseRepository';
 
 /**
@@ -39,10 +38,11 @@ export class CompanySettingsRepository extends BaseRepository<CompanySettings> {
         officeCountryCodes: ['US'], // Default office country code
       });
       return settings;
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If creation fails due to a unique constraint violation (e.g., another request created it),
       // try to find it again.
-      if (error.code === '23505') { // PostgreSQL unique_violation error code
+      if (error.code === '23505') {
+        // PostgreSQL unique_violation error code
         const existingSettings = await this.findById(companyId);
         if (existingSettings) {
           return existingSettings;

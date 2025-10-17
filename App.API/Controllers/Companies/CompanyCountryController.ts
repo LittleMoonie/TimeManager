@@ -2,8 +2,8 @@ import { Request as ExpressRequest } from 'express';
 import { Controller, Get, Request, Route, Security, Tags } from 'tsoa';
 import { Inject, Service } from 'typedi';
 
-import { CompanySettingsRepository } from '../../Repositories/Companies/CompanySettingsRepository';
 import User from '../../Entities/Users/User';
+import { CompanySettingsRepository } from '../../Repositories/Companies/CompanySettingsRepository';
 import { COUNTRY_CATALOG } from '../../Utils/countries';
 
 @Route('company/countries')

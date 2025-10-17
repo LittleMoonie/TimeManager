@@ -1,4 +1,5 @@
 import { useMemo, useEffect, useState, ReactNode } from 'react';
+import { startTransition } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
@@ -22,7 +23,9 @@ export const PermissionProtectedRoute = ({
     if (!isAuthenticated) return;
 
     if (requiredPermission && !userPermissions.has(requiredPermission)) {
-      setShowUnauthorized(true);
+      startTransition(() => {
+        setShowUnauthorized(true);
+      });
       const timer = setTimeout(() => {
         navigate('/app', { replace: true });
       }, 5000);
@@ -62,7 +65,9 @@ export const RoleProtectedRoute = ({
 
   useEffect(() => {
     if (!isLoading && isAuthenticated && (!user || !allowedRoles.includes(user.role?.name ?? ''))) {
-      setShowUnauthorized(true);
+      startTransition(() => {
+        setShowUnauthorized(true);
+      });
       const timer = setTimeout(() => {
         navigate('/app', { replace: true });
       }, 5000);

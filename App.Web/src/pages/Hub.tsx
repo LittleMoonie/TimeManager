@@ -155,7 +155,10 @@ const Hub = ({ categoryKey }: { categoryKey: string }) => {
                         },
                       }}
                     >
-                      <CardActionArea onClick={() => navigate(`/app${card.route}`)} sx={{ flexGrow: 1 }}>
+                      <CardActionArea
+                        onClick={() => navigate(`/app${card.route}`)}
+                        sx={{ flexGrow: 1 }}
+                      >
                         <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                             <Box

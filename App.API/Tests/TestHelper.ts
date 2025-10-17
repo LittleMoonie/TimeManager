@@ -10,12 +10,14 @@ import logger from '../Utils/Logger';
 
 let RegisterRoutes: (app: express.Application) => void = () => {};
 
-try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require
-  ({ RegisterRoutes } = require('../Routes/Generated/routes'));
-} catch (err) {
-  console.warn('⚠️ Skipping TSOA route registration in test mode:', (err as Error).message);
-}
+import('../Routes/Generated/routes')
+  .then((module) => {
+    RegisterRoutes = module.RegisterRoutes;
+    return undefined;
+  })
+  .catch((err) => {
+    console.warn('⚠️ Skipping TSOA route registration in test mode:', (err as Error).message);
+  });
 
 export const createTestApp = (mockSetup?: () => void): Application => {
   Container.reset();
@@ -50,7 +52,7 @@ export const startTestServer = async (app: Application, port = 0): Promise<Serve
   // eslint-disable-next-line promise/avoid-new
   new Promise((resolve) => {
     const server = app.listen(port, () => {
-      const actualPort = (server.address() as any)?.port;
+      const actualPort = (server.address() as { port: number })?.port;
 
       console.warn(`🧪 Test server running on port ${actualPort}`);
       resolve(server);

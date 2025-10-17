@@ -1,3 +1,4 @@
+import type { WeeklyRowState } from '@/hooks/useTimesheet';
 import {
   ActionCode,
   ActionCodeBillableDefault,
@@ -6,8 +7,6 @@ import {
   TimesheetRowLocation,
   TimesheetRowStatus,
 } from '@/lib/api';
-
-import type { WeeklyRowState } from '@/hooks/useTimesheet';
 
 export const resolveDefaultBillable = (timeCode: ActionCode): TimesheetRowBillableTag => {
   switch (timeCode.billableDefault) {
@@ -61,8 +60,7 @@ export const buildTimesheetRow = (
     billable: resolveDefaultBillable(timeCode),
     location,
     countryCode: defaultCountry,
-    employeeCountryCode:
-      location === TimesheetRowLocation.OFFICE ? null : defaultCountry,
+    employeeCountryCode: location === TimesheetRowLocation.OFFICE ? null : defaultCountry,
     status: TimesheetRowStatus.DRAFT,
     locked: false,
     entries: {},

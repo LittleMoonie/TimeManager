@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';

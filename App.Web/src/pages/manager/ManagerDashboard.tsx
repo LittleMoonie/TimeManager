@@ -1,6 +1,5 @@
 import { Typography, Box } from '@mui/material';
 
-
 const ManagerDashboard = () => {
   return (
     <Box sx={{ p: 3 }}>

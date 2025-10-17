@@ -19,8 +19,8 @@ import {
   TimesheetEntryResponseDto,
   UpdateTimesheetEntryDto,
 } from '../../Dtos/Timesheet/TimesheetDto';
-import User from '../../Entities/Users/User';
 import { TimesheetEntry } from '../../Entities/Timesheets/TimesheetEntry';
+import User from '../../Entities/Users/User';
 import { TimesheetEntryService } from '../../Services/Timesheet/TimesheetEntryService';
 
 /**

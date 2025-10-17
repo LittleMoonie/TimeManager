@@ -6,7 +6,10 @@ import PlaceholderPage from '@/components/ui/PlaceholderPage';
 const modules = import.meta.glob('/src/pages/**/*.tsx');
 
 function toPascalCase(str: string): string {
-  return str.split('-').map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join('');
+  return str
+    .split('-')
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join('');
 }
 
 export function loadComponentForRoute(route: string, title: string | undefined): React.ReactNode {
@@ -22,7 +25,7 @@ export function loadComponentForRoute(route: string, title: string | undefined):
 
   const module = modules[path];
   if (module) {
-    const Component = React.lazy(module as () => Promise<{ default: React.ComponentType<any> }>);
+    const Component = React.lazy(module as () => Promise<{ default: React.ComponentType }>);
     return (
       <Suspense fallback={<LoadingSpinner />}>
         <Component />
