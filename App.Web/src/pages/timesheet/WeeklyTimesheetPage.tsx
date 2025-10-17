@@ -26,7 +26,7 @@ import TimesheetRowEditor from '@/components/timesheet/TimesheetRowEditor';
 import { AppBreadcrumbs } from '@/components/ui/Breadcrumbs';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { useAuth } from '@/hooks/useAuth';
-import { useWeeklyTimesheet, WeeklyRowState } from '@/hooks/useTimesheet';
+import { useWeeklyTimesheet } from '@/hooks/useTimesheet';
 import { useCountriesLookup, useTimeCodesLookup } from '@/hooks/useTimesheetLookups';
 import { ActionCode, TimesheetRowLocation, TimesheetRowStatus, TimesheetStatus } from '@/lib/api';
 import type { WeekDate } from '@/types/timesheet';
@@ -106,18 +106,6 @@ const WeeklyTimesheetPage = () => {
     replaceRows([...rows, newRow]);
     setSelectedTimeCode(null);
     setTimeCodeQuery('');
-  };
-
-  const handleDuplicateRow = (row: WeeklyRowState) => {
-    const duplicate: WeeklyRowState = {
-      ...row,
-      clientId: `dup-${row.clientId}-${Date.now()}`,
-      id: undefined,
-      locked: false,
-      status: TimesheetRowStatus.DRAFT,
-      entries: { ...row.entries },
-    };
-    replaceRows([...rows, duplicate]);
   };
 
   const handleRemoveRow = (rowId: string) => {
@@ -412,7 +400,6 @@ const WeeklyTimesheetPage = () => {
                             countries={countries}
                             onUpdateRow={updateRow}
                             onUpdateEntry={updateEntry}
-                            onDuplicate={() => handleDuplicateRow(row)}
                             onClear={() => updateRow(row.id ?? row.clientId, { entries: {} })}
                             onRemove={() => handleRemoveRow(row.id ?? row.clientId)}
                             timesheetStatus={timesheetStatus}

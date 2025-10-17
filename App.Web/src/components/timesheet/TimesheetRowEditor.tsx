@@ -1,4 +1,4 @@
-import { ContentCopy, DeleteOutline, Replay } from '@mui/icons-material';
+import { DeleteOutline, Replay } from '@mui/icons-material';
 import {
   Chip,
   IconButton,
@@ -40,8 +40,11 @@ interface TimesheetRowEditorProps {
   timeCodes: ActionCode[];
   countries: { code: string; name: string; hasOffice: boolean }[];
   onUpdateRow: (rowId: string, patch: Partial<WeeklyRowState>) => void;
-  onUpdateEntry: (rowId: string, day: string, patch: { minutes?: number }) => void;
-  onDuplicate: () => void;
+  onUpdateEntry: (
+    rowId: string,
+    day: string,
+    patch: { minutes?: number; note?: string | null },
+  ) => void;
   onClear: () => void;
   onRemove: () => void;
   timesheetStatus?: TimesheetStatus;
@@ -59,7 +62,6 @@ export const TimesheetRowEditor = ({
   countries,
   onUpdateRow,
   onUpdateEntry,
-  onDuplicate,
   onClear,
   onRemove,
   timesheetStatus,
@@ -109,10 +111,19 @@ export const TimesheetRowEditor = ({
   const employeeCountryOptions = countries;
 
   useEffect(() => {
+    if (row.locked) return;
     if ((locationLocked || isLeaveRow) && row.location !== effectiveLocation) {
       onUpdateRow(rowKey, { location: effectiveLocation });
     }
-  }, [locationLocked, isLeaveRow, effectiveLocation, row.location, onUpdateRow, rowKey]);
+  }, [
+    locationLocked,
+    isLeaveRow,
+    effectiveLocation,
+    row.location,
+    onUpdateRow,
+    rowKey,
+    row.locked,
+  ]);
 
   useEffect(() => {
     if (row.locked) return;
@@ -161,16 +172,17 @@ export const TimesheetRowEditor = ({
   ]);
 
   useEffect(() => {
+    if (row.locked) return;
     if (billableLocked && timeCode) {
       const defaultBillable = resolveDefaultBillable(timeCode);
       if (row.billable !== defaultBillable) {
         onUpdateRow(rowKey, { billable: defaultBillable });
       }
     }
-  }, [billableLocked, timeCode, row.billable, onUpdateRow, rowKey]);
+  }, [billableLocked, timeCode, row.billable, onUpdateRow, rowKey, row.locked]);
 
   const handleLocationChange = (nextLocation: TimesheetRowLocation) => {
-    if (row.locked || isLeaveRow) return;
+    if (isLeaveRow) return;
     const patch: Partial<WeeklyRowState> = { location: nextLocation };
     if (
       (nextLocation === TimesheetRowLocation.OFFICE ||
@@ -222,16 +234,13 @@ export const TimesheetRowEditor = ({
       key={row.clientId}
       hover
       sx={{
-        opacity: row.locked ? 0.65 : 1,
         transition: 'background-color 120ms ease-in-out',
-        ...(isRejected
-          ? {
-              backgroundColor: alpha(theme.palette.error.main, 0.12),
-              '&:hover': {
-                backgroundColor: alpha(theme.palette.error.main, 0.16),
-              },
-            }
-          : {}),
+        ...(isRejected && {
+          backgroundColor: alpha(theme.palette.error.main, 0.12),
+          '&:hover': {
+            backgroundColor: alpha(theme.palette.error.main, 0.16),
+          },
+        }),
       }}
     >
       <TableCell sx={{ minWidth: 220 }}>
@@ -239,7 +248,6 @@ export const TimesheetRowEditor = ({
           size="small"
           value={row.activityLabel}
           onChange={(event) => onUpdateRow(rowKey, { activityLabel: event.target.value })}
-          disabled={row.locked}
           fullWidth
           label="Activity"
         />
@@ -257,7 +265,7 @@ export const TimesheetRowEditor = ({
           size="small"
           fullWidth
           value={effectiveLocation}
-          disabled={row.locked || locationLocked || isLeaveRow}
+          disabled={locationLocked || isLeaveRow}
           onChange={(event) => handleLocationChange(event.target.value as TimesheetRowLocation)}
         >
           <MenuItem value={TimesheetRowLocation.OFFICE}>Office</MenuItem>
@@ -271,11 +279,7 @@ export const TimesheetRowEditor = ({
           fullWidth
           value={row.countryCode || ''}
           displayEmpty
-          disabled={
-            row.locked ||
-            isLeaveRow ||
-            (requiresOfficeCountry && primaryCountryOptions.length === 0)
-          }
+          disabled={isLeaveRow || (requiresOfficeCountry && primaryCountryOptions.length === 0)}
           renderValue={(selected) => {
             if (!selected) {
               return (
@@ -313,7 +317,6 @@ export const TimesheetRowEditor = ({
             fullWidth
             value={row.employeeCountryCode || ''}
             displayEmpty
-            disabled={row.locked}
             renderValue={(selected) => {
               if (!selected) {
                 return (
@@ -348,7 +351,7 @@ export const TimesheetRowEditor = ({
           size="small"
           fullWidth
           value={row.billable}
-          disabled={row.locked || billableLocked}
+          disabled={billableLocked}
           onChange={(event) =>
             onUpdateRow(rowKey, {
               billable: event.target.value as TimesheetRowBillableTag,
@@ -392,7 +395,7 @@ export const TimesheetRowEditor = ({
               dayIso={day.iso}
               dayLabel={day.label}
               minutes={value}
-              disabled={row.locked}
+              note={entry?.note}
               onCommit={(payload) => onUpdateEntry(rowKey, day.iso, payload)}
             />
           </TableCell>
@@ -405,23 +408,16 @@ export const TimesheetRowEditor = ({
       </TableCell>
       <TableCell align="right" sx={{ width: 140 }}>
         <Stack direction="row" spacing={1} justifyContent="flex-end">
-          <Tooltip title="Duplicate row">
-            <span>
-              <IconButton size="small" onClick={onDuplicate} disabled={row.locked}>
-                <ContentCopy fontSize="inherit" />
-              </IconButton>
-            </span>
-          </Tooltip>
           <Tooltip title="Clear row">
             <span>
-              <IconButton size="small" onClick={onClear} disabled={row.locked}>
+              <IconButton size="small" onClick={onClear}>
                 <Replay fontSize="inherit" />
               </IconButton>
             </span>
           </Tooltip>
           <Tooltip title="Remove row">
             <span>
-              <IconButton size="small" onClick={onRemove} disabled={row.locked}>
+              <IconButton size="small" onClick={onRemove}>
                 <DeleteOutline fontSize="inherit" />
               </IconButton>
             </span>

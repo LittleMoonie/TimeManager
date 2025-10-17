@@ -122,7 +122,7 @@ ok "No blocking markers."
 
 # --- 6) Auto-format codebase (optional global run) ---
 note "Running lint-staged (ESLint + Prettier)…"
-corepack yarn dlx lint-staged --config .lintstagedrc.js --concurrent false \
+corepack yarn dlx lint-staged --config .lintstagedrc.cjs --concurrent false \
   --quiet --allow-empty || abort "Lint/format failed."
 ok "Lint/format passed."
 

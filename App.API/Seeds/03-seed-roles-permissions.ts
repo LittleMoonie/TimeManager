@@ -202,7 +202,6 @@ export async function seedRolesAndPermissions(ds: DataSource, company: Company) 
     'rbac.manage.company',
     'settings.manage.company',
     'menu.manage.company',
-    'team.manage', // Explicitly added as per spec
     'view_user_sessions',
     'revoke_session',
     'create_role',

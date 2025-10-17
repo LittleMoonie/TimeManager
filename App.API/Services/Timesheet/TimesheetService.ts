@@ -603,7 +603,7 @@ export class TimesheetService {
         maxWeeklyMinutes: fetchedSettings.maxWeeklyMinutes,
         officeCountryCodes: fetchedSettings.officeCountryCodes,
       };
-    } catch (error) {
+    } catch {
       companySettings = undefined;
     }
 
@@ -652,7 +652,7 @@ export class TimesheetService {
       return rowInstance;
     });
 
-    const { timesheet, range } = await this.getOrCreateWeekTimesheet(companyId, userId, weekStart);
+    const { timesheet } = await this.getOrCreateWeekTimesheet(companyId, userId, weekStart);
     const existingRows = await this.timesheetRowRepository.findAllForTimesheet(timesheet.id);
     const rowMap = new Map(existingRows.map((row) => [row.id, row]));
     let sortOrder = existingRows.reduce((max, row) => Math.max(max, row.sortOrder ?? 0), 0);
@@ -690,9 +690,6 @@ export class TimesheetService {
           ? payloadRow.countryCode
           : defaultCountryCode;
       const countryCode = resolvedCountryCode?.toUpperCase();
-      console.log('payloadRow.countryCode:', payloadRow.countryCode);
-      console.log('countryCode:', countryCode);
-      console.log('payloadRow.activityLabel:', payloadRow.activityLabel);
       const employeeCountryCode = payloadRow.employeeCountryCode
         ? payloadRow.employeeCountryCode.toUpperCase()
         : undefined;
@@ -723,9 +720,6 @@ export class TimesheetService {
         const existingRow = rowMap.get(payloadRow.id);
         if (!existingRow) {
           throw new NotFoundError('Timesheet row not found.');
-        }
-        if (existingRow.locked) {
-          throw new UnprocessableEntityError('Timesheet row is locked and cannot be edited.');
         }
 
         const updatePayload: Partial<TimesheetRow> = {
@@ -787,9 +781,26 @@ export class TimesheetService {
       return weekTotal + rowTotal;
     }, 0);
 
-    await this.timesheetRepository.update(timesheet.id, { totalMinutes });
+    const isSubmittedOrApproved =
+      timesheet.status === TimesheetStatus.SUBMITTED ||
+      timesheet.status === TimesheetStatus.APPROVED;
 
-    return this.getWeekTimesheet(companyId, userId, range.start);
+    await this.timesheetRepository.update(timesheet.id, {
+      totalMinutes,
+      ...(isSubmittedOrApproved && { status: TimesheetStatus.DRAFT }),
+    });
+
+    if (isSubmittedOrApproved) {
+      const rowsToUnlock = await this.timesheetRowRepository.findAllForTimesheet(timesheet.id);
+      for (const row of rowsToUnlock) {
+        await this.timesheetRowRepository.update(row.id, {
+          locked: false,
+          status: TimesheetRowStatus.DRAFT,
+        });
+      }
+    }
+
+    return this.getWeekTimesheet(companyId, userId, weekStart);
   }
 
   public async submitWeekTimesheet(

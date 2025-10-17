@@ -28,7 +28,7 @@ import TimesheetRowEditor from '@/components/timesheet/TimesheetRowEditor';
 import { AppBreadcrumbs } from '@/components/ui/Breadcrumbs';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { useAuth } from '@/hooks/useAuth';
-import { useWeeklyTimesheet, WeeklyRowState } from '@/hooks/useTimesheet';
+import { useWeeklyTimesheet } from '@/hooks/useTimesheet';
 import { useCountriesLookup, useTimeCodesLookup } from '@/hooks/useTimesheetLookups';
 import { useUsersLookup } from '@/hooks/useUsersLookup';
 import {
@@ -52,7 +52,7 @@ const MyTimesheetPage = () => {
   const [selectedUser, setSelectedUser] = useState<UserResponseDto | null>(null);
   const [userQuery, setUserQuery] = useState('');
 
-  const canCreateForUser = user?.permissions.includes('timesheet.create.forUser');
+  const canCreateForUser = user?.permissions?.includes('timesheet.create.forUser') ?? false;
 
   const weekStartIso = formatISO(selectedDate, { representation: 'date' });
   const weekDates: WeekDate[] = useMemo(
@@ -81,7 +81,7 @@ const MyTimesheetPage = () => {
     replaceRows,
     submitWeek,
     forceSave,
-  } = useWeeklyTimesheet({ weekStart: weekStartIso, userId: selectedUser?.id });
+  } = useWeeklyTimesheet({ weekStart: weekStartIso });
 
   const { data: users, isLoading: usersLoading } = useUsersLookup(userQuery);
   const { data: timeCodes = [], isLoading: timeCodesLoading } = useTimeCodesLookup(timeCodeQuery);
@@ -120,18 +120,6 @@ const MyTimesheetPage = () => {
     replaceRows([...rows, newRow]);
     setSelectedTimeCode(null);
     setTimeCodeQuery('');
-  };
-
-  const handleDuplicateRow = (row: WeeklyRowState) => {
-    const duplicate: WeeklyRowState = {
-      ...row,
-      clientId: `dup-${row.clientId}-${Date.now()}`,
-      id: undefined,
-      locked: false,
-      status: TimesheetRowStatus.DRAFT,
-      entries: { ...row.entries },
-    };
-    replaceRows([...rows, duplicate]);
   };
 
   const handleRemoveRow = (rowId: string) => {
@@ -408,7 +396,6 @@ const MyTimesheetPage = () => {
 
                 <TableContainer
                   sx={{
-                    maxHeight: '60vh',
                     borderRadius: 1,
                     border: `1px solid ${theme.palette.divider}`,
                   }}
@@ -418,24 +405,34 @@ const MyTimesheetPage = () => {
                       <TableRow>
                         <TableCell>Activity</TableCell>
                         <TableCell>Time code</TableCell>
-                        <TableCell>Location</TableCell>
-                        <TableCell>Country</TableCell>
-                        <TableCell>Employee location</TableCell>
-                        <TableCell>Billable</TableCell>
-                        <TableCell>Status</TableCell>
+                        <TableCell sx={{ display: { xs: 'none', lg: 'table-cell' } }}>
+                          Location
+                        </TableCell>
+                        <TableCell sx={{ display: { xs: 'none', lg: 'table-cell' } }}>
+                          Country
+                        </TableCell>
+                        <TableCell sx={{ display: { xs: 'none', lg: 'table-cell' } }}>
+                          Employee location
+                        </TableCell>
+                        <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                          Billable
+                        </TableCell>
+                        <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                          Status
+                        </TableCell>
                         {weekDates.map((day) => (
-                          <TableCell key={day.iso} align="right">
+                          <TableCell key={day.iso} align="center">
                             {day.label}
                           </TableCell>
                         ))}
-                        <TableCell align="right">Total</TableCell>
-                        <TableCell align="right">Actions</TableCell>
+                        <TableCell align="center">Total</TableCell>
+                        <TableCell align="center">Actions</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {rows.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={weekDates.length + 9}>
+                          <TableCell colSpan={weekDates.length + 10}>
                             <Box sx={{ py: 6 }}>
                               <Typography
                                 variant="body1"
@@ -464,7 +461,6 @@ const MyTimesheetPage = () => {
                             countries={countries}
                             onUpdateRow={updateRow}
                             onUpdateEntry={updateEntry}
-                            onDuplicate={() => handleDuplicateRow(row)}
                             onClear={() => updateRow(row.id ?? row.clientId, { entries: {} })}
                             onRemove={() => handleRemoveRow(row.id ?? row.clientId)}
                             timesheetStatus={timesheetStatus}
