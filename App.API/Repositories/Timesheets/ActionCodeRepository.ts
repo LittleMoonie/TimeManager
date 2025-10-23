@@ -34,7 +34,10 @@ export class ActionCodeRepository extends BaseRepository<ActionCode> {
    * @returns A Promise that resolves to an array of ActionCode entities.
    */
   async findAllInCompany(companyId: string): Promise<ActionCode[]> {
-    return this.repository.find({ where: { companyId } });
+    return this.repository.find({ 
+      where: { companyId, allowTimeLogging: true },
+      relations: ['category'],
+    });
   }
 
   /**
@@ -49,9 +52,10 @@ export class ActionCodeRepository extends BaseRepository<ActionCode> {
     const term = `%${q.trim()}%`;
     return this.repository.find({
       where: [
-        { companyId, name: ILike(term) },
-        { companyId, code: ILike(term) },
+        { companyId, name: ILike(term), allowTimeLogging: true },
+        { companyId, code: ILike(term), allowTimeLogging: true },
       ],
+      relations: ['category'],
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       order: { createdAt: 'DESC' } as any,
     });

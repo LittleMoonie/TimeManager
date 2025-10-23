@@ -1771,6 +1771,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node-cron@npm:^3.0.11":
+  version: 3.0.11
+  resolution: "@types/node-cron@npm:3.0.11"
+  checksum: 10c0/21cd0255988da2935bc8bf010da8b31624911ec10ef5d9a96a59c57193f60b27c1749b2e27c2a292a697d00195da5b8848a707345bb276abc39c96287ee82005
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:*":
   version: 24.7.2
   resolution: "@types/node@npm:24.7.2"
@@ -3991,6 +3998,7 @@ __metadata:
     "@types/jsonwebtoken": "npm:^9.0.10"
     "@types/mocha": "npm:^10.0.10"
     "@types/node": "npm:^22.18.10"
+    "@types/node-cron": "npm:^3.0.11"
     "@types/passport": "npm:^1.0.17"
     "@types/passport-jwt": "npm:^3.0.13"
     "@types/pg": "npm:^8.15.5"
@@ -4011,6 +4019,7 @@ __metadata:
     jest: "npm:^29.7.0"
     joi: "npm:^17.13.3"
     jsonwebtoken: "npm:^9.0.2"
+    node-cron: "npm:^4.2.1"
     passport: "npm:^0.7.0"
     passport-jwt: "npm:^4.0.1"
     pg: "npm:^8.16.3"
@@ -5651,6 +5660,13 @@ __metadata:
   dependencies:
     node-gyp: "npm:latest"
   checksum: 10c0/e4de0b4e70998fed7ef41933946f60565fc3a17cb83b7d626a0c0bb1f734cf7852e0e596f12681e7c8ed424163ee3cdbb4f0abaa9cc269d03f48834c263ba162
+  languageName: node
+  linkType: hard
+
+"node-cron@npm:^4.2.1":
+  version: 4.2.1
+  resolution: "node-cron@npm:4.2.1"
+  checksum: 10c0/804df01df230e96fd2f8ffcde004f4d5af953bccdf3ccf993dc450526dd65f553a2f2ad4bc0faf55c90c38cbc99c9ddbb88ee16cba3fc6bc74e606da6efb249e
   languageName: node
   linkType: hard
 

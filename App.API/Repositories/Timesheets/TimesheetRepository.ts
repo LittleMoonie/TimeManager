@@ -1,7 +1,7 @@
 import Container, { Service } from 'typedi';
-import { FindOneOptions } from 'typeorm';
+import { FindOneOptions, In } from 'typeorm';
 
-import { Timesheet } from '../../Entities/Timesheets/Timesheet';
+import { Timesheet, TimesheetStatus } from '../../Entities/Timesheets/Timesheet';
 import { BaseRepository } from '../BaseRepository';
 
 /**
@@ -66,6 +66,39 @@ export class TimesheetRepository extends BaseRepository<Timesheet> {
     };
     return this.repository.findOne(options);
   }
-}
 
+  /**
+   * @description Finds the last submitted or approved timesheet for a specific user.
+   * @param companyId The unique identifier of the company.
+   * @param userId The unique identifier of the user.
+   * @returns A Promise that resolves to the Timesheet entity or null if not found.
+   */
+  async findLastSubmittedForUser(companyId: string, userId: string): Promise<Timesheet | null> {
+    return this.repository.findOne({
+      where: {
+        companyId,
+        userId,
+        status: In([TimesheetStatus.SUBMITTED, TimesheetStatus.APPROVED]),
+      },
+      order: { periodEnd: 'DESC' },
+      relations: ['rows', 'rows.timeCode'],
+    });
+  }
+
+  /**
+   * @description Finds all timesheets for a specific company and week.
+   * @param companyId The unique identifier of the company.
+   * @param weekStart The start date of the week (e.g., "YYYY-MM-DD").
+   * @returns A Promise that resolves to an array of Timesheet entities.
+   */
+  async findAllInCompanyForWeek(companyId: string, weekStart: string, status?: TimesheetStatus): Promise<Timesheet[]> {
+    return this.repository.find({
+      where: {
+        companyId,
+        periodStart: weekStart,
+        ...(status && { status }),
+      },
+    });
+  }
+}
 Container.set('TimesheetRepository', new TimesheetRepository());

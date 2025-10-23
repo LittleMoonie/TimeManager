@@ -38,6 +38,7 @@ import { TimesheetHistoryRepository } from '../../Repositories/Timesheets/Timesh
 import { TimesheetRepository } from '../../Repositories/Timesheets/TimesheetRepository';
 import { TimesheetRowRepository } from '../../Repositories/Timesheets/TimesheetRowRepository';
 import { UserRepository } from '../../Repositories/Users/UserRepository';
+import { Container } from 'typeorm-typedi-extensions';
 
 /**
  * @description Service layer for managing Timesheet entities. This service provides business logic
@@ -486,6 +487,26 @@ export class TimesheetService {
         periodEnd: range.end,
       });
       created = true;
+
+      const lastSubmitted = await this.timesheetRepository.findLastSubmittedForUser(companyId, userId);
+      if (lastSubmitted && lastSubmitted.rows) {
+        for (const row of lastSubmitted.rows) {
+          await this.timesheetRowRepository.create({
+            companyId,
+            userId,
+            timesheetId: timesheet.id,
+            activityLabel: row.activityLabel,
+            timeCodeId: row.timeCodeId,
+            billable: row.billable,
+            location: row.location,
+            countryCode: row.countryCode,
+            employeeCountryCode: row.employeeCountryCode,
+            status: TimesheetRowStatus.DRAFT,
+            locked: false,
+            sortOrder: row.sortOrder,
+          });
+        }
+      }
     }
 
     return { timesheet, created, range };
@@ -1087,3 +1108,5 @@ export class TimesheetService {
     await this.timesheetRepository.delete(timesheet.id);
   }
 }
+
+Container.set('TimesheetService', TimesheetService);

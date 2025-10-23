@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { ActionCodeBillableDefault } from './ActionCodeBillableDefault';
+import type { ActionCodeCategory } from './ActionCodeCategory';
 import type { ActionCodeLocationPolicy } from './ActionCodeLocationPolicy';
 import type { ActionCodeType } from './ActionCodeType';
 import type { Company } from './Company';
@@ -21,8 +22,11 @@ export type ActionCode = {
     color: string;
     type: ActionCodeType;
     active: boolean;
+    allowTimeLogging: boolean;
     billableDefault: ActionCodeBillableDefault;
     billableEditable: boolean;
     locationPolicy: ActionCodeLocationPolicy;
+    categoryId?: string;
+    category?: ActionCodeCategory;
 };
 

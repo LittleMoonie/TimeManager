@@ -9,6 +9,8 @@ export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { ActionCode } from './models/ActionCode';
 export { ActionCodeBillableDefault } from './models/ActionCodeBillableDefault';
+export type { ActionCodeCategory } from './models/ActionCodeCategory';
+export type { ActionCodeCategoryResponseDto } from './models/ActionCodeCategoryResponseDto';
 export { ActionCodeLocationPolicy } from './models/ActionCodeLocationPolicy';
 export { ActionCodeType } from './models/ActionCodeType';
 export type { ActiveSession } from './models/ActiveSession';
@@ -18,6 +20,7 @@ export { ApproverPolicy } from './models/ApproverPolicy';
 export type { Company } from './models/Company';
 export type { CompanyResponseDto } from './models/CompanyResponseDto';
 export type { CompanySettings } from './models/CompanySettings';
+export type { CreateActionCodeCategoryDto } from './models/CreateActionCodeCategoryDto';
 export type { CreateActionCodeDto } from './models/CreateActionCodeDto';
 export type { CreateCompanyDto } from './models/CreateCompanyDto';
 export type { CreateLeaveRequestDto } from './models/CreateLeaveRequestDto';
@@ -71,6 +74,7 @@ export type { TimesheetWeekRowRejectionDto } from './models/TimesheetWeekRowReje
 export type { TimesheetWeekSettingsDto } from './models/TimesheetWeekSettingsDto';
 export type { TimesheetWeekSubmitDto } from './models/TimesheetWeekSubmitDto';
 export type { TimesheetWeekUpsertDto } from './models/TimesheetWeekUpsertDto';
+export type { UpdateActionCodeCategoryDto } from './models/UpdateActionCodeCategoryDto';
 export type { UpdateActionCodeDto } from './models/UpdateActionCodeDto';
 export type { UpdateCompanyDto } from './models/UpdateCompanyDto';
 export type { UpdateCompanySettingsDto } from './models/UpdateCompanySettingsDto';
@@ -91,6 +95,7 @@ export type { UserStatus } from './models/UserStatus';
 export type { UserStatusResponseDto } from './models/UserStatusResponseDto';
 export { WorkMode } from './models/WorkMode';
 
+export { ActionCodeCategoriesService } from './services/ActionCodeCategoriesService';
 export { ActionCodesService } from './services/ActionCodesService';
 export { ActiveSessionsService } from './services/ActiveSessionsService';
 export { AnonymizationService } from './services/AnonymizationService';

@@ -2,6 +2,7 @@ import { Column, Entity, ManyToOne, Index, JoinColumn, Unique } from 'typeorm';
 
 import { BaseEntity } from '../BaseEntity';
 import { Company } from '../Companies/Company';
+import { ActionCodeCategory } from './ActionCodeCategory';
 
 /**
  * @description Defines the type of an action code, indicating if it's billable or non-billable.
@@ -74,6 +75,12 @@ export class ActionCode extends BaseEntity {
   @Column({ type: 'boolean', default: true }) active!: boolean;
 
   /**
+   * @description Determines if time can be logged against this action code.
+   * @example true
+   */
+  @Column({ type: 'boolean', default: true }) allowTimeLogging!: boolean;
+
+  /**
    * @description Default billable behaviour for rows using this time code.
    */
   @Column({
@@ -98,4 +105,17 @@ export class ActionCode extends BaseEntity {
     default: ActionCodeLocationPolicy.ANY,
   })
   locationPolicy!: ActionCodeLocationPolicy;
+
+  /**
+   * @description The unique identifier of the category to which this action code belongs.
+   * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+   */
+  @Column('uuid', { nullable: true }) categoryId?: string;
+
+  /**
+   * @description The category associated with this action code.
+   */
+  @ManyToOne(() => ActionCodeCategory, (category) => category.actionCodes, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'categoryId' })
+  category?: ActionCodeCategory;
 }

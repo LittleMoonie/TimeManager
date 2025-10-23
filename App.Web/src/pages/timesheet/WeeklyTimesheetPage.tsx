@@ -266,6 +266,7 @@ const WeeklyTimesheetPage = () => {
                   inputValue={timeCodeQuery}
                   onInputChange={(_, value) => setTimeCodeQuery(value)}
                   getOptionLabel={(option) => `${option.code} — ${option.name}`}
+                  groupBy={(option) => option.category?.name ?? 'Uncategorized'}
                   renderInput={(params) => (
                     <TextField
                       {...params}
