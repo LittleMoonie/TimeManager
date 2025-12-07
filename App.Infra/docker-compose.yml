@@ -28,6 +28,8 @@ services:
   adminer:
     image: adminer:latest
     container_name: gogotime-adminer
+    profiles:
+      - devtools
     restart: unless-stopped
     ports:
       - '8081:8080'
@@ -141,6 +143,8 @@ services:
       context: ./jenkins
       dockerfile: Dockerfile
     container_name: gogotime-jenkins
+    profiles:
+      - ci
     user: root
     restart: unless-stopped
     ports:
@@ -157,6 +161,8 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
+    profiles:
+      - monitoring
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
@@ -168,6 +174,8 @@ services:
   node-exporter:
     image: prom/node-exporter:latest
     container_name: node-exporter
+    profiles:
+      - monitoring
     restart: unless-stopped
     ports:
       - '9100:9100'
@@ -186,6 +194,8 @@ services:
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
     container_name: cadvisor
+    profiles:
+      - monitoring
     ports:
       - 8098:8080
     volumes:
@@ -204,6 +214,8 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
+    profiles:
+      - monitoring
     ports:
       - '3001:3000'
     environment:
@@ -219,6 +231,8 @@ services:
 
   docs:
     container_name: gogotime-docs
+    profiles:
+      - docs
     build:
       context: ../App.Docusaurus
       dockerfile: Dockerfile

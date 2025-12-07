@@ -14,7 +14,7 @@ Our Docker infrastructure provides a consistent, efficient, and scalable environ
 
 ## 🚀 Development Workflow with Docker
 
-For local development, we recommend using Docker Compose, which orchestrates all necessary services (frontend, backend, database, etc.) with a single command.
+For local development, we recommend using Docker Compose, which orchestrates all necessary services (frontend, backend, database, etc.) with a single command. By default the stack starts API, web, and Postgres; heavier tooling is opt-in via profiles.
 
 ### Development Mode
 
@@ -36,7 +36,7 @@ Our Docker Compose setup includes several key services:
 - **Web**: The React frontend application, served by Vite, accessible on a designated port.
 - **API**: The Node.js Express backend API, providing core business logic, accessible on a designated port.
 - **DB**: A PostgreSQL database instance, serving as the primary data store, accessible on its standard port.
-- **Other Services**: Additional helpers such as Adminer, Prometheus, Grafana, Jenkins, node-exporter, and cAdvisor support database inspection and observability.
+- **Other Services**: Additional helpers such as Adminer, Prometheus, Grafana, Jenkins, node-exporter, and cAdvisor support database inspection and observability. Enable them via Compose profiles: `devtools` (Adminer), `monitoring` (Prometheus/Grafana/cAdvisor/node-exporter), and `ci` (Jenkins).
 - **Docs**: The Docusaurus container now runs `yarn start:watch`, which continuously mirrors `App.API/swagger.json` into `static/swagger.json` and serves the docs (and embedded Swagger UI) at `http://localhost:3002`. Visit `/api` to browse the live API spec.
 
 Each service is configured with appropriate health checks to ensure it's fully operational before dependent services start.

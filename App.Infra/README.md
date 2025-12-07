@@ -54,6 +54,7 @@ Heavy services are opt-in via Compose profiles so the default dev cycle stays fa
 
 - `monitoring`: Prometheus, node-exporter, cAdvisor, Grafana
 - `ci`: Jenkins with Docker + Node tooling
+- `devtools`: Adminer database UI
 - `docs`: Docusaurus live preview
 
 Examples:
@@ -64,6 +65,9 @@ docker compose --profile monitoring up --build
 
 # Bring Jenkins online only when needed
 docker compose --profile ci up --build
+
+# Add Adminer for quick DB introspection
+docker compose --profile devtools up --build
 
 # Run docs with live reload alongside the app
 docker compose --profile docs up --build --watch
@@ -126,17 +130,20 @@ cp .env.example .env
 
 ### Environment Variables
 
-| Variable             | Default  | Description            |
-| -------------------- | -------- | ---------------------- |
-| `DB_HOST`            | db       | Database hostname      |
-| `DB_PORT`            | 5432     | Database port          |
-| `DB_USER`            | postgres | Database username      |
-| `DB_PASS`            | password | Database password      |
-| `DB_NAME`            | gogotime | Database name          |
-| `JWT_SECRET`         | -        | JWT secret key         |
-| `JWT_REFRESH_SECRET` | -        | JWT refresh secret key |
-| `API_PORT`           | 4000     | API service port       |
-| `WEB_PORT`           | 3000     | Web service port       |
+| Variable                      | Default  | Description                                   |
+| ----------------------------- | -------- | --------------------------------------------- |
+| `DB_HOST`                     | db       | Database hostname                             |
+| `DB_PORT`                     | 5432     | Database port                                 |
+| `DB_USER`                     | postgres | Database username                             |
+| `DB_PASS`                     | password | Database password                             |
+| `DB_NAME`                     | gogotime | Database name                                 |
+| `JWT_SECRET`                  | -        | JWT secret key                                |
+| `JWT_REFRESH_SECRET`          | -        | JWT refresh secret key                        |
+| `API_PORT`                    | 4000     | API service port                              |
+| `WEB_PORT`                    | 3000     | Web service port                              |
+| `RUN_SEEDERS_ON_BOOT`         | false    | Run seeders automatically on startup          |
+| `ALLOW_SEEDERS_IN_PRODUCTION` | false    | Require explicit opt-in to seed in production |
+| `SEED_USER_PASSWORD`          | -        | Temporary password used for seeded accounts   |
 
 ## 📁 File Structure
 

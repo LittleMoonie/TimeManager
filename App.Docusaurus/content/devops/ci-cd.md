@@ -42,7 +42,14 @@ cd App.Infra
 docker compose up --build --watch
 ```
 
-This brings up PostgreSQL, Adminer, the API, the web client, Prometheus/Grafana, Jenkins, and a docs preview. Hot reload is enabled for API, web, and docs containers via the Compose `develop.watch` configuration.
+This brings up PostgreSQL, the API, and the web client. Opt-in services require profiles:
+
+- `--profile devtools` for Adminer
+- `--profile monitoring` for Prometheus/Grafana/cAdvisor/node-exporter
+- `--profile ci` for Jenkins
+- `--profile docs` for the Docusaurus preview
+
+Hot reload is enabled for API and web containers via the Compose `develop.watch` configuration.
 
 ### Manual Promotion
 

@@ -23,12 +23,13 @@ Refer to `App.API/Entities/…` for concrete fields (e.g., `Users/User.ts`, `Tim
 
 - Generate migrations with `yarn migrate:generate` after updating entities.
 - Apply migrations using `yarn migrate:up`; rollback with `yarn migrate:down`.
-- Seed data exists in `App.API/Seeds` (company, roles/permissions, default users). Run `yarn seed` to populate a new database.
+- Seed data exists in `App.API/Seeds` (company, roles/permissions, default users). Set `SEED_USER_PASSWORD` and run `yarn seed` to populate a new database.
+- Seeders are blocked when `NODE_ENV=production` unless `ALLOW_SEEDERS_IN_PRODUCTION=true` is set explicitly.
 - Keep migrations idempotent and avoid destructive changes without a corresponding data migration plan.
 
 ## 🧪 Local Development Tips
 
-1. Start the database through Docker Compose (`cd App.Infra && docker compose up`).
+1. Start the database through Docker Compose (`cd App.Infra && docker compose up`). Add `--profile devtools` if you want Adminer.
 2. Connect via Adminer (`http://localhost:8081`) or `docker compose exec db psql -U <user> <db>`.
 3. Reset the database by dropping volumes: `docker compose down -v` (only in development). Then rerun migrations and seeds.
 

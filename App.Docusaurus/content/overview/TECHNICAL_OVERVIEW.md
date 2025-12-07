@@ -6,20 +6,20 @@ GoGoTime is a monorepo containing a TypeScript API, a React/Vite frontend, Docke
 
 ## 🌐 Architecture at a Glance
 
-| Layer          | Technology                                              | Notes                                                                                     |
-| -------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Backend        | Node.js 24, Express 5, TypeScript, TypeORM              | Lives in `App.API`. Uses PostgreSQL, JWT auth, and TypeDI for dependency injection.       |
-| Frontend       | React 19, TypeScript, Material UI, TanStack Query, Vite | Lives in `App.Web`. Consumes a generated OpenAPI client.                                  |
-| Data           | PostgreSQL 16 (Docker image `postgres:18-alpine`)       | Seed data and migrations housed in `App.API/Migrations` and `App.API/Seeds`.              |
-| Infrastructure | Docker Compose (`App.Infra/docker-compose.yml`)         | Spins up API, web, docs, Jenkins, Prometheus, Grafana, Adminer, and supporting exporters. |
-| Documentation  | Docusaurus (`App.Docusaurus/`)                          | Markdown-driven docs, deployed manually today.                                            |
+| Layer          | Technology                                              | Notes                                                                                                    |
+| -------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Backend        | Node.js 24, Express 5, TypeScript, TypeORM              | Lives in `App.API`. Uses PostgreSQL, JWT auth, and TypeDI for dependency injection.                      |
+| Frontend       | React 19, TypeScript, Material UI, TanStack Query, Vite | Lives in `App.Web`. Consumes a generated OpenAPI client.                                                 |
+| Data           | PostgreSQL 16 (Docker image `postgres:18-alpine`)       | Seed data and migrations housed in `App.API/Migrations` and `App.API/Seeds`.                             |
+| Infrastructure | Docker Compose (`App.Infra/docker-compose.yml`)         | Spins up API and web by default; optional profiles add docs, Jenkins, Adminer, and monitoring exporters. |
+| Documentation  | Docusaurus (`App.Docusaurus/`)                          | Markdown-driven docs, deployed manually today.                                                           |
 
 ## 🔗 How Components Interact
 
 - The API exposes REST endpoints documented by TSOA. `yarn api:generate` rewrites `swagger.json`, and `yarn api:client` regenerates the frontend TypeScript SDK.
 - The frontend imports the generated client from `src/lib/api` and keeps session state via TanStack Query (`useAuth`).
 - Docker Compose wires the services together with environment variables via `App.Infra/.env`, enabling hot reload for API, web, and docs containers.
-- Prometheus, Grafana, node-exporter, and cAdvisor run alongside the app to provide basic container metrics. Logs stay in container stdout.
+- Prometheus, Grafana, node-exporter, and cAdvisor can run alongside the app (enable the `monitoring` profile) to provide basic container metrics. Logs stay in container stdout.
 
 ## 🎯 Engineering Principles
 

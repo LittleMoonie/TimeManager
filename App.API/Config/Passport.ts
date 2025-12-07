@@ -3,9 +3,14 @@ import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import User from '../Entities/Users/User';
 import { AppDataSource } from '../Server/Database';
 
+const jwtSigningKey = process.env.JWT_SECRET;
+if (!jwtSigningKey) {
+  throw new Error('JWT_SECRET is not configured');
+}
+
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.SECRET, // Use process.env.SECRET as defined in UserController
+  secretOrKey: jwtSigningKey,
 };
 
 export const jwtStrategy = new JwtStrategy(jwtOptions, async (payload: { id: string }, done) => {

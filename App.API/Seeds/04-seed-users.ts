@@ -15,10 +15,14 @@ export async function seedUsers(
   roles: RolesMap,
   statuses: StatusMap,
 ) {
+  const seedUserPassphrase = process.env.SEED_USER_PASSWORD;
+  if (!seedUserPassphrase) {
+    throw new Error('SEED_USER_PASSWORD must be set before running seeders');
+  }
+
   const userRepo = ds.getRepository(User);
 
-  const defaultPassword = 'ChangeMe123!'; // dev-only; rotate in CI if needed
-  const passwordHash = await argon2.hash(defaultPassword);
+  const passwordHash = await argon2.hash(seedUserPassphrase);
 
   const makeUser = async (email: string, firstName: string, lastName: string, roleName: string) => {
     const role = roles.get(roleName)!;
@@ -66,10 +70,6 @@ export async function seedUsers(
   const hr = await makeUser('hr@gogotime.com', 'Harriet', 'HumanResources', 'hr');
   const payroll = await makeUser('payroll@gogotime.com', 'Pat', 'Payroll', 'payroll');
   const auditor = await makeUser('auditor@gogotime.com', 'Audrey', 'Auditor', 'auditor');
-
-  // Print dev creds (optional)
-  console.warn('🔑 Default dev password for seeded users:', defaultPassword);
-  console.warn('   (They must change it on first login)');
 
   return { projectCodeAdmin, companyAdmin, mgr, empl, hr, payroll, auditor };
 }

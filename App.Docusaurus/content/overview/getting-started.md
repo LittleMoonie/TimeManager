@@ -20,13 +20,17 @@ cp .env.example .env        # update secrets if needed
 docker compose up --build --watch
 ```
 
-Hot reload is enabled for API, web, and docs containers. Services expose:
+Hot reload is enabled for API and web containers. Defaults expose:
 
 - Web app: `http://localhost:3000`
 - API + Swagger UI: `http://localhost:4000` / `http://localhost:4000/api/docs`
-- Adminer: `http://localhost:8081` (DB dashboard, default creds from `.env`)
-- Grafana: `http://localhost:3001`
-- Jenkins demo: `http://localhost:8080`
+
+Opt-in services:
+
+- Adminer (`--profile devtools`): `http://localhost:8081`
+- Observability (`--profile monitoring`): Grafana at `http://localhost:3001` plus Prometheus/node-exporter/cAdvisor
+- Jenkins (`--profile ci`): `http://localhost:8080`
+- Docs (`--profile docs`): `http://localhost:3002`
 
 Stop the stack with `docker compose down`.
 
@@ -82,4 +86,4 @@ Remember to set up a Postgres instance (Docker or local) and copy `.env.example`
 
 ---
 
-**SUMMARY**: Install Node 24+, Yarn 4, and Docker; run `docker compose up --build --watch` from `App.Infra` to launch the full stack; use Yarn scripts for development, testing, and OpenAPI generation; update documentation alongside code changes.
+**SUMMARY**: Install Node 24+, Yarn 4, and Docker; run `docker compose up --build --watch` from `App.Infra` to launch the core stack, adding profiles for Adminer/monitoring/Jenkins/docs as needed; use Yarn scripts for development, testing, and OpenAPI generation; update documentation alongside code changes.

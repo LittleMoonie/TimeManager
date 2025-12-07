@@ -91,7 +91,10 @@ FOUND=0
 for f in $FILES; do
   [ -f "$f" ] || continue
   if file --mime "$f" | grep -q binary; then continue; fi
-  if git diff --cached -U0 -- "$f" | grep -Ein --color=never "$SECRET_RE" >/tmp/secret_hits.txt 2>/dev/null; then
+  if git diff --cached -U0 -- "$f" \
+    | grep '^+' | grep -vE '^\+\+\+' \
+    | sed 's/^+//' \
+    | grep -Ein --color=never "$SECRET_RE" >/tmp/secret_hits.txt 2>/dev/null; then
     if [ $FOUND -eq 0 ]; then echo ""; red "❌ Potential secrets detected!"; FOUND=1; fi
     echo ""; ylw "File: $f"; sed 's/^/   ⚠ /' /tmp/secret_hits.txt; rm -f /tmp/secret_hits.txt
   fi

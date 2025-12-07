@@ -6,7 +6,7 @@ GoGoTime ships with a pragmatic observability stack aimed at local visibility ra
 
 ## 🏗️ Current Stack
 
-- **Metrics & Dashboards**: The Docker Compose file (`App.Infra/docker-compose.yml`) starts Prometheus, node-exporter, cAdvisor, and Grafana. Prometheus scrapes the container metrics exposed by these exporters; Grafana can visualise container CPU, memory, and basic host statistics using prebuilt dashboards.
+- **Metrics & Dashboards**: The Docker Compose file (`App.Infra/docker-compose.yml`) can start Prometheus, node-exporter, cAdvisor, and Grafana via the `monitoring` profile. Prometheus scrapes the container metrics exposed by these exporters; Grafana can visualise container CPU, memory, and basic host statistics using prebuilt dashboards.
 - **Logging**: The API uses Winston (`App.API/Utils/Logger.ts`) to write JSON-formatted logs to stdout/stderr. Docker captures these logs, and developers can inspect them with `docker compose logs api`. There is no centralized log store such as Loki yet.
 - **Tracing**: No distributed tracing is configured. Requests are inspected through logs and database audits.
 - **Alerting**: Alertmanager is not part of the Compose stack; teams handle alerts manually by monitoring Grafana dashboards or container logs.
@@ -25,7 +25,7 @@ The Vite client does not push analytics. When instrumenting UI events, coordinat
 
 ## 🔎 Using the Local Stack
 
-1. Start services with `cd App.Infra && docker compose up --build --watch`.
+1. Start core services with `cd App.Infra && docker compose up --build --watch`. Add `--profile monitoring` when you want the metrics stack.
 2. Access Grafana at `http://localhost:3001` (defaults: `admin` / `admin`).
 3. Explore the built-in dashboards for container resource usage.
 4. Tail API logs via `docker compose logs -f api` or through your IDE console.

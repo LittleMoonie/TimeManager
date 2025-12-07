@@ -37,8 +37,18 @@ let seedsRun = false;
 
 export const runSeeds = async (opts?: { force?: boolean }): Promise<void> => {
   const force = opts?.force ?? false;
+  const isProduction = process.env.NODE_ENV === 'production';
+  const allowProdSeeds = process.env.ALLOW_SEEDERS_IN_PRODUCTION === 'true';
 
   if (seedsRun && !force) return;
+
+  if (isProduction && !allowProdSeeds) {
+    console.warn(
+      '🌱 Seeders skipped: NODE_ENV=production. Set ALLOW_SEEDERS_IN_PRODUCTION=true to override.',
+    );
+    seedsRun = true;
+    return;
+  }
 
   if (!AppDataSource.isInitialized) {
     throw new Error('Data source has not been initialised yet');
@@ -84,8 +94,17 @@ export const connectDB = async (): Promise<void> => {
         console.warn('✅ Database migrations executed');
       }
 
-      if (process.env.RUN_SEEDERS_ON_BOOT?.toLowerCase() === 'true') {
-        await runSeeds();
+      const shouldRunSeeds = process.env.RUN_SEEDERS_ON_BOOT?.toLowerCase() === 'true';
+      const allowProdSeeds = process.env.ALLOW_SEEDERS_IN_PRODUCTION === 'true';
+      const isProduction = process.env.NODE_ENV === 'production';
+      if (shouldRunSeeds) {
+        if (isProduction && !allowProdSeeds) {
+          console.warn(
+            '🌱 Seeders skipped on boot: RUN_SEEDERS_ON_BOOT=true but NODE_ENV=production. Set ALLOW_SEEDERS_IN_PRODUCTION=true to override.',
+          );
+        } else {
+          await runSeeds();
+        }
       }
     }
   } catch (err) {

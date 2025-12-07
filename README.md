@@ -167,8 +167,9 @@ docker compose down
 
 ### 🌱 Database Seeding
 
-- Seeders now run **only when** `RUN_SEEDERS_ON_BOOT=true` is set in the environment (default: `false`).
-- Use this flag for the initial project boot or when you intentionally want to reseed an empty database.
+- Seeders now run **only when** `RUN_SEEDERS_ON_BOOT=true` is set in the environment (default: `false`), and they are blocked when `NODE_ENV=production` unless `ALLOW_SEEDERS_IN_PRODUCTION=true`.
+- Set `SEED_USER_PASSWORD` before running seeders so default accounts do not share a hard-coded password.
+- Use the seed flag for the initial project boot or when you intentionally want to reseed an empty database.
 - To reseed programmatically, call `runSeeds({ force: true })` after connecting to the data source.
 
 ### 📖 Documentation Commands
