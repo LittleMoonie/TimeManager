@@ -8,34 +8,41 @@ The timesheet module is a core feature of GoGoTime, allowing users to log their 
 
 ## Filling a Weekly Timesheet
 
-Open **Top Menu → Timesheet** to log your hours and update task progress. The weekly grid is fast, keyboard-friendly, and supports autosaving.
+Open **Top Menu → Timesheet** to log your hours and update task progress. The weekly grid is fast, keyboard-friendly, and supports per-day comments.
 
 ### Screen guide
 
-A — **Week navigation**
-Move to the previous or next week. Navigation is limited so you can’t go past the current week.
+A — **Acting for another user**
+If you have the `timesheet.create.forUser` permission, use the **User** selector to fill time on someone else’s behalf.
 
-B — **What you can see & select**
+B — **Week navigation**
+Move to the previous or next week, or jump to a date. (Navigation is limited so you can’t go past the current week.)
+
+C — **What you can see & select**
 The Projects and Work Items shown are controlled by your organization’s settings.
-Prefill options: If "Auto" or "Same codes as last submitted" is enabled in your company settings, your grid will open with those Time Codes pre-added.
+Prefill options: If Auto or Same codes as last submitted is enabled, your grid opens with those Time Codes pre-added.
 
-C — **Add rows**
+D — **Add rows**
 Click **Add row** to insert a new project/non-project activity line.
 
-D — **Enter time**
-Click a cell to enter hours.
+E — **Per-day comments**
+Each day supports a short comment. Use it to describe what you did.
 
-E — **Save vs. Submit**
+F — **Enter time**
+Click a cell to enter hours. Choose between duration, decimal hours, or start/end tabs in the popup (your preference is remembered). Use the comment icon to add or edit the per-day note.
 
-- **Save**: Your changes are saved automatically as a draft.
-- **Submit**: Saves and sends your timesheet for approval.
+### Save vs. Submit
+
+Save keeps your changes as a draft.
+
+Submit saves and sends your timesheet for approval.
 
 (If your workspace uses auto-prefill, auto-save, or auto-submit policies, those will apply as configured by your company.)
 
 ### Tips & troubleshooting
 
 - **Don’t see a time code?**
-  - Use the "Quick-add time code" search bar to find the code you are looking for.
+  - Check **Filter Codes** in the toolbar.
   - Confirm the task hasn’t disabled time logging.
   - Ensure you have the required privilege. If not, contact an admin.
 

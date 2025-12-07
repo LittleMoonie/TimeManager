@@ -1,6 +1,6 @@
 import { plainToInstance, type ClassTransformOptions } from 'class-transformer';
 import { validate, type ValidatorOptions } from 'class-validator';
-import { addDays, formatISO } from 'date-fns';
+import { addDays, formatISO, startOfWeek } from 'date-fns';
 import { Inject, Service } from 'typedi';
 
 import {
@@ -38,7 +38,6 @@ import { TimesheetHistoryRepository } from '../../Repositories/Timesheets/Timesh
 import { TimesheetRepository } from '../../Repositories/Timesheets/TimesheetRepository';
 import { TimesheetRowRepository } from '../../Repositories/Timesheets/TimesheetRowRepository';
 import { UserRepository } from '../../Repositories/Users/UserRepository';
-import { Container } from 'typeorm-typedi-extensions';
 
 /**
  * @description Service layer for managing Timesheet entities. This service provides business logic
@@ -92,6 +91,16 @@ export class TimesheetService {
     const start = formatISO(startDate, { representation: 'date' });
     const end = formatISO(endDate, { representation: 'date' });
     return { start, end };
+  }
+
+  private assertWeekNotInFuture(isoWeekStart: string): void {
+    const currentWeekStart = formatISO(startOfWeek(new Date(), { weekStartsOn: 1 }), {
+      representation: 'date',
+    });
+
+    if (isoWeekStart > currentWeekStart) {
+      throw new UnprocessableEntityError('Cannot manage timesheets beyond the current week.');
+    }
   }
 
   private toWeekSettings(settings?: {
@@ -423,9 +432,11 @@ export class TimesheetService {
     const existingByDay = new Map(existingEntries.map((entry) => [entry.day, entry]));
 
     for (const [day, payload] of entries.entries()) {
-      const { minutes, note } = payload;
+      const rawMinutes = payload.minutes ?? 0;
+      const sanitizedMinutes = Math.max(0, Math.round(rawMinutes));
+      const sanitizedNote = payload.note?.trim() ?? null;
       const current = existingByDay.get(day);
-      if (minutes <= 0) {
+      if (sanitizedMinutes <= 0 && !sanitizedNote) {
         if (current) {
           await this.timesheetEntryRepository.delete(current.id);
           existingByDay.delete(day);
@@ -435,10 +446,10 @@ export class TimesheetService {
 
       if (current) {
         await this.timesheetEntryRepository.update(current.id, {
-          durationMin: minutes,
+          durationMin: sanitizedMinutes,
           country: row.countryCode,
           workMode: this.mapLocationToWorkMode(this.normaliseRowLocation(row.location)),
-          note,
+          note: sanitizedNote,
           status: TimesheetEntryStatus.SAVED,
           statusUpdatedAt: new Date(),
         });
@@ -450,10 +461,10 @@ export class TimesheetService {
           timesheetRowId: row.id,
           actionCodeId: row.timeCodeId,
           day,
-          durationMin: minutes,
+          durationMin: sanitizedMinutes,
           country: row.countryCode,
           workMode: this.mapLocationToWorkMode(this.normaliseRowLocation(row.location)),
-          note,
+          note: sanitizedNote,
           status: TimesheetEntryStatus.SAVED,
           statusUpdatedAt: new Date(),
         });
@@ -473,6 +484,7 @@ export class TimesheetService {
     weekStart: string,
   ): Promise<{ timesheet: Timesheet; created: boolean; range: { start: string; end: string } }> {
     const range = this.getWeekRange(weekStart);
+    this.assertWeekNotInFuture(range.start);
     let timesheet = await this.timesheetRepository.findByPeriod(
       companyId,
       userId,
@@ -488,7 +500,10 @@ export class TimesheetService {
       });
       created = true;
 
-      const lastSubmitted = await this.timesheetRepository.findLastSubmittedForUser(companyId, userId);
+      const lastSubmitted = await this.timesheetRepository.findLastSubmittedForUser(
+        companyId,
+        userId,
+      );
       if (lastSubmitted && lastSubmitted.rows) {
         for (const row of lastSubmitted.rows) {
           await this.timesheetRowRepository.create({
@@ -660,14 +675,20 @@ export class TimesheetService {
   ): Promise<TimesheetWeekResponseDto> {
     const validatedDto = await this.validateDto(TimesheetWeekUpsertDto, dto);
     const payloadRows = (validatedDto.rows ?? []).map((row) => {
+      const rawEntries = Array.isArray(row.entries) ? row.entries : [];
       const rowInstance = plainToInstance(TimesheetWeekRowDto, row, {
         enableImplicitConversion: true,
       });
+      rowInstance.id = row.id;
       rowInstance.countryCode = row.countryCode; // Explicitly set countryCode
       rowInstance.activityLabel = row.activityLabel; // Explicitly set activityLabel
       rowInstance.timeCodeId = row.timeCodeId; // Explicitly set timeCodeId
-      const entryList = Array.isArray(rowInstance.entries) ? rowInstance.entries : [];
-      rowInstance.entries = entryList.map((entry) =>
+      rowInstance.location = row.location; // Preserve location
+      rowInstance.billable = row.billable;
+      rowInstance.status = row.status;
+      rowInstance.locked = row.locked;
+      rowInstance.employeeCountryCode = row.employeeCountryCode ?? null;
+      rowInstance.entries = rawEntries.map((entry) =>
         plainToInstance(TimesheetWeekRowEntryDto, entry, { enableImplicitConversion: true }),
       );
       return rowInstance;
@@ -715,13 +736,33 @@ export class TimesheetService {
         ? payloadRow.employeeCountryCode.toUpperCase()
         : undefined;
 
-      if (!countryCode) {
+      if (location === TimesheetRowLocation.OFFICE || location === TimesheetRowLocation.HYBRID) {
+        const resolvedCountry =
+          countryCode ??
+          (defaultCountryCode ? defaultCountryCode : (officeCountryCodes[0] ?? undefined));
+        if (!resolvedCountry) {
+          throw new UnprocessableEntityError(
+            'Country code is required for office or hybrid timesheet rows.',
+          );
+        }
+        if (!officeCountrySet.has(resolvedCountry)) {
+          throw new UnprocessableEntityError(
+            'Selected country is not a configured company office for office or hybrid work.',
+          );
+        }
+        payloadRow.countryCode = resolvedCountry;
+      } else if (!countryCode) {
         throw new UnprocessableEntityError('Country code is required for all timesheet rows.');
+      }
+
+      const finalCountryCode = (payloadRow.countryCode ?? countryCode)?.toUpperCase();
+      if (finalCountryCode) {
+        payloadRow.countryCode = finalCountryCode;
       }
 
       if (
         (location === TimesheetRowLocation.OFFICE || location === TimesheetRowLocation.HYBRID) &&
-        !officeCountrySet.has(countryCode)
+        (!finalCountryCode || !officeCountrySet.has(finalCountryCode))
       ) {
         throw new UnprocessableEntityError(
           'Selected country is not a configured company office for office or hybrid work.',
@@ -748,7 +789,7 @@ export class TimesheetService {
           timeCodeId: payloadRow.timeCodeId,
           billable: payloadRow.billable,
           location,
-          countryCode,
+          countryCode: finalCountryCode ?? existingRow.countryCode,
           employeeCountryCode: normalizedEmployeeCountry,
           status: payloadRow.status,
           locked:
@@ -770,7 +811,7 @@ export class TimesheetService {
           timeCodeId: payloadRow.timeCodeId,
           billable: payloadRow.billable ?? TimesheetRowBillableTag.AUTO,
           location,
-          countryCode,
+          countryCode: finalCountryCode ?? defaultCountryCode ?? officeCountryCodes[0],
           employeeCountryCode: normalizedEmployeeCountry,
           status: payloadRow.status ?? TimesheetRowStatus.DRAFT,
           locked:
@@ -1108,5 +1149,3 @@ export class TimesheetService {
     await this.timesheetRepository.delete(timesheet.id);
   }
 }
-
-Container.set('TimesheetService', TimesheetService);

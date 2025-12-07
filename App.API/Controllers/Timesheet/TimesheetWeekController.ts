@@ -20,6 +20,7 @@ import {
   TimesheetWeekUpsertDto,
 } from '../../Dtos/Timesheet/TimesheetWeekDto';
 import User from '../../Entities/Users/User';
+import { ForbiddenError } from '../../Errors/HttpErrors';
 import { TimesheetService } from '../../Services/Timesheet/TimesheetService';
 
 @Route('timesheet/weeks')
@@ -44,7 +45,7 @@ export class TimesheetWeekController extends Controller {
       if (
         !me.role.rolePermissions.some((rp) => rp.permission.name === 'timesheet.create.forUser')
       ) {
-        throw new Error("You do not have permission to view other users' timesheets.");
+        throw new ForbiddenError("You do not have permission to view other users' timesheets.");
       }
       targetUserId = userId;
     }
@@ -66,7 +67,9 @@ export class TimesheetWeekController extends Controller {
       if (
         !me.role.rolePermissions.some((rp) => rp.permission.name === 'timesheet.create.forUser')
       ) {
-        throw new Error("You do not have permission to create or update other users' timesheets.");
+        throw new ForbiddenError(
+          "You do not have permission to create or update other users' timesheets.",
+        );
       }
       targetUserId = userId;
     }
@@ -88,7 +91,7 @@ export class TimesheetWeekController extends Controller {
       if (
         !me.role.rolePermissions.some((rp) => rp.permission.name === 'timesheet.create.forUser')
       ) {
-        throw new Error("You do not have permission to submit other users' timesheets.");
+        throw new ForbiddenError("You do not have permission to submit other users' timesheets.");
       }
       targetUserId = userId;
     }

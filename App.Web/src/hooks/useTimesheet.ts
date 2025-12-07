@@ -110,7 +110,7 @@ const mapRowToDto = (row: WeeklyRowState): TimesheetWeekRowDto => {
         minutes: entry.minutes,
         note: entry.note ?? null,
       }))
-      .filter((entry) => entry.minutes > 0)
+      .filter((entry) => entry.minutes > 0 || (entry.note !== null && entry.note.trim().length > 0))
       .sort((a, b) => a.day.localeCompare(b.day)),
   };
 
@@ -151,7 +151,9 @@ const buildComparableSnapshot = (inputRows: WeeklyRowState[]): string => {
           minutes: entry.minutes,
           note: entry.note ?? null,
         }))
-        .filter((entry) => entry.minutes > 0)
+        .filter(
+          (entry) => entry.minutes > 0 || (entry.note !== null && entry.note.trim().length > 0),
+        )
         .sort((a, b) => a.day.localeCompare(b.day));
 
       return {

@@ -9,15 +9,14 @@ import { TimesheetRepository } from '../Repositories/Timesheets/TimesheetReposit
 
 import { TimesheetService } from './Timesheet/TimesheetService';
 
-
-
 @Service()
 export class SchedulingService {
   constructor(
     @Inject('CompanyRepository') private readonly companyRepository: CompanyRepository,
-    @Inject('CompanySettingsRepository') private readonly companySettingsRepository: CompanySettingsRepository,
+    @Inject('CompanySettingsRepository')
+    private readonly companySettingsRepository: CompanySettingsRepository,
     @Inject('TimesheetRepository') private readonly timesheetRepository: TimesheetRepository,
-    @Inject('TimesheetService') private readonly timesheetService: TimesheetService,
+    @Inject(() => TimesheetService) private readonly timesheetService: TimesheetService,
   ) {}
 
   public start(): void {
@@ -36,9 +35,17 @@ export class SchedulingService {
 
           if (localHour === 18) {
             const weekStart = this.getWeekStart(now);
-            const timesheets = await this.timesheetRepository.findAllInCompanyForWeek(company.id, weekStart, TimesheetStatus.DRAFT);
+            const timesheets = await this.timesheetRepository.findAllInCompanyForWeek(
+              company.id,
+              weekStart,
+              TimesheetStatus.DRAFT,
+            );
             for (const timesheet of timesheets) {
-              await this.timesheetService.submitWeekTimesheet(company.id, timesheet.userId, weekStart);
+              await this.timesheetService.submitWeekTimesheet(
+                company.id,
+                timesheet.userId,
+                weekStart,
+              );
             }
           }
         } catch (error) {
