@@ -1,0 +1,35 @@
+import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
+
+import User from '../Entities/Users/User';
+import { AppDataSource } from '../Server/Database';
+
+const jwtSigningKey = process.env.JWT_SECRET;
+if (!jwtSigningKey) {
+  throw new Error('JWT_SECRET is not configured');
+}
+
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: jwtSigningKey,
+};
+
+export const jwtStrategy = new JwtStrategy(jwtOptions, async (payload: { id: string }, done) => {
+  try {
+    const userRepository = AppDataSource.getRepository(User);
+    const user = await userRepository.findOne({
+      where: { id: payload.id },
+      relations: ['role', 'role.rolePermissions', 'role.rolePermissions.permission'],
+    });
+
+    if (user) {
+      // Attach the necessary user information to the request object
+      return done(null, user);
+    } else {
+      return done(null, false);
+    }
+  } catch (error) {
+    return done(error, false);
+  }
+});
+
+// Extend the Express Request type to include the user property

@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+# 🧱 Husky pre-push hook — GoGoTime
+# Blocks pushes to or from protected branches unless ALLOW_PROTECTED_PUSH=1
+
+[ -z "${BASH_VERSION:-}" ] && exec /usr/bin/env bash "$0" "$@"
+set -Eeuo pipefail
+
+# ────────── Helpers ──────────
+red()  { printf "\033[31m%s\033[0m\n" "$*"; }
+grn()  { printf "\033[32m%s\033[0m\n" "$*"; }
+ylw()  { printf "\033[33m%s\033[0m\n" "$*"; }
+blu()  { printf "\033[34m%s\033[0m\n" "$*"; }
+abort(){ red "❌ $*"; exit 1; }
+note() { blu "ℹ️  $*"; }
+ok()   { grn "✅ $*"; }
+
+# ────────── Config ──────────
+PROTECTED=("main" "develop")
+BYPASS="${ALLOW_PROTECTED_PUSH:-0}"
+
+echo ""
+blu "───────────────────────────────────────────────"
+blu "🔒  GoGoTime Push Protection"
+blu "───────────────────────────────────────────────"
+echo ""
+note "Checking for pushes to or from protected branches..."
+
+REMOTE_NAME="${1:-origin}"
+CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo HEAD)"
+UPSTREAM_FULL="$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || true)"
+UPSTREAM_BRANCH="${UPSTREAM_FULL#*/}" # strips 'origin/' if present
+
+# ────────── Utils ──────────
+is_protected() {
+  local name="$1"
+  for p in "${PROTECTED[@]}"; do
+    [[ "$name" == "$p" ]] && return 0
+  done
+  return 1
+}
+
+BLOCK=0
+
+# 🔒 1️⃣ Block any push command explicitly mentioning protected branches
+for arg in "$@"; do
+  for p in "${PROTECTED[@]}"; do
+    if [[ "$arg" =~ (^|[:/])$p($|[[:space:]]) ]]; then
+      red "❌ Push blocked: command references protected branch '$p' (even if no changes)."
+      blu "   Use a Pull Request instead."
+      echo ""
+      exit 1
+    fi
+  done
+done
+
+# 🔒 2️⃣ Block pushes *from* protected local branches
+if is_protected "$CURRENT_BRANCH"; then
+  red "❌ Push blocked: you are on protected branch '$CURRENT_BRANCH'."
+  ylw "   Please create a feature branch (feat/, fix/, chore/, etc.)"
+  echo ""
+  echo "   Example:"
+  echo "     git checkout -b feat/<feature-name>"
+  echo "     git push origin feat/<feature-name>"
+  echo ""
+  BLOCK=1
+fi
+
+# 🔒 3️⃣ Read STDIN for refspecs (the actual push targets)
+# Format: <local_ref> <local_sha> <remote_ref> <remote_sha>
+stdin_seen=0
+while read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
+  stdin_seen=1
+  if [[ "$REMOTE_REF" =~ ^refs/heads/([^[:space:]]+)$ ]]; then
+    target="${BASH_REMATCH[1]}"
+    if is_protected "$target"; then
+      if [[ "$REMOTE_SHA" =~ ^0+$ ]]; then
+        red "❌ Push blocked: deletion of protected branch '$target' is forbidden."
+      else
+        red "❌ Push blocked: remote target '$target' is protected."
+      fi
+      BLOCK=1
+    fi
+  fi
+done < <(cat)  # ensures no unbound variable errors
+
+# 🔒 4️⃣ Fallback check if no refs were read (e.g., plain `git push`)
+if [[ "$stdin_seen" -eq 0 && -n "$UPSTREAM_BRANCH" ]] && is_protected "$UPSTREAM_BRANCH"; then
+  red "❌ Push blocked: upstream '$UPSTREAM_BRANCH' is protected."
+  ylw "   Even default 'git push' commands target this branch."
+  BLOCK=1
+fi
+
+# 🧩 5️⃣ Optional: Prevent direct commits to main/develop
+b="$(git rev-parse --abbrev-ref HEAD)"
+case "$b" in
+  main|develop)
+    red "❌ No direct commits allowed on '$b'."
+    ylw "   Use a feature branch and open a PR."
+    BLOCK=1
+    ;;
+esac
+
+# 🔓 6️⃣ Final decision
+if [[ "$BLOCK" -eq 1 ]]; then
+  if [[ "$BYPASS" == "1" ]]; then
+    ylw "⚠️  Bypass enabled (ALLOW_PROTECTED_PUSH=1). Proceeding anyway."
+    exit 0
+  fi
+  echo ""
+  red "🛑 Push cancelled — protected branch detected."
+  blu "   Use a Pull Request instead."
+  echo ""
+  exit 1
+fi
+
+ok "No protected branches targeted. Safe to push."
+echo ""
+exit 0

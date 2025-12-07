@@ -1,0 +1,40 @@
+{
+  "name": "gogotime",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky install",
+    "lint": "eslint . --max-warnings=0",
+    "format": "prettier --write .",
+    "typecheck": "yarn typecheck:web && yarn typecheck:api",
+    "typecheck:web": "yarn tsc -p App.Web/tsconfig.json --noEmit --skipLibCheck",
+    "typecheck:api": "yarn tsc -p App.API/tsconfig.json --noEmit --skipLibCheck"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
+    "@eslint/compat": "^1.4.0",
+    "@typescript-eslint/eslint-plugin": "^8.3.0",
+    "@typescript-eslint/parser": "^8.3.0",
+    "eslint": "9",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-promise": "^7.0.0",
+    "eslint-plugin-react": "^7.34.3",
+    "eslint-plugin-react-hooks": "7.0.0-canary-1873ad79-20251015",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.7",
+    "pinst": "^3.0.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0"
+  },
+  "packageManager": "yarn@4.10.3",
+  "engines": {
+    "node": ">=24.9.0",
+    "yarn": ">=4.10.3"
+  }
+}
