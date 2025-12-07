@@ -1,26 +1,30 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { Provider } from 'react-redux'
-import { PersistGate } from 'redux-persist/integration/react'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
 
-import App from './App'
-import { store, persistor } from '@/lib/store'
-import '@/styles/index.css'
+import { OpenAPI } from '@/lib/api';
 
-const container = document.getElementById('root')
+import App from './pages/App';
 
-if (!container) {
-  throw new Error('Failed to find the root element')
-}
+const root = createRoot(document.getElementById('root')!);
 
-const root = createRoot(container)
+const renderApp = () => {
+  root.render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  );
+};
 
-root.render(
-  <StrictMode>
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <App />
-      </PersistGate>
-    </Provider>
-  </StrictMode>
-)
+fetch('/api/config')
+  .then((response) => response.json())
+  .then((config) => {
+    OpenAPI.BASE = config.API_SERVER;
+    OpenAPI.WITH_CREDENTIALS = true;
+    renderApp();
+    return void 0; // Explicitly return void
+  })
+  .catch((error) => {
+    console.error('Could not load configuration:', error);
+    // You might want to render an error message here
+    return void 0; // Explicitly return void
+  });

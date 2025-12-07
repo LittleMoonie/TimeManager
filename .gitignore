@@ -51,6 +51,11 @@ jspm_packages/
 *.tgz
 
 # Yarn Integrity file
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
 .yarn-integrity
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -96,9 +101,6 @@ Thumbs.db
 *.sqlite
 *.sqlite3
 
-# Docker
-.dockerignore
-
 # Prisma
 prisma/migrations/
 
@@ -107,6 +109,10 @@ coverage/
 .nyc_output/
 test-results/
 playwright-report/
+
+#AI
+AGENTS.md
+GEMINI.md
 
 # Monitoring
 .prometheus/
@@ -147,3 +153,11 @@ Desktop.ini
 # Temporary files
 *.tmp
 *.temp
+
+
+.gz
+App.API/.yarn/install-state.gz
+App.Web/.yarn/install-state.gz
+
+.gemini/
+gha-creds-*.json

@@ -1,34 +1,30 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import * as path from "path";
+import path from 'path';
+import tsconfigPaths from 'vite-tsconfig-paths';
+import { defineConfig, type Plugin } from 'vite';
 
-// https://vitejs.dev/config/
+const runtimeConfig = (): Plugin => ({
+  name: 'runtime-config',
+  configureServer: (server) => {
+    server.middlewares.use('/api/config', (_req, res) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ API_SERVER: process.env.API_SERVER }));
+    });
+  },
+});
+
 export default defineConfig({
-  plugins: [
-    react(),
-  ],
+  plugins: [runtimeConfig(), tsconfigPaths()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@/components': path.resolve(__dirname, './src/components'),
-      '@/features': path.resolve(__dirname, './src/features'),
-      '@/hooks': path.resolve(__dirname, './src/hooks'),
-      '@/lib': path.resolve(__dirname, './src/lib'),
-      '@/styles': path.resolve(__dirname, './src/styles'),
-      '@/assets': path.resolve(__dirname, './src/assets'),
-      '@/types': path.resolve(__dirname, './src/types'),
     },
   },
   server: {
-    watch: {
-      usePolling: true,
-    },
-    host: true,
-    strictPort: true,
     port: 3000,
+    host: true,
   },
   build: {
     outDir: 'dist',
     sourcemap: true,
   },
-})
+});

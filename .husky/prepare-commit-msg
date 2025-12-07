@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# 🧱 Husky prepare-commit-msg — GoGoTime
+# Auto-insert Conventional Commit template if no meaningful content exists
+
+set -euo pipefail
+
+MSGFILE="$1"
+SOURCE="${2:-}"
+
+# Skip merges and squash commits
+case "$SOURCE" in
+  merge|squash) exit 0 ;;
+esac
+
+# If commit already has non-comment content, skip template
+if grep -q '^[^#[:space:]]' "$MSGFILE"; then
+  exit 0
+fi
+
+# Detect project scope based on staged files
+scope="core"
+if git diff --cached --name-only | grep -q '^App\.Web/'; then
+  scope="web"
+elif git diff --cached --name-only | grep -q '^App\.API/'; then
+  scope="api"
+fi
+
+# Write the commit message template
+cat > "$MSGFILE" <<TEMPLATE
+feat(${scope}): short summary
+
+What:
+- Describe what changed
+
+Why:
+- Explain the motivation
+
+How:
+- Summarize how it was done
+
+Impact:
+- Mention side effects or implications
+TEMPLATE

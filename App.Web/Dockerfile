@@ -1,23 +1,27 @@
-# 🐳 GoGoTime React Dev Environment
-FROM node:24-alpine
+# 🐳 GoGoTime Web - Dev Dockerfile
+FROM node:24-alpine AS base
 
-# Set working directory
+# 1️⃣ Build tools
+RUN apk add --no-cache curl g++ make python3
+
 WORKDIR /app
 
-# Enable Yarn
+# 2️⃣ Pin Yarn
 RUN corepack enable && corepack prepare yarn@stable --activate
 
-# Copy package manifests and install dependencies
-COPY package.json yarn.lock* ./
+# Copy dependency manifests first (cache layer)
+COPY yarn.lock ./
+COPY package.json ./
 
-# Install dependencies with strict mode (fallback for dev env)
+# 4️⃣ Install dependencies (immutable but fallback-safe)
 RUN yarn install --immutable || yarn install
 
-# Copy source code
+# 5️⃣ Copy source
 COPY . .
 
-# Expose default dev port
+# 6️⃣ Expose Vite port
+ENV NODE_ENV=development
 EXPOSE 3000
 
-# Run development server
-CMD ["yarn", "dev", "--debug"]
+# 7️⃣ Default dev command
+CMD ["yarn", "dev"]

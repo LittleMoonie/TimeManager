@@ -1,0 +1,25 @@
+{
+  "entryFile": "./index.ts",
+  "controllerPathGlobs": ["Controllers/**/*.ts", "Dtos/**/*.ts"],
+  "noImplicitAdditionalProperties": "silently-remove-extras",
+  "spec": {
+    "outputDirectory": ".",
+    "specVersion": 3,
+    "basePath": "/api",
+    "specFileBaseName": "swagger",
+    "securityDefinitions": {
+      "jwt": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
+  },
+  "routes": {
+    "routesDir": "./Routes/Generated",
+    "routePrefix": "/api",
+    "middleware": "express",
+    "iocModule": "./Server/IoC.ts",
+    "authenticationModule": "./Server/Auth.ts"
+  }
+}

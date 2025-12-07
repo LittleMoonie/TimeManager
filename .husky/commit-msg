@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# 🧱 Husky commit-msg hook — GoGoTime
+# Enforce Conventional Commit + What/Why/How/Impact structure
+
+set -Eeuo pipefail
+
+MSGFILE="$1"
+
+# --- Pretty helpers ---
+red()  { printf "\033[31m%s\033[0m\n" "$*"; }
+grn()  { printf "\033[32m%s\033[0m\n" "$*"; }
+ylw()  { printf "\033[33m%s\033[0m\n" "$*"; }
+blu()  { printf "\033[34m%s\033[0m\n" "$*"; }
+
+echo ""
+blu "───────────────────────────────────────────────"
+blu "🪶  Validating Commit Message (GoGoTime)"
+blu "───────────────────────────────────────────────"
+echo ""
+
+# --- Check yarn presence ---
+if ! command -v yarn >/dev/null 2>&1; then
+  red "❌ Yarn not found. Please install dependencies before committing."
+  echo ""
+  echo "   Run:  yarn install"
+  exit 1
+fi
+
+# --- Run commitlint ---
+note="🔍 Validating commit message format..."
+echo "$note"
+echo ""
+
+if ! yarn dlx commitlint --quiet --edit "$MSGFILE"; then
+  echo ""
+  red "🛑 Commit message validation failed!"
+  echo ""
+  ylw "Your commit message must follow the structure:"
+  echo ""
+  cat <<'EXAMPLE'
+  <type>(scope): short summary
+
+  What:
+  - Describe what changed
+
+  Why:
+  - Explain the motivation
+
+  How:
+  - Summarize how it was done
+
+  Impact:
+  - Mention side effects or implications
+
+  Example:
+
+  feat(timesheet): add leave request approval panel
+
+  What:
+  - Added approval UI and backend endpoint integration
+
+  Why:
+  - Managers needed a way to handle requests
+
+  How:
+  - Created LeaveRequestPanel.tsx and linked to service
+
+  Impact:
+  - Requires DB migration for new approval status
+EXAMPLE
+  echo ""
+  exit 1
+fi
+
+grn "✅ Commit message passed linting."
+echo ""
+exit 0

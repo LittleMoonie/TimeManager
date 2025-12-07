@@ -1,0 +1,74 @@
+import Heading from '@theme/Heading';
+import clsx from 'clsx';
+
+import styles from './styles.module.css';
+
+import type { ReactNode } from 'react';
+
+type FeatureItem = {
+  title: string;
+  image: string; // Changed from Svg to image
+  description: ReactNode;
+};
+
+const FeatureList: FeatureItem[] = [
+  {
+    title: 'Easy to Use',
+    image: '/img/undraw_docusaurus_mountain.svg', // Changed to direct image path
+    description: (
+      <>
+        Docusaurus was designed from the ground up to be easily installed and used to get your
+        website up and running quickly.
+      </>
+    ),
+  },
+  {
+    title: 'Focus on What Matters',
+    image: '/img/undraw_docusaurus_tree.svg', // Changed to direct image path
+    description: (
+      <>
+        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go ahead and move your
+        docs into the <code>docs</code> directory.
+      </>
+    ),
+  },
+  {
+    title: 'Powered by React',
+    image: '/img/undraw_docusaurus_react.svg', // Changed to direct image path
+    description: (
+      <>
+        Extend or customize your website layout by reusing React. Docusaurus can be extended while
+        reusing the same header and footer.
+      </>
+    ),
+  },
+];
+
+function Feature({ title, image, description }: FeatureItem) {
+  // Changed Svg to image
+  return (
+    <div className={clsx('col col--4')}>
+      <div className="text--center">
+        <img src={image} className={styles.featureSvg} role="img" /> {/* Changed to <img> tag */}
+      </div>
+      <div className="text--center padding-horiz--md">
+        <Heading as="h3">{title}</Heading>
+        <p>{description}</p>
+      </div>
+    </div>
+  );
+}
+
+export default function HomepageFeatures(): ReactNode {
+  return (
+    <section className={styles.features}>
+      <div className="container">
+        <div className="row">
+          {FeatureList.map((props, idx) => (
+            <Feature key={idx} {...props} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

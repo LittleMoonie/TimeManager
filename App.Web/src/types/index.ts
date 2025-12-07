@@ -1,59 +1,26 @@
-export * from './theme'
+export type PersonStatus = 'Active' | 'On leave' | 'Inactive';
 
-/**
- * Common utility types
- */
-export interface MenuItem {
-  id: string
-  title: string
-  type: 'item' | 'group' | 'collapse'
-  url?: string
-  icon?: React.ComponentType<any>
-  children?: MenuItem[]
-  external?: boolean
-  target?: boolean
-  breadcrumbs?: boolean
-  disabled?: boolean
+export interface Person {
+  id: string;
+  name: string;
+  role: string;
+  team: string;
+  status: PersonStatus;
+  initials: string;
 }
 
-/**
- * Navigation configuration
- */
-export interface MenuConfig {
-  items: MenuItem[]
+export interface ActiveSession {
+  id: string;
+  name: string;
+  location: string;
+  current: boolean;
+  deviceType: 'desktop' | 'mobile' | 'tablet';
 }
 
-/**
- * Auth user interface
- */
-export interface User {
-  id: string
-  name: string
-  email: string
-  avatar?: string
-  role?: string
-}
-
-/**
- * API Response wrapper
- */
-export interface ApiResponse<T = any> {
-  success: boolean
-  data?: T
-  message?: string
-  error?: string
-}
-
-/**
- * Loading states
- */
-export type LoadingState = 'idle' | 'pending' | 'succeeded' | 'failed'
-
-/**
- * Generic async thunk state
- */
-export interface AsyncState<T = any> {
-  data: T | null
-  status: LoadingState
-  error: string | null
+export interface RecognizedDevice {
+  id: string;
+  name: string;
+  location: string;
+  lastActive: string;
+  deviceType: 'desktop' | 'mobile' | 'tablet';
 }

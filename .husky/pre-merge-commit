@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# 🧱 Husky pre-merge-commit — block merging into protected branches
+# Prevents accidental local merges into main or develop.
+# Enforces PR-only merges for safety and CI/CD gating.
+
+set -Eeuo pipefail
+
+# --- Pretty helpers ---
+red()  { printf "\033[31m%s\033[0m\n" "$*"; }
+grn()  { printf "\033[32m%s\033[0m\n" "$*"; }
+ylw()  { printf "\033[33m%s\033[0m\n" "$*"; }
+blu()  { printf "\033[34m%s\033[0m\n" "$*"; }
+abort(){ red "❌ $*"; exit 1; }
+note() { blu "ℹ️  $*"; }
+ok()   { grn "✅ $*"; }
+
+# --- Detect current branch ---
+CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo HEAD)"
+PROTECTED_BRANCHES=("main" "develop" "origin/main" "origin/develop")
+
+echo ""
+blu "───────────────────────────────────────────────"
+blu "🔒  Pre-Merge Check (Protected Branch Policy)"
+blu "───────────────────────────────────────────────"
+echo ""
+
+# --- Block merges into protected branches ---
+for BR in "${PROTECTED_BRANCHES[@]}"; do
+  if [[ "$CURRENT_BRANCH" == "$BR" ]]; then
+    echo ""
+    red "🛑  Merge blocked: you are on protected branch '$BR'."
+    ylw "    Direct merges into '$BR' are not allowed."
+    note "    Please push your changes and open a Pull Request."
+    echo ""
+    echo "    Example:"
+    echo "      git checkout -b feat/<your-feature>"
+    echo "      git push origin feat/<your-feature>"
+    echo "      → then open a PR into '$BR'"
+    echo ""
+    abort "Local merge prevented to protect branch integrity."
+  fi
+done
+
+ok "Merge allowed — not a protected branch."
+exit 0

@@ -1,249 +1,298 @@
-# NCY_8 - Enterprise Application Platform
+# 🚀 GoGoTime - Modern Full-Stack Application
 
-[![CI/CD](https://github.com/your-org/ncy-8/workflows/CI/badge.svg)](https://github.com/your-org/ncy-8/actions)
+[![CI/CD](https://github.com/your-org/gogotime/workflows/CI/badge.svg)](https://github.com/your-org/gogotime/actions)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Javascript](https://img.shields.io/badge/Javascript-5.0+-blue.svg)](https://www.typescriptlang.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6+-blue.svg)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-24.9+-green.svg)](https://nodejs.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
-## Overview
+## 🌟 Overview
 
-NCY_8 is a modern, enterprise-grade application platform built with a focus on scalability, security, and developer experience. The platform provides a comprehensive solution for business operations with robust authentication, role-based access control, and real-time capabilities.
+GoGoTime is a modern, full-stack application built with **TypeScript-first** approach, featuring automatic API documentation generation, type-safe frontend-backend communication, and a comprehensive Docker-based development environment.
 
-### Key Features
+### 🧭 Documentation
 
-- **Modern Stack**: Next.js frontend with Node.js/Express backend
-- **Type Safety**: Full Javascript implementation with shared type definitions
-- **Authentication**: JWT-based auth with NextAuth.js and OIDC support
-- **Database**: PostgreSQL with Prisma ORM for type-safe database operations
-- **Caching**: Redis for session management and performance optimization
-- **Real-time**: WebSocket support for live updates and notifications
-- **Monitoring**: Comprehensive observability with Prometheus, Grafana, and structured logging
-- **Security**: Enterprise-grade security with RBAC, input validation, and threat protection
-- **DevOps**: Containerized deployment with Docker and automated CI/CD pipelines
+This project includes a comprehensive documentation hub built with Docusaurus.
 
-## Technology Stack
+To view the documentation, run the project using Docker and visit `http://localhost:3002`.
 
-### Frontend
-- **Framework**: Next.js 15+ with App Router
-- **Language**: Javascript 
-- **UI Library**: Material-UI (MUI) v5
-- **Styling**: Tailwind CSS v4
-- **State Management**: React Context + Zustand
-- **Forms**: React Hook Form with Zod validation
-- **Testing**: Jest + React Testing Library + Playwright
+The source files for the documentation are located in the `/App.Docusaurus` directory.
 
-### Backend
-- **Runtime**: Node.js 18+
-- **Framework**: Express.js with Javascript
-- **Database**: PostgreSQL 15+ with Prisma ORM
-- **Cache**: Redis 7+ with BullMQ for job queues
-- **Authentication**: NextAuth.js with JWT and OIDC
-- **Validation**: Zod schemas for runtime type checking
-- **Testing**: Jest + Supertest for API testing
+### ✨ Key Features
 
-### Infrastructure
-- **Containerization**: Docker with multi-stage builds
-- **Reverse Proxy**: Nginx with Let's Encrypt SSL
-- **Monitoring**: Prometheus + Grafana + Loki
-- **CI/CD**: GitHub Actions + Jenkins
-- **Load Testing**: k6 for performance validation
+- **🔄 Auto-Generated API Documentation** - OpenAPI specs generated directly from TypeScript code
+- **⚡ Type-Safe API Client** - Auto-generated frontend SDK with full TypeScript support
+- **🐳 Docker-First Development** - Complete containerized environment with hot reloading
+- **🔒 Secure Authentication** - JWT-based auth with `argon2` password hashing and session management
+- **📊 Interactive API Docs** - Live Swagger UI for API exploration and testing
+- **🎯 Modern Stack** - React 19, Express.js, TypeORM, and PostgreSQL
+- **⚙️ Smart Auto-Generation** - Detects changes and updates docs when API is healthy
 
-## Quick Start
+## 🛠️ Technology Stack
 
-### Prerequisites
+```
+├── 📁 App.API/                  # 🔌 Node.js + Express.js + TypeORM Backend
+│   ├── src/
+│   │   ├── Config/              # ⚙️ Application configuration
+│   │   ├── Controllers/         # 🎯 API endpoints with tsoa decorators
+│   │   ├── Dtos/                # 📋 TypeScript data transfer objects
+│   │   ├── Entities/            # 🗄️ TypeORM database entities
+│   │   ├── Middlewares/         # 🔗 Express middleware
+│   │   ├── Migrations/          # ⬆️ TypeORM database migrations
+│   │   ├── Repositories/        # 📦 Data access layer
+│   │   ├── Routes/Generated/    # ✨ Auto-generated tsoa routes
+│   │   ├── Seeds/               # 🌱 Database seeders
+│   │   └── Services/            # ⚙️ Business logic services
+│   ├── package.json
+│   ├── swagger.json             # ✨ Auto-generated OpenAPI spec
+│   └── tsoa.json                # 🔧 OpenAPI generation config
+│
+├── 📁 App.Web/                  # ⚛️ React 19 + Vite Frontend
+│   ├── src/
+│   │   ├── app/                 # 🚀 Main application logic
+│   │   ├── assets/              # 🖼️ Static assets
+│   │   ├── components/          # 🧩 Reusable React components
+│   │   ├── constants/           # 💡 Application constants
+│   │   ├── hooks/               # 🎣 Custom React hooks
+│   │   ├── layout/              # 📐 Layout components
+│   │   ├── lib/api/             # ✨ Auto-generated API client
+│   │   │   ├── client.ts        # 📡 Generated TypeScript types
+│   │   │   └── apiClient.ts     # 🛠️ Utility wrapper with error handling
+│   │   ├── pages/               # 📄 Page-level components
+│   │   ├── test/                # 🧪 Frontend tests
+│   │   ├── theme/               # 🎨 MUI theme configuration
+│   │   └── types/               # 🏷️ TypeScript type definitions
+│   └── package.json
+│
+├── 📁 App.Infra/               # 🐳 Docker Infrastructure
+│   ├── docker-compose.yml      # 🔧 Development environment
+│   ├── docker-compose.prod.yml # 🚀 Production environment
+│   ├── .env.example             # 📝 Environment variables template
+│   └── README.md                # 📖 Docker setup guide
+│
+├── 📁 App.Docusaurus/          # 📚 Documentation Hub
+│
+└── 📄 .env.example             # 🔐 Environment configuration template
+```
 
-- Node.js 18+ and pnpm
-- Docker and Docker Compose
-- PostgreSQL 15+ (or use Docker)
-- Redis 7+ (or use Docker)
+## ✨ OpenAPI Auto-Generation System
 
-### Development Setup
+### 🎯 What Makes This Special?
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-org/ncy-8.git
-   cd ncy-8
-   ```
+**🔄 Fully Automated**: OpenAPI documentation generates automatically when:
 
-2. **Install dependencies**
-   ```bash
-   pnpm install
-   ```
+- Server starts up (if changes detected)
+- You hit the health check with `?autoGen=true`
+- Manual trigger via API endpoint
 
-3. **Environment configuration**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
+**🎯 Type-Safe Frontend**: Auto-generates TypeScript client with:
 
-4. **Start development environment**
-   ```bash
-   # Start all services with Docker Compose
-   docker-compose up -d postgres redis
-   
-   # Run database migrations
-   pnpm db:migrate
-   
-   # Seed development data
-   pnpm db:seed
-   
-   # Start development servers
-   pnpm dev
-   ```
+- Full type definitions from OpenAPI spec
+- Error handling and JWT token management
+- React hooks for easy integration
 
-5. **Access the application**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:3001
-   - API Documentation: http://localhost:3001/docs
+**📖 Always In Sync**: Documentation never drifts from implementation because:
 
-### Production Deployment
+- Generated directly from TypeScript controller code
+- CI/CD automatically updates specs on changes
+- Interactive Swagger UI reflects latest API
+
+### 🛠️ How It Works
+
+#### 1. **Backend Controllers with Annotations**
+
+```typescript
+// App.API/Controllers/Authentication/AuthenticationController.ts (Simplified)
+import { Body, Controller, Post, Route, Tags, SuccessResponse } from 'tsoa';
+import { RegisterDto } from '@App.API/Dtos/Authentication/AuthenticationDto';
+import { UserResponseDto } from '@App.API/Dtos/Users/UserResponseDto';
+
+@Route('auth')
+@Tags('Authentication')
+export class AuthenticationController extends Controller {
+  @Post('/register')
+  @SuccessResponse('201', 'User registered successfully')
+  public async register(@Body() requestBody: RegisterDto): Promise<UserResponseDto> {
+    // Implementation - generates OpenAPI automatically! ✨
+    return {} as UserResponseDto;
+  }
+}
+```
+
+#### 2. **Auto-Generated Frontend Client**
+
+```typescript
+import { apiClient } from '@/lib/api/apiClient';
+import { LoginDto } from './App.API/Dtos/Authentication/AuthenticationDto';
+
+// Type-safe API calls with auto-completion! 🎯
+const loginData: LoginDto = { email: 'user@example.com', password: 'secure123' };
+const result = await apiClient.authenticationLogin(loginData);
+```
+
+#### 3. **Smart Endpoints**
+
+- `GET /api/system/health?autoGen=true` - Health check + auto-generate if needed
+- `POST /api/system/generate-openapi` - Manual generation trigger
+- `GET /api/docs` - Interactive Swagger UI
+
+### 🚀 Development Workflow
 
 ```bash
-# Build and deploy with Docker
-docker-compose -f docker-compose.prod.yml up -d
-
-# Or use the deployment script
-./scripts/deployment/deploy.sh production
+# 1. Make API changes in controllers/DTOs
+# 2. Server auto-detects changes and regenerates docs
+# 3. Frontend gets updated type-safe client automatically
+# 4. View updated docs at /api/docs
+# 5. Profit! 🎉
 ```
 
-## Project Structure
+## 🔧 Essential Commands
 
-```
-ncy-8/
-├── front/                 # Next.js frontend application
-│   ├── src/
-│   │   ├── app/          # App Router pages and layouts
-│   │   ├── components/   # Reusable React components
-│   │   ├── lib/          # Utilities and configurations
-│   │   └── types/        # Javascript type definitions
-│   └── public/           # Static assets
-├── back/                 # Node.js backend API
-│   ├── src/
-│   │   ├── routes/       # API route handlers
-│   │   ├── middleware/   # Express middleware
-│   │   ├── services/     # Business logic services
-│   │   ├── models/       # Database models and Prisma
-│   │   └── utils/        # Utility functions
-├── shared/               # Shared code and types
-│   ├── types/            # Shared Javascript types
-│   ├── schemas/          # Zod validation schemas
-│   └── constants/        # Shared constants
-├── infrastructure/       # Infrastructure as Code
-├── scripts/              # Automation scripts
-├── tests/                # Integration and E2E tests
-└── docs/                 # Technical documentation
+### 🐳 Docker Commands
+
+```bash
+# Start development environment
+cd App.Infra && docker compose up --watch
+
+# View service status
+docker compose ps
+
+# View logs
+docker compose logs api -f    # API logs
+docker compose logs web -f    # Frontend logs
+
+# Stop services
+docker compose down
 ```
 
-## Development Workflow
+### 🌱 Database Seeding
 
-### Code Quality
+- Seeders now run **only when** `RUN_SEEDERS_ON_BOOT=true` is set in the environment (default: `false`), and they are blocked when `NODE_ENV=production` unless `ALLOW_SEEDERS_IN_PRODUCTION=true`.
+- Set `SEED_USER_PASSWORD` before running seeders so default accounts do not share a hard-coded password.
+- Use the seed flag for the initial project boot or when you intentionally want to reseed an empty database.
+- To reseed programmatically, call `runSeeds({ force: true })` after connecting to the data source.
 
-- **Linting**: ESLint with Next.js and Javascript rules
-- **Formatting**: Prettier with consistent configuration
-- **Type Checking**: Strict Javascript configuration
-- **Pre-commit Hooks**: Husky with lint-staged for quality gates
+### 📖 Documentation Commands
 
-### Testing Strategy
+```bash
+# Generate OpenAPI spec + frontend client
+cd App.API && yarn api:sync
 
-- **Unit Tests**: Jest for components and utilities
-- **Integration Tests**: API endpoint testing with Supertest
-- **E2E Tests**: Playwright for user journey validation
-- **Load Tests**: k6 for performance and scalability testing
+# Generate only OpenAPI spec
+cd App.API && yarn api:generate
 
-### Git Workflow
+# Generate only frontend client
+cd App.Web && yarn api:client
 
-- **Branching**: Git Flow with feature branches
-- **Commits**: Conventional commits with commitlint
-- **PR Process**: Automated checks and code review requirements
-- **Versioning**: Semantic versioning with automated changelog
+# Force generation via API
+curl -X POST "http://localhost:4000/api/system/generate-openapi?frontend=true"
+```
 
-## API Documentation
+### 🧪 Development Commands
 
-The API follows RESTful conventions with comprehensive OpenAPI documentation:
+```bash
+# Run tests
+cd App.API && yarn test         # Backend tests
+cd App.Web && yarn test         # Frontend tests
 
-- **Base URL**: `https://api.your-domain.com/api/v1`
-- **Authentication**: Bearer token (JWT) or API key
-- **Content-Type**: `application/json`
-- **Documentation**: Available at `/docs` endpoint
+# Code quality
+cd App.API && yarn lint         # Backend linting
+cd App.Web && yarn lint         # Frontend linting
+cd App.Web && yarn typecheck    # TypeScript validation
+```
 
-### Key Endpoints
+## 🌐 API Documentation
 
-- `POST /auth/login` - User authentication
-- `GET /users` - List users (admin only)
-- `GET /organizations` - List user organizations
-- `POST /projects` - Create new project
-- `GET /health` - Health check endpoint
+### 📍 Base URLs
 
-## Security
+- **Development**: `http://localhost:4000/api`
+- **Interactive Docs**: `http://localhost:4000/api/docs` ✨
 
-### Authentication & Authorization
+### 🔑 Authentication
 
-- **JWT Tokens**: Access and refresh token pattern
-- **Role-Based Access**: Granular permissions system
-- **Session Management**: Secure session handling with Redis
-- **Password Security**: bcrypt hashing with salt rounds
+```bash
+# JWT Bearer Token
+Authorization: Bearer <jwt_token>
+```
 
-### Security Headers
+### 🎯 Key Endpoints
 
-- **CSP**: Content Security Policy with nonce-based scripts
-- **HSTS**: HTTP Strict Transport Security
-- **CORS**: Configurable cross-origin resource sharing
-- **Rate Limiting**: Redis-based rate limiting per user/IP
+- `POST /auth/register` - User registration
+- `POST /auth/login` - User authentication (returns JWT)
+- `POST /auth/logout` - User logout (invalidates token)
+- `GET /system/health` - System health with OpenAPI status
+- `POST /system/generate-openapi` - Manual OpenAPI generation
 
-## Monitoring & Observability
+**📖 Full API Reference**: Visit `/api/docs` for interactive documentation!
 
-### Metrics
+## 🚀 Deployment
 
-- **Application Metrics**: Custom Prometheus metrics
-- **System Metrics**: Node.js and database performance
-- **Business Metrics**: User activity and feature usage
-- **Dashboards**: Grafana dashboards for visualization
+### 🐳 Production Docker
 
-### Logging
+```bash
+# Deploy with production configuration
+cd App.Infra
+docker compose -f docker-compose.prod.yml up -d --build
+```
 
-- **Structured Logging**: JSON format with Pino
-- **Log Levels**: Debug, Info, Warn, Error with appropriate filtering
-- **Log Aggregation**: ELK stack for log analysis
-- **Audit Trails**: Comprehensive audit logging for compliance
+### ☁️ Cloud Deployment
 
-## Contributing
+```bash
+# Build and push images
+docker build -t your-registry/gogotime-api ./App.API
+docker build -t your-registry/gogotime-web ./App.Web
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+docker push your-registry/gogotime-api
+docker push your-registry/gogotime-web
+```
 
-### Development Setup
+**📖 Detailed Deployment Guide**: [`App.Docs/guides/deployment.md`](App.Docs/guides/deployment.md)
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes following our coding standards
-4. Add tests for new functionality
-5. Ensure all tests pass: `pnpm test`
-6. Commit your changes: `git commit -m 'feat: add amazing feature'`
-7. Push to the branch: `git push origin feature/amazing-feature`
-8. Open a Pull Request
+## 🤝 Contributing
 
-### Code Standards
+### 🛠️ Development Setup
 
-- Follow Javascript strict mode
-- Use ESLint and Prettier configurations
-- Write comprehensive tests
-- Update documentation for new features
-- Follow conventional commit messages
+1. **Fork** the repository
+2. **Clone** your fork: `git clone <your-fork-url>`
+3. **Setup**: Follow [`App.Docs/guides/getting-started.md`](App.Docs/guides/getting-started.md)
+4. **Create branch**: `git checkout -b feature/amazing-feature`
+5. **Make changes** following code standards
+6. **Test**: Ensure all tests pass
+7. **Document**: Update docs if needed
+8. **Commit**: `git commit -m 'feat: add amazing feature'`
+9. **Push**: `git push origin feature/amazing-feature`
+10. **Pull Request**: Open PR with description
 
-## License
+### 📋 Code Standards
+
+- **TypeScript**: Strict mode with proper typing
+- **ESLint + Prettier**: Automated formatting and linting
+- **Testing**: Write tests for new features
+- **Documentation**: Update OpenAPI annotations and guides
+- **Conventional Commits**: Follow commit message standards
+
+## 🔒 Security & Privacy
+
+- **🔐 JWT Authentication**: Secure token-based auth
+- **🛡️ Password Hashing**: `argon2` with secure salt rounds
+- **⚡ Rate Limiting**: Protection against abuse
+- **🔍 Input Validation**: `class-validator` for DTO validation
+- **🚨 Security Headers**: CORS, CSP, and security middleware
+
+## 📞 Support & Community
+
+- **📚 Documentation**: [`App.Docs/`](App.Docs/) - Comprehensive guides
+- **🐛 Issues**: [GitHub Issues](https://github.com/your-org/gogotime/issues) - Bug reports
+- **💬 Discussions**: [GitHub Discussions](https://github.com/your-org/gogotime/discussions) - Questions
+- **🔒 Security**: security@gogotime.com - Security issues
+- **📖 API Docs**: http://localhost:4000/api/docs - Interactive API documentation
+
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Support
-
-- **Documentation**: [Technical Documentation](docs/)
-- **Issues**: [GitHub Issues](https://github.com/your-org/ncy-8/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-org/ncy-8/discussions)
-- **Security**: security@your-domain.com
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes and releases.
-
 ---
 
-**Built with ❤️ by the NCY_8 Engineering Team**
+**🎉 Built with ❤️ by the GoGoTime Engineering Team**
+
+_Featuring the world's most developer-friendly auto-generating API documentation system! 🚀_
